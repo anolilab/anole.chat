@@ -33,20 +33,30 @@ const pricesValidator = v.object({
 
 const schema = defineSchema({
     // Start BetterAuth
-    users: defineTable({
+    user: defineTable({
         name: v.optional(v.string()),
         username: v.optional(v.string()),
         imageId: v.optional(v.id("_storage")),
         image: v.optional(v.string()),
         email: v.optional(v.string()),
-        emailVerificationTime: v.optional(v.number()),
+        emailVerified: v.boolean(),
         phone: v.optional(v.string()),
         phoneVerificationTime: v.optional(v.number()),
         isAnonymous: v.optional(v.boolean()),
         customerId: v.optional(v.string()),
+        role: v.string(),
+        updatedAt: v.string(),
     })
         .index("email", ["email"])
         .index("customerId", ["customerId"]),
+        
+    account: defineTable({
+        accountId: v.id("user"),
+        password: v.string(),
+        providerId: v.string(),
+        updatedAt: v.string(),
+        userId: v.id("user"),
+    }),
 
     session: defineTable({
         expiresAt: v.string(),
@@ -63,6 +73,7 @@ const schema = defineSchema({
         privateKey: v.string(),
     }),
     // End BetterAuth
+
     plans: defineTable({
         key: planKeyValidator,
         stripeId: v.string(),
@@ -75,6 +86,7 @@ const schema = defineSchema({
     })
         .index("key", ["key"])
         .index("stripeId", ["stripeId"]),
+
     subscriptions: defineTable({
         userId: v.id("users"),
         planId: v.id("plans"),

@@ -74,6 +74,7 @@ export function useAuthForConvex(): ReturnType<React.ComponentProps<typeof Conve
             if (args.forceRefreshToken) {
                 return queryClient.fetchQuery(jwtQueryOptions);
             }
+            
             return queryClient.ensureQueryData(jwtQueryOptions);
         },
         [queryClient, sessionQuery.data],

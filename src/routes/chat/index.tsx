@@ -1,6 +1,6 @@
-import { Chat } from "@/components/chat/ai-chat-image-generation";
+import { Assistant } from "@/components/chat/assistant";
 import { } from "@tanstack/react-router";
 
 export const Route = createFileRoute({
-    component: Chat,
+    component: Assistant,
 });

@@ -1,8 +1,9 @@
 import { ErrorComponent, createRouter as createTanstackRouter } from "@tanstack/react-router";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
-import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import { ConvexProviderWithAuth } from "convex/react";
 import { ConvexReactClient } from "convex/react";
+import { useAuthForConvex } from "@/lib/auth/client";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -34,7 +35,7 @@ export const createRouter = () => {
 
     convexQueryClient.connect(queryClient);
 
-    const router = routerWithQueryClient(
+    return routerWithQueryClient(
         createTanstackRouter({
             routeTree,
             context: {
@@ -50,16 +51,14 @@ export const createRouter = () => {
             defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
             Wrap: (props: { children: React.ReactNode }) => {
                 return (
-                    <ConvexAuthProvider client={convex}>
+                    <ConvexProviderWithAuth client={convexQueryClient.convexClient} useAuth={useAuthForConvex}>
                         <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
-                    </ConvexAuthProvider>
+                    </ConvexProviderWithAuth>
                 );
             },
         }),
         queryClient,
     );
-
-    return router;
 };
 
 // Register the router instance for type safety

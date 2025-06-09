@@ -4,16 +4,9 @@ import SignInForm from "./-components/sign-in-form";
 
 export const Route = createFileRoute({
     component: RouteComponent,
-    // loader: async ({ context }) => {
-    //   const todos = await context.queryClient.ensureQueryData(
-    //     context.trpc.public.create.queryOptions(),
-    //   );
-    //   return { todos };
-    // },
 });
+
 function RouteComponent() {
-    // const { todos } = Route.useLoaderData();
-    // console.log({ todos , window});
     const { t } = useTranslation();
 
     return (

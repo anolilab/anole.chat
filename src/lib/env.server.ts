@@ -18,7 +18,8 @@ export const env = createEnv({
      * a type-level and at runtime.
      */
     clientPrefix: "VITE_",
-    client: {},
+    client: {
+    },
 
     /**
      * What object holds the environment variables at runtime. This is usually
