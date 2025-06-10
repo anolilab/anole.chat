@@ -1,7 +1,9 @@
+import { SITE_URL } from "./env";
+
 export default {
     providers: [
         {
-            domain: `${process.env.BETTER_AUTH_URL}/api/auth`,
+            domain: `${SITE_URL}/api/auth`,
             applicationID: "convex",
         },
     ],

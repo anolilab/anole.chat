@@ -3,6 +3,7 @@ import { getWebRequest } from "@tanstack/react-start/server";
 import { symmetricDecrypt } from "better-auth/crypto";
 import { SignJWT, importJWK } from "jose";
 import { ALGORITHM, AUDIENCE, ISSUER, betterAuth } from "./server";
+import { env } from "@/lib/env";
 
 interface JWKModel {
     id: string;
@@ -30,7 +31,7 @@ async function getJwkDetails() {
     // The 'privateKey' field from the DB stores the *encrypted* JWK. Decrypt it.
     const decryptedJwkString = JSON.parse(
         await symmetricDecrypt({
-            key: import.meta.env.VITE_BETTER_AUTH_SECRET,
+            key: env.VITE_BETTER_AUTH_SECRET,
             data: JSON.parse(jwkRecord.privateKey),
         }),
     );

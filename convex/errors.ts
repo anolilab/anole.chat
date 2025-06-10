@@ -1,6 +1,6 @@
 export const ERRORS = {
     // Authentication.
-    AUTH_EMAIL_NOT_SENT: "Unable to send email.",
+    RESEND_FROM_EMAIL_NOT_SENT: "Unable to send email.",
     AUTH_USER_NOT_CREATED: "Unable to create user.",
     AUTH_SOMETHING_WENT_WRONG: "Something went wrong while trying to authenticate.",
     // Onboarding.

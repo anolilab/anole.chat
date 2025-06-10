@@ -1,4 +1,4 @@
-import { env } from "@/lib/env.client";
+import { env } from "@/lib/env";
 import {
     anonymousClient,
     jwtClient,
@@ -20,7 +20,7 @@ import type { ConvexProviderWithAuth } from "convex/react";
 import { betterAuth } from "@/lib/auth/server";
 
 export const authClient = createAuthClient({
-    baseURL: env.VITE_SERVER_URL,
+    baseURL: env.VITE_SITE_URL,
     plugins: [
         anonymousClient(),
         jwtClient(),
