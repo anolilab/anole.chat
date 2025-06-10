@@ -17,8 +17,8 @@ import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
 import { Route as ChatLayoutRouteImport } from './routes/chat/layout'
 import { Route as authLayoutRouteImport } from './routes/(auth)/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as publicIndexRouteImport } from './routes/(public)/index'
+import { Route as ChatThreadIdRouteImport } from './routes/chat/$threadId'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
@@ -53,16 +53,16 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   getParentRoute: () => DashboardLayoutRoute,
 } as any)
 
-const ChatIndexRoute = ChatIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ChatLayoutRoute,
-} as any)
-
 const publicIndexRoute = publicIndexRouteImport.update({
   id: '/(public)/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const ChatThreadIdRoute = ChatThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => ChatLayoutRoute,
 } as any)
 
 const authResetPasswordRoute = authResetPasswordRouteImport.update({
@@ -167,19 +167,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordRouteImport
       parentRoute: typeof authLayoutRouteImport
     }
+    '/chat/$threadId': {
+      id: '/chat/$threadId'
+      path: '/$threadId'
+      fullPath: '/chat/$threadId'
+      preLoaderRoute: typeof ChatThreadIdRouteImport
+      parentRoute: typeof ChatLayoutRouteImport
+    }
     '/(public)/': {
       id: '/(public)/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof publicIndexRouteImport
       parentRoute: typeof rootRoute
-    }
-    '/chat/': {
-      id: '/chat/'
-      path: '/'
-      fullPath: '/chat/'
-      preLoaderRoute: typeof ChatIndexRouteImport
-      parentRoute: typeof ChatLayoutRouteImport
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -284,6 +284,15 @@ declare module './routes/(auth)/reset-password' {
     FileRoutesByPath['/(auth)/reset-password']['fullPath']
   >
 }
+declare module './routes/chat/$threadId' {
+  const createFileRoute: CreateFileRoute<
+    '/chat/$threadId',
+    FileRoutesByPath['/chat/$threadId']['parentRoute'],
+    FileRoutesByPath['/chat/$threadId']['id'],
+    FileRoutesByPath['/chat/$threadId']['path'],
+    FileRoutesByPath['/chat/$threadId']['fullPath']
+  >
+}
 declare module './routes/(public)/index' {
   const createFileRoute: CreateFileRoute<
     '/(public)/',
@@ -291,15 +300,6 @@ declare module './routes/(public)/index' {
     FileRoutesByPath['/(public)/']['id'],
     FileRoutesByPath['/(public)/']['path'],
     FileRoutesByPath['/(public)/']['fullPath']
-  >
-}
-declare module './routes/chat/index' {
-  const createFileRoute: CreateFileRoute<
-    '/chat/',
-    FileRoutesByPath['/chat/']['parentRoute'],
-    FileRoutesByPath['/chat/']['id'],
-    FileRoutesByPath['/chat/']['path'],
-    FileRoutesByPath['/chat/']['fullPath']
   >
 }
 declare module './routes/dashboard/index' {
@@ -376,11 +376,11 @@ const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
 )
 
 interface ChatLayoutRouteChildren {
-  ChatIndexRoute: typeof ChatIndexRoute
+  ChatThreadIdRoute: typeof ChatThreadIdRoute
 }
 
 const ChatLayoutRouteChildren: ChatLayoutRouteChildren = {
-  ChatIndexRoute: ChatIndexRoute,
+  ChatThreadIdRoute: ChatThreadIdRoute,
 }
 
 const ChatLayoutRouteWithChildren = ChatLayoutRoute._addFileChildren(
@@ -409,7 +409,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/reset-password': typeof authResetPasswordRoute
-  '/chat/': typeof ChatIndexRoute
+  '/chat/$threadId': typeof ChatThreadIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/two-factor/otp': typeof authTwoFactorOtpRoute
   '/two-factor': typeof authTwoFactorIndexRoute
@@ -419,11 +419,12 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
+  '/chat': typeof ChatLayoutRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/reset-password': typeof authResetPasswordRoute
-  '/chat': typeof ChatIndexRoute
+  '/chat/$threadId': typeof ChatThreadIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/two-factor/otp': typeof authTwoFactorOtpRoute
   '/two-factor': typeof authTwoFactorIndexRoute
@@ -440,8 +441,8 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
+  '/chat/$threadId': typeof ChatThreadIdRoute
   '/(public)/': typeof publicIndexRoute
-  '/chat/': typeof ChatIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/(auth)/two-factor/otp': typeof authTwoFactorOtpRoute
   '/(auth)/two-factor/': typeof authTwoFactorIndexRoute
@@ -459,7 +460,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
-    | '/chat/'
+    | '/chat/$threadId'
     | '/dashboard/'
     | '/two-factor/otp'
     | '/two-factor'
@@ -468,11 +469,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/chat'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/reset-password'
-    | '/chat'
+    | '/chat/$threadId'
     | '/dashboard'
     | '/two-factor/otp'
     | '/two-factor'
@@ -487,8 +489,8 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/(auth)/register'
     | '/(auth)/reset-password'
+    | '/chat/$threadId'
     | '/(public)/'
-    | '/chat/'
     | '/dashboard/'
     | '/(auth)/two-factor/otp'
     | '/(auth)/two-factor/'
@@ -542,7 +544,7 @@ export const routeTree = rootRoute
     "/chat": {
       "filePath": "chat/layout.tsx",
       "children": [
-        "/chat/"
+        "/chat/$threadId"
       ]
     },
     "/dashboard": {
@@ -568,12 +570,12 @@ export const routeTree = rootRoute
       "filePath": "(auth)/reset-password.tsx",
       "parent": "/(auth)"
     },
+    "/chat/$threadId": {
+      "filePath": "chat/$threadId.tsx",
+      "parent": "/chat"
+    },
     "/(public)/": {
       "filePath": "(public)/index.tsx"
-    },
-    "/chat/": {
-      "filePath": "chat/index.tsx",
-      "parent": "/chat"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",

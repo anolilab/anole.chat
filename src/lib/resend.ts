@@ -21,4 +21,4 @@ export const sendEmail = async ({ subject, template, to }: { subject: string; te
         console.error("error", error);
         throw error;
     }
-}
+};

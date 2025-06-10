@@ -65,7 +65,7 @@ function RootDocument() {
                     <I18nextProvider i18n={i18n} defaultNS={"translation"}>
                         <Outlet />
                         <Toaster />
-                        <TanStackRouterDevtools />
+                        <TanStackRouterDevtools position="top-right" />
                         <Scripts />
                     </I18nextProvider>
                 </ThemeProvider>

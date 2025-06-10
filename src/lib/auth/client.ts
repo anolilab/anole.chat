@@ -37,10 +37,10 @@ export const authClient = createAuthClient({
 export const sessionQueryOptions = queryOptions({
     queryKey: ["session"],
     queryFn: async () => {
-      const session = await authClient.getSession();
-      return session.data;
+        const session = await authClient.getSession();
+        return session.data;
     },
-  });
+});
 
 export const jwtQueryOptions = queryOptions({
     queryKey: ["jwt"],
@@ -74,7 +74,7 @@ export function useAuthForConvex(): ReturnType<React.ComponentProps<typeof Conve
             if (args.forceRefreshToken) {
                 return queryClient.fetchQuery(jwtQueryOptions);
             }
-            
+
             return queryClient.ensureQueryData(jwtQueryOptions);
         },
         [queryClient, sessionQuery.data],

@@ -49,7 +49,7 @@ const schema = defineSchema({
     })
         .index("email", ["email"])
         .index("customerId", ["customerId"]),
-        
+
     account: defineTable({
         accountId: v.id("user"),
         password: v.string(),
@@ -88,33 +88,33 @@ const schema = defineSchema({
         .index("stripeId", ["stripeId"]),
 
     subscription: defineTable({
-      id: v.string(),
-      createdAt: v.number(),
-      modifiedAt: v.optional(v.number()),
-      amount: v.number(),
-      currency: currencyValidator,
-      recurringInterval: intervalValidator,
-      status: v.string(),
-      currentPeriodStart: v.number(),
-      currentPeriodEnd: v.number(),
-      cancelAtPeriodEnd: v.boolean(),
-      canceledAt: v.optional(v.number()),
-      startedAt: v.number(),
-      endsAt: v.optional(v.number()),
-      endedAt: v.optional(v.number()),
-      customerId: v.string(),
-      productId: v.string(),
-      discountId: v.optional(v.string()),
-      checkoutId: v.string(),
-      customerCancellationReason: v.optional(v.string()),
-      customerCancellationComment: v.optional(v.string()),
-      metadata: v.optional(v.string()), // JSON string
-      customFieldData: v.optional(v.string()), // JSON string
-      userId: v.id("user"),
+        id: v.string(),
+        createdAt: v.number(),
+        modifiedAt: v.optional(v.number()),
+        amount: v.number(),
+        currency: currencyValidator,
+        recurringInterval: intervalValidator,
+        status: v.string(),
+        currentPeriodStart: v.number(),
+        currentPeriodEnd: v.number(),
+        cancelAtPeriodEnd: v.boolean(),
+        canceledAt: v.optional(v.number()),
+        startedAt: v.number(),
+        endsAt: v.optional(v.number()),
+        endedAt: v.optional(v.number()),
+        customerId: v.string(),
+        productId: v.string(),
+        discountId: v.optional(v.string()),
+        checkoutId: v.string(),
+        customerCancellationReason: v.optional(v.string()),
+        customerCancellationComment: v.optional(v.string()),
+        metadata: v.optional(v.string()), // JSON string
+        customFieldData: v.optional(v.string()), // JSON string
+        userId: v.id("user"),
     })
-      .index("userId", ["userId"])
-      .index("id", ["id"])
-      .index("customerId", ["customerId"]),
+        .index("userId", ["userId"])
+        .index("id", ["id"])
+        .index("customerId", ["customerId"]),
 });
 
 export default schema;

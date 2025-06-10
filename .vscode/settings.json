@@ -1,5 +1,3 @@
 {
-    "i18n-ally.localesPaths": [
-        "src/lib/intl/locales"
-    ]
+    "i18n-ally.localesPaths": ["src/lib/intl/locales"]
 }
