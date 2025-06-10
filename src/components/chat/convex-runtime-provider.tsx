@@ -7,12 +7,10 @@ import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
 import type { Doc, Id } from "convex/_generated/dataModel";
 
-export function ConvexRuntimeProvider({ children, model }: { children: ReactNode; model: AgentModel }) {
+export function ConvexRuntimeProvider({ children, model, threadId }: { children: ReactNode; model: AgentModel, threadId: Id<"threads"> }) {
     const convex = useConvex();
     const start = useMutation(api.chat.start);
     const sendMessage = useMutation(api.chat.sendMessage);
-
-    let threadId: Id<"threads"> | null = null;
 
     const ConvexModelAdapter: ChatModelAdapter = {
         async *run({ messages, abortSignal }) {
@@ -25,7 +23,7 @@ export function ConvexRuntimeProvider({ children, model }: { children: ReactNode
             if (!threadId) {
                 threadId = await start({ model });
             }
-            console.log(threadId);
+
             await sendMessage({
                 threadId,
                 prompt: textContent.text,
@@ -62,9 +60,11 @@ export function ConvexRuntimeProvider({ children, model }: { children: ReactNode
 
                 if (lastAssistantMessage && lastAssistantMessage._creationTime > (lastMessage.createdAt?.getTime() ?? 0)) {
                     const textPart = lastAssistantMessage.content.find((c: any) => c.type === "text");
+                    
                     if (textPart && "text" in textPart) {
                         yield { content: [{ type: "text", text: textPart.text }] };
                     }
+
                     return;
                 }
 

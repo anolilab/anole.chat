@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useEffect } from "react";
+import type { Id } from "@cvx/_generated/dataModel";
 
 const ChatPage = () => {
     const { threadId } = Route.useParams();
@@ -37,7 +38,7 @@ const ChatPage = () => {
         return <div>Creating new chat...</div>;
     }
 
-    return <Assistant />;
+    return <Assistant threadId={threadId as Id<"threads">} />;
 };
 
 export const Route = createFileRoute({

@@ -9,15 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { AgentModel } from "convex/agents";
 import { ConvexRuntimeProvider } from "./convex-runtime-provider";
 import { Thread } from "@/components/assistant-ui/thread";
+import type { Id } from "node_modules/convex/dist/esm-types/values/value";
 
 const models: AgentModel[] = ["gpt-4o-mini", "claude-3-5-sonnet", "gemini-1.5-flash"];
 
-export const Assistant = () => {
+export const Assistant = ({ threadId }: { threadId: Id<"threads"> }) => {
     const [selectedModel, setSelectedModel] = useState<AgentModel>("gpt-4o-mini");
 
     return (
         <SidebarProvider>
-            <ConvexRuntimeProvider model={selectedModel}>
+            <ConvexRuntimeProvider model={selectedModel} threadId={threadId}>
                 <div className="flex h-dvh w-full">
                     <AppSidebar />
                     <main className="flex min-h-0 flex-1 flex-col">
