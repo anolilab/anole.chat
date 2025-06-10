@@ -9,7 +9,6 @@
  */
 
 import type * as agents from "../agents.js";
-import type * as app from "../app.js";
 import type * as betterAuth from "../betterAuth.js";
 import type * as chat from "../chat.js";
 import type * as email_index from "../email/index.js";
@@ -17,6 +16,9 @@ import type * as email_templates_subscription_email from "../email/templates/sub
 import type * as env from "../env.js";
 import type * as errors from "../errors.js";
 import type * as http from "../http.js";
+import type * as types from "../types.js";
+import type * as user from "../user.js";
+import type * as utils_auth from "../utils/auth.js";
 
 import type {
   ApiFromModules,
@@ -34,7 +36,6 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   agents: typeof agents;
-  app: typeof app;
   betterAuth: typeof betterAuth;
   chat: typeof chat;
   "email/index": typeof email_index;
@@ -42,6 +43,9 @@ declare const fullApi: ApiFromModules<{
   env: typeof env;
   errors: typeof errors;
   http: typeof http;
+  types: typeof types;
+  user: typeof user;
+  "utils/auth": typeof utils_auth;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

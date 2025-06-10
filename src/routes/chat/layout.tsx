@@ -1,4 +1,4 @@
-import { AuthProvider } from "@/components/auth-provider";
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute({

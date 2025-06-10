@@ -58,7 +58,7 @@ function RouteComponent() {
         email: string;
         expiresAt: Date;
         organizationId: string;
-        role: string;
+        role: "admin" | "user" | "banned";
         inviterId: string;
     } | null>(null);
 

@@ -40,6 +40,7 @@ export const createRouter = () => {
             routeTree,
             context: {
                 queryClient,
+                convex,
             },
             scrollRestoration: true,
             defaultPreloadStaleTime: 0,

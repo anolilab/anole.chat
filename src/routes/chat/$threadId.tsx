@@ -1,46 +1,27 @@
 import { Assistant } from "@/components/chat/assistant";
-import { useNavigate } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
+import { redirect } from "@tanstack/react-router";
 import { api } from "../../../convex/_generated/api";
-import { useEffect } from "react";
 import type { Id } from "@cvx/_generated/dataModel";
 
-const ChatPage = () => {
-    const { threadId } = Route.useParams();
-    const navigate = useNavigate();
-    const createThread = useMutation(api.chat.start);
-
-    useEffect(() => {
-        if (threadId === "new") {
-            const createAndNavigate = async () => {
-                try {
-                    const newThreadId = await createThread({
-                        model: "gpt-4o-mini",
-                    });
-
-                    await navigate({
-                        params: { threadId: newThreadId },
-                        replace: true,
-                    } as any);
-
-                } catch (error) {
-                    console.error("Failed to create new thread", error);
-                    // Handle error, maybe navigate to an error page or show a toast
-                    await navigate({ to: "/", replace: true });
-                }
-            };
-
-            void createAndNavigate();
-        }
-    }, [threadId, createThread, navigate]);
-
-    if (threadId === "new") {
-        return <div>Creating new chat...</div>;
-    }
-
-    return <Assistant threadId={threadId as Id<"threads">} />;
-};
-
 export const Route = createFileRoute({
+    beforeLoad: async ({ context, params }) => {
+        if (params.threadId === "new") {
+            const newThreadId = await context.convex.mutation(api.chat.createThread, {
+                model: "gpt-4o-mini",
+            });
+
+            throw redirect({
+                to: "/chat/$threadId",
+                params: { threadId: newThreadId },
+                replace: true,
+            });
+        }
+    },
     component: ChatPage,
 });
+
+function ChatPage() {
+    const { threadId } = Route.useParams();
+
+    return <Assistant threadId={threadId as Id<"threads">} />;
+}

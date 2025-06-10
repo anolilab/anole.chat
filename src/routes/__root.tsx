@@ -12,9 +12,11 @@ import i18n from "@/lib/intl/i18n";
 import { ThemeProvider } from "next-themes";
 import React from "react";
 import { I18nextProvider } from "react-i18next";
+import type { ConvexReactClient } from "convex/react";
 
 interface MyRouterContext {
     queryClient: QueryClient;
+    convex: ConvexReactClient;
 }
 
 const TanStackRouterDevtools =

@@ -59,10 +59,11 @@ export const getServerSession = createServerFn({ method: "GET" }).handler(async 
     const session = await betterAuth.api.getSession({
         headers: getWebRequest()?.headers ?? new Headers(),
     });
+
     return session;
 });
 
-export function useAuthForConvex(): ReturnType<React.ComponentProps<typeof ConvexProviderWithAuth>["useAuth"]> {
+export const useAuthForConvex = (): ReturnType<React.ComponentProps<typeof ConvexProviderWithAuth>["useAuth"]> => {
     const queryClient = useQueryClient();
     const sessionQuery = useQuery(sessionQueryOptions);
     const jwtQuery = useQuery(jwtQueryOptions);

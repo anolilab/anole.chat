@@ -7,21 +7,22 @@ import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
 import type { Doc, Id } from "convex/_generated/dataModel";
 
-export function ConvexRuntimeProvider({ children, model, threadId }: { children: ReactNode; model: AgentModel, threadId: Id<"threads"> }) {
+export const ConvexRuntimeProvider = ({ children, model, threadId }: { children: ReactNode; model: AgentModel, threadId: Id<"threads"> }) => {
     const convex = useConvex();
-    const start = useMutation(api.chat.start);
     const sendMessage = useMutation(api.chat.sendMessage);
 
     const ConvexModelAdapter: ChatModelAdapter = {
         async *run({ messages, abortSignal }) {
             const lastMessage = messages[messages.length - 1];
-            if (lastMessage.role !== "user") return;
+            
+            if (lastMessage.role !== "user") {
+                return;
+            }
 
             const textContent = lastMessage.content.find((c) => c.type === "text") as TextContentPart | undefined;
-            if (!textContent) return;
-
-            if (!threadId) {
-                threadId = await start({ model });
+            
+            if (!textContent) {
+                return;
             }
 
             await sendMessage({
