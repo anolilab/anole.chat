@@ -11,18 +11,18 @@ import {
 import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
 import type { Id } from "@cvx/_generated/dataModel";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSession } from "@/hooks/auth-hooks";
-import { redirect } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
 import { api } from "@cvx/_generated/api";
 import { useThreadMessages } from "@convex-dev/agent/react";
+import { asAsyncIterableStream } from "assistant-stream/utils";
+import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
 
 export type ConvexMessage = {
-    id?: string | undefined;
+    id: string;
     role: "user" | "assistant";
-    display: ReactNode;
-    createdAt?: Date | undefined;
+    display: string;
+    createdAt?: Date;
 };
 
 type ConvexAdapterBase<T> = {
@@ -53,7 +53,6 @@ type ConvexThreadExtras =
     | undefined;
 
 const convexToThreadMessage = <T,>(converter: (message: T) => ConvexMessage, rawMessage: T): ThreadMessageLike => {
-    console.log(rawMessage)
     const message = converter(rawMessage);
 
     return {
@@ -106,35 +105,15 @@ const useConvexRuntime = <T extends WeakKey>(adapter: ConvexAdapter<T>) => {
     return useExternalStoreRuntime(eAdapter);
 };
 
+const generateId = () => Math.random().toString(36).slice(2);
+
 export const ConvexRuntimeProvider = ({ children, model, threadId }: { children: ReactNode; model: AgentModel; threadId: Id<any> }) => {
-    const sessionData = useSession();
-    const sendMessage = useMutation(api.chat.sendMessage);
-
-    const paginatedMessages = useThreadMessages(api.chat.listMessages, { threadId: threadId as string, model: model, sessionToken: sessionData?.data?.session?.token }, { initialNumItems: 50 });
-
-    const onNew = useCallback(
-        async (m: AppendMessage) => {
-            if (m.content[0]?.type !== "text") {
-                throw new Error("onNew only supports user messages with string content");
-            }
-            
-            const input = m.content[0].text;
-            
-            await sendMessage({
-                prompt: input,
-                threadId: threadId,
-                model: model,
-                sessionToken: sessionData?.data?.session?.token,
-            });
-        },
-        [sendMessage, threadId, model, sessionData],
-    );
-
     const convertMessage = useCallback((message: any): ConvexMessage => {
         const role = message.message.role;
         const content = message.message.content;
-
+    
         let displayContent: string;
+        
         if (typeof content === "string") {
             displayContent = content;
         } else if (Array.isArray(content)) {
@@ -143,14 +122,14 @@ export const ConvexRuntimeProvider = ({ children, model, threadId }: { children:
                     if (part.type === "text") {
                         return part.text;
                     }
-
+    
                     return `[unsupported content: ${part.type}]`;
                 })
                 .join("");
         } else {
             displayContent = "";
         }
-
+    
         return {
             id: message._id,
             role: role,
@@ -159,16 +138,119 @@ export const ConvexRuntimeProvider = ({ children, model, threadId }: { children:
         };
     }, []);
 
+    const sessionData = useSession();
+    const [messages, setMessages] = useState<ConvexMessage[]>([]);
+    const [isRunning, setIsRunning] = useState(false);
+
+    const paginatedMessages = useThreadMessages(api.chat.listMessages, { threadId: threadId as string, model: model, sessionToken: sessionData?.data?.session?.token }, { initialNumItems: 50 });
+
+    const streamMessage = useCallback(async (input: string) => {        
+        setIsRunning(true);
+            
+        const assistantId = generateId();
+        const assistantMessage: ConvexMessage = {
+            role: "assistant",
+            id: assistantId,
+            display: "",
+        };
+
+        setMessages((prev) => [...prev, assistantMessage]);
+
+        const result = await fetch(`/convex-http/chat/stream`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                prompt: input,
+                threadId: threadId,
+                model: model,
+                sessionToken: sessionData?.data?.session?.token,
+            }),
+        });
+
+        if (!result.ok) {
+            const text = await result.text();
+            
+            setMessages((prev) =>
+                prev.map((m) => (m.id === assistantId ? { ...m, display: `Error: ${result.status} ${text}` } : m)),
+            );
+            
+            setIsRunning(false);
+            
+            return;
+        }
+
+        if (!result.body) {
+            throw new Error("Response body is null");
+        }
+
+        const stream = result.body.pipeThrough(new DataStreamDecoder()).pipeThrough(new AssistantMessageAccumulator());
+
+        for await (const message of asAsyncIterableStream(stream)) {
+            if (message.parts.length > 0 && message.parts[0].type === "text") {
+                setMessages((prev) =>
+                    prev.map((m) =>
+                        m.id === assistantId
+                            ? {
+                                  ...m,
+                                  display: message.parts[0].text,
+                              }
+                            : m,
+                    ),
+                );
+            }
+        }
+
+        setIsRunning(false);
+    }, [threadId, model, sessionData]);
+
+    const onNew = useCallback(
+        async (m: AppendMessage) => {
+            if (m.content[0]?.type !== "text") {
+                throw new Error("onNew only supports user messages with string content");
+            }
+
+            const input = m.content[0].text;
+
+            const userMessage: ConvexMessage = {
+                role: "user",
+                id: generateId(),
+                display: input,
+            };
+
+            setMessages((prev) => [...prev, userMessage]);
+
+            streamMessage(input);
+        },
+        [threadId, model, sessionData],
+    );
+
+    const onEdit = async (message: AppendMessage) => {
+        const index = messages.findIndex((m) => m.id === message.parentId) + 1;
+        
+        const newMessages = [...messages.slice(0, index)];
+        
+        const editedMessage: ConvexMessage = {
+          role: "user",
+          display: message.content[0].text,
+          id: message.id || generateId(),
+        };
+
+        newMessages.push(editedMessage);
+        
+        setMessages(newMessages);
+
+        streamMessage(message.content[0].text);
+    };
+
     const runtime = useConvexRuntime({
         onNew,
-        messages: paginatedMessages.results?.map(convertMessage) ?? [],
-        isRunning: paginatedMessages.isLoading,
-        onReload: async () => {
-            // await paginatedMessages.refetch();
+        onEdit,
+        messages: [...paginatedMessages.results.map(convertMessage), ...messages],
+        isRunning: isRunning,
+        onReload: async (parentId: string | null) => {
+            //await paginatedMessages.refetch();
         },
-        adapters: {
-            
-        }
+        adapters: {},
     });
 
     return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
