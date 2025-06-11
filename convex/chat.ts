@@ -45,9 +45,10 @@ export const continueThread = action({
         const agent = getAgent(model as AgentModel);
 
         const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
-        const result = await thread.generateText({ prompt });
 
-        return result.text;
+        const result = await thread.streamText({ prompt });
+
+        return result.toDataStreamResponse();
     },
 });
 
@@ -122,46 +123,6 @@ export const generateResponse = internalAction({
     },
 });
 
-export const getMessages = query({
-    args: {
-        threadId: v.optional(v.string()),
-        paginationOpts: v.optional(paginationOptsValidator),
-        streamArgs: vStreamArgs,
-        model: v.string(),
-        sessionToken: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        if (!args.threadId) {
-            return { page: [], isDone: true, continueCursor: "", streams: [] };
-        }
-
-        const agent = getAgent(args.model as AgentModel);
-
-        const streams = await agent.syncStreams(ctx, {
-            threadId: args.threadId,
-            streamArgs: args.streamArgs,
-        });
-
-        const paginated = await agent.listMessages(ctx, {
-            threadId: args.threadId,
-            paginationOpts: args.paginationOpts ?? { numItems: 100, cursor: null },
-        });
-
-        return {
-            ...paginated,
-            streams,
-        };
-    },
-});
-
 export const streamHttpAction = httpAction(async (ctx, request) => {
     const { threadId, prompt, model, sessionToken } = (await request.json()) as {
         threadId?: string;
@@ -180,7 +141,9 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
 
     const agent = getAgent(model as AgentModel);
 
-    const { thread } = threadId ? await agent.continueThread(ctx, { threadId }) : await agent.createThread(ctx, {});
+    const { thread } = threadId
+        ? await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> })
+        : await agent.createThread(ctx, { userId: sessionData.userId as Id<"user"> });
 
     const result = await thread.streamText({ prompt });
 
