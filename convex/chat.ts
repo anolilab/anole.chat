@@ -15,7 +15,7 @@ export const createThread = mutation({
         branchPoint: v.optional(v.number()),
         branchName: v.optional(v.string()),
     },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<string> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
         });
@@ -162,7 +162,7 @@ export const updateThread = mutation({
         model: v.string(),
         sessionToken: v.string(),
     },
-    handler: async (ctx, { threadId, title, sessionToken, model, summary, order, status }) => {
+    handler: async (ctx, { threadId, title, sessionToken, model, summary, order, status }): Promise<string> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
@@ -173,9 +173,9 @@ export const updateThread = mutation({
 
         const agent = getAgent(model as AgentModel);
 
-        const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
+        const { thread } = await agent.continueThread(ctx as any, { threadId, userId: sessionData.userId as Id<"user"> });
 
-        await thread.updateMetadata({ title, summary, order, status });
+        await thread.updateMetadata({ title, summary, status });
 
         return thread.threadId;
     },
@@ -255,9 +255,15 @@ export const createTitleChat = internalAction({
 
         const { thread } = await agent.continueThread(ctx, { threadId: args.threadId });
 
+        const metaData = await thread.getMetadata();
+
+        if (!metaData.title) {
+            return;
+        }
+
         const o = await thread.generateObject(
             {
-                prompt: `summarize the following thread prompt into a short title, and bring back the title object, ${JSON.stringify(args.prompt)}`,
+                prompt: `Generate a concise, 4-5 word title for a new conversation that captures the core topic of this user's prompt. Do not use quotation marks in the title. User prompt: "${args.prompt}"`,
                 schema: z.object({ title: z.string() }),
             },
             {
@@ -409,7 +415,7 @@ export const createSummarizeChat = internalAction({
 
         const o = await thread.generateObject(
             {
-                prompt: `summarize the following thread context, and bring back the summary object, ${JSON.stringify(threadContext)}`,
+                prompt: `Summarize the key points of the following conversation in a single, concise sentence. Conversation: ${JSON.stringify(threadContext)}`,
                 schema: z.object({ summary: z.string() }),
             },
             {

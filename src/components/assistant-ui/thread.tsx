@@ -239,6 +239,16 @@ const AssistantActionBar: FC = () => {
                     <RefreshCwIcon />
                 </TooltipIconButton>
             </ActionBarPrimitive.Reload>
+            <ActionBarPrimitive.FeedbackPositive asChild>
+                <TooltipIconButton tooltip="Feedback">
+                    <ThumbsUpIcon />
+                </TooltipIconButton>
+            </ActionBarPrimitive.FeedbackPositive>
+            <ActionBarPrimitive.FeedbackNegative asChild>
+                <TooltipIconButton tooltip="Feedback">
+                    <ThumbsDownIcon />
+                </TooltipIconButton>
+            </ActionBarPrimitive.FeedbackNegative>
         </ActionBarPrimitive.Root>
     );
 };

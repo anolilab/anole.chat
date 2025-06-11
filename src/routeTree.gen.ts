@@ -27,7 +27,6 @@ import { Route as chatChatThreadIdRouteImport } from './routes/(chat)/chat/$thre
 import { Route as authTwoFactorOtpRouteImport } from './routes/(auth)/two-factor/otp'
 import { Route as authAcceptInvitationInvitationIdIndexRouteImport } from './routes/(auth)/accept-invitation/$invitationId/index'
 import { ServerRoute as DotwellKnownOauthAuthorizationServerServerRouteImport } from './routes/[.]well-known.oauth-authorization-server'
-import { ServerRoute as ApiErrorsIndexServerRouteImport } from './routes/api/errors/index'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 import { ServerRoute as ApiAiMcpTransportServerRouteImport } from './routes/api/ai/mcp/$transport'
 
@@ -113,11 +112,6 @@ const DotwellKnownOauthAuthorizationServerServerRoute =
     path: '/.well-known/oauth-authorization-server',
     getParentRoute: () => rootServerRouteImport,
   } as any)
-const ApiErrorsIndexServerRoute = ApiErrorsIndexServerRouteImport.update({
-  id: '/api/errors/',
-  path: '/api/errors/',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -234,20 +228,17 @@ export interface RootRouteChildren {
 export interface FileServerRoutesByFullPath {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/errors': typeof ApiErrorsIndexServerRoute
   '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRoutesByTo {
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/errors': typeof ApiErrorsIndexServerRoute
   '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/errors/': typeof ApiErrorsIndexServerRoute
   '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRouteTypes {
@@ -255,26 +246,22 @@ export interface FileServerRouteTypes {
   fullPaths:
     | '/.well-known/oauth-authorization-server'
     | '/api/auth/$'
-    | '/api/errors'
     | '/api/ai/mcp/$transport'
   fileServerRoutesByTo: FileServerRoutesByTo
   to:
     | '/.well-known/oauth-authorization-server'
     | '/api/auth/$'
-    | '/api/errors'
     | '/api/ai/mcp/$transport'
   id:
     | '__root__'
     | '/.well-known/oauth-authorization-server'
     | '/api/auth/$'
-    | '/api/errors/'
     | '/api/ai/mcp/$transport'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   DotwellKnownOauthAuthorizationServerServerRoute: typeof DotwellKnownOauthAuthorizationServerServerRoute
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
-  ApiErrorsIndexServerRoute: typeof ApiErrorsIndexServerRoute
   ApiAiMcpTransportServerRoute: typeof ApiAiMcpTransportServerRoute
 }
 
@@ -396,13 +383,6 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
-    '/api/errors/': {
-      id: '/api/errors/'
-      path: '/api/errors'
-      fullPath: '/api/errors'
-      preLoaderRoute: typeof ApiErrorsIndexServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -486,7 +466,6 @@ const rootServerRouteChildren: RootServerRouteChildren = {
   DotwellKnownOauthAuthorizationServerServerRoute:
     DotwellKnownOauthAuthorizationServerServerRoute,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
-  ApiErrorsIndexServerRoute: ApiErrorsIndexServerRoute,
   ApiAiMcpTransportServerRoute: ApiAiMcpTransportServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
