@@ -3,9 +3,6 @@
 import {
     AssistantRuntimeProvider,
     useExternalStoreRuntime,
-    type ChatModelAdapter,
-    type ChatModelRunOptions,
-    type ThreadMessage,
     type AppendMessage,
     type ExternalStoreAdapter,
     type ThreadMessageLike,
@@ -14,43 +11,13 @@ import {
 import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
 import type { Id } from "@cvx/_generated/dataModel";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useSession } from "@/hooks/auth-hooks";
 import { redirect } from "@tanstack/react-router";
-import { asAsyncIterableStream } from "assistant-stream/utils";
-import { AssistantMessageAccumulator, DataStreamDecoder, unstable_toolResultStream } from "assistant-stream";
+import { useMutation } from "convex/react";
+import { api } from "@cvx/_generated/api";
+import { useThreadMessages } from "@convex-dev/agent/react";
 
-type HeadersValue = Record<string, string> | Headers;
-
-type ConvexModelAdapterOptions = {
-    model: AgentModel;
-    threadId: Id<any>;
-    sessionToken: string;
-
-    /**
-     * Headers to be sent with the request.
-     * Can be a static headers object or a function that returns a Promise of headers.
-     */
-    headers?: HeadersValue | (() => Promise<HeadersValue>);
-
-    /**
-     * Callback function to be called when the API response is received.
-     */
-    onResponse?: (response: Response) => void | Promise<void>;
-    /**
-     * Optional callback function that is called when the assistant message is finished streaming.
-     */
-    onFinish?: (message: ThreadMessage) => void;
-    /**
-     * Callback function to be called when an error is encountered.
-     */
-    onError?: (error: Error) => void;
-    /**
-     * Callback function to be called when the request is cancelled.
-     * Use this option to notify the server that the user explicitly requested a cancellation.
-     */
-    onCancel?: () => void;
-};
 export type ConvexMessage = {
     id?: string | undefined;
     role: "user" | "assistant";
@@ -85,84 +52,29 @@ type ConvexThreadExtras =
       }
     | undefined;
 
-class ConvexModelAdapter implements ChatModelAdapter {
-    private options: Omit<ConvexModelAdapterOptions, "convex" | "sendMessage">;
-
-    constructor(options: ConvexModelAdapterOptions) {
-        this.options = options;
-    }
-
-    async *run({ messages, runConfig, abortSignal, context, unstable_assistantMessageId, unstable_getMessage }: ChatModelRunOptions) {
-        const headersValue = typeof this.options.headers === "function" ? await this.options.headers() : this.options.headers;
-
-        abortSignal.addEventListener(
-            "abort",
-            () => {
-                if (!abortSignal.reason?.detach) this.options.onCancel?.();
-            },
-            { once: true },
-        );
-
-        const headers = new Headers(headersValue);
-
-        headers.set("Content-Type", "application/json");
-
-        const result = await fetch(`/convex-http/chat/stream`, {
-            method: "POST",
-            headers,
-            credentials: "same-origin",
-            body: JSON.stringify({
-                prompt: messages[messages.length - 1].content,
-                threadId: this.options.threadId,
-                model: this.options.model,
-                sessionToken: this.options.sessionToken,
-            }),
-            signal: abortSignal,
-        });
-
-        await this.options.onResponse?.(result);
-
-        try {
-            if (!result.ok) {
-                throw new Error(`Status ${result.status}: ${await result.text()}`);
-            }
-            if (!result.body) {
-                throw new Error("Response body is null");
-            }
-
-            const stream = result.body
-                .pipeThrough(new DataStreamDecoder())
-                .pipeThrough(unstable_toolResultStream(context.tools, abortSignal))
-                .pipeThrough(new AssistantMessageAccumulator());
-
-            yield* asAsyncIterableStream(stream);
-
-            this.options.onFinish?.(unstable_getMessage());
-        } catch (error: unknown) {
-            this.options.onError?.(error as Error);
-            throw error;
-        }
-    }
-}
-
 const convexToThreadMessage = <T,>(converter: (message: T) => ConvexMessage, rawMessage: T): ThreadMessageLike => {
+    console.log(rawMessage)
     const message = converter(rawMessage);
 
     return {
         id: message.id,
         role: message.role,
-        content: [{ type: "text", text: "[Developer: Please set up RSCDisplay]" }],
+        content: [{ type: "text", text: message.display }],
         createdAt: message.createdAt,
     };
 };
 
 const useConvexRuntime = <T extends WeakKey>(adapter: ConvexAdapter<T>) => {
     const onNew = adapter.onNew;
-    if (!onNew) throw new Error("You must pass a onNew function to useConvexRuntime");
+    
+    if (!onNew) {
+        throw new Error("You must pass a onNew function to useConvexRuntime");
+    }
 
     const convertFn = useMemo(() => {
         return adapter.convertMessage?.bind(adapter) ?? ((m: T) => m as ConvexMessage);
     }, [adapter]);
+
     const callback = useCallback(
         (m: T) => {
             return convexToThreadMessage(convertFn, m);
@@ -196,14 +108,64 @@ const useConvexRuntime = <T extends WeakKey>(adapter: ConvexAdapter<T>) => {
 
 export const ConvexRuntimeProvider = ({ children, model, threadId }: { children: ReactNode; model: AgentModel; threadId: Id<any> }) => {
     const sessionData = useSession();
+    const sendMessage = useMutation(api.chat.sendMessage);
+
+    const paginatedMessages = useThreadMessages(api.chat.listMessages, { threadId: threadId as string }, { initialNumItems: 50 });
+
+    const onNew = useCallback(
+        async (m: AppendMessage) => {
+            if (m.content[0]?.type !== "text") {
+                throw new Error("onNew only supports user messages with string content");
+            }
+            if (!sessionData?.data?.session) {
+                throw new Error("No session found");
+            }
+            const input = m.content[0].text;
+            await sendMessage({
+                prompt: input,
+                threadId: threadId,
+                model: model,
+                sessionToken: sessionData.data.session.token,
+            });
+        },
+        [sendMessage, threadId, model, sessionData],
+    );
+
+    const convertMessage = useCallback((message: any): ConvexMessage => {
+        const role = message.message.role;
+        const content = message.message.content;
+
+        let displayContent: string;
+        if (typeof content === "string") {
+            displayContent = content;
+        } else if (Array.isArray(content)) {
+            displayContent = content
+                .map((part: any) => {
+                    if (part.type === "text") {
+                        return part.text;
+                    }
+
+                    return `[unsupported content: ${part.type}]`;
+                })
+                .join("");
+        } else {
+            displayContent = "";
+        }
+
+        return {
+            id: message._id,
+            role: role,
+            display: displayContent,
+            createdAt: new Date(message._creationTime),
+        };
+    }, []);
 
     if (sessionData?.data?.session) {
-        const adapter = useMemo(
-            () => new ConvexModelAdapter({ model, threadId, sessionToken: sessionData.data.session.token }),
-            [model, threadId, sessionData.data?.session.token],
-        );
-
-        const runtime = useConvexRuntime(adapter as unknown as ConvexAdapter<ConvexMessage>);
+        const runtime = useConvexRuntime({
+            onNew,
+            messages: paginatedMessages.results?.map(convertMessage) ?? [],
+            isRunning: paginatedMessages.isLoading,
+        });
 
         return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
     }

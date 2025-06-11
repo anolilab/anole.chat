@@ -6,6 +6,7 @@ import { paginationOptsValidator, PaginationResult } from "convex/server";
 import { vStreamArgs } from "@convex-dev/agent";
 import { Id } from "./_generated/dataModel";
 import z from "zod";
+import type { MessageDoc } from "@convex-dev/agent";
 
 export const createThread = mutation({
     args: {
@@ -28,6 +29,21 @@ export const createThread = mutation({
         });
 
         return threadId;
+    },
+});
+
+export const listMessages = query({
+    args: {
+        threadId: v.string(),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, { threadId, paginationOpts }): Promise<PaginationResult<MessageDoc>> => {
+        const agent = getAgent("gpt-4o-mini"); // Any agent can list messages.
+        const paginated = await agent.listMessages(ctx, {
+            threadId,
+            paginationOpts,
+        });
+        return paginated;
     },
 });
 
