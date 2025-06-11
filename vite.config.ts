@@ -11,11 +11,11 @@ const config = defineConfig(({ mode }) => {
     return {
         server: {
             proxy: {
-                "/convex": {
+                "/convex-http": {
                     target: env.VITE_CONVEX_SITE_URL,
                     changeOrigin: true,
                     secure: false,
-                    rewrite: path => path.replace(/^\/convex/, ''),
+                    rewrite: (path) => path.replace(/^\/convex-http/, ""),
                     configure: (proxy, _options) => {
                         proxy.on("error", (err, _req, _res) => {
                             console.log("proxy error", err);

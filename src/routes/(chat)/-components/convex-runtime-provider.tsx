@@ -24,8 +24,6 @@ import { env } from "@/lib/env";
 type HeadersValue = Record<string, string> | Headers;
 
 type ConvexModelAdapterOptions = {
-    convex: ConvexReactClient;
-    sendMessage: ReactMutation<FunctionReference<"mutation">>;
     model: AgentModel;
     threadId: Id<any>;
     sessionToken: string;
@@ -56,15 +54,11 @@ type ConvexModelAdapterOptions = {
 };
 
 class ConvexModelAdapter implements ChatModelAdapter {
-    private sendMessage: (args: { threadId: Id<any>; prompt: string; model: string; sessionToken: string }) => Promise<any>;
     private options: Omit<ConvexModelAdapterOptions, "convex" | "sendMessage">;
-    private convex: ConvexReactClient;
 
     constructor(options: ConvexModelAdapterOptions) {
         const { convex, sendMessage, ...rest } = options;
         this.options = rest;
-        this.convex = convex;
-        this.sendMessage = sendMessage;
     }
 
     async *run({ messages, runConfig, abortSignal, context, unstable_assistantMessageId, unstable_getMessage }: ChatModelRunOptions) {
@@ -82,7 +76,7 @@ class ConvexModelAdapter implements ChatModelAdapter {
 
         headers.set("Content-Type", "application/json");
 
-        const result = await fetch(`/convex/chat/stream`, {
+        const result = await fetch(`/convex-http/chat/stream`, {
             method: "POST",
             headers,
             credentials: "same-origin",
@@ -122,13 +116,11 @@ class ConvexModelAdapter implements ChatModelAdapter {
 
 export const ConvexRuntimeProvider = ({ children, model, threadId }: { children: ReactNode; model: AgentModel; threadId: Id<any> }) => {
     const sessionData = useSession();
-    const convex = useConvex();
-    const sendMessage = useMutation(api.chat.sendMessage);
 
     if (sessionData?.data?.session) {
         const adapter = useMemo(
-            () => new ConvexModelAdapter({ convex, sendMessage, model, threadId, sessionToken: sessionData.data.session.token }),
-            [convex, sendMessage, model, threadId, sessionData.data?.session.token],
+            () => new ConvexModelAdapter({ model, threadId, sessionToken: sessionData.data.session.token }),
+            [model, threadId, sessionData.data?.session.token],
         );
 
         const runtime = useLocalRuntime(adapter);

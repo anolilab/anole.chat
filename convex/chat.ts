@@ -184,7 +184,7 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
 
     const result = await thread.streamText({ prompt });
 
-    return result.toTextStreamResponse();
+    return result.toDataStreamResponse();
 });
 
 export const createTitleAndSummarizeChat = internalAction({

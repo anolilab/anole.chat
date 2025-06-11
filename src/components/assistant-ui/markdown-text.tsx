@@ -1,6 +1,7 @@
 "use client";
 
 import "@assistant-ui/react-markdown/styles/dot.css";
+import { MermaidDiagram } from "@/components/assistant-ui/mermaid-diagram";
 
 import {
     type CodeHeaderProps,
@@ -12,12 +13,24 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { type FC, memo, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
+import { SyntaxHighlighter } from "./shiki-highlighter";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 
 const MarkdownTextImpl = () => {
-    return <MarkdownTextPrimitive remarkPlugins={[remarkGfm, remarkMath]} className="aui-md" components={defaultComponents} />;
+    return (
+        <MarkdownTextPrimitive
+            remarkPlugins={[remarkGfm, remarkMath]}
+            className="aui-md"
+            components={defaultComponents}
+            componentsByLanguage={{
+                mermaid: {
+                    SyntaxHighlighter: MermaidDiagram,
+                },
+            }}
+        />
+    );
 };
 
 export const MarkdownText = memo(MarkdownTextImpl);
@@ -107,4 +120,5 @@ const defaultComponents = memoizeMarkdownComponents({
         return <code className={cn(!isCodeBlock && "bg-muted rounded border font-semibold", className)} {...props} />;
     },
     CodeHeader,
+    SyntaxHighlighter,
 });
