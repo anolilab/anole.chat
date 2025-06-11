@@ -1,8 +1,8 @@
 import { useTranslation } from "@/lib/intl/react";
-import { Link } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import OtpForm from "../-components/otp";
 
-export const Route = createFileRoute({
+export const Route = createFileRoute("/(auth)/two-factor/otp")({
     component: RouteComponent,
 });
 

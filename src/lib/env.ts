@@ -23,6 +23,7 @@ export const env = createEnv({
         VITE_SITE_URL: z.string().url(),
         VITE_BETTER_AUTH_SECRET: z.string(),
         VITE_CONVEX_URL: z.string().url(),
+        VITE_CONVEX_SITE_URL: z.string().url(),
     },
 
     /**

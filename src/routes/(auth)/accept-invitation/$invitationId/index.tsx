@@ -5,12 +5,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
-import { useRouter } from "@tanstack/react-router";
+import { useRouter, createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { InvitationError } from "../../-components/invitation-error";
 
-export const Route = createFileRoute({
+export const Route = createFileRoute("/(auth)/accept-invitation/$invitationId/")({
     component: RouteComponent,
 });
 

@@ -1,7 +1,7 @@
 import { AuthProvider } from "@/components/auth/auth-provider";
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute({
+export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,
 });
 

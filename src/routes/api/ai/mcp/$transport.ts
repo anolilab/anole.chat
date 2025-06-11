@@ -53,17 +53,17 @@ const handler = async (req: Request) => {
     )(req);
 };
 
-//export const ServerRoute = createServerFileRoute("/api/ai/mcp/$transport").methods({
-//POST: async ({ request }) => {
-//return handler(request);
-//},
-//GET: async ({ request }) => {
-//return handler(request);
-//},
-//DELETE: async ({ request }) => {
-//return handler(request);
-//},
-//});
+export const ServerRoute = createServerFileRoute("/api/ai/mcp/$transport").methods({
+    POST: async ({ request }) => {
+        return handler(request);
+    },
+    GET: async ({ request }) => {
+        return handler(request);
+    },
+    DELETE: async ({ request }) => {
+        return handler(request);
+    },
+});
 
 // usage in Cursor:
 // "remote-example": {

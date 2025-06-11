@@ -14,7 +14,7 @@ import type { Id } from "node_modules/convex/dist/esm-types/values/value";
 const models: AgentModel[] = ["gpt-4o-mini", "claude-3-5-sonnet", "gemini-1.5-flash"];
 
 export const Assistant = ({ threadId }: { threadId: Id<"threads"> }) => {
-    const [selectedModel, setSelectedModel] = useState<AgentModel>("gpt-4o-mini");
+    const [selectedModel, setSelectedModel] = useState<AgentModel>("gemini-1.5-flash");
 
     return (
         <SidebarProvider>

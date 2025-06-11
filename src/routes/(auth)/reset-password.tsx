@@ -1,8 +1,8 @@
 import { useTranslation } from "@/lib/intl/react";
-import { Link } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import ResetPasswordForm from "./-components/reset-password";
 
-export const Route = createFileRoute({
+export const Route = createFileRoute("/(auth)/reset-password")({
     component: RouteComponent,
 });
 

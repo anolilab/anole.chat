@@ -12,11 +12,16 @@ import { useConvex, useMutation, type ConvexReactClient, type ReactMutation } fr
 import { api } from "convex/_generated/api";
 import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
-import type { Doc, Id } from "@cvx/_generated/dataModel";
+import type { Id } from "@cvx/_generated/dataModel";
 import { useMemo } from "react";
 import type { FunctionReference } from "convex/server";
 import { useSession } from "@/hooks/auth-hooks";
 import { redirect } from "@tanstack/react-router";
+import { asAsyncIterableStream } from "assistant-stream/utils";
+import { AssistantMessageAccumulator, DataStreamDecoder, unstable_toolResultStream } from "assistant-stream";
+import { env } from "@/lib/env";
+
+type HeadersValue = Record<string, string> | Headers;
 
 type ConvexModelAdapterOptions = {
     convex: ConvexReactClient;
@@ -24,12 +29,34 @@ type ConvexModelAdapterOptions = {
     model: AgentModel;
     threadId: Id<any>;
     sessionToken: string;
+
+    /**
+     * Headers to be sent with the request.
+     * Can be a static headers object or a function that returns a Promise of headers.
+     */
+    headers?: HeadersValue | (() => Promise<HeadersValue>);
+
+    /**
+     * Callback function to be called when the API response is received.
+     */
+    onResponse?: (response: Response) => void | Promise<void>;
+    /**
+     * Optional callback function that is called when the assistant message is finished streaming.
+     */
     onFinish?: (message: ThreadMessage) => void;
+    /**
+     * Callback function to be called when an error is encountered.
+     */
     onError?: (error: Error) => void;
+    /**
+     * Callback function to be called when the request is cancelled.
+     * Use this option to notify the server that the user explicitly requested a cancellation.
+     */
+    onCancel?: () => void;
 };
 
 class ConvexModelAdapter implements ChatModelAdapter {
-    private sendMessage: (args: { threadId: Id<any>; prompt: string; model: string, sessionToken: string }) => Promise<any>;
+    private sendMessage: (args: { threadId: Id<any>; prompt: string; model: string; sessionToken: string }) => Promise<any>;
     private options: Omit<ConvexModelAdapterOptions, "convex" | "sendMessage">;
     private convex: ConvexReactClient;
 
@@ -40,81 +67,55 @@ class ConvexModelAdapter implements ChatModelAdapter {
         this.sendMessage = sendMessage;
     }
 
-    async *run({ messages, abortSignal, unstable_getMessage }: ChatModelRunOptions) {
-        try {
-            const lastMessage = messages[messages.length - 1];
+    async *run({ messages, runConfig, abortSignal, context, unstable_assistantMessageId, unstable_getMessage }: ChatModelRunOptions) {
+        const headersValue = typeof this.options.headers === "function" ? await this.options.headers() : this.options.headers;
 
-            if (lastMessage.role !== "user") {
-                return;
-            }
+        abortSignal.addEventListener(
+            "abort",
+            () => {
+                if (!abortSignal.reason?.detach) this.options.onCancel?.();
+            },
+            { once: true },
+        );
 
-            const textContent = lastMessage.content.find((c) => c.type === "text") as TextContentPart | undefined;
+        const headers = new Headers(headersValue);
 
-            if (!textContent) {
-                return;
-            }
+        headers.set("Content-Type", "application/json");
 
-            await this.sendMessage({
+        const result = await fetch(`/convex/chat/stream`, {
+            method: "POST",
+            headers,
+            credentials: "same-origin",
+            body: JSON.stringify({
+                prompt: messages[messages.length - 1].content,
                 threadId: this.options.threadId,
-                prompt: textContent.text,
                 model: this.options.model,
                 sessionToken: this.options.sessionToken,
-            });
+            }),
+            signal: abortSignal,
+        });
 
-            let lastSynced = -1;
-            let completeText = "";
+        await this.options.onResponse?.(result);
 
-            while (true) {
-                if (abortSignal.aborted) {
-                    this.options.onError?.(new Error("Aborted"));
-                    return;
-                }
-
-                const result = await this.convex.query(api.chat.getMessages, {
-                    threadId: this.options.threadId,
-                    // @ts-ignore - The type of streamArgs seems to have changed.
-                    streamArgs: { after: lastSynced },
-                    model: this.options.model,
-                    sessionToken: this.options.sessionToken,
-                });
-
-                if (!result || !result.streams) continue;
-
-                if (Array.isArray(result.streams)) {
-                    for (const stream of result.streams) {
-                        for (const part of stream as any[]) {
-                            if (part.type === "text-delta") {
-                                completeText += part.textDelta;
-                                yield { content: [{ type: "text" as const, text: completeText }] };
-                            }
-                            lastSynced = Math.max(lastSynced, part.syncId);
-                        }
-                    }
-                }
-
-                const assistantMessages = result.page.filter(
-                    (m: Doc<any>): m is Doc<any> =>
-                        (m as any).role === "assistant" && (m as any).content.some((c: any) => c.type === "text" && c.text.length > 0),
-                );
-                const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
-
-                if (lastAssistantMessage && lastAssistantMessage._creationTime > (lastMessage.createdAt?.getTime() ?? 0)) {
-                    const textPart = ((lastAssistantMessage as any).content as any[]).find((c) => c.type === "text");
-
-                    if (textPart && "text" in textPart) {
-                        yield { content: [{ type: "text" as const, text: textPart.text }] };
-                    }
-
-                    this.options.onFinish?.(unstable_getMessage());
-
-                    return;
-                }
-
-                await new Promise((resolve) => setTimeout(resolve, 200));
+        try {
+            if (!result.ok) {
+                throw new Error(`Status ${result.status}: ${await result.text()}`);
             }
-        } catch (e) {
-            this.options.onError?.(e as Error);
-            throw e;
+            if (!result.body) {
+                throw new Error("Response body is null");
+            }
+
+            const stream = result.body
+                .pipeThrough(new DataStreamDecoder())
+                .pipeThrough(unstable_toolResultStream(context.tools, abortSignal))
+                .pipeThrough(new AssistantMessageAccumulator());
+
+            yield* asAsyncIterableStream(stream);
+
+            this.options.onFinish?.(unstable_getMessage());
+        } catch (error: unknown) {
+            this.options.onError?.(error as Error);
+            throw error;
         }
     }
 }
@@ -127,14 +128,13 @@ export const ConvexRuntimeProvider = ({ children, model, threadId }: { children:
     if (sessionData?.data?.session) {
         const adapter = useMemo(
             () => new ConvexModelAdapter({ convex, sendMessage, model, threadId, sessionToken: sessionData.data.session.token }),
-            [convex, sendMessage, model, threadId, sessionData.data?.session.token]
+            [convex, sendMessage, model, threadId, sessionData.data?.session.token],
         );
 
         const runtime = useLocalRuntime(adapter);
 
         return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
     }
-
 
     throw redirect({
         to: "/login",

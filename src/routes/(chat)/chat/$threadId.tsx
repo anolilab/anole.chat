@@ -1,12 +1,11 @@
 import { Assistant } from "@/routes/(chat)/-components/assistant";
-import { redirect } from "@tanstack/react-router";
+import { redirect, createFileRoute } from "@tanstack/react-router";
 import { api } from "@cvx/_generated/api";
 import type { Id } from "@cvx/_generated/dataModel";
 import { getServerSession } from "@/lib/auth/client";
 
-export const Route = createFileRoute({
+export const Route = createFileRoute("/(chat)/chat/$threadId")({
     beforeLoad: async ({ context, params }) => {
-
         if (params.threadId === "new") {
             const session = await getServerSession();
 
@@ -18,7 +17,7 @@ export const Route = createFileRoute({
             }
 
             const newThreadId = await context.convex.mutation(api.chat.createThread, {
-                model: "gpt-4o-mini",
+                model: "gemini-1.5-flash",
                 sessionToken: session.session.token,
             });
 
