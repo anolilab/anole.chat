@@ -2,7 +2,7 @@ import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrim
 import type { FC } from "react";
 import { ArrowDownIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, PencilIcon, RefreshCwIcon, SendHorizontalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
+import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import { ScrollBar } from "@/components/ui/scroll-area";
 
 import { Button } from "@/components/ui/button";

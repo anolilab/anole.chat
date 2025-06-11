@@ -110,22 +110,21 @@ export const ConvexRuntimeProvider = ({ children, model, threadId }: { children:
     const sessionData = useSession();
     const sendMessage = useMutation(api.chat.sendMessage);
 
-    const paginatedMessages = useThreadMessages(api.chat.listMessages, { threadId: threadId as string }, { initialNumItems: 50 });
+    const paginatedMessages = useThreadMessages(api.chat.listMessages, { threadId: threadId as string, model: model, sessionToken: sessionData?.data?.session?.token }, { initialNumItems: 50 });
 
     const onNew = useCallback(
         async (m: AppendMessage) => {
             if (m.content[0]?.type !== "text") {
                 throw new Error("onNew only supports user messages with string content");
             }
-            if (!sessionData?.data?.session) {
-                throw new Error("No session found");
-            }
+            
             const input = m.content[0].text;
+            
             await sendMessage({
                 prompt: input,
                 threadId: threadId,
                 model: model,
-                sessionToken: sessionData.data.session.token,
+                sessionToken: sessionData?.data?.session?.token,
             });
         },
         [sendMessage, threadId, model, sessionData],
@@ -160,18 +159,17 @@ export const ConvexRuntimeProvider = ({ children, model, threadId }: { children:
         };
     }, []);
 
-    if (sessionData?.data?.session) {
-        const runtime = useConvexRuntime({
-            onNew,
-            messages: paginatedMessages.results?.map(convertMessage) ?? [],
-            isRunning: paginatedMessages.isLoading,
-        });
-
-        return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
-    }
-
-    throw redirect({
-        to: "/login",
-        replace: true,
+    const runtime = useConvexRuntime({
+        onNew,
+        messages: paginatedMessages.results?.map(convertMessage) ?? [],
+        isRunning: paginatedMessages.isLoading,
+        onReload: async () => {
+            // await paginatedMessages.refetch();
+        },
+        adapters: {
+            
+        }
     });
+
+    return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
 };

@@ -36,9 +36,20 @@ export const listMessages = query({
     args: {
         threadId: v.string(),
         paginationOpts: paginationOptsValidator,
+        model: v.string(),
+        sessionToken: v.string(),
     },
-    handler: async (ctx, { threadId, paginationOpts }): Promise<PaginationResult<MessageDoc>> => {
-        const agent = getAgent("gpt-4o-mini"); // Any agent can list messages.
+    handler: async (ctx, { threadId, paginationOpts, model, sessionToken }): Promise<PaginationResult<MessageDoc>> => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const agent = getAgent(model as AgentModel);
+
         const paginated = await agent.listMessages(ctx, {
             threadId,
             paginationOpts,
