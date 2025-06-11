@@ -44,29 +44,25 @@ const schema = defineSchema({
         phoneVerificationTime: v.optional(v.number()),
         isAnonymous: v.optional(v.boolean()),
         customerId: v.optional(v.string()),
-        role: v.union(
-          v.literal("user"),
-          v.literal("admin"),
-          v.literal("banned")
-        ),
+        role: v.union(v.literal("user"), v.literal("admin"), v.literal("banned")),
         updatedAt: v.string(),
     })
         .index("email", ["email"])
         .index("customerId", ["customerId"]),
 
-        account: defineTable({
-            accountId: v.string(),
-            providerId: v.string(),
-            userId: v.id("user"),
-            accessToken: v.optional(v.string()),
-            refreshToken: v.optional(v.string()),
-            idToken: v.optional(v.string()),
-            accessTokenExpiresAt: v.optional(v.string()),
-            refreshTokenExpiresAt: v.optional(v.string()),
-            scope: v.optional(v.string()),
-            password: v.optional(v.string()),
-            updatedAt: v.string(),
-          }).index("byUserId", ["userId"]),
+    account: defineTable({
+        accountId: v.string(),
+        providerId: v.string(),
+        userId: v.id("user"),
+        accessToken: v.optional(v.string()),
+        refreshToken: v.optional(v.string()),
+        idToken: v.optional(v.string()),
+        accessTokenExpiresAt: v.optional(v.string()),
+        refreshTokenExpiresAt: v.optional(v.string()),
+        scope: v.optional(v.string()),
+        password: v.optional(v.string()),
+        updatedAt: v.string(),
+    }).index("byUserId", ["userId"]),
 
     session: defineTable({
         expiresAt: v.string(),
@@ -80,11 +76,11 @@ const schema = defineSchema({
         .index("byUserId", ["userId"]),
 
     verification: defineTable({
-            identifier: v.string(),
-            value: v.string(),
-            expiresAt: v.string(),
-            updatedAt: v.optional(v.string()),
-          }),
+        identifier: v.string(),
+        value: v.string(),
+        expiresAt: v.string(),
+        updatedAt: v.optional(v.string()),
+    }),
 
     jwks: defineTable({
         publicKey: v.string(),
@@ -133,24 +129,25 @@ const schema = defineSchema({
         .index("userId", ["userId"])
         .index("id", ["id"])
         .index("customerId", ["customerId"]),
-    
 
-  vouches: defineTable({
-    fromUserId: v.id("user"),
-    toUserId: v.id("user"),
-    rating: v.number(), // 1-5
-    comment: v.optional(v.string()),
-  })
-    .index("by_toUserId", ["toUserId"])
-    .index("by_fromUserId", ["fromUserId"])
-    .index("by_toUserId_fromUserId", ["toUserId", "fromUserId"]),
+    vouches: defineTable({
+        fromUserId: v.id("user"),
+        toUserId: v.id("user"),
+        rating: v.number(), // 1-5
+        comment: v.optional(v.string()),
+    })
+        .index("by_toUserId", ["toUserId"])
+        .index("by_fromUserId", ["fromUserId"])
+        .index("by_toUserId_fromUserId", ["toUserId", "fromUserId"]),
 
     userSettings: defineTable({
         userId: v.id("user"),
-        notifications: v.optional(v.object({
-          vouchReceived: v.optional(v.boolean()),
-        })),
-      }).index("by_userId", ["userId"]),
+        notifications: v.optional(
+            v.object({
+                vouchReceived: v.optional(v.boolean()),
+            }),
+        ),
+    }).index("by_userId", ["userId"]),
 });
 
 export default schema;

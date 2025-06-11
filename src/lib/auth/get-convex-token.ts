@@ -52,7 +52,7 @@ export const getConvexToken = createServerFn({
     const session = await betterAuth.api.getSession({
         headers: getWebRequest()?.headers ?? new Headers(),
     });
-    
+
     if (!session) {
         return { error: "Unauthorized" };
     }

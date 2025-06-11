@@ -14,18 +14,18 @@ import type { CreateFileRoute, FileRoutesByPath } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
-import { Route as ChatLayoutRouteImport } from './routes/chat/layout'
+import { Route as chatLayoutRouteImport } from './routes/(chat)/layout'
 import { Route as authLayoutRouteImport } from './routes/(auth)/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as publicIndexRouteImport } from './routes/(public)/index'
-import { Route as ChatThreadIdRouteImport } from './routes/chat/$threadId'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
+import { Route as chatChatIndexRouteImport } from './routes/(chat)/chat/index'
 import { Route as authTwoFactorIndexRouteImport } from './routes/(auth)/two-factor/index'
+import { Route as chatChatThreadIdRouteImport } from './routes/(chat)/chat/$threadId'
 import { Route as authTwoFactorOtpRouteImport } from './routes/(auth)/two-factor/otp'
 import { Route as authAcceptInvitationInvitationIdIndexRouteImport } from './routes/(auth)/accept-invitation/$invitationId/index'
 
@@ -37,9 +37,8 @@ const DashboardLayoutRoute = DashboardLayoutRouteImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ChatLayoutRoute = ChatLayoutRouteImport.update({
-  id: '/chat',
-  path: '/chat',
+const chatLayoutRoute = chatLayoutRouteImport.update({
+  id: '/(chat)',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -54,22 +53,10 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   getParentRoute: () => DashboardLayoutRoute,
 } as any)
 
-const ChatIndexRoute = ChatIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ChatLayoutRoute,
-} as any)
-
 const publicIndexRoute = publicIndexRouteImport.update({
   id: '/(public)/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any)
-
-const ChatThreadIdRoute = ChatThreadIdRouteImport.update({
-  id: '/$threadId',
-  path: '/$threadId',
-  getParentRoute: () => ChatLayoutRoute,
 } as any)
 
 const authResetPasswordRoute = authResetPasswordRouteImport.update({
@@ -102,10 +89,22 @@ const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
   getParentRoute: () => DashboardLayoutRoute,
 } as any)
 
+const chatChatIndexRoute = chatChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => chatLayoutRoute,
+} as any)
+
 const authTwoFactorIndexRoute = authTwoFactorIndexRouteImport.update({
   id: '/two-factor/',
   path: '/two-factor/',
   getParentRoute: () => authLayoutRoute,
+} as any)
+
+const chatChatThreadIdRoute = chatChatThreadIdRouteImport.update({
+  id: '/chat/$threadId',
+  path: '/chat/$threadId',
+  getParentRoute: () => chatLayoutRoute,
 } as any)
 
 const authTwoFactorOtpRoute = authTwoFactorOtpRouteImport.update({
@@ -132,11 +131,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLayoutRouteImport
       parentRoute: typeof rootRoute
     }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatLayoutRouteImport
+    '/(chat)': {
+      id: '/(chat)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof chatLayoutRouteImport
       parentRoute: typeof rootRoute
     }
     '/dashboard': {
@@ -174,26 +173,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authResetPasswordRouteImport
       parentRoute: typeof authLayoutRouteImport
     }
-    '/chat/$threadId': {
-      id: '/chat/$threadId'
-      path: '/$threadId'
-      fullPath: '/chat/$threadId'
-      preLoaderRoute: typeof ChatThreadIdRouteImport
-      parentRoute: typeof ChatLayoutRouteImport
-    }
     '/(public)/': {
       id: '/(public)/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof publicIndexRouteImport
       parentRoute: typeof rootRoute
-    }
-    '/chat/': {
-      id: '/chat/'
-      path: '/'
-      fullPath: '/chat/'
-      preLoaderRoute: typeof ChatIndexRouteImport
-      parentRoute: typeof ChatLayoutRouteImport
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -209,12 +194,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authTwoFactorOtpRouteImport
       parentRoute: typeof authLayoutRouteImport
     }
+    '/(chat)/chat/$threadId': {
+      id: '/(chat)/chat/$threadId'
+      path: '/chat/$threadId'
+      fullPath: '/chat/$threadId'
+      preLoaderRoute: typeof chatChatThreadIdRouteImport
+      parentRoute: typeof chatLayoutRouteImport
+    }
     '/(auth)/two-factor/': {
       id: '/(auth)/two-factor/'
       path: '/two-factor'
       fullPath: '/two-factor'
       preLoaderRoute: typeof authTwoFactorIndexRouteImport
       parentRoute: typeof authLayoutRouteImport
+    }
+    '/(chat)/chat/': {
+      id: '/(chat)/chat/'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof chatChatIndexRouteImport
+      parentRoute: typeof chatLayoutRouteImport
     }
     '/dashboard/settings/': {
       id: '/dashboard/settings/'
@@ -244,13 +243,13 @@ declare module './routes/(auth)/layout' {
     FileRoutesByPath['/(auth)']['fullPath']
   >
 }
-declare module './routes/chat/layout' {
+declare module './routes/(chat)/layout' {
   const createFileRoute: CreateFileRoute<
-    '/chat',
-    FileRoutesByPath['/chat']['parentRoute'],
-    FileRoutesByPath['/chat']['id'],
-    FileRoutesByPath['/chat']['path'],
-    FileRoutesByPath['/chat']['fullPath']
+    '/(chat)',
+    FileRoutesByPath['/(chat)']['parentRoute'],
+    FileRoutesByPath['/(chat)']['id'],
+    FileRoutesByPath['/(chat)']['path'],
+    FileRoutesByPath['/(chat)']['fullPath']
   >
 }
 declare module './routes/dashboard/layout' {
@@ -298,15 +297,6 @@ declare module './routes/(auth)/reset-password' {
     FileRoutesByPath['/(auth)/reset-password']['fullPath']
   >
 }
-declare module './routes/chat/$threadId' {
-  const createFileRoute: CreateFileRoute<
-    '/chat/$threadId',
-    FileRoutesByPath['/chat/$threadId']['parentRoute'],
-    FileRoutesByPath['/chat/$threadId']['id'],
-    FileRoutesByPath['/chat/$threadId']['path'],
-    FileRoutesByPath['/chat/$threadId']['fullPath']
-  >
-}
 declare module './routes/(public)/index' {
   const createFileRoute: CreateFileRoute<
     '/(public)/',
@@ -314,15 +304,6 @@ declare module './routes/(public)/index' {
     FileRoutesByPath['/(public)/']['id'],
     FileRoutesByPath['/(public)/']['path'],
     FileRoutesByPath['/(public)/']['fullPath']
-  >
-}
-declare module './routes/chat/index' {
-  const createFileRoute: CreateFileRoute<
-    '/chat/',
-    FileRoutesByPath['/chat/']['parentRoute'],
-    FileRoutesByPath['/chat/']['id'],
-    FileRoutesByPath['/chat/']['path'],
-    FileRoutesByPath['/chat/']['fullPath']
   >
 }
 declare module './routes/dashboard/index' {
@@ -343,6 +324,15 @@ declare module './routes/(auth)/two-factor/otp' {
     FileRoutesByPath['/(auth)/two-factor/otp']['fullPath']
   >
 }
+declare module './routes/(chat)/chat/$threadId' {
+  const createFileRoute: CreateFileRoute<
+    '/(chat)/chat/$threadId',
+    FileRoutesByPath['/(chat)/chat/$threadId']['parentRoute'],
+    FileRoutesByPath['/(chat)/chat/$threadId']['id'],
+    FileRoutesByPath['/(chat)/chat/$threadId']['path'],
+    FileRoutesByPath['/(chat)/chat/$threadId']['fullPath']
+  >
+}
 declare module './routes/(auth)/two-factor/index' {
   const createFileRoute: CreateFileRoute<
     '/(auth)/two-factor/',
@@ -350,6 +340,15 @@ declare module './routes/(auth)/two-factor/index' {
     FileRoutesByPath['/(auth)/two-factor/']['id'],
     FileRoutesByPath['/(auth)/two-factor/']['path'],
     FileRoutesByPath['/(auth)/two-factor/']['fullPath']
+  >
+}
+declare module './routes/(chat)/chat/index' {
+  const createFileRoute: CreateFileRoute<
+    '/(chat)/chat/',
+    FileRoutesByPath['/(chat)/chat/']['parentRoute'],
+    FileRoutesByPath['/(chat)/chat/']['id'],
+    FileRoutesByPath['/(chat)/chat/']['path'],
+    FileRoutesByPath['/(chat)/chat/']['fullPath']
   >
 }
 declare module './routes/dashboard/settings/index' {
@@ -398,18 +397,18 @@ const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
   authLayoutRouteChildren,
 )
 
-interface ChatLayoutRouteChildren {
-  ChatThreadIdRoute: typeof ChatThreadIdRoute
-  ChatIndexRoute: typeof ChatIndexRoute
+interface chatLayoutRouteChildren {
+  chatChatThreadIdRoute: typeof chatChatThreadIdRoute
+  chatChatIndexRoute: typeof chatChatIndexRoute
 }
 
-const ChatLayoutRouteChildren: ChatLayoutRouteChildren = {
-  ChatThreadIdRoute: ChatThreadIdRoute,
-  ChatIndexRoute: ChatIndexRoute,
+const chatLayoutRouteChildren: chatLayoutRouteChildren = {
+  chatChatThreadIdRoute: chatChatThreadIdRoute,
+  chatChatIndexRoute: chatChatIndexRoute,
 }
 
-const ChatLayoutRouteWithChildren = ChatLayoutRoute._addFileChildren(
-  ChatLayoutRouteChildren,
+const chatLayoutRouteWithChildren = chatLayoutRoute._addFileChildren(
+  chatLayoutRouteChildren,
 )
 
 interface DashboardLayoutRouteChildren {
@@ -428,17 +427,16 @@ const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
-  '/chat': typeof ChatLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/reset-password': typeof authResetPasswordRoute
-  '/chat/$threadId': typeof ChatThreadIdRoute
-  '/chat/': typeof ChatIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/two-factor/otp': typeof authTwoFactorOtpRoute
+  '/chat/$threadId': typeof chatChatThreadIdRoute
   '/two-factor': typeof authTwoFactorIndexRoute
+  '/chat': typeof chatChatIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/accept-invitation/$invitationId': typeof authAcceptInvitationInvitationIdIndexRoute
 }
@@ -449,11 +447,11 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
   '/reset-password': typeof authResetPasswordRoute
-  '/chat/$threadId': typeof ChatThreadIdRoute
-  '/chat': typeof ChatIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/two-factor/otp': typeof authTwoFactorOtpRoute
+  '/chat/$threadId': typeof chatChatThreadIdRoute
   '/two-factor': typeof authTwoFactorIndexRoute
+  '/chat': typeof chatChatIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/accept-invitation/$invitationId': typeof authAcceptInvitationInvitationIdIndexRoute
 }
@@ -461,18 +459,18 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/(auth)': typeof authLayoutRouteWithChildren
-  '/chat': typeof ChatLayoutRouteWithChildren
+  '/(chat)': typeof chatLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
-  '/chat/$threadId': typeof ChatThreadIdRoute
   '/(public)/': typeof publicIndexRoute
-  '/chat/': typeof ChatIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/(auth)/two-factor/otp': typeof authTwoFactorOtpRoute
+  '/(chat)/chat/$threadId': typeof chatChatThreadIdRoute
   '/(auth)/two-factor/': typeof authTwoFactorIndexRoute
+  '/(chat)/chat/': typeof chatChatIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/(auth)/accept-invitation/$invitationId/': typeof authAcceptInvitationInvitationIdIndexRoute
 }
@@ -481,17 +479,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/chat'
     | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/reset-password'
-    | '/chat/$threadId'
-    | '/chat/'
     | '/dashboard/'
     | '/two-factor/otp'
+    | '/chat/$threadId'
     | '/two-factor'
+    | '/chat'
     | '/dashboard/settings'
     | '/accept-invitation/$invitationId'
   fileRoutesByTo: FileRoutesByTo
@@ -501,28 +498,28 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
-    | '/chat/$threadId'
-    | '/chat'
     | '/dashboard'
     | '/two-factor/otp'
+    | '/chat/$threadId'
     | '/two-factor'
+    | '/chat'
     | '/dashboard/settings'
     | '/accept-invitation/$invitationId'
   id:
     | '__root__'
     | '/(auth)'
-    | '/chat'
+    | '/(chat)'
     | '/dashboard'
     | '/(auth)/forgot-password'
     | '/(auth)/login'
     | '/(auth)/register'
     | '/(auth)/reset-password'
-    | '/chat/$threadId'
     | '/(public)/'
-    | '/chat/'
     | '/dashboard/'
     | '/(auth)/two-factor/otp'
+    | '/(chat)/chat/$threadId'
     | '/(auth)/two-factor/'
+    | '/(chat)/chat/'
     | '/dashboard/settings/'
     | '/(auth)/accept-invitation/$invitationId/'
   fileRoutesById: FileRoutesById
@@ -530,14 +527,14 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   authLayoutRoute: typeof authLayoutRouteWithChildren
-  ChatLayoutRoute: typeof ChatLayoutRouteWithChildren
+  chatLayoutRoute: typeof chatLayoutRouteWithChildren
   DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
   publicIndexRoute: typeof publicIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   authLayoutRoute: authLayoutRouteWithChildren,
-  ChatLayoutRoute: ChatLayoutRouteWithChildren,
+  chatLayoutRoute: chatLayoutRouteWithChildren,
   DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
   publicIndexRoute: publicIndexRoute,
 }
@@ -553,7 +550,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/(auth)",
-        "/chat",
+        "/(chat)",
         "/dashboard",
         "/(public)/"
       ]
@@ -570,11 +567,11 @@ export const routeTree = rootRoute
         "/(auth)/accept-invitation/$invitationId/"
       ]
     },
-    "/chat": {
-      "filePath": "chat/layout.tsx",
+    "/(chat)": {
+      "filePath": "(chat)/layout.tsx",
       "children": [
-        "/chat/$threadId",
-        "/chat/"
+        "/(chat)/chat/$threadId",
+        "/(chat)/chat/"
       ]
     },
     "/dashboard": {
@@ -600,16 +597,8 @@ export const routeTree = rootRoute
       "filePath": "(auth)/reset-password.tsx",
       "parent": "/(auth)"
     },
-    "/chat/$threadId": {
-      "filePath": "chat/$threadId.tsx",
-      "parent": "/chat"
-    },
     "/(public)/": {
       "filePath": "(public)/index.tsx"
-    },
-    "/chat/": {
-      "filePath": "chat/index.tsx",
-      "parent": "/chat"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
@@ -619,9 +608,17 @@ export const routeTree = rootRoute
       "filePath": "(auth)/two-factor/otp.tsx",
       "parent": "/(auth)"
     },
+    "/(chat)/chat/$threadId": {
+      "filePath": "(chat)/chat/$threadId.tsx",
+      "parent": "/(chat)"
+    },
     "/(auth)/two-factor/": {
       "filePath": "(auth)/two-factor/index.tsx",
       "parent": "/(auth)"
+    },
+    "/(chat)/chat/": {
+      "filePath": "(chat)/chat/index.tsx",
+      "parent": "/(chat)"
     },
     "/dashboard/settings/": {
       "filePath": "dashboard/settings/index.tsx",

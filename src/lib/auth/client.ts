@@ -86,6 +86,6 @@ export const useAuthForConvex = (): ReturnType<React.ComponentProps<typeof Conve
         isAuthenticated: sessionQuery.data !== null,
         fetchAccessToken,
     };
-}
+};
 
 export type AuthClient = ReturnType<typeof createAuthClient>;

@@ -10,6 +10,7 @@ const authQueryKeys = {
 
 export const useSession = () => {
     const session = authClient.useSession();
+    
     return session;
 };
 

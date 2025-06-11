@@ -9,7 +9,7 @@ const isAuthRoute = (path: string) => {
     return ["/login", "/register"].includes(path);
 };
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: session, isPending } = useSession();
     const location = useLocation();
     const router = useRouter();
