@@ -56,23 +56,23 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ssr: false,
 });
 
-function RootDocument() {
+const RootDocument = () => {
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
                 <HeadContent />
             </head>
             <body suppressHydrationWarning>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                    <I18nextProvider i18n={i18n} defaultNS={"translation"}>
-                        <Outlet />
-                        <Toaster />
-                        <TanStackRouterDevtools position="top-right" />
-                        <Scripts />
-                    </I18nextProvider>
-                </ThemeProvider>
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                        <I18nextProvider i18n={i18n} defaultNS={"translation"}>
+                            <Outlet />
+                            <Toaster />
+                            <TanStackRouterDevtools position="top-right" />
+                            <Scripts />
+                        </I18nextProvider>
+                    </ThemeProvider>
                 <ReactScan />
             </body>
         </html>
     );
-}
+};

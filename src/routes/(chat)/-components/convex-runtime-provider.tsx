@@ -2,24 +2,23 @@
 
 import {
     AssistantRuntimeProvider,
-    useLocalRuntime,
+    useExternalStoreRuntime,
     type ChatModelAdapter,
     type ChatModelRunOptions,
-    type TextContentPart,
     type ThreadMessage,
+    type AppendMessage,
+    type ExternalStoreAdapter,
+    type ThreadMessageLike,
+    useExternalMessageConverter,
 } from "@assistant-ui/react";
-import { useConvex, useMutation, type ConvexReactClient, type ReactMutation } from "convex/react";
-import { api } from "convex/_generated/api";
 import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
 import type { Id } from "@cvx/_generated/dataModel";
-import { useMemo } from "react";
-import type { FunctionReference } from "convex/server";
+import { useCallback, useMemo, useState } from "react";
 import { useSession } from "@/hooks/auth-hooks";
 import { redirect } from "@tanstack/react-router";
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { AssistantMessageAccumulator, DataStreamDecoder, unstable_toolResultStream } from "assistant-stream";
-import { env } from "@/lib/env";
 
 type HeadersValue = Record<string, string> | Headers;
 
@@ -52,13 +51,45 @@ type ConvexModelAdapterOptions = {
      */
     onCancel?: () => void;
 };
+export type ConvexMessage = {
+    id?: string | undefined;
+    role: "user" | "assistant";
+    display: ReactNode;
+    createdAt?: Date | undefined;
+};
+
+type ConvexAdapterBase<T> = {
+    isRunning?: boolean | undefined;
+    messages: T[];
+
+    onNew?: (message: AppendMessage) => Promise<void>;
+    onEdit?: ((message: AppendMessage) => Promise<void>) | undefined;
+    onReload?: ((parentId: string | null) => Promise<void>) | undefined;
+    convertMessage?: ((message: T) => ConvexMessage) | undefined;
+
+    adapters?: ExternalStoreAdapter["adapters"] | undefined;
+};
+
+type ConvexMessageConverter<T> = {
+    convertMessage: (message: T) => ConvexMessage;
+};
+
+type ConvexAdapter<T = ConvexMessage> = ConvexAdapterBase<T> & (T extends ConvexMessage ? object : ConvexMessageConverter<T>);
+
+const symbolInternalConvexExtras = Symbol("internal-convex-extras");
+type ConvexThreadExtras =
+    | {
+          [symbolInternalConvexExtras]?: {
+              convertFn: (message: any) => ConvexMessage;
+          };
+      }
+    | undefined;
 
 class ConvexModelAdapter implements ChatModelAdapter {
     private options: Omit<ConvexModelAdapterOptions, "convex" | "sendMessage">;
 
     constructor(options: ConvexModelAdapterOptions) {
-        const { convex, sendMessage, ...rest } = options;
-        this.options = rest;
+        this.options = options;
     }
 
     async *run({ messages, runConfig, abortSignal, context, unstable_assistantMessageId, unstable_getMessage }: ChatModelRunOptions) {
@@ -114,6 +145,55 @@ class ConvexModelAdapter implements ChatModelAdapter {
     }
 }
 
+const convexToThreadMessage = <T,>(converter: (message: T) => ConvexMessage, rawMessage: T): ThreadMessageLike => {
+    const message = converter(rawMessage);
+
+    return {
+        id: message.id,
+        role: message.role,
+        content: [{ type: "text", text: "[Developer: Please set up RSCDisplay]" }],
+        createdAt: message.createdAt,
+    };
+};
+
+const useConvexRuntime = <T extends WeakKey>(adapter: ConvexAdapter<T>) => {
+    const onNew = adapter.onNew;
+    if (!onNew) throw new Error("You must pass a onNew function to useConvexRuntime");
+
+    const convertFn = useMemo(() => {
+        return adapter.convertMessage?.bind(adapter) ?? ((m: T) => m as ConvexMessage);
+    }, [adapter]);
+    const callback = useCallback(
+        (m: T) => {
+            return convexToThreadMessage(convertFn, m);
+        },
+        [convertFn],
+    );
+
+    const messages = useExternalMessageConverter({
+        callback,
+        isRunning: adapter.isRunning ?? false,
+        messages: adapter.messages,
+    });
+
+    const eAdapter: ExternalStoreAdapter = {
+        isRunning: adapter.isRunning,
+        messages,
+        onNew,
+        onEdit: adapter.onEdit,
+        onReload: adapter.onReload,
+        adapters: adapter.adapters,
+        unstable_capabilities: {
+            copy: false,
+        },
+        extras: {
+            [symbolInternalConvexExtras]: { convertFn },
+        },
+    };
+
+    return useExternalStoreRuntime(eAdapter);
+};
+
 export const ConvexRuntimeProvider = ({ children, model, threadId }: { children: ReactNode; model: AgentModel; threadId: Id<any> }) => {
     const sessionData = useSession();
 
@@ -123,7 +203,7 @@ export const ConvexRuntimeProvider = ({ children, model, threadId }: { children:
             [model, threadId, sessionData.data?.session.token],
         );
 
-        const runtime = useLocalRuntime(adapter);
+        const runtime = useConvexRuntime(adapter as unknown as ConvexAdapter<ConvexMessage>);
 
         return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
     }
