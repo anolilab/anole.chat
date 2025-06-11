@@ -1,5 +1,4 @@
 export default {
-    HELLO_WORLD: "Hallo Welt",
     PASSWORD: "Passwort",
     NAME: "Name",
     ROLE: "Rolle",
@@ -20,6 +19,7 @@ export default {
     ADMIN: "Admin",
     USER: "Benutzer",
     IMPERSONATE: "Identität übernehmen",
+
     // Admin Dashboard
     ADMIN_DASHBOARD: "Admin-Dashboard",
     USER_CREATED_SUCCESS: "Benutzer erfolgreich erstellt",
@@ -37,27 +37,7 @@ export default {
     FAILED_TO_UNBAN_USER: "Fehler beim Entsperren des Benutzers",
     GO_BACK: "Zurück",
     RETRY: "Wiederholen?",
-    // Posts
-    POSTS_TITLE: "Beiträge",
-    CREATE_POST: "Beitrag erstellen",
-    CREATE_POST_DESC: "Schreiben Sie über ein interessantes Thema!",
-    POST_CREATED_SUCCESS: "Ihr Beitrag wurde erstellt!",
-    POST_CREATION_ERROR: "Ein unbekannter Fehler ist aufgetreten. Bitte versuchen Sie es erneut!",
-    TITLE: "Titel",
-    CONTENT: "Inhalt",
-    NO_POSTS_AVAILABLE: "Es sind keine Beiträge verfügbar.",
-    NO_CONTENT_AVAILABLE: "Kein Inhalt verfügbar.",
-    CREATED_BY: "Erstellt von",
-    // Navbar
-    HOME: "Startseite",
-    POSTS: "Beiträge",
-    SETTINGS: "Einstellungen",
-    LOGIN: "Anmelden",
-    REGISTER: "Registrieren",
-    // User Avatar
-    THEME: "Thema",
-    LOGOUT: "Abmelden",
-    // Authentication Pages
+
     SIGN_IN: "Anmelden",
     SIGN_IN_DESC: "Geben Sie Ihre E-Mail-Adresse ein, um sich bei Ihrem Konto anzumelden",
     SIGN_UP: "Registrieren",
@@ -201,4 +181,6 @@ export default {
     GERMAN: "Deutsch",
     PORTUGUESE: "Portugiesisch",
     SPANISH: "Spanisch",
+    // Chat
+    WRITE_A_MESSAGE: "Schreiben Sie hier Ihre Nachricht...",
 } as const;

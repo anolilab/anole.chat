@@ -1,5 +1,4 @@
 export default {
-    HELLO_WORLD: "Olá Mundo",
     PASSWORD: "Senha",
     NAME: "Nome",
     ROLE: "Função",
@@ -38,23 +37,6 @@ export default {
     FAILED_TO_UNBAN_USER: "Falha ao desbanir usuário",
     GO_BACK: "Voltar",
     RETRY: "Tentar novamente?",
-    // Posts
-    POSTS_TITLE: "Postagens",
-    CREATE_POST: "Criar Postagem",
-    CREATE_POST_DESC: "Escreva sobre um tópico interessante!",
-    POST_CREATED_SUCCESS: "Sua postagem foi criada!",
-    POST_CREATION_ERROR: "Ocorreu um erro desconhecido. Por favor, tente novamente!",
-    TITLE: "Título",
-    CONTENT: "Conteúdo",
-    NO_POSTS_AVAILABLE: "Não há postagens disponíveis.",
-    NO_CONTENT_AVAILABLE: "Nenhum conteúdo disponível.",
-    CREATED_BY: "Criado por",
-    // Navbar
-    HOME: "Início",
-    POSTS: "Postagens",
-    SETTINGS: "Configurações",
-    LOGIN: "Entrar",
-    REGISTER: "Registrar",
     // User Avatar
     THEME: "Tema",
     LOGOUT: "Sair",
@@ -202,4 +184,6 @@ export default {
     GERMAN: "Alemão",
     PORTUGUESE: "Português",
     SPANISH: "Espanhol",
+    // Chat
+    WRITE_A_MESSAGE: "Escreva sua mensagem aqui...",
 } as const;

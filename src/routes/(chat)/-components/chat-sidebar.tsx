@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail } from "@/components/ui/sidebar";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export const ChatSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
     return (
         <Sidebar {...props}>
             <SidebarHeader>
@@ -26,7 +26,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <ThreadList />
             </SidebarContent>
-
             <SidebarRail />
             <SidebarFooter>
                 <SidebarMenu>
@@ -47,4 +46,4 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarFooter>
         </Sidebar>
     );
-}
+};

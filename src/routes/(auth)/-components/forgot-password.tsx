@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthHelpers } from "@/hooks/auth-hooks";
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";

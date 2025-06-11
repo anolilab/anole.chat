@@ -1,5 +1,4 @@
 export default {
-    HELLO_WORLD: "Hello World",
     PASSWORD: "Password",
     NAME: "Name",
     ROLE: "Role",
@@ -38,23 +37,6 @@ export default {
     FAILED_TO_UNBAN_USER: "Failed to unban user",
     GO_BACK: "Go Back",
     RETRY: "Retry?",
-    // Posts
-    POSTS_TITLE: "Posts",
-    CREATE_POST: "Create Post",
-    CREATE_POST_DESC: "Write about an interesting topic!",
-    POST_CREATED_SUCCESS: "Your post has been created!",
-    POST_CREATION_ERROR: "An unknown error has occurred. Please try again!",
-    TITLE: "Title",
-    CONTENT: "Content",
-    NO_POSTS_AVAILABLE: "There are no posts available.",
-    NO_CONTENT_AVAILABLE: "No content available.",
-    CREATED_BY: "Created by",
-    // Navbar
-    HOME: "Home",
-    POSTS: "Posts",
-    SETTINGS: "Settings",
-    LOGIN: "Login",
-    REGISTER: "Register",
     // User Avatar
     THEME: "Theme",
     LOGOUT: "Logout",
@@ -202,4 +184,6 @@ export default {
     GERMAN: "German",
     PORTUGUESE: "Portuguese",
     SPANISH: "Spanish",
+    // Chat
+    WRITE_A_MESSAGE: "Type your message here...",
 } as const;

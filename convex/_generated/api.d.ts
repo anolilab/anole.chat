@@ -11,6 +11,7 @@
 import type * as agents from "../agents.js";
 import type * as betterAuth from "../betterAuth.js";
 import type * as chat from "../chat.js";
+import type * as crons from "../crons.js";
 import type * as email_index from "../email/index.js";
 import type * as email_templates_subscription_email from "../email/templates/subscription_email.js";
 import type * as env from "../env.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   agents: typeof agents;
   betterAuth: typeof betterAuth;
   chat: typeof chat;
+  crons: typeof crons;
   "email/index": typeof email_index;
   "email/templates/subscription_email": typeof email_templates_subscription_email;
   env: typeof env;

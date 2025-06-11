@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { ThreadListItemPrimitive, ThreadListPrimitive } from "@assistant-ui/react";
-import { ArchiveIcon, PlusIcon } from "lucide-react";
+import { ArchiveIcon, PlusIcon, TrashIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
@@ -36,6 +36,7 @@ const ThreadListItem: FC = () => {
                 <ThreadListItemTitle />
             </ThreadListItemPrimitive.Trigger>
             <ThreadListItemArchive />
+            <ThreadListItemDelete />
         </ThreadListItemPrimitive.Root>
     );
 };
@@ -55,5 +56,15 @@ const ThreadListItemArchive: FC = () => {
                 <ArchiveIcon />
             </TooltipIconButton>
         </ThreadListItemPrimitive.Archive>
+    );
+};
+
+const ThreadListItemDelete: FC = () => {
+    return (
+        <ThreadListItemPrimitive.Delete asChild>
+            <TooltipIconButton className="hover:text-primary text-foreground mr-3 ml-auto size-4 p-0" variant="ghost" tooltip="Delete thread">
+                <TrashIcon />
+            </TooltipIconButton>
+        </ThreadListItemPrimitive.Delete>
     );
 };

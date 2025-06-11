@@ -4,10 +4,13 @@ import { ArrowDownIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, 
 import { cn } from "@/lib/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import { ScrollBar } from "@/components/ui/scroll-area";
+import { ComposerAttachments, ComposerAddAttachment } from "@/components/assistant-ui/attachment";
+import { UserMessageAttachments } from "@/components/assistant-ui/attachment";
 
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { useTranslation } from "react-i18next";
 
 export const Thread: FC = () => {
     return (
@@ -93,12 +96,16 @@ const ThreadWelcomeSuggestions: FC = () => {
 };
 
 const Composer: FC = () => {
+    const { t } = useTranslation();
+
     return (
         <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in">
+            <ComposerAttachments />
+            <ComposerAddAttachment />
             <ComposerPrimitive.Input
                 rows={1}
                 autoFocus
-                placeholder="Write a message..."
+                placeholder={t("WRITE_A_MESSAGE")}
                 className="placeholder:text-muted-foreground max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
             />
             <ComposerAction />
@@ -131,7 +138,7 @@ const UserMessage: FC = () => {
     return (
         <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 [&:where(>*)]:col-start-2">
             <UserActionBar />
-
+            <UserMessageAttachments />
             <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[calc(var(--thread-max-width)*0.8)] rounded-3xl px-5 py-2.5 break-words">
                 <MessagePrimitive.Content components={{ Text: MarkdownText }} />
             </div>
