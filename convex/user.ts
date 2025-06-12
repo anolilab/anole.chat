@@ -1,8 +1,19 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
-import type { Id, Doc } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 import { ROLES, type Role } from "./types";
 import { api, internal } from "./_generated/api";
+
+export const publicUserProfileValidator = v.object({
+    _id: v.id("user"),
+    _creationTime: v.number(),
+    name: v.union(v.string(), v.null()),
+    robloxUsername: v.union(v.string(), v.null()),
+    robloxAvatarUrl: v.union(v.string(), v.null()),
+    role: v.string(),
+    averageRating: v.union(v.number(), v.null()),
+    vouchCount: v.number(),
+});
 
 export type PublicUserProfile = {
     _id: Id<"user">;
@@ -22,26 +33,30 @@ type VouchStats = {
 
 export const initializeNewUser = internalMutation({
     args: { userId: v.id("user"), email: v.optional(v.string()) }, // email is passed but not strictly used in this version
+    returns: v.null(),
     handler: async (ctx, { userId }) => {
         // Removed unused email from destructuring
         const existingAppUser = await ctx.db.get(userId);
 
         if (existingAppUser?.role) {
             console.log(`User ${userId} already initialized with roles.`);
-            return;
+            return null;
         }
 
         await ctx.db.patch(userId, {
             role: ROLES.USER,
         });
         console.log(`Initialized user ${userId} with default role.`);
+        return null;
     },
 });
 
 export const getPublicUserProfile = query({
     args: { userId: v.id("user") },
+    returns: v.union(publicUserProfileValidator, v.null()),
     handler: async (ctx, { userId }): Promise<PublicUserProfile | null> => {
         const user = await ctx.db.get(userId);
+
         if (!user) {
             return null;
         }
@@ -68,6 +83,7 @@ export const updateMyProfile = mutation({
         bio: v.optional(v.string()),
         sessionToken: v.string(),
     },
+    returns: v.object({ success: v.boolean() }),
     handler: async (ctx, args): Promise<{ success: boolean }> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
@@ -92,6 +108,7 @@ export const setUserRole = mutation({
         role: v.union(v.literal(ROLES.USER), v.literal(ROLES.BANNED), v.literal(ROLES.ADMIN)),
         sessionToken: v.string(),
     },
+    returns: v.object({ success: v.boolean() }),
     handler: async (ctx, { userId, role, sessionToken }): Promise<{ success: boolean }> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
@@ -121,6 +138,7 @@ export const setUserRole = mutation({
 
 export const toggleUserBanStatus = mutation({
     args: { userId: v.id("user"), ban: v.boolean(), sessionToken: v.string() },
+    returns: v.object({ success: v.boolean(), message: v.string() }),
     handler: async (ctx, { userId, ban, sessionToken }): Promise<{ success: boolean; message: string }> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
@@ -142,8 +160,9 @@ export const toggleUserBanStatus = mutation({
             throw new Error("User not found");
         }
 
-        console.log(`Admin ${sessionData.userId} ${ban ? "banned" : "unbanned"} user ${userId}. (Conceptual: isBanned field not in schema)`);
+        const newRole = ban ? ROLES.BANNED : ROLES.USER;
+        await ctx.db.patch(userId, { role: newRole });
 
-        return { success: true, message: `User ${userId} ban status update logged (conceptual).` };
+        return { success: true, message: `User ${userId} has been ${ban ? "banned" : "unbanned"}.` };
     },
 });

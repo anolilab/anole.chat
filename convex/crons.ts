@@ -10,6 +10,7 @@ const THRESHOLD_MS = 1000 * 60 * 60 * 24; // 24 hours
 
 export const deleteUnusedFiles = internalMutation({
     args: { cursor: v.optional(v.string()) },
+    returns: v.null(),
     handler: async (ctx, args) => {
         const files = await ctx.runQuery(components.agent.files.getFilesToDelete, {
             paginationOpts: {
@@ -34,6 +35,7 @@ export const deleteUnusedFiles = internalMutation({
                 cursor: files.continueCursor,
             });
         }
+        return null;
     },
 });
 

@@ -22,15 +22,6 @@ export const PLANS = {
 export const planKeyValidator = v.union(v.literal(PLANS.FREE), v.literal(PLANS.PRO));
 export type PlanKey = Infer<typeof planKeyValidator>;
 
-const priceValidator = v.object({
-    stripeId: v.string(),
-    amount: v.number(),
-});
-const pricesValidator = v.object({
-    [CURRENCIES.USD]: priceValidator,
-    [CURRENCIES.EUR]: priceValidator,
-});
-
 const schema = defineSchema({
     // Start BetterAuth
     user: defineTable({
@@ -47,8 +38,8 @@ const schema = defineSchema({
         role: v.union(v.literal("user"), v.literal("admin"), v.literal("banned")),
         updatedAt: v.string(),
     })
-        .index("email", ["email"])
-        .index("customerId", ["customerId"]),
+        .index("by_email", ["email"])
+        .index("by_customerId", ["customerId"]),
 
     account: defineTable({
         accountId: v.string(),
@@ -62,7 +53,7 @@ const schema = defineSchema({
         scope: v.optional(v.string()),
         password: v.optional(v.string()),
         updatedAt: v.string(),
-    }).index("byUserId", ["userId"]),
+    }).index("by_userId", ["userId"]),
 
     session: defineTable({
         expiresAt: v.string(),
@@ -72,8 +63,8 @@ const schema = defineSchema({
         userAgent: v.optional(v.string()),
         userId: v.id("user"),
     })
-        .index("byToken", ["token"])
-        .index("byUserId", ["userId"]),
+        .index("by_token", ["token"])
+        .index("by_userId", ["userId"]),
 
     verification: defineTable({
         identifier: v.string(),
@@ -87,19 +78,6 @@ const schema = defineSchema({
         privateKey: v.string(),
     }),
     // End BetterAuth
-
-    plans: defineTable({
-        key: planKeyValidator,
-        stripeId: v.string(),
-        name: v.string(),
-        description: v.string(),
-        prices: v.object({
-            [INTERVALS.MONTH]: pricesValidator,
-            [INTERVALS.YEAR]: pricesValidator,
-        }),
-    })
-        .index("key", ["key"])
-        .index("stripeId", ["stripeId"]),
 
     subscription: defineTable({
         id: v.string(),
@@ -126,9 +104,9 @@ const schema = defineSchema({
         customFieldData: v.optional(v.string()), // JSON string
         userId: v.id("user"),
     })
-        .index("userId", ["userId"])
-        .index("id", ["id"])
-        .index("customerId", ["customerId"]),
+        .index("by_userId", ["userId"])
+        .index("by_subscription_id", ["id"])
+        .index("by_customerId", ["customerId"]),
 
     vouches: defineTable({
         fromUserId: v.id("user"),
@@ -138,7 +116,7 @@ const schema = defineSchema({
     })
         .index("by_toUserId", ["toUserId"])
         .index("by_fromUserId", ["fromUserId"])
-        .index("by_toUserId_fromUserId", ["toUserId", "fromUserId"]),
+        .index("by_toUserId_and_fromUserId", ["toUserId", "fromUserId"]),
 
     userSettings: defineTable({
         userId: v.id("user"),

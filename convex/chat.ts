@@ -5,7 +5,39 @@ import { AgentModel, getAgent } from "./agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import { Id } from "./_generated/dataModel";
 import z from "zod";
-import type { MessageDoc, ThreadDoc } from "@convex-dev/agent";
+import { vStreamArgs, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
+
+const messageContentTextValidator = v.object({
+    type: v.literal("text"),
+    text: v.string(),
+});
+
+const messageContentImageValidator = v.object({
+    type: v.literal("image"),
+    image: v.string(),
+    mediaType: v.optional(v.string()),
+});
+
+const messageDocValidator = v.object({
+    _id: v.string(),
+    _creationTime: v.number(),
+    threadId: v.string(),
+    userId: v.optional(v.string()),
+    role: v.optional(v.string()),
+    content: v.optional(v.array(v.any())),
+    data: v.optional(v.any()),
+    metadata: v.optional(v.any()),
+});
+
+const threadDocValidator = v.object({
+    _id: v.string(),
+    _creationTime: v.number(),
+    userId: v.optional(v.string()),
+    title: v.optional(v.string()),
+    summary: v.optional(v.string()),
+    status: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+});
 
 export const createThread = mutation({
     args: {
@@ -15,6 +47,7 @@ export const createThread = mutation({
         branchPoint: v.optional(v.number()),
         branchName: v.optional(v.string()),
     },
+    returns: v.string(),
     handler: async (ctx, args): Promise<string> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
@@ -50,14 +83,22 @@ export const createThread = mutation({
     },
 });
 
-export const listMessages = query({
+export const listThreadMessages = query({
     args: {
         threadId: v.string(),
         paginationOpts: paginationOptsValidator,
         model: v.string(),
         sessionToken: v.string(),
+        streamArgs: vStreamArgs,
     },
-    handler: async (ctx, { threadId, paginationOpts, model, sessionToken }): Promise<PaginationResult<MessageDoc>> => {
+    // TODO: fix this type
+    //returns: v.object({
+    //    page: v.array(messageDocValidator),
+    //    isDone: v.boolean(),
+    //    continueCursor: v.string(),
+    //    streams: v.any(),
+    //}),
+    handler: async (ctx, { threadId, paginationOpts, model, sessionToken, streamArgs }): Promise<PaginationResult<MessageDoc>> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
@@ -137,6 +178,11 @@ export const continueThread = action({
 
 export const getThreads = query({
     args: { sessionToken: v.string(), paginationOpts: paginationOptsValidator },
+    returns: v.object({
+        page: v.array(threadDocValidator),
+        isDone: v.boolean(),
+        continueCursor: v.string(),
+    }),
     handler: async (ctx, { sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
@@ -157,12 +203,12 @@ export const updateThread = mutation({
         threadId: v.string(),
         title: v.optional(v.string()),
         summary: v.optional(v.string()),
-        order: v.optional(v.number()),
         status: v.optional(v.union(v.literal("active"), v.literal("archived"))),
         model: v.string(),
         sessionToken: v.string(),
     },
-    handler: async (ctx, { threadId, title, sessionToken, model, summary, order, status }): Promise<string> => {
+    returns: v.string(),
+    handler: async (ctx, { threadId, title, sessionToken, model, summary, status }): Promise<string> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
@@ -184,6 +230,10 @@ export const updateThread = mutation({
 // DEPRECATED: Use deleteThreadWithRelationships instead
 export const deleteThread = mutation({
     args: { threadId: v.string(), sessionToken: v.string() },
+    returns: {
+        cursor: v.string(),
+        isDone: v.boolean(),
+    },
     handler: async (ctx, { threadId, sessionToken }) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
@@ -235,13 +285,14 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         sessionToken,
     });
 
-    const result = await thread.streamText({ prompt });
+    const result = await thread.streamText({ prompt }, { saveStreamDeltas: { chunking: "line", throttleMs: 1000 } });
 
     return result.toDataStreamResponse();
 });
 
 export const createTitleChat = internalAction({
     args: { threadId: v.string(), prompt: v.string(), sessionToken: v.string() },
+    returns: v.null(),
     handler: async (ctx, args) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
@@ -257,8 +308,8 @@ export const createTitleChat = internalAction({
 
         const metaData = await thread.getMetadata();
 
-        if (!metaData.title) {
-            return;
+        if (metaData.title) {
+            return null;
         }
 
         const o = await thread.generateObject(
@@ -276,6 +327,7 @@ export const createTitleChat = internalAction({
         const jsonResponse = o.toJsonResponse();
 
         await thread.updateMetadata(await jsonResponse.json());
+        return null;
     },
 });
 
@@ -393,6 +445,7 @@ export const deleteThreadWithRelationships = mutation({
 
 export const createSummarizeChat = internalAction({
     args: { threadId: v.string(), sessionToken: v.string() },
+    returns: v.null(),
     handler: async (ctx, args) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
@@ -426,8 +479,8 @@ export const createSummarizeChat = internalAction({
         );
 
         const jsonResponse = o.toJsonResponse();
-
         await thread.updateMetadata(await jsonResponse.json());
+        return null;
     },
 });
 
