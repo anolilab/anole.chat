@@ -1,8 +1,8 @@
 {
     "name": "ai-chat",
-    "private": true,
     "version": "0.0.1",
-    "type": "module",
+    "private": true,
+    "license": "MIT",
     "author": {
         "name": "Daniel Bannert",
         "url": "https://github.com/anolilab/ai-chat"
@@ -13,18 +13,19 @@
             "url": "https://github.com/anolilab/ai-chat"
         }
     ],
-    "license": "MIT",
+    "type": "module",
     "scripts": {
-        "dev": "run-p dev:convex dev:tanstack",
-        "dev:tanstack": "vite dev --port 5173",
-        "dev:convex": "convex dev --local --typecheck=disable",
-        "start": "node .output/server/index.mjs",
+        "add-ui-components": "pnpm dlx shadcn@latest add ",
         "build": "vite build",
-        "serve": "vite preview",
-        "test": "vitest run",
-        "lint:prettier:fix": "prettier --write .",
+        "dev": "run-p dev:convex dev:tanstack",
+        "dev:convex": "convex dev --local --typecheck=disable",
+        "dev:tanstack": "vite dev --port 5173",
         "email:dev": "email dev --dir src/components/emails --port 5555",
-        "add-ui-components": "pnpm dlx shadcn@latest add "
+        "lint:prettier:fix": "prettier --write .",
+        "serve": "vite preview",
+        "sort-package-json": "sort-package-json ./package.json",
+        "start": "node .output/server/index.mjs",
+        "test": "vitest run"
     },
     "dependencies": {
         "@ai-sdk/anthropic": "^1.2.12",
@@ -93,14 +94,12 @@
         "i18next-browser-languagedetector": "^8.2.0",
         "i18next-resources-to-backend": "^1.2.1",
         "input-otp": "^1.4.2",
-        "install": "^0.13.0",
         "jose": "^6.0.11",
         "lucide-react": "^0.515.0",
         "mermaid": "^11.6.0",
         "motion": "^12.18.1",
         "nanoid": "^5.1.5",
         "next-themes": "^0.4.6",
-        "oslo": "^1.2.1",
         "pdf-parse": "^1.1.1",
         "posthog-js": "^1.252.1",
         "radix-ui": "latest",
@@ -124,7 +123,6 @@
         "resend": "^4.6.0",
         "shiki": "^3.6.0",
         "sonner": "^2.0.5",
-        "superjson": "^2.2.2",
         "tailwind-merge": "^3.3.1",
         "tailwindcss": "^4.1.10",
         "tailwindcss-animate": "^1.0.7",
@@ -139,6 +137,7 @@
     "devDependencies": {
         "@anolilab/prettier-config": "6.0.1",
         "@faker-js/faker": "^9.8.0",
+        "@tailwindcss/typography": "^0.5.16",
         "@testing-library/dom": "^10.4.0",
         "@testing-library/react": "^16.3.0",
         "@types/react": "^19.1.8",
@@ -150,8 +149,12 @@
         "prettier-plugin-tailwindcss": "0.6.12",
         "eslint-plugin-react-compiler": "19.1.0-rc.2",
         "react-scan": "^0.3.4",
+        "sort-package-json": "^3.2.1",
+        "tailwindcss": "^4.1.10",
+        "tailwindcss-animate": "^1.0.7",
         "typescript": "^5.8.3",
         "vite": "^6.3.5",
+        "vite-tsconfig-paths": "^5.1.4",
         "vitest": "^3.2.3",
         "web-vitals": "^5.0.3"
     },

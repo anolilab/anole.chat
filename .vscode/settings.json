@@ -4,14 +4,14 @@
     "editor.renderWhitespace": "all",
 
     // Disable the default formatter, use eslint instead
-    "prettier.enable": false,
-    "editor.formatOnSave": false,
+    "prettier.enable": true,
+    "editor.formatOnSave": true,
 
     // Auto fix
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
-        "source.organizeImports": "never"
-    },
+    //"editor.codeActionsOnSave": {
+    //    "source.fixAll.eslint": "explicit",
+    //    "source.organizeImports": "never"
+    //},
 
     "eslint.runtime": "node",
 

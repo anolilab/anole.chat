@@ -17,7 +17,7 @@ export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
     return (
         <ScrollAreaPrimitive.Root asChild>
             <ThreadPrimitive.Root
-                className="bg-background box-border flex h-full flex-col overflow-hidden"
+                className="box-border flex h-full flex-col overflow-hidden"
                 style={{
                     ["--thread-max-width" as string]: "42rem",
                 }}
@@ -105,20 +105,39 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
     }, []);
 
     return (
-        <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in">
-            <ComposerAttachments />
-            <ComposerAddAttachment />
-            <ComposerPrimitive.Input
-                data-composer-input
-                rows={1}
-                autoFocus
-                placeholder={t("WRITE_A_MESSAGE")}
-                className="placeholder:text-muted-foreground max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
+        <div className="w-full rounded-lg bg-neutral-200 p-1">
+            <div className="flex flex-row items-center justify-between">
+                <ComposerAddAttachment />
+                <ComposerAttachments />
+            </div>
+            <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white px-2.5 shadow-sm transition-colors ease-in">
+                <ComposerPrimitive.Input
+                    data-composer-input
+                    rows={1}
+                    autoFocus
+                    placeholder={t("WRITE_A_MESSAGE")}
+                    className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
                 onChange={handleInputChange}
             />
             {threadId && <PromptImprovement threadId={threadId} currentInputValue={inputValue?.trim()} />}
-            <ComposerAction />
-        </ComposerPrimitive.Root>
+                <div className="flex flex-row items-center justify-between w-full">
+                    <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as AgentModel)}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {Object.keys(agents).map((model) => (
+                                <SelectItem key={model} value={model}>
+                                    {model}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <div className="grow" />
+                    <ComposerAction />
+                </div>
+            </ComposerPrimitive.Root>
+        </div>
     );
 };
 
@@ -148,7 +167,7 @@ const UserMessage: FC = () => {
         <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 [&:where(>*)]:col-start-2">
             <UserActionBar />
             <UserMessageAttachments />
-            <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[calc(var(--thread-max-width)*0.8)] rounded-3xl px-5 py-2.5 break-words">
+            <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[var(--thread-max-width)] rounded-3xl px-5 py-2.5 break-words">
                 <MessagePrimitive.Content components={{ Text: MarkdownText }} />
             </div>
 
@@ -176,7 +195,7 @@ const UserActionBar: FC = () => {
 
 const EditComposer: FC = () => {
     return (
-        <ComposerPrimitive.Root className="bg-muted my-4 flex w-full max-w-[var(--thread-max-width)] flex-col gap-2 rounded-xl">
+        <ComposerPrimitive.Root className="bg-muted my-4 flex w-full max-w-[var(--thread-max-width)] flex-col gap-2">
             <ComposerPrimitive.Input className="text-foreground flex h-8 w-full resize-none bg-transparent p-4 pb-0 outline-none" />
 
             <div className="mx-3 mb-3 flex items-center justify-center gap-2 self-end">
@@ -194,7 +213,7 @@ const EditComposer: FC = () => {
 const AssistantMessage: FC = () => {
     return (
         <MessagePrimitive.Root className="relative grid w-full max-w-[var(--thread-max-width)] grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] py-4">
-            <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 max-w-[calc(var(--thread-max-width)*0.8)] leading-7 break-words">
+            <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 max-w-[var(--thread-max-width)] leading-7 break-words">
                 <MessagePrimitive.Content components={{ Text: MarkdownText }} />
                 <MessageError />
             </div>

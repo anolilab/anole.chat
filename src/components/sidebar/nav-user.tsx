@@ -16,15 +16,7 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/c
 import { authClient } from "@/lib/auth/client";
 import { useRouter } from "@tanstack/react-router";
 
-export function NavUser({
-    user,
-}: {
-    user: {
-        name: string;
-        email: string;
-        avatar: string;
-    };
-}) {
+export function NavUser() {
     const { isMobile } = useSidebar();
     const { data } = authClient.useSession();
     const router = useRouter();
@@ -37,7 +29,7 @@ export function NavUser({
         <SidebarMenu>
             <SidebarMenuItem>
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild className="fill-white text-white">
                         <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                             <Avatar className="h-8 w-8 rounded-lg">
                                 {data.user.image && <AvatarImage src={data.user.image} alt={data.user.name} />}

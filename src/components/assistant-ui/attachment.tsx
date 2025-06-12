@@ -174,7 +174,7 @@ export const ComposerAttachments: FC = () => {
 export const ComposerAddAttachment: FC = () => {
     return (
         <ComposerPrimitive.AddAttachment asChild>
-            <TooltipIconButton className="my-2.5 size-8 p-2 transition-opacity ease-in" tooltip="Add Attachment" variant="ghost">
+            <TooltipIconButton className="size-8 p-2 transition-opacity ease-in hover:text-neutral-500" tooltip="Add Attachment" variant="icon">
                 <PaperclipIcon />
             </TooltipIconButton>
         </ComposerPrimitive.AddAttachment>

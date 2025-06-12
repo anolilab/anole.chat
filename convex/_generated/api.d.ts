@@ -21,6 +21,7 @@ import type * as rateLimiter from "../rateLimiter.js";
 import type * as types from "../types.js";
 import type * as user from "../user.js";
 import type * as utils_auth from "../utils/auth.js";
+import type * as utils_errors from "../utils/errors.js";
 
 import type {
   ApiFromModules,
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   types: typeof types;
   user: typeof user;
   "utils/auth": typeof utils_auth;
+  "utils/errors": typeof utils_errors;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

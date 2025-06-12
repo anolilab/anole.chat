@@ -2,6 +2,8 @@ import { Assistant } from "@/routes/(chat)/-components/assistant";
 import { redirect, createFileRoute } from "@tanstack/react-router";
 import { api } from "@cvx/_generated/api";
 import { getServerSession } from "@/lib/auth/client";
+import { ModelProvider } from "@/routes/(chat)/-components/model-context";
+import { DEFAULT_MODEL } from "@cvx/agents";
 
 const ChatPage = () => {
     const { threadId } = Route.useParams();
@@ -20,8 +22,8 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
 
         if (params.threadId === "new") {
             const newThreadId = await context.convex.mutation(api.chat.createThread, {
-                model: "gemini-1.5-flash",
-                sessionToken: session?.session?.token,
+                model: DEFAULT_MODEL,
+                sessionToken: session?.session?.token as string,
             });
 
             throw redirect({

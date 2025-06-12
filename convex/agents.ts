@@ -105,6 +105,8 @@ export const agents = {
 
 export type AgentModel = keyof typeof agents;
 
+export const DEFAULT_MODEL: AgentModel = "gemini-1.5-flash";
+
 export function getAgent(model: AgentModel) {
     const agent = agents[model];
 

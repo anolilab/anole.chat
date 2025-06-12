@@ -2,6 +2,7 @@
 
 import type { FC } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useModelContext } from "./model-context";
 
 const models = [
     {
@@ -40,9 +41,11 @@ const models = [
         icon: mistral,
     },
 ];
+
 export const ModelPicker: FC = () => {
+    const { selectedModel, setSelectedModel } = useModelContext();
     return (
-        <Select defaultValue={models[0]?.value ?? ""}>
+        <Select value={selectedModel} onValueChange={setSelectedModel}>
             <SelectTrigger className="max-w-[300px]">
                 <SelectValue />
             </SelectTrigger>

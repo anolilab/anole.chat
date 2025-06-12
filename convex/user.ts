@@ -101,6 +101,60 @@ export const updateMyProfile = mutation({
     },
 });
 
+export const updateSelectedModel = mutation({
+    args: {
+        model: v.string(),
+        sessionToken: v.string(),
+    },
+    returns: v.object({ success: v.boolean() }),
+    handler: async (ctx, { model, sessionToken }) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Find userSettings by userId
+        const userSettings = await ctx.db
+            .query("userSettings")
+            .withIndex("by_userId", (q) => q.eq("userId", sessionData.userId))
+            .unique();
+
+        if (userSettings) {
+            await ctx.db.patch(userSettings._id, { selectedAgent: model });
+        } else {
+            await ctx.db.insert("userSettings", {
+                userId: sessionData.userId,
+                selectedAgent: model,
+            });
+        }
+
+        return { success: true };
+    },
+});
+
+export const getSelectedModel = query({
+    args: {
+        sessionToken: v.string(),
+    },
+    returns: v.union(v.string(), v.null()),
+    handler: async (ctx, { sessionToken }): Promise<string | null> => {
+        const sessionData: { userId: Id<"user"> } | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+        const userSettings: { selectedAgent?: string } | null = await ctx.db
+            .query("userSettings")
+            .withIndex("by_userId", (q) => q.eq("userId", sessionData.userId))
+            .unique();
+        return userSettings?.selectedAgent ?? null;
+    },
+});
+
 // --- Admin Functions ---
 export const setUserRole = mutation({
     args: {
