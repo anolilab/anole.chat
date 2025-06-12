@@ -312,9 +312,51 @@ export const createTitleChat = internalAction({
             return null;
         }
 
+        const titleGeneratorPrompt = `# Mission
+- Generate a concise, relevant title for a chat conversation based on the first user message and the main AI's context
+- Create titles that accurately reflect conversation topic without any AI commentary
+
+# Context
+- This title generation happens at the start of each new conversation
+- The title will be displayed in the conversation history/list for users to identify past conversations
+- Effective titles help users quickly locate and resume relevant conversations
+- You are generating titles for conversations with a main AI assistant, not about yourself as a title generator
+
+# Rules
+- Titles must be 4 words or fewer
+- Never respond to the message content directly
+- Never apologize or explain AI limitations
+- Never ask follow-up questions
+- Generate "Inappropriate Content" as the title if message contains harmful, offensive, or unsafe content
+- Do not engage with the user in any way beyond generating the title
+
+# Instructions
+- First, read the main AI's system prompt to understand its identity and context
+- Extract the main topic/intent from the user's first message
+- When creating titles, consider the specific role of the AI as defined in its system prompt
+- Distill to a concise phrase (1-4 words)
+- Use specific, descriptive nouns and active verbs when possible
+- Prioritize clarity and relevance over creative expression
+- For code-related queries, include the relevant programming language
+- For factual queries, include the subject area
+- For multi-topic messages, prioritize the primary request
+- For questions about the AI's nature or capabilities, frame titles based on the AI's defined identity (e.g., "Legal Assistant" or "Coding Helper" rather than generic "AI Assistant")?
+
+# Input
+${args.prompt}
+
+# Output Format
+- Plain text string
+- 1-4 words maximum
+- No punctuation at the end
+- Title case formatting
+- No quotes or other formatting characters
+- No "Title:" word at the start of the title. The "Title:" indicator in the examples are just for examples.
+`;
+
         const o = await thread.generateObject(
             {
-                prompt: `Generate a concise, 4-5 word title for a new conversation that captures the core topic of this user's prompt. Do not use quotation marks in the title. User prompt: "${args.prompt}"`,
+                prompt: titleGeneratorPrompt,
                 schema: z.object({ title: z.string() }),
             },
             {

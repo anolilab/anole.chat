@@ -125,6 +125,7 @@ const schema = defineSchema({
                 vouchReceived: v.optional(v.boolean()),
             }),
         ),
+        selectedAgent: v.optional(v.string()),
     }).index("by_userId", ["userId"]),
 
     // Thread relationships for branching and hierarchy

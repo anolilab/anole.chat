@@ -30,6 +30,9 @@ export const createRouter = () => {
             queries: {
                 queryKeyHashFn: convexQueryClient.hashFn(),
                 queryFn: convexQueryClient.queryFn(),
+                refetchOnWindowFocus: true,
+                refetchOnReconnect: true,
+                refetchOnMount: true,
             },
         },
         queryCache: new QueryCache(),
