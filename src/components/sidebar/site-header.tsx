@@ -11,4 +11,5 @@ export const SiteHeader = ({ title }: { title: string }) => {
             </div>
         </header>
     );
-}
+};
+

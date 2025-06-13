@@ -110,7 +110,7 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                 <ComposerAddAttachment />
                 <ComposerAttachments />
             </div>
-            <ComposerPrimitive.Root className="backdrop-blur-lg focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm transition-colors ease-in">
+            <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg transition-colors ease-in">
                 <ComposerPrimitive.Input
                     data-composer-input
                     rows={1}
