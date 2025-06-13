@@ -38,7 +38,7 @@ export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
                             <div className="min-h-8 flex-grow" />
                         </ThreadPrimitive.If>
 
-                        <div className="sticky bottom-0 mt-3 flex w-full max-w-[var(--thread-max-width)] flex-col items-center justify-end rounded-t-lg bg-inherit pb-4">
+                        <div className="sticky bottom-0 flex w-full max-w-[var(--thread-max-width)] flex-col items-center justify-end rounded-t-lg bg-inherit">
                             <ThreadScrollToBottom />
                             <Composer threadId={threadId} />
                         </div>
@@ -105,12 +105,12 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
     }, []);
 
     return (
-        <div className="w-full rounded-lg bg-neutral-200 p-1">
+        <div className="w-full rounded-lg bg-neutral-200/80 p-1 backdrop-blur-lg">
             <div className="flex flex-row items-center justify-between">
                 <ComposerAddAttachment />
                 <ComposerAttachments />
             </div>
-            <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white px-2.5 shadow-sm transition-colors ease-in">
+            <ComposerPrimitive.Root className="backdrop-blur-lg focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm transition-colors ease-in">
                 <ComposerPrimitive.Input
                     data-composer-input
                     rows={1}

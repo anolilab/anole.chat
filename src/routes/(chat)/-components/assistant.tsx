@@ -9,11 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { AgentModel } from "convex/agents";
 import { ConvexExternalRuntimeProvider, ThreadProvider } from "./convex-external-runtime-provider";
 import { Thread } from "@/components/assistant-ui/thread";
+import { useModelContext } from "./model-context";
+import { ChatSiteHeader } from "./chat-site-header";
 
-const models: AgentModel[] = ["gpt-4o-mini", "claude-3-5-sonnet", "gemini-1.5-flash"];
-
-export const Assistant = ({ threadId }: { threadId?: string }) => {
-    const [selectedModel, setSelectedModel] = useState<AgentModel>("gemini-1.5-flash");
+export const Assistant = ({ threadId }: { threadId: Id<"threads"> }) => {
+    const { selectedModel } = useModelContext();
 
     return (
                     <SidebarProvider
@@ -31,6 +31,7 @@ export const Assistant = ({ threadId }: { threadId?: string }) => {
                         <ChatSidebar />
                         <AppSidebar header={null} content={<ThreadList />} variant="inset" />
                             <SidebarInset className="flex flex-1 flex-col">
+                            <ChatSiteHeader threadId={threadId} />
                                 <Thread threadId={threadId} />
                             </SidebarInset>
                         </main>

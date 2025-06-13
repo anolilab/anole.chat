@@ -37,7 +37,8 @@ export function NavUser() {
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">{data.user.name}</span>
-                                <span className="truncate text-xs">{data.user.email}</span>
+                                {/* TODO: add user role */}
+                                <span className="truncate text-xs">Pro</span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
