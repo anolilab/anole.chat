@@ -76,7 +76,7 @@ const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
 };
 
 export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: ConvexExternalRuntimeProviderProps) => {
-    const navigate = useNavigate({ from: "/chat/$threadId" });
+    const navigate = useNavigate();
     const sessionData = useSession();
     const threadContext = useThreadContext();
     const [isRunning, setIsRunning] = useState(false);
@@ -104,16 +104,17 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     }, [threadId, currentThreadId, setCurrentThreadId, threads, setThreads, setThreadMetadata]);
 
     const currentMessages = threads.get(currentThreadId) || [];
+    // Currently tanstack query has no other way to check if a query is skipped
+    const paginatedMessagesArgs =
+        currentThreadId !== "default"
+            ? {
+                  threadId: currentThreadId,
+                  model: model,
+                  sessionToken: sessionData?.data?.session?.token,
+              }
+            : "skip";
 
-    const paginatedMessages = useThreadMessages(
-        api.chat.listMessages,
-        {
-            threadId: currentThreadId,
-            model: model,
-            sessionToken: sessionData?.data?.session?.token,
-        },
-        { initialNumItems: 50 },
-    );
+    const paginatedMessages = useThreadMessages(api.chat.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
 
     const convexThreads = usePaginatedQuery(api.chat.getThreads, { sessionToken: sessionData?.data?.session?.token as string }, { initialNumItems: 10 });
     const updateThread = useMutation(api.chat.updateThread);
@@ -121,12 +122,13 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const createThreadMutation = useMutation(api.chat.createThread);
 
     useEffect(() => {
-        setIsRunning(paginatedMessages.isLoading);
+        setIsRunning(paginatedMessagesArgs === "skip" ? false : paginatedMessages.isLoading);
     }, [paginatedMessages.isLoading]);
 
     useEffect(() => {
-        if (!paginatedMessages.isLoading && paginatedMessages.results) {
+        if (!paginatedMessages.isLoading && paginatedMessages.results && currentThreadId) {
             const newConvertedMessages = paginatedMessages.results.map(convertConvexMessage);
+
             setThreads((prev) => new Map(prev).set(currentThreadId, newConvertedMessages));
         }
     }, [paginatedMessages.isLoading, currentThreadId, setThreads]);
@@ -246,7 +248,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
             // Check if we need to create the thread in Convex first
             let actualThreadId = currentThreadId;
-            if (currentThreadId.startsWith("thread-") && sessionData?.data?.session?.token) {
+            if (sessionData?.data?.session?.token) {
                 try {
                     // This is a local thread, create it in Convex
                     actualThreadId = await createThreadMutation({

@@ -175,9 +175,9 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
                 navigate({ to: "/chat/$threadId", params: { threadId: parentId } });
             } else {
                 // Redirect to main chat with notification
-                navigate({ 
-                    to: "/chat", 
-                    search: { redirectReason: "thread-deleted" }
+                navigate({
+                    to: "/chat",
+                    search: { redirectReason: "thread-deleted" },
                 });
             }
         }

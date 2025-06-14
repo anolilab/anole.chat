@@ -10,6 +10,11 @@ const ChatPage = () => {
 };
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({
+    validateSearch: (search: Record<string, unknown>) => {
+        return {
+            initialMessage: search.initialMessage as string | undefined,
+        };
+    },
     beforeLoad: async ({ context, params }) => {
         const session = await getServerSession();
 
@@ -22,6 +27,7 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
             throw redirect({
                 to: "/chat/$threadId",
                 params: { threadId: newThreadId },
+                search: { initialMessage: undefined },
                 replace: true,
             });
         }
@@ -44,7 +50,7 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
             } catch (error) {
                 // If validation fails (e.g., network error), redirect to /chat
                 console.error("Failed to validate thread:", error);
-                
+
                 throw redirect({
                     to: "/chat",
                     search: { redirectReason: "validation-error" },
