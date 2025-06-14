@@ -169,9 +169,17 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
         // Switch to parent if current thread is being deleted
         if (currentThreadId === threadId) {
-            const parentId = getParentThread(threadId) || "default";
-            setCurrentThreadId(parentId);
-            navigate({ to: "/chat/$threadId", params: { threadId: parentId } });
+            const parentId = getParentThread(threadId);
+            if (parentId && parentId !== "default") {
+                setCurrentThreadId(parentId);
+                navigate({ to: "/chat/$threadId", params: { threadId: parentId } });
+            } else {
+                // Redirect to main chat with notification
+                navigate({ 
+                    to: "/chat", 
+                    search: { redirectReason: "thread-deleted" }
+                });
+            }
         }
     };
 

@@ -444,3 +444,31 @@ export const getAllThreadRelationships = query({
         return relationships;
     },
 });
+
+export const validateThreadExists = query({
+    args: {
+        threadId: v.string(),
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        try {
+            // Check if the thread exists using the agent API
+            const thread = await ctx.runQuery(components.agent.threads.getThread, {
+                threadId: args.threadId,
+            });
+
+            return thread !== null;
+        } catch (error) {
+            // If thread doesn't exist or any error occurs, return false
+            return false;
+        }
+    },
+});

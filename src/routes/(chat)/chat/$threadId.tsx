@@ -1,20 +1,19 @@
 import { Assistant } from "@/routes/(chat)/-components/assistant";
 import { redirect, createFileRoute } from "@tanstack/react-router";
 import { api } from "@cvx/_generated/api";
-import type { Id } from "@cvx/_generated/dataModel";
 import { getServerSession } from "@/lib/auth/client";
 
 const ChatPage = () => {
     const { threadId } = Route.useParams();
 
-    return <Assistant threadId={threadId as Id<"threads">} />;
+    return <Assistant threadId={threadId} />;
 };
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({
     beforeLoad: async ({ context, params }) => {
-        if (params.threadId === "new") {
-            const session = await getServerSession();
+        const session = await getServerSession();
 
+        if (params.threadId === "new") {
             const newThreadId = await context.convex.mutation(api.chat.createThread, {
                 model: "gemini-1.5-flash",
                 sessionToken: session?.session?.token,
@@ -23,6 +22,40 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
             throw redirect({
                 to: "/chat/$threadId",
                 params: { threadId: newThreadId },
+                replace: true,
+            });
+        }
+
+        // Validate that the threadId exists in the database
+        if (session?.session?.token) {
+            try {
+                const threadExists = await context.convex.query(api.chat.validateThreadExists, {
+                    threadId: params.threadId,
+                    sessionToken: session.session.token,
+                });
+
+                if (!threadExists) {
+                    throw redirect({
+                        to: "/chat",
+                        search: { redirectReason: "thread-not-found" },
+                        replace: true,
+                    });
+                }
+            } catch (error) {
+                // If validation fails (e.g., network error), redirect to /chat
+                console.error("Failed to validate thread:", error);
+                
+                throw redirect({
+                    to: "/chat",
+                    search: { redirectReason: "validation-error" },
+                    replace: true,
+                });
+            }
+        } else {
+            // If no session, redirect to /chat
+            throw redirect({
+                to: "/chat",
+                search: { redirectReason: "no-session" },
                 replace: true,
             });
         }
