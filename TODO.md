@@ -11,11 +11,31 @@
     - Performance improvement: Tree calculations now only run when underlying data changes
 
 - [x] **Implement virtual scrolling for thread list** - ✅ Completed: Added TanStack Virtual for lists >100 threads
+
     - Uses `@tanstack/react-virtual` for efficient rendering of large thread lists
     - Automatically switches to virtual scrolling when >100 threads are present
     - Flattens hierarchical structure for virtualization while preserving expand/collapse state
     - Estimated item height of 44px with 10 item overscan for smooth scrolling
     - Falls back to regular rendering for smaller lists to maintain full hierarchy visualization
+
+- [x] **Thread Pin Functionality** - ✅ Completed: Added pin/unpin functionality for important conversations
+
+    - Added `pinnedThreads` table to schema with proper indexing
+    - Implemented `pinThread`, `unpinThread`, `getPinnedThreads`, and `isThreadPinned` mutations/queries
+    - Pin button in thread list with Pin/PinOff icons and hover states
+    - Visual pin indicator next to thread title for pinned threads
+    - Pinned threads automatically sorted to top of thread list
+    - Proper error handling and user feedback for pin operations
+
+- [x] **Drag and Drop Thread Reordering** - ✅ Completed: Added drag and drop functionality to reorder threads
+    - Added `threadOrder` table to schema for custom thread ordering
+    - Implemented `updateThreadOrder` and `getThreadOrders` mutations/queries
+    - Integrated `@dnd-kit/core` and `@dnd-kit/sortable` for drag and drop functionality
+    - Drag handle (GripVertical icon) appears on hover for each thread
+    - Smooth drag animations with visual feedback (opacity change during drag)
+    - Custom sorting: pinned threads first, then by custom order, then by creation time
+    - Works with both virtual scrolling and regular rendering modes
+    - Keyboard accessibility support for drag and drop operations
 
 ## High Priority
 

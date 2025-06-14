@@ -1,10 +1,14 @@
 import type { FC } from "react";
 import { ThreadListPrimitive } from "@assistant-ui/react";
-import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown } from "lucide-react";
+import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown, Pin, PinOff, GripVertical } from "lucide-react";
 import { useState, useMemo, useRef } from "react";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +29,8 @@ interface BranchNode {
     createdAt: number;
     children: BranchNode[];
     depth: number;
+    isPinned?: boolean;
+    order?: number;
 }
 
 export const ThreadList: FC = () => {
@@ -84,6 +90,19 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip",
     );
 
+    // Get pinned threads
+    const pinnedThreads = useQuery(api.chat.getPinnedThreads, sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip");
+
+    // Get thread orders
+    const threadOrders = useQuery(api.chat.getThreadOrders, sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip");
+
+    // Pin/unpin mutations
+    const pinThreadMutation = useMutation(api.chat.pinThread);
+    const unpinThreadMutation = useMutation(api.chat.unpinThread);
+
+    // Thread order mutation
+    const updateThreadOrderMutation = useMutation(api.chat.updateThreadOrder);
+
     // Build the hierarchical structure
     const threadHierarchy = useMemo(() => {
         if (!allThreads?.page || !threadRelationships) return [];
@@ -91,6 +110,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         // Create maps for quick lookups
         const threadMap = new Map(allThreads.page.map((thread: any) => [thread._id, thread]));
         const relationshipMap = new Map(threadRelationships.map((rel: any) => [rel.threadId, rel]));
+        const pinnedThreadsSet = new Set(pinnedThreads?.map((pin: any) => pin.threadId) || []);
+        const threadOrderMap = new Map(threadOrders?.map((order: any) => [order.threadId, order.order]) || []);
 
         // Find root threads (threads without parent relationships)
         const rootThreads = allThreads.page.filter((thread: any) => !relationshipMap.has(thread._id));
@@ -112,14 +133,30 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                 createdAt: thread._creationTime,
                 children,
                 depth,
+                isPinned: pinnedThreadsSet.has(threadId),
+                order: threadOrderMap.get(threadId),
             };
         };
 
-        return rootThreads
-            .map((thread: any) => buildHierarchy(thread._id))
-            .filter((node): node is BranchNode => node !== null)
-            .sort((a, b) => b.createdAt - a.createdAt); // Sort by newest first
-    }, [allThreads?.page, threadRelationships]);
+        const hierarchy = rootThreads.map((thread: any) => buildHierarchy(thread._id)).filter((node): node is BranchNode => node !== null);
+
+        // Sort: pinned threads first, then by custom order, then by newest first
+        return hierarchy.sort((a, b) => {
+            // First, sort by pinned status
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+
+            // Within pinned/unpinned groups, sort by custom order if available
+            if (a.order !== undefined && b.order !== undefined) {
+                return a.order - b.order;
+            }
+            if (a.order !== undefined && b.order === undefined) return -1;
+            if (a.order === undefined && b.order !== undefined) return 1;
+
+            // Finally, sort by creation time (newest first)
+            return b.createdAt - a.createdAt;
+        });
+    }, [allThreads?.page, threadRelationships, pinnedThreads, threadOrders]);
 
     const handleCreateBranch = async (threadId: string) => {
         try {
@@ -137,6 +174,71 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
             await deleteBranch(threadId);
         } catch (error) {
             console.error("Failed to delete thread:", error);
+        }
+    };
+
+    const handlePinThread = async (threadId: string) => {
+        if (!sessionData?.data?.session?.token) return;
+
+        try {
+            await pinThreadMutation({
+                threadId,
+                sessionToken: sessionData.data.session.token,
+            });
+        } catch (error) {
+            console.error("Failed to pin thread:", error);
+        }
+    };
+
+    const handleUnpinThread = async (threadId: string) => {
+        if (!sessionData?.data?.session?.token) return;
+
+        try {
+            await unpinThreadMutation({
+                threadId,
+                sessionToken: sessionData.data.session.token,
+            });
+        } catch (error) {
+            console.error("Failed to unpin thread:", error);
+        }
+    };
+
+    // Drag and drop sensors
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+    );
+
+    // Handle drag end
+    const handleDragEnd = async (event: any) => {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) return;
+        if (!sessionData?.data?.session?.token) return;
+
+        const oldIndex = threadHierarchy.findIndex((thread) => thread.threadId === active.id);
+        const newIndex = threadHierarchy.findIndex((thread) => thread.threadId === over.id);
+
+        if (oldIndex === -1 || newIndex === -1) return;
+
+        // Create new order based on the reordered array
+        const reorderedThreads = arrayMove(threadHierarchy, oldIndex, newIndex);
+
+        // Generate new order values
+        const threadOrderUpdates = reorderedThreads.map((thread, index) => ({
+            threadId: thread.threadId,
+            order: index,
+        }));
+
+        try {
+            await updateThreadOrderMutation({
+                threadOrders: threadOrderUpdates,
+                sessionToken: sessionData.data.session.token,
+            });
+        } catch (error) {
+            console.error("Failed to update thread order:", error);
         }
     };
 
@@ -166,7 +268,24 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         overscan: 10,
     });
 
-    const renderThreadNode = (node: BranchNode): JSX.Element => {
+    // Sortable thread item component
+    const SortableThreadItem: FC<{ node: BranchNode }> = ({ node }) => {
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: node.threadId });
+
+        const style = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+            opacity: isDragging ? 0.5 : 1,
+        };
+
+        return (
+            <div ref={setNodeRef} style={style} {...attributes}>
+                {renderThreadNode(node, listeners)}
+            </div>
+        );
+    };
+
+    const renderThreadNode = (node: BranchNode, dragListeners?: any): JSX.Element => {
         const hasChildren = node.children.length > 0;
         const isExpanded = expandedThreads.has(node.threadId);
         const isActive = currentThreadId === node.threadId;
@@ -206,6 +325,16 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
 
                         {!isRootThread && <GitBranch className="text-muted-foreground h-3 w-3 flex-shrink-0" />}
 
+                        {/* Pin indicator for pinned threads */}
+                        {node.isPinned && <Pin className="text-primary h-3 w-3 flex-shrink-0" />}
+
+                        {/* Drag handle */}
+                        {dragListeners && (
+                            <div {...dragListeners} className="cursor-grab opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing">
+                                <GripVertical className="text-muted-foreground h-3 w-3" />
+                            </div>
+                        )}
+
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <span className="flex-grow cursor-default truncate font-medium">{node.title}</span>
@@ -222,6 +351,28 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                         )}
 
                         <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                            {/* Pin/Unpin Button */}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className={cn("h-6 w-6 p-0", node.isPinned ? "hover:text-destructive" : "hover:text-primary")}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (node.isPinned) {
+                                                handleUnpinThread(node.threadId);
+                                            } else {
+                                                handlePinThread(node.threadId);
+                                            }
+                                        }}
+                                    >
+                                        {node.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>{node.isPinned ? "Unpin thread" : "Pin thread"}</TooltipContent>
+                            </Tooltip>
+
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -304,46 +455,63 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         );
     }
 
+    // Get thread IDs for sortable context
+    const threadIds = threadHierarchy.map((thread) => thread.threadId);
+
     // Use virtual scrolling for large lists
     if (shouldUseVirtualScrolling) {
         return (
-            <div
-                ref={parentRef}
-                className="h-full overflow-auto"
-                style={{
-                    height: "400px", // Set a fixed height for the scrollable area
-                }}
-            >
-                <div
-                    style={{
-                        height: `${virtualizer.getTotalSize()}px`,
-                        width: "100%",
-                        position: "relative",
-                    }}
-                >
-                    {virtualizer.getVirtualItems().map((virtualItem) => {
-                        const node = flattenedThreads[virtualItem.index];
-                        return (
-                            <div
-                                key={virtualItem.key}
-                                style={{
-                                    position: "absolute",
-                                    top: 0,
-                                    left: 0,
-                                    width: "100%",
-                                    height: `${virtualItem.size}px`,
-                                    transform: `translateY(${virtualItem.start}px)`,
-                                }}
-                            >
-                                {renderThreadNode(node)}
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
+                    <div
+                        ref={parentRef}
+                        className="h-full overflow-auto"
+                        style={{
+                            height: "400px", // Set a fixed height for the scrollable area
+                        }}
+                    >
+                        <div
+                            style={{
+                                height: `${virtualizer.getTotalSize()}px`,
+                                width: "100%",
+                                position: "relative",
+                            }}
+                        >
+                            {virtualizer.getVirtualItems().map((virtualItem) => {
+                                const node = flattenedThreads[virtualItem.index];
+                                return (
+                                    <div
+                                        key={virtualItem.key}
+                                        style={{
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                            width: "100%",
+                                            height: `${virtualItem.size}px`,
+                                            transform: `translateY(${virtualItem.start}px)`,
+                                        }}
+                                    >
+                                        <SortableThreadItem node={node} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </SortableContext>
+            </DndContext>
         );
     }
 
     // Regular rendering for smaller lists
-    return <div className="space-y-1">{threadHierarchy.map((rootNode) => renderThreadNode(rootNode))}</div>;
+    return (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
+                <div className="space-y-1">
+                    {threadHierarchy.map((rootNode) => (
+                        <SortableThreadItem key={rootNode.threadId} node={rootNode} />
+                    ))}
+                </div>
+            </SortableContext>
+        </DndContext>
+    );
 };

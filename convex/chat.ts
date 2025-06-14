@@ -472,3 +472,203 @@ export const validateThreadExists = query({
         }
     },
 });
+
+// Pin/Unpin thread functionality
+
+export const pinThread = mutation({
+    args: {
+        threadId: v.string(),
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Check if thread is already pinned
+        const existingPin = await ctx.db
+            .query("pinnedThreads")
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", sessionData.userId as Id<"user">).eq("threadId", args.threadId))
+            .unique();
+
+        if (existingPin) {
+            throw new ConvexError("Thread is already pinned");
+        }
+
+        // Verify thread exists
+        const threadExists = await ctx.runQuery(components.agent.threads.getThread, {
+            threadId: args.threadId,
+        });
+
+        if (!threadExists) {
+            throw new ConvexError("Thread not found");
+        }
+
+        // Pin the thread
+        await ctx.db.insert("pinnedThreads", {
+            userId: sessionData.userId as Id<"user">,
+            threadId: args.threadId,
+            pinnedAt: Date.now(),
+        });
+
+        return { success: true };
+    },
+});
+
+export const unpinThread = mutation({
+    args: {
+        threadId: v.string(),
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Find the pinned thread record
+        const pinnedThread = await ctx.db
+            .query("pinnedThreads")
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", sessionData.userId as Id<"user">).eq("threadId", args.threadId))
+            .unique();
+
+        if (!pinnedThread) {
+            throw new ConvexError("Thread is not pinned");
+        }
+
+        // Unpin the thread
+        await ctx.db.delete(pinnedThread._id);
+
+        return { success: true };
+    },
+});
+
+export const getPinnedThreads = query({
+    args: {
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Get all pinned threads for the user
+        const pinnedThreads = await ctx.db
+            .query("pinnedThreads")
+            .withIndex("by_user", (q) => q.eq("userId", sessionData.userId as Id<"user">))
+            .collect();
+
+        return pinnedThreads;
+    },
+});
+
+export const isThreadPinned = query({
+    args: {
+        threadId: v.string(),
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Check if thread is pinned
+        const pinnedThread = await ctx.db
+            .query("pinnedThreads")
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", sessionData.userId as Id<"user">).eq("threadId", args.threadId))
+            .unique();
+
+        return pinnedThread !== null;
+    },
+});
+
+// Thread ordering functionality
+
+export const updateThreadOrder = mutation({
+    args: {
+        threadOrders: v.array(
+            v.object({
+                threadId: v.string(),
+                order: v.number(),
+            }),
+        ),
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const userId = sessionData.userId as Id<"user">;
+        const now = Date.now();
+
+        // Update or insert thread orders
+        for (const { threadId, order } of args.threadOrders) {
+            // Check if order already exists
+            const existingOrder = await ctx.db
+                .query("threadOrder")
+                .withIndex("by_user_and_thread", (q) => q.eq("userId", userId).eq("threadId", threadId))
+                .unique();
+
+            if (existingOrder) {
+                // Update existing order
+                await ctx.db.patch(existingOrder._id, {
+                    order,
+                    updatedAt: now,
+                });
+            } else {
+                // Insert new order
+                await ctx.db.insert("threadOrder", {
+                    userId,
+                    threadId,
+                    order,
+                    updatedAt: now,
+                });
+            }
+        }
+
+        return { success: true };
+    },
+});
+
+export const getThreadOrders = query({
+    args: {
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Get all thread orders for the user
+        const threadOrders = await ctx.db
+            .query("threadOrder")
+            .withIndex("by_user", (q) => q.eq("userId", sessionData.userId as Id<"user">))
+            .collect();
+
+        return threadOrders;
+    },
+});
