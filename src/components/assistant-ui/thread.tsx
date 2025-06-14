@@ -156,6 +156,11 @@ const UserActionBar: FC = () => {
                     <PencilIcon />
                 </TooltipIconButton>
             </ActionBarPrimitive.Edit>
+            <ActionBarPrimitive.Copy asChild>
+                <TooltipIconButton tooltip="Copy">
+                    <CopyIcon />
+                </TooltipIconButton>
+            </ActionBarPrimitive.Copy>
         </ActionBarPrimitive.Root>
     );
 };

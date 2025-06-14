@@ -76,7 +76,6 @@
 
 - [ ] Add loading states for thread operations
 - [ ] Improve error handling and user feedback
-- [ ] Add keyboard shortcuts for common actions
 - [ ] Fix per-node expansion in branch tree (currently all nodes expand together)
 
 ## Low Priority
