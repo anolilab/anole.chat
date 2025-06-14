@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { ThreadListPrimitive } from "@assistant-ui/react";
-import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown, Pin, PinOff, GripVertical, HelpCircle } from "lucide-react";
+import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown, Pin, PinOff, GripVertical, HelpCircle, Search, X } from "lucide-react";
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { api } from "@cvx/_generated/api";
 import { useSession } from "@/hooks/auth-hooks";
 import { ShortcutsProvider, KeyCombo, KeySymbol, Keys, detectOS } from "@/components/ui/keyboard-shortcuts";
+import { Input } from "@/components/ui/input";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
@@ -31,11 +32,15 @@ interface BranchNode {
     depth: number;
     isPinned?: boolean;
     order?: number;
+    relevantMessages?: any[]; // Messages that matched the search query
 }
 
 export const ThreadList: FC = () => {
     const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showSearch, setShowSearch] = useState(false);
+    const [searchType, setSearchType] = useState<"threads" | "messages">("threads");
 
     const toggleExpanded = (threadId: string) => {
         setExpandedThreads((prev) => {
@@ -56,12 +61,17 @@ export const ThreadList: FC = () => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowSearch(!showSearch)}>
+                                <Search className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Search threads (Ctrl+F)</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}>
                                 <HelpCircle className="h-4 w-4" />
                             </Button>
                         </TooltipTrigger>
@@ -69,11 +79,56 @@ export const ThreadList: FC = () => {
                     </Tooltip>
                 </TooltipProvider>
             </div>
-            <HierarchicalThreadList 
-                expandedThreads={expandedThreads} 
+            {showSearch && (
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant={searchType === "threads" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setSearchType("threads")}
+                            className="text-xs"
+                        >
+                            Threads
+                        </Button>
+                        <Button
+                            variant={searchType === "messages" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setSearchType("messages")}
+                            className="text-xs"
+                        >
+                            Messages
+                        </Button>
+                    </div>
+                    <div className="relative">
+                        <Input
+                            type="text"
+                            placeholder={searchType === "threads" ? "Search thread titles..." : "Search message content..."}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pr-8"
+                            autoFocus
+                        />
+                        {searchQuery && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 p-0"
+                                onClick={() => setSearchQuery("")}
+                            >
+                                <X className="h-3 w-3" />
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            )}
+            <HierarchicalThreadList
+                expandedThreads={expandedThreads}
                 toggleExpanded={toggleExpanded}
                 showKeyboardHelp={showKeyboardHelp}
                 setShowKeyboardHelp={setShowKeyboardHelp}
+                searchQuery={searchQuery}
+                searchType={searchType}
+                setShowSearch={setShowSearch}
             />
         </ThreadListPrimitive.Root>
     );
@@ -96,9 +151,20 @@ interface HierarchicalThreadListProps {
     toggleExpanded: (threadId: string) => void;
     showKeyboardHelp: boolean;
     setShowKeyboardHelp: React.Dispatch<React.SetStateAction<boolean>>;
+    searchQuery: string;
+    searchType: "threads" | "messages";
+    setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThreads, toggleExpanded, showKeyboardHelp, setShowKeyboardHelp }) => {
+const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
+    expandedThreads,
+    toggleExpanded,
+    showKeyboardHelp,
+    setShowKeyboardHelp,
+    searchQuery,
+    searchType,
+    setShowSearch,
+}) => {
     const { currentThreadId, createBranch, deleteBranch, threads } = useThreadContext();
     const sessionData = useSession();
     const navigate = useNavigate();
@@ -111,6 +177,30 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
     const allThreads = useQuery(
         api.chat.getThreads,
         sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token, paginationOpts: { numItems: 100, cursor: null } } : "skip",
+    );
+
+    // Search threads when there's a search query and search type is "threads"
+    const threadSearchResults = useQuery(
+        api.chat.searchThreads,
+        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "threads"
+            ? {
+                  searchQuery: searchQuery.trim(),
+                  sessionToken: sessionData.data.session.token,
+                  paginationOpts: { numItems: 100, cursor: null },
+              }
+            : "skip",
+    );
+
+    // Search messages when there's a search query and search type is "messages"
+    const messageSearchResults = useQuery(
+        api.chat.searchMessages,
+        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "messages"
+            ? {
+                  searchQuery: searchQuery.trim(),
+                  sessionToken: sessionData.data.session.token,
+                  paginationOpts: { numItems: 100, cursor: null },
+              }
+            : "skip",
     );
 
     // Get thread relationships to build hierarchy
@@ -134,16 +224,29 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
 
     // Build the hierarchical structure
     const threadHierarchy = useMemo(() => {
-        if (!allThreads?.page || !threadRelationships) return [];
+        // Determine which threads to use based on search type
+        let threadsToUse;
+
+        if (searchQuery.trim()) {
+            if (searchType === "threads") {
+                threadsToUse = threadSearchResults?.page;
+            } else if (searchType === "messages") {
+                threadsToUse = messageSearchResults?.page;
+            }
+        } else {
+            threadsToUse = allThreads?.page;
+        }
+
+        if (!threadsToUse || !threadRelationships) return [];
 
         // Create maps for quick lookups
-        const threadMap = new Map(allThreads.page.map((thread: any) => [thread._id, thread]));
+        const threadMap = new Map(threadsToUse.map((thread: any) => [thread._id, thread]));
         const relationshipMap = new Map(threadRelationships.map((rel: any) => [rel.threadId, rel]));
         const pinnedThreadsSet = new Set(pinnedThreads?.map((pin: any) => pin.threadId) || []);
         const threadOrderMap = new Map(threadOrders?.map((order: any) => [order.threadId, order.order]) || []);
 
         // Find root threads (threads without parent relationships)
-        const rootThreads = allThreads.page.filter((thread: any) => !relationshipMap.has(thread._id));
+        const rootThreads = threadsToUse.filter((thread: any) => !relationshipMap.has(thread._id));
 
         const buildHierarchy = (threadId: string, depth: number = 0): BranchNode | null => {
             const thread = threadMap.get(threadId);
@@ -164,14 +267,26 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                 depth,
                 isPinned: pinnedThreadsSet.has(threadId),
                 order: threadOrderMap.get(threadId),
+                // Add search relevance info if available (for message search)
+                relevantMessages: thread.relevantMessages,
             };
         };
 
         const hierarchy = rootThreads.map((thread: any) => buildHierarchy(thread._id)).filter((node): node is BranchNode => node !== null);
 
-        // Sort: pinned threads first, then by custom order, then by newest first
+        // Sort: if searching, sort by relevance first, otherwise use normal sorting
         return hierarchy.sort((a, b) => {
-            // First, sort by pinned status
+            // If we have message search results, sort by relevance first
+            if (searchQuery.trim() && searchType === "messages" && messageSearchResults?.page) {
+                const aRelevance = a.relevantMessages?.length || 0;
+                const bRelevance = b.relevantMessages?.length || 0;
+
+                if (aRelevance !== bRelevance) {
+                    return bRelevance - aRelevance; // More relevant first
+                }
+            }
+
+            // Normal sorting: pinned threads first, then by custom order, then by newest first
             if (a.isPinned && !b.isPinned) return -1;
             if (!a.isPinned && b.isPinned) return 1;
 
@@ -185,7 +300,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
             // Finally, sort by creation time (newest first)
             return b.createdAt - a.createdAt;
         });
-    }, [allThreads?.page, threadRelationships, pinnedThreads, threadOrders]);
+    }, [allThreads?.page, threadSearchResults?.page, messageSearchResults?.page, threadRelationships, pinnedThreads, threadOrders, searchQuery, searchType]);
 
     const handleCreateBranch = async (threadId: string) => {
         try {
@@ -275,15 +390,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
     const handleKeyDown = useCallback(
         (event: KeyboardEvent) => {
             const isCtrlOrCmd = event.ctrlKey || event.metaKey;
-            
+
             // Don't handle shortcuts if user is typing in an input
             if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
                 return;
             }
 
             switch (event.key) {
-                case 'n':
-                case 'N':
+                case "n":
+                case "N":
                     if (isCtrlOrCmd) {
                         event.preventDefault();
                         // Create new thread
@@ -291,19 +406,19 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                     }
                     break;
 
-                case 'd':
-                case 'D':
+                case "d":
+                case "D":
                     if (isCtrlOrCmd && currentThreadId) {
                         event.preventDefault();
                         handleDeleteThread(currentThreadId);
                     }
                     break;
 
-                case 'p':
-                case 'P':
+                case "p":
+                case "P":
                     if (isCtrlOrCmd && currentThreadId) {
                         event.preventDefault();
-                        const currentThread = threadHierarchy.find(t => t.threadId === currentThreadId);
+                        const currentThread = threadHierarchy.find((t) => t.threadId === currentThreadId);
                         if (currentThread) {
                             if (currentThread.isPinned) {
                                 handleUnpinThread(currentThreadId);
@@ -314,37 +429,37 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                     }
                     break;
 
-                case 'b':
-                case 'B':
+                case "b":
+                case "B":
                     if (isCtrlOrCmd && currentThreadId) {
                         event.preventDefault();
                         handleCreateBranch(currentThreadId);
                     }
                     break;
 
-                case 'ArrowUp':
+                case "ArrowUp":
                     if (!isCtrlOrCmd) {
                         event.preventDefault();
                         setIsKeyboardNavigating(true);
-                        setSelectedThreadIndex(prev => {
+                        setSelectedThreadIndex((prev) => {
                             const newIndex = prev <= 0 ? threadHierarchy.length - 1 : prev - 1;
                             return newIndex;
                         });
                     }
                     break;
 
-                case 'ArrowDown':
+                case "ArrowDown":
                     if (!isCtrlOrCmd) {
                         event.preventDefault();
                         setIsKeyboardNavigating(true);
-                        setSelectedThreadIndex(prev => {
+                        setSelectedThreadIndex((prev) => {
                             const newIndex = prev >= threadHierarchy.length - 1 ? 0 : prev + 1;
                             return newIndex;
                         });
                     }
                     break;
 
-                case 'Enter':
+                case "Enter":
                     if (isKeyboardNavigating && selectedThreadIndex >= 0 && selectedThreadIndex < threadHierarchy.length) {
                         event.preventDefault();
                         const selectedThread = threadHierarchy[selectedThreadIndex];
@@ -354,17 +469,25 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                     }
                     break;
 
-                case 'Escape':
+                case "Escape":
                     event.preventDefault();
                     setIsKeyboardNavigating(false);
                     setSelectedThreadIndex(-1);
                     setShowKeyboardHelp(false);
                     break;
 
-                case '?':
+                case "?":
                     if (!isCtrlOrCmd) {
                         event.preventDefault();
-                        setShowKeyboardHelp(prev => !prev);
+                        setShowKeyboardHelp((prev) => !prev);
+                    }
+                    break;
+
+                case "f":
+                case "F":
+                    if (isCtrlOrCmd) {
+                        event.preventDefault();
+                        setShowSearch((prev) => !prev);
                     }
                     break;
 
@@ -383,14 +506,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
             handleUnpinThread,
             handleCreateBranch,
             setShowKeyboardHelp,
-        ]
+            setShowSearch,
+        ],
     );
 
     // Add keyboard event listeners
     useEffect(() => {
-        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener("keydown", handleKeyDown);
         return () => {
-            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener("keydown", handleKeyDown);
         };
     }, [handleKeyDown]);
 
@@ -437,14 +561,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
 
     // Sortable thread item component
     const SortableThreadItem: FC<{ node: BranchNode; index?: number }> = ({ node, index }) => {
-        const {
-            attributes,
-            listeners,
-            setNodeRef,
-            transform,
-            transition,
-            isDragging,
-        } = useSortable({ id: node.threadId });
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: node.threadId });
 
         const isKeyboardSelected = isKeyboardNavigating && index === selectedThreadIndex;
 
@@ -455,12 +572,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         };
 
         return (
-            <div 
-                ref={setNodeRef} 
-                style={style} 
-                {...attributes}
-                onMouseEnter={handleMouseEnter}
-            >
+            <div ref={setNodeRef} style={style} {...attributes} onMouseEnter={handleMouseEnter}>
                 {renderThreadNode(node, listeners, isKeyboardSelected)}
             </div>
         );
@@ -487,7 +599,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                             "group flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
                             "hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none",
                             isActive && "bg-muted",
-                            isKeyboardSelected && "ring-2 ring-primary bg-muted/50",
+                            isKeyboardSelected && "ring-primary bg-muted/50 ring-2",
                             !isRootThread && "ml-6",
                         )}
                         onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId } })}
@@ -608,6 +720,11 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                         </div>
 
                         {node.status === "archived" && <ArchiveIcon className="text-muted-foreground h-3 w-3 flex-shrink-0" />}
+                        {searchQuery.trim() && node.relevantMessages && node.relevantMessages.length > 0 && (
+                            <div className="bg-primary/10 text-primary flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs">
+                                {node.relevantMessages.length} match{node.relevantMessages.length !== 1 ? "es" : ""}
+                            </div>
+                        )}
                     </div>
                 </TooltipProvider>
 
@@ -633,68 +750,81 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
     if (!threadHierarchy.length) {
         return (
             <div className="text-muted-foreground px-3 py-8 text-center text-sm">
-                <p>No threads yet</p>
-                <p className="mt-1 text-xs">Start a new conversation to get started</p>
+                {searchQuery.trim() ? (
+                    <>
+                        <p>
+                            No {searchType === "threads" ? "threads" : "messages"} found for "{searchQuery}"
+                        </p>
+                        <p className="mt-1 text-xs">
+                            {searchType === "threads" ? "Try searching in thread titles or summaries" : "Try searching in message content"}
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <p>No threads yet</p>
+                        <p className="mt-1 text-xs">Start a new conversation to get started</p>
+                    </>
+                )}
                 <p className="mt-2 text-xs opacity-70">Press ? for keyboard shortcuts</p>
             </div>
         );
     }
 
     const customMappings = {
-        'n': { symbols: { default: 'N' }, label: 'N' },
-        'd': { symbols: { default: 'D' }, label: 'D' },
-        'p': { symbols: { default: 'P' }, label: 'P' },
-        'b': { symbols: { default: 'B' }, label: 'B' },
-        '?': { symbols: { default: '?' }, label: 'Question Mark' },
+        n: { symbols: { default: "N" }, label: "N" },
+        d: { symbols: { default: "D" }, label: "D" },
+        p: { symbols: { default: "P" }, label: "P" },
+        b: { symbols: { default: "B" }, label: "B" },
+        f: { symbols: { default: "F" }, label: "F" },
+        "?": { symbols: { default: "?" }, label: "Question Mark" },
     };
 
     // Keyboard shortcuts help overlay
-    const KeyboardHelp = () => (
+    const KeyboardHelp = () =>
         showKeyboardHelp && (
-            <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-50 p-4 rounded-lg border">
+            <div className="bg-background/95 absolute inset-0 z-50 rounded-lg border p-4 backdrop-blur-sm">
                 <ShortcutsProvider keyMappings={customMappings}>
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-sm">Keyboard Shortcuts</h3>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowKeyboardHelp(false)}
-                                className="h-6 w-6 p-0"
-                            >
+                            <h3 className="text-sm font-semibold">Keyboard Shortcuts</h3>
+                            <Button variant="ghost" size="sm" onClick={() => setShowKeyboardHelp(false)} className="h-6 w-6 p-0">
                                 ×
                             </Button>
                         </div>
                         <div className="grid grid-cols-1 gap-2 text-xs">
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">New thread</span>
                                 <KeyCombo keyNames={[Keys.Command, "n"]} />
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Delete thread</span>
                                 <KeyCombo keyNames={[Keys.Command, "d"]} />
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Pin/Unpin thread</span>
                                 <KeyCombo keyNames={[Keys.Command, "p"]} />
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Create branch</span>
                                 <KeyCombo keyNames={[Keys.Command, "b"]} />
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Search threads</span>
+                                <KeyCombo keyNames={[Keys.Command, "f"]} />
+                            </div>
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Navigate threads</span>
                                 <KeyCombo keyNames={[Keys.ArrowUp, Keys.ArrowDown]} />
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Open thread</span>
                                 <KeySymbol keyName={Keys.Enter} />
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Show/hide help</span>
                                 <KeySymbol keyName="?" />
                             </div>
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Cancel/escape</span>
                                 <KeySymbol keyName={Keys.Escape} />
                             </div>
@@ -702,8 +832,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                     </div>
                 </ShortcutsProvider>
             </div>
-        )
-    );
+        );
 
     // Get thread IDs for sortable context
     const threadIds = threadHierarchy.map((thread) => thread.threadId);
@@ -732,7 +861,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                                 {virtualizer.getVirtualItems().map((virtualItem) => {
                                     const node = flattenedThreads[virtualItem.index];
                                     // Find the original index in threadHierarchy for keyboard navigation
-                                    const originalIndex = threadHierarchy.findIndex(t => t.threadId === node.threadId);
+                                    const originalIndex = threadHierarchy.findIndex((t) => t.threadId === node.threadId);
                                     return (
                                         <div
                                             key={virtualItem.key}

@@ -254,6 +254,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     actualThreadId = await createThreadMutation({
                         model,
                         sessionToken: sessionData.data.session.token,
+                        branchName: "New Chat",
                     });
 
                     // Update our local state to use the Convex thread ID
@@ -412,6 +413,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 const newThreadId = await createThreadMutation({
                     model,
                     sessionToken: sessionData.data.session.token,
+                    branchName: "New Chat",
                 });
 
                 // Initialize new thread in context

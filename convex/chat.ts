@@ -672,3 +672,149 @@ export const getThreadOrders = query({
         return threadOrders;
     },
 });
+
+export const searchThreads = query({
+    args: {
+        searchQuery: v.string(),
+        sessionToken: v.string(),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, { searchQuery, sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const userId = sessionData.userId as Id<"user">;
+
+        // Get all threads for the user
+        const allThreads = await ctx.runQuery(components.agent.threads.listThreadsByUserId, {
+            userId,
+            paginationOpts: { numItems: 1000, cursor: null }, // Get all threads for filtering
+        });
+
+        // If no search query, return regular threads with pagination
+        if (!searchQuery.trim()) {
+            return await ctx.runQuery(components.agent.threads.listThreadsByUserId, {
+                userId,
+                paginationOpts,
+            });
+        }
+
+        // Filter threads by title and summary (client-side for now, as agent doesn't have thread search)
+        const query = searchQuery.toLowerCase();
+        const filteredThreads = allThreads.page.filter((thread) => {
+            const titleMatch = thread.title?.toLowerCase().includes(query);
+            const summaryMatch = thread.summary?.toLowerCase().includes(query);
+            return titleMatch || summaryMatch;
+        });
+
+        // Sort by relevance (title matches first, then summary matches, then by creation time)
+        filteredThreads.sort((a, b) => {
+            const aTitleMatch = a.title?.toLowerCase().includes(query);
+            const bTitleMatch = b.title?.toLowerCase().includes(query);
+
+            // Title matches come first
+            if (aTitleMatch && !bTitleMatch) return -1;
+            if (!aTitleMatch && bTitleMatch) return 1;
+
+            // Then by creation time (newest first)
+            return b._creationTime - a._creationTime;
+        });
+
+        // Apply pagination to filtered results
+        const startIndex = paginationOpts.cursor ? filteredThreads.findIndex((t) => t._id === paginationOpts.cursor) + 1 : 0;
+        const endIndex = Math.min(startIndex + paginationOpts.numItems, filteredThreads.length);
+        const paginatedThreads = filteredThreads.slice(startIndex, endIndex);
+
+        return {
+            page: paginatedThreads,
+            isDone: endIndex >= filteredThreads.length,
+            continueCursor: filteredThreads[endIndex - 1]._id,
+        };
+    },
+});
+
+export const searchMessages = query({
+    args: {
+        searchQuery: v.string(),
+        sessionToken: v.string(),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, { searchQuery, sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>> => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const userId = sessionData.userId as Id<"user">;
+
+        // If no search query, return empty results
+        if (!searchQuery.trim()) {
+            return {
+                page: [],
+                isDone: true,
+                continueCursor: null,
+            };
+        }
+
+        // Search messages using full-text search
+        const searchResults = await ctx.runQuery(components.agent.messages.textSearch, {
+            text: searchQuery.trim(),
+            limit: 100, // Get more results for better thread matching
+            searchAllMessagesForUserId: userId,
+        });
+
+        // Get unique thread IDs from search results
+        const threadIds = [...new Set(searchResults.map((msg) => msg.threadId))];
+
+        // Get thread details for each unique thread ID
+        const threadsWithMessages: (ThreadDoc & { relevantMessages?: MessageDoc[] })[] = [];
+
+        for (const threadId of threadIds) {
+            try {
+                const thread = await ctx.runQuery(components.agent.threads.getThread, { threadId });
+                if (thread && thread.userId === userId) {
+                    // Get relevant messages for this thread from search results
+                    const relevantMessages = searchResults.filter((msg) => msg.threadId === threadId);
+                    threadsWithMessages.push({
+                        ...thread,
+                        relevantMessages,
+                    });
+                }
+            } catch (error) {
+                // Skip threads that don't exist or can't be accessed
+                continue;
+            }
+        }
+
+        // Sort by relevance (threads with more matching messages first, then by creation time)
+        threadsWithMessages.sort((a, b) => {
+            const aRelevance = a.relevantMessages?.length || 0;
+            const bRelevance = b.relevantMessages?.length || 0;
+
+            if (aRelevance !== bRelevance) {
+                return bRelevance - aRelevance; // More relevant first
+            }
+
+            return b._creationTime - a._creationTime; // Newer first for same relevance
+        });
+
+        // Apply pagination to the sorted results
+        const startIndex = paginationOpts.cursor ? threadsWithMessages.findIndex((t) => t._id === paginationOpts.cursor) + 1 : 0;
+        const endIndex = Math.min(startIndex + paginationOpts.numItems, threadsWithMessages.length);
+        const paginatedThreads = threadsWithMessages.slice(startIndex, endIndex);
+
+        return {
+            page: paginatedThreads,
+            isDone: endIndex >= threadsWithMessages.length,
+            continueCursor: endIndex < threadsWithMessages.length ? threadsWithMessages[endIndex - 1]?._id || null : null,
+        };
+    },
+});

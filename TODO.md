@@ -28,6 +28,7 @@
     - Proper error handling and user feedback for pin operations
 
 - [x] **Drag and Drop Thread Reordering** - ✅ Completed: Added drag and drop functionality to reorder threads
+
     - Added `threadOrder` table to schema for custom thread ordering
     - Implemented `updateThreadOrder` and `getThreadOrders` mutations/queries
     - Integrated `@dnd-kit/core` and `@dnd-kit/sortable` for drag and drop functionality
@@ -38,16 +39,16 @@
     - Keyboard accessibility support for drag and drop operations
 
 - [x] **Keyboard Shortcuts for Common Actions** - ✅ Completed: Added comprehensive keyboard navigation and shortcuts
-  - **Thread Actions**: `Ctrl+N` (new), `Ctrl+D` (delete), `Ctrl+P` (pin/unpin), `Ctrl+B` (branch)
-  - **Navigation**: `↑↓` arrows to navigate threads, `Enter` to open selected thread
-  - **Help System**: `?` to show/hide keyboard shortcuts help overlay
-  - **Escape Handling**: `Esc` to cancel navigation or close help
-  - **Smart Context**: Shortcuts disabled when typing in inputs/textareas
-  - **Visual Feedback**: Keyboard-selected threads highlighted with ring border
-  - **Mouse Integration**: Mouse hover automatically cancels keyboard navigation
-  - **Accessibility**: Full keyboard navigation support for all thread operations
-  - **Enhanced UI**: Professional keyboard shortcuts component with OS-specific symbols (⌘ on Mac, Ctrl on Windows)
-  - **Tooltips**: Hover tooltips for key symbols with full key names
+    - **Thread Actions**: `Ctrl+N` (new), `Ctrl+D` (delete), `Ctrl+P` (pin/unpin), `Ctrl+B` (branch)
+    - **Navigation**: `↑↓` arrows to navigate threads, `Enter` to open selected thread
+    - **Help System**: `?` to show/hide keyboard shortcuts help overlay
+    - **Escape Handling**: `Esc` to cancel navigation or close help
+    - **Smart Context**: Shortcuts disabled when typing in inputs/textareas
+    - **Visual Feedback**: Keyboard-selected threads highlighted with ring border
+    - **Mouse Integration**: Mouse hover automatically cancels keyboard navigation
+    - **Accessibility**: Full keyboard navigation support for all thread operations
+    - **Enhanced UI**: Professional keyboard shortcuts component with OS-specific symbols (⌘ on Mac, Ctrl on Windows)
+    - **Tooltips**: Hover tooltips for key symbols with full key names
 
 ## High Priority
 
@@ -69,7 +70,28 @@
 ### Thread Management Optimizations
 
 - [ ] Add progressive message loading instead of loading 50 messages at once
-- [ ] Add thread search functionality
+- [x] Add thread search functionality
+    - **Split Search Implementation**: Implemented two distinct search types for better user experience
+    - **Thread Search Features**:
+        - Search through thread titles and summaries
+        - Fast client-side filtering for thread metadata
+        - Keyboard shortcut: Ctrl/Cmd+F to toggle search interface
+        - Toggle between "Threads" and "Messages" search modes
+    - **Message Search Features**:
+        - Full-text search across all message content using Convex's `textSearch` function
+        - Search results ranked by relevance (number of matching messages per thread)
+        - Visual indicators showing match count for threads with search results
+        - Server-side search for optimal performance with large datasets
+    - **Enhanced UI**:
+        - Search type toggle buttons (Threads/Messages)
+        - Context-aware placeholders ("Search thread titles..." vs "Search message content...")
+        - Different empty state messages for each search type
+        - Maintains all existing functionality (pinning, drag & drop, keyboard shortcuts)
+    - **Technical Implementation**:
+        - Added `searchThreads` query for thread-level search (title/summary filtering)
+        - Added `searchMessages` query using `components.agent.messages.textSearch` for content search
+        - Updated thread list to handle both search types with appropriate result processing
+        - Preserved hierarchical thread relationships in both search modes
 - [ ] Implement thread archiving UI
 
 ### UI/UX Improvements
