@@ -39,6 +39,7 @@
     - Keyboard accessibility support for drag and drop operations
 
 - [x] **Keyboard Shortcuts for Common Actions** - ✅ Completed: Added comprehensive keyboard navigation and shortcuts
+
     - **Thread Actions**: `Ctrl+N` (new), `Ctrl+D` (delete), `Ctrl+P` (pin/unpin), `Ctrl+B` (branch)
     - **Navigation**: `↑↓` arrows to navigate threads, `Enter` to open selected thread
     - **Help System**: `?` to show/hide keyboard shortcuts help overlay
@@ -49,6 +50,17 @@
     - **Accessibility**: Full keyboard navigation support for all thread operations
     - **Enhanced UI**: Professional keyboard shortcuts component with OS-specific symbols (⌘ on Mac, Ctrl on Windows)
     - **Tooltips**: Hover tooltips for key symbols with full key names
+
+- [x] **Loading States for Thread Operations** - ✅ Completed: Added comprehensive loading indicators for better user feedback
+
+    - **Thread Operation Loading States**: Pin/unpin, delete, branch creation, and reordering operations show loading spinners
+    - **Search Loading Indicators**: Loading states for both thread search and message search operations
+    - **Main Thread List Loading**: Loading indicator when initially fetching threads
+    - **Visual Feedback**: Disabled buttons and opacity changes during operations to prevent multiple clicks
+    - **Enhanced UX**: Loading spinners replace action icons during operations with descriptive tooltips
+    - **State Management**: Comprehensive loading state tracking using Sets for multiple concurrent operations
+    - **Error Handling**: Proper cleanup of loading states in finally blocks to ensure UI consistency
+    - **Search UI**: Loading indicator in search input field and dedicated loading state for search results
 
 ## High Priority
 
@@ -96,7 +108,6 @@
 
 ### UI/UX Improvements
 
-- [ ] Add loading states for thread operations
 - [ ] Improve error handling and user feedback
 - [ ] Fix per-node expansion in branch tree (currently all nodes expand together)
 

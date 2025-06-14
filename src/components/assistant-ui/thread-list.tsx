@@ -1,6 +1,20 @@
 import type { FC } from "react";
 import { ThreadListPrimitive } from "@assistant-ui/react";
-import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown, Pin, PinOff, GripVertical, HelpCircle, Search, X } from "lucide-react";
+import {
+    ArchiveIcon,
+    PlusIcon,
+    TrashIcon,
+    GitBranch,
+    ChevronRight,
+    ChevronDown,
+    Pin,
+    PinOff,
+    GripVertical,
+    HelpCircle,
+    Search,
+    X,
+    Loader2,
+} from "lucide-react";
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
@@ -36,11 +50,50 @@ interface BranchNode {
 }
 
 export const ThreadList: FC = () => {
+    const sessionData = useSession();
     const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearch, setShowSearch] = useState(false);
     const [searchType, setSearchType] = useState<"threads" | "messages">("threads");
+    const [loadingStates, setLoadingStates] = useState<{
+        pinning: Set<string>;
+        deleting: Set<string>;
+        branching: Set<string>;
+        reordering: boolean;
+    }>({
+        pinning: new Set(),
+        deleting: new Set(),
+        branching: new Set(),
+        reordering: false,
+    });
+
+    // Search threads when there's a search query and search type is "threads"
+    const threadSearchResults = useQuery(
+        api.chat.searchThreads,
+        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "threads"
+            ? {
+                  searchQuery: searchQuery.trim(),
+                  sessionToken: sessionData.data.session.token,
+                  paginationOpts: { numItems: 100, cursor: null },
+              }
+            : "skip",
+    );
+
+    // Search messages when there's a search query and search type is "messages"
+    const messageSearchResults = useQuery(
+        api.chat.searchMessages,
+        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "messages"
+            ? {
+                  searchQuery: searchQuery.trim(),
+                  sessionToken: sessionData.data.session.token,
+                  paginationOpts: { numItems: 100, cursor: null },
+              }
+            : "skip",
+    );
+
+    // Check if search is loading
+    const isSearchLoading = searchQuery.trim() && ((searchType === "threads" && !threadSearchResults) || (searchType === "messages" && !messageSearchResults));
 
     const toggleExpanded = (threadId: string) => {
         setExpandedThreads((prev) => {
@@ -101,7 +154,6 @@ export const ThreadList: FC = () => {
                     </div>
                     <div className="relative">
                         <Input
-                            type="text"
                             placeholder={searchType === "threads" ? "Search thread titles..." : "Search message content..."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -118,6 +170,11 @@ export const ThreadList: FC = () => {
                                 <X className="h-3 w-3" />
                             </Button>
                         )}
+                        {isSearchLoading && (
+                            <div className="absolute top-1/2 right-8 -translate-y-1/2">
+                                <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -129,6 +186,11 @@ export const ThreadList: FC = () => {
                 searchQuery={searchQuery}
                 searchType={searchType}
                 setShowSearch={setShowSearch}
+                loadingStates={loadingStates}
+                setLoadingStates={setLoadingStates}
+                isSearchLoading={isSearchLoading}
+                threadSearchResults={threadSearchResults}
+                messageSearchResults={messageSearchResults}
             />
         </ThreadListPrimitive.Root>
     );
@@ -154,6 +216,23 @@ interface HierarchicalThreadListProps {
     searchQuery: string;
     searchType: "threads" | "messages";
     setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
+    loadingStates: {
+        pinning: Set<string>;
+        deleting: Set<string>;
+        branching: Set<string>;
+        reordering: boolean;
+    };
+    setLoadingStates: React.Dispatch<
+        React.SetStateAction<{
+            pinning: Set<string>;
+            deleting: Set<string>;
+            branching: Set<string>;
+            reordering: boolean;
+        }>
+    >;
+    isSearchLoading: boolean;
+    threadSearchResults: any;
+    messageSearchResults: any;
 }
 
 const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
@@ -164,6 +243,11 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     searchQuery,
     searchType,
     setShowSearch,
+    loadingStates,
+    setLoadingStates,
+    isSearchLoading,
+    threadSearchResults,
+    messageSearchResults,
 }) => {
     const { currentThreadId, createBranch, deleteBranch, threads } = useThreadContext();
     const sessionData = useSession();
@@ -174,33 +258,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     const [isKeyboardNavigating, setIsKeyboardNavigating] = useState(false);
 
     // Get all threads to build the hierarchy
-    const allThreads = useQuery(
+    const threadsData = useQuery(
         api.chat.getThreads,
         sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token, paginationOpts: { numItems: 100, cursor: null } } : "skip",
-    );
-
-    // Search threads when there's a search query and search type is "threads"
-    const threadSearchResults = useQuery(
-        api.chat.searchThreads,
-        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "threads"
-            ? {
-                  searchQuery: searchQuery.trim(),
-                  sessionToken: sessionData.data.session.token,
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
-            : "skip",
-    );
-
-    // Search messages when there's a search query and search type is "messages"
-    const messageSearchResults = useQuery(
-        api.chat.searchMessages,
-        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "messages"
-            ? {
-                  searchQuery: searchQuery.trim(),
-                  sessionToken: sessionData.data.session.token,
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
-            : "skip",
     );
 
     // Get thread relationships to build hierarchy
@@ -234,7 +294,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 threadsToUse = messageSearchResults?.page;
             }
         } else {
-            threadsToUse = allThreads?.page;
+            threadsToUse = threadsData?.page;
         }
 
         if (!threadsToUse || !threadRelationships) return [];
@@ -300,9 +360,14 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             // Finally, sort by creation time (newest first)
             return b.createdAt - a.createdAt;
         });
-    }, [allThreads?.page, threadSearchResults?.page, messageSearchResults?.page, threadRelationships, pinnedThreads, threadOrders, searchQuery, searchType]);
+    }, [threadsData?.page, threadSearchResults?.page, messageSearchResults?.page, threadRelationships, pinnedThreads, threadOrders, searchQuery, searchType]);
 
     const handleCreateBranch = async (threadId: string) => {
+        setLoadingStates((prev) => ({
+            ...prev,
+            branching: new Set(prev.branching).add(threadId),
+        }));
+
         try {
             const currentMessages = threads.get(threadId) || [];
             if (currentMessages.length > 0) {
@@ -310,19 +375,47 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             }
         } catch (error) {
             console.error("Failed to create branch:", error);
+        } finally {
+            setLoadingStates((prev) => {
+                const newBranching = new Set(prev.branching);
+                newBranching.delete(threadId);
+                return {
+                    ...prev,
+                    branching: newBranching,
+                };
+            });
         }
     };
 
     const handleDeleteThread = async (threadId: string) => {
+        setLoadingStates((prev) => ({
+            ...prev,
+            deleting: new Set(prev.deleting).add(threadId),
+        }));
+
         try {
             await deleteBranch(threadId);
         } catch (error) {
             console.error("Failed to delete thread:", error);
+        } finally {
+            setLoadingStates((prev) => {
+                const newDeleting = new Set(prev.deleting);
+                newDeleting.delete(threadId);
+                return {
+                    ...prev,
+                    deleting: newDeleting,
+                };
+            });
         }
     };
 
     const handlePinThread = async (threadId: string) => {
         if (!sessionData?.data?.session?.token) return;
+
+        setLoadingStates((prev) => ({
+            ...prev,
+            pinning: new Set(prev.pinning).add(threadId),
+        }));
 
         try {
             await pinThreadMutation({
@@ -331,11 +424,25 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             });
         } catch (error) {
             console.error("Failed to pin thread:", error);
+        } finally {
+            setLoadingStates((prev) => {
+                const newPinning = new Set(prev.pinning);
+                newPinning.delete(threadId);
+                return {
+                    ...prev,
+                    pinning: newPinning,
+                };
+            });
         }
     };
 
     const handleUnpinThread = async (threadId: string) => {
         if (!sessionData?.data?.session?.token) return;
+
+        setLoadingStates((prev) => ({
+            ...prev,
+            pinning: new Set(prev.pinning).add(threadId),
+        }));
 
         try {
             await unpinThreadMutation({
@@ -344,6 +451,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             });
         } catch (error) {
             console.error("Failed to unpin thread:", error);
+        } finally {
+            setLoadingStates((prev) => {
+                const newPinning = new Set(prev.pinning);
+                newPinning.delete(threadId);
+                return {
+                    ...prev,
+                    pinning: newPinning,
+                };
+            });
         }
     };
 
@@ -367,6 +483,11 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
         if (oldIndex === -1 || newIndex === -1) return;
 
+        setLoadingStates((prev) => ({
+            ...prev,
+            reordering: true,
+        }));
+
         // Create new order based on the reordered array
         const reorderedThreads = arrayMove(threadHierarchy, oldIndex, newIndex);
 
@@ -383,6 +504,11 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             });
         } catch (error) {
             console.error("Failed to update thread order:", error);
+        } finally {
+            setLoadingStates((prev) => ({
+                ...prev,
+                reordering: false,
+            }));
         }
     };
 
@@ -579,94 +705,60 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     const renderThreadNode = (node: BranchNode, dragListeners?: any, isKeyboardSelected?: boolean): JSX.Element => {
+        const isActive = currentThreadId === node.threadId;
         const hasChildren = node.children.length > 0;
         const isExpanded = expandedThreads.has(node.threadId);
-        const isActive = currentThreadId === node.threadId;
         const isRootThread = node.depth === 0;
 
+        // Check loading states for this thread
+        const isPinning = loadingStates.pinning.has(node.threadId);
+        const isDeleting = loadingStates.deleting.has(node.threadId);
+        const isBranching = loadingStates.branching.has(node.threadId);
+
         return (
-            <div key={node.threadId} className="relative">
-                {/* Connection line for child threads */}
-                {!isRootThread && <div className="bg-border absolute top-0 h-6 w-px" style={{ left: `${(node.depth - 1) * 20 + 10}px` }} />}
-
-                {/* Horizontal connection line */}
-                {!isRootThread && <div className="bg-border absolute top-6 h-px w-3" style={{ left: `${(node.depth - 1) * 20 + 10}px` }} />}
-
-                {/* Thread Item */}
-                <TooltipProvider>
-                    <div
-                        className={cn(
-                            "group flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                            "hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none",
-                            isActive && "bg-muted",
-                            isKeyboardSelected && "ring-primary bg-muted/50 ring-2",
-                            !isRootThread && "ml-6",
+            <TooltipProvider>
+                <div
+                    className={cn(
+                        "hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none",
+                        isActive && "bg-muted",
+                        isKeyboardSelected && "ring-primary bg-muted/50 ring-2",
+                        !isRootThread && "ml-6",
+                        (isDeleting || loadingStates.reordering) && "pointer-events-none opacity-50",
+                    )}
+                    onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId } })}
+                >
+                    <div className="flex items-center gap-2 rounded-lg px-2.5 py-2">
+                        {/* Drag handle - only show if not loading */}
+                        {!isDeleting && !loadingStates.reordering && (
+                            <div className="opacity-0 transition-opacity group-hover:opacity-100" {...dragListeners}>
+                                <GripVertical className="text-muted-foreground h-3 w-3 cursor-grab active:cursor-grabbing" />
+                            </div>
                         )}
-                        onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId } })}
-                        style={{ marginLeft: `${node.depth * 20}px` }}
-                    >
+
+                        {/* Loading indicator for reordering */}
+                        {loadingStates.reordering && <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />}
+
+                        {/* Expand/collapse button for threads with children */}
                         {hasChildren && (
-                            <button
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-4 w-4 p-0"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     toggleExpanded(node.threadId);
                                 }}
-                                className="hover:bg-accent rounded p-1 transition-colors"
                             >
                                 {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                            </button>
+                            </Button>
                         )}
 
-                        {!isRootThread && <GitBranch className="text-muted-foreground h-3 w-3 flex-shrink-0" />}
+                        {/* Thread title */}
+                        <span className="flex-1 truncate text-sm">{node.title}</span>
 
-                        {/* Pin indicator for pinned threads */}
-                        {node.isPinned && <Pin className="text-primary h-3 w-3 flex-shrink-0" />}
-
-                        {/* Drag handle */}
-                        {dragListeners && (
-                            <div {...dragListeners} className="cursor-grab opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing">
-                                <GripVertical className="text-muted-foreground h-3 w-3" />
-                            </div>
-                        )}
-
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <span className="flex-grow cursor-default truncate font-medium">{node.title}</span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                                <p className="break-words">{node.title}</p>
-                            </TooltipContent>
-                        </Tooltip>
-
-                        {hasChildren && (
-                            <Badge variant="secondary" className="h-5 px-1.5 text-xs">
-                                {node.children.length}
-                            </Badge>
-                        )}
-
+                        {/* Action buttons */}
                         <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                            {/* Pin/Unpin Button */}
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className={cn("h-6 w-6 p-0", node.isPinned ? "hover:text-destructive" : "hover:text-primary")}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (node.isPinned) {
-                                                handleUnpinThread(node.threadId);
-                                            } else {
-                                                handlePinThread(node.threadId);
-                                            }
-                                        }}
-                                    >
-                                        {node.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>{node.isPinned ? "Unpin thread" : "Pin thread"}</TooltipContent>
-                            </Tooltip>
-
+                            {/* Pin/Unpin button */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -675,15 +767,48 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                         className="hover:text-primary h-6 w-6 p-0"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleCreateBranch(node.threadId);
+                                            if (isPinning) return; // Prevent multiple clicks
+                                            if (node.isPinned) {
+                                                handleUnpinThread(node.threadId);
+                                            } else {
+                                                handlePinThread(node.threadId);
+                                            }
                                         }}
+                                        disabled={isPinning}
                                     >
-                                        <GitBranch className="h-3 w-3" />
+                                        {isPinning ? (
+                                            <Loader2 className="h-3 w-3 animate-spin" />
+                                        ) : node.isPinned ? (
+                                            <PinOff className="h-3 w-3" />
+                                        ) : (
+                                            <Pin className="h-3 w-3" />
+                                        )}
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent>Create branch</TooltipContent>
+                                <TooltipContent>{isPinning ? "Processing..." : node.isPinned ? "Unpin thread" : "Pin thread"}</TooltipContent>
                             </Tooltip>
 
+                            {/* Branch button */}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="hover:text-primary h-6 w-6 p-0"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (isBranching) return; // Prevent multiple clicks
+                                            handleCreateBranch(node.threadId);
+                                        }}
+                                        disabled={isBranching}
+                                    >
+                                        {isBranching ? <Loader2 className="h-3 w-3 animate-spin" /> : <GitBranch className="h-3 w-3" />}
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>{isBranching ? "Creating branch..." : "Create branch"}</TooltipContent>
+                            </Tooltip>
+
+                            {/* Archive button (placeholder) */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -701,6 +826,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                 <TooltipContent>Archive thread</TooltipContent>
                             </Tooltip>
 
+                            {/* Delete button */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -709,16 +835,19 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                         className="hover:text-destructive h-6 w-6 p-0"
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            if (isDeleting) return; // Prevent multiple clicks
                                             handleDeleteThread(node.threadId);
                                         }}
+                                        disabled={isDeleting}
                                     >
-                                        <TrashIcon className="h-3 w-3" />
+                                        {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrashIcon className="h-3 w-3" />}
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent>Delete thread</TooltipContent>
+                                <TooltipContent>{isDeleting ? "Deleting..." : "Delete thread"}</TooltipContent>
                             </Tooltip>
                         </div>
 
+                        {/* Status indicators */}
                         {node.status === "archived" && <ArchiveIcon className="text-muted-foreground h-3 w-3 flex-shrink-0" />}
                         {searchQuery.trim() && node.relevantMessages && node.relevantMessages.length > 0 && (
                             <div className="bg-primary/10 text-primary flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs">
@@ -726,7 +855,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             </div>
                         )}
                     </div>
-                </TooltipProvider>
+                </div>
 
                 {hasChildren && isExpanded && (
                     <div className="relative">
@@ -743,14 +872,43 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         ))}
                     </div>
                 )}
-            </div>
+            </TooltipProvider>
         );
     };
 
-    if (!threadHierarchy.length) {
+    // Show loading state if threads are still loading
+    if (!threadsData) {
+        return (
+            <div className="flex h-full items-center justify-center">
+                <div className="text-muted-foreground flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Loading threads...</span>
+                </div>
+            </div>
+        );
+    }
+
+    // Show empty state if no threads
+    if (threadsData.page.length === 0 && !searchQuery.trim()) {
+        return (
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+                <p className="text-muted-foreground">No threads yet</p>
+                <p className="text-muted-foreground text-xs">Start a new conversation to create your first thread</p>
+                <p className="mt-2 text-xs opacity-70">Press ? for keyboard shortcuts</p>
+            </div>
+        );
+    }
+
+    // Show empty state for search results
+    if (!threadHierarchy.length && searchQuery.trim()) {
         return (
             <div className="text-muted-foreground px-3 py-8 text-center text-sm">
-                {searchQuery.trim() ? (
+                {isSearchLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Searching...</span>
+                    </div>
+                ) : (
                     <>
                         <p>
                             No {searchType === "threads" ? "threads" : "messages"} found for "{searchQuery}"
@@ -758,11 +916,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         <p className="mt-1 text-xs">
                             {searchType === "threads" ? "Try searching in thread titles or summaries" : "Try searching in message content"}
                         </p>
-                    </>
-                ) : (
-                    <>
-                        <p>No threads yet</p>
-                        <p className="mt-1 text-xs">Start a new conversation to get started</p>
                     </>
                 )}
                 <p className="mt-2 text-xs opacity-70">Press ? for keyboard shortcuts</p>
