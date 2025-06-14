@@ -2,7 +2,7 @@ import { Assistant } from "@/routes/(chat)/-components/assistant";
 import { redirect, createFileRoute } from "@tanstack/react-router";
 import { api } from "@cvx/_generated/api";
 import { getServerSession } from "@/lib/auth/client";
-import { ModelProvider } from "@/routes/(chat)/-components/model-context";
+import { AiModelProvider } from "@/routes/(chat)/-provider/ai-model-provider";
 import { DEFAULT_MODEL } from "@cvx/agents";
 
 const ChatPage = () => {

@@ -2,7 +2,7 @@
 
 import type { FC } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useModelContext } from "./model-context";
+import { useAiModelContext } from "../-provider/ai-model-provider";
 
 const models = [
     {
@@ -43,7 +43,7 @@ const models = [
 ];
 
 export const ModelPicker: FC = () => {
-    const { selectedModel, setSelectedModel } = useModelContext();
+    const { selectedModel, setSelectedModel } = useAiModelContext();
     return (
         <Select value={selectedModel} onValueChange={setSelectedModel}>
             <SelectTrigger className="max-w-[300px]">

@@ -9,11 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { AgentModel } from "convex/agents";
 import { ConvexExternalRuntimeProvider, ThreadProvider } from "./convex-external-runtime-provider";
 import { Thread } from "@/components/assistant-ui/thread";
-import { useModelContext } from "./model-context";
+import { useAiModelContext } from "../-provider/ai-model-provider";
 import { ChatSiteHeader } from "./chat-site-header";
 
 export const Assistant = ({ threadId }: { threadId: Id<"threads"> }) => {
-    const { selectedModel } = useModelContext();
+    const { selectedModel } = useAiModelContext();
 
     return (
                     <SidebarProvider

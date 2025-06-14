@@ -98,6 +98,7 @@ const ThreadWelcomeSuggestions: FC = () => {
 
 const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
     const { t } = useTranslation();
+    const { selectedModel, setSelectedModel } = useAiModelContext();
     const [inputValue, setInputValue] = useState("");
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
