@@ -1,9 +1,10 @@
 import type { FC } from "react";
 import { ThreadListPrimitive } from "@assistant-ui/react";
 import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useQuery } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -139,6 +140,32 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         }
     };
 
+    const flattenedThreads = useMemo(() => {
+        const flattened: BranchNode[] = [];
+
+        const flattenNode = (node: BranchNode) => {
+            flattened.push(node);
+            if (expandedThreads.has(node.threadId)) {
+                node.children.forEach(flattenNode);
+            }
+        };
+
+        threadHierarchy.forEach(flattenNode);
+
+        return flattened;
+    }, [threadHierarchy, expandedThreads]);
+
+    // Virtual scrolling setup
+    const parentRef = useRef<HTMLDivElement>(null);
+    const shouldUseVirtualScrolling = flattenedThreads.length > 100;
+
+    const virtualizer = useVirtualizer({
+        count: flattenedThreads.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 44, // Estimated height of each thread item
+        overscan: 10,
+    });
+
     const renderThreadNode = (node: BranchNode): JSX.Element => {
         const hasChildren = node.children.length > 0;
         const isExpanded = expandedThreads.has(node.threadId);
@@ -165,7 +192,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                         onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId } })}
                         style={{ marginLeft: `${node.depth * 20}px` }}
                     >
-                        {/* Expand/Collapse Button */}
                         {hasChildren && (
                             <button
                                 onClick={(e) => {
@@ -178,10 +204,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                             </button>
                         )}
 
-                        {/* Branch indicator for child threads */}
                         {!isRootThread && <GitBranch className="text-muted-foreground h-3 w-3 flex-shrink-0" />}
 
-                        {/* Thread Title with Tooltip for truncated text */}
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <span className="flex-grow cursor-default truncate font-medium">{node.title}</span>
@@ -191,16 +215,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                             </TooltipContent>
                         </Tooltip>
 
-                        {/* Child count badge */}
                         {hasChildren && (
                             <Badge variant="secondary" className="h-5 px-1.5 text-xs">
                                 {node.children.length}
                             </Badge>
                         )}
 
-                        {/* Action buttons - shown on hover */}
                         <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                            {/* Create Branch */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -218,7 +239,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                                 <TooltipContent>Create branch</TooltipContent>
                             </Tooltip>
 
-                            {/* Archive */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -236,7 +256,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                                 <TooltipContent>Archive thread</TooltipContent>
                             </Tooltip>
 
-                            {/* Delete */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -255,15 +274,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                             </Tooltip>
                         </div>
 
-                        {/* Status indicator */}
                         {node.status === "archived" && <ArchiveIcon className="text-muted-foreground h-3 w-3 flex-shrink-0" />}
                     </div>
                 </TooltipProvider>
 
-                {/* Children */}
                 {hasChildren && isExpanded && (
                     <div className="relative">
-                        {/* Vertical connection line for children */}
                         <div
                             className="bg-border absolute w-px"
                             style={{
@@ -288,5 +304,46 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         );
     }
 
+    // Use virtual scrolling for large lists
+    if (shouldUseVirtualScrolling) {
+        return (
+            <div
+                ref={parentRef}
+                className="h-full overflow-auto"
+                style={{
+                    height: "400px", // Set a fixed height for the scrollable area
+                }}
+            >
+                <div
+                    style={{
+                        height: `${virtualizer.getTotalSize()}px`,
+                        width: "100%",
+                        position: "relative",
+                    }}
+                >
+                    {virtualizer.getVirtualItems().map((virtualItem) => {
+                        const node = flattenedThreads[virtualItem.index];
+                        return (
+                            <div
+                                key={virtualItem.key}
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100%",
+                                    height: `${virtualItem.size}px`,
+                                    transform: `translateY(${virtualItem.start}px)`,
+                                }}
+                            >
+                                {renderThreadNode(node)}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    }
+
+    // Regular rendering for smaller lists
     return <div className="space-y-1">{threadHierarchy.map((rootNode) => renderThreadNode(rootNode))}</div>;
 };

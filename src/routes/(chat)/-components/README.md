@@ -328,16 +328,7 @@ Access original Convex messages from the runtime:
 const originalMessages = useConvexMessages();
 ```
 
-### useConvexMessageData
-
-Access external store data for a specific message:
-
-```tsx
-const MessageComponent = () => {
-    const originalData = useConvexMessageData();
-    return <div>{/* Custom rendering */}</div>;
-};
-```
+Note: The `useConvexMessageData` hook was removed as it didn't work as expected with the current Assistant UI and Convex agent integration.
 
 ## File Structure
 

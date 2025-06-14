@@ -67,6 +67,7 @@
         "@tanstack/react-start": "1.121.0",
         "@tanstack/react-store": "^0.7.1",
         "@tanstack/react-table": "^8.21.3",
+        "@tanstack/react-virtual": "^3.13.10",
         "@tanstack/router-plugin": "^1.121.0",
         "@tanstack/store": "^0.7.1",
         "@vercel/mcp-adapter": "^0.10.0",

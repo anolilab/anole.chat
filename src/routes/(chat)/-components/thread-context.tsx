@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useMemo, type ReactNode } from "react";
 import type { ThreadMessageLike } from "@assistant-ui/react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@cvx/_generated/api";
@@ -183,88 +183,138 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
         }
     };
 
-    // Get the hierarchical tree structure of branches
-    const getBranchTree = (rootThreadId?: string): BranchNode[] => {
-        const buildTree = (threadId: string, depth: number = 0): BranchNode => {
-            // Try to get metadata from local state first
-            let metadata = threadMetadata.get(threadId);
-
-            // If not found locally, create metadata from Convex thread data
-            if (!metadata && allThreads?.page) {
-                const convexThread = allThreads.page.find((t) => t._id === threadId);
-                if (convexThread) {
-                    metadata = {
-                        title: convexThread.title || "Untitled Thread",
-                        status: convexThread.status === "active" ? "active" : "archived",
-                        parentThreadId: convexThread.parentThreadIds?.[0],
-                        createdAt: new Date(convexThread._creationTime),
-                        lastActivity: new Date(convexThread._creationTime),
-                    };
-                }
+    // Get parent thread ID - now uses Convex threads data
+    const getParentThread = useMemo(() => {
+        return (threadId: string): string | null => {
+            // First check local metadata for local threads
+            const localMetadata = threadMetadata.get(threadId);
+            if (localMetadata?.parentThreadId) {
+                return localMetadata.parentThreadId;
             }
 
-            if (!metadata) {
-                throw new Error(`Metadata not found for thread ${threadId}`);
+            // Then check Convex threads data
+            if (allThreads?.page) {
+                const thread = allThreads.page.find((t) => t._id === threadId);
+                return thread?.parentThreadIds?.[0] || null;
             }
 
-            const children = getChildBranches(threadId).map((childId) => buildTree(childId, depth + 1));
-
-            return {
-                threadId,
-                metadata,
-                children,
-                depth,
-            };
+            return null;
         };
+    }, [threadMetadata, allThreads?.page]);
 
-        if (rootThreadId) {
-            return [buildTree(rootThreadId)];
-        }
+    // Get child branch IDs - now uses Convex threads data
+    const getChildBranches = useMemo(() => {
+        return (threadId: string): string[] => {
+            const children: string[] = [];
 
-        // Find all root threads (threads without parents)
-        const rootThreads: string[] = [];
-
-        // Check local threads
-        for (const [threadId, metadata] of threadMetadata.entries()) {
-            if (!metadata.parentThreadId) {
-                rootThreads.push(threadId);
-            }
-        }
-
-        // Check Convex threads
-        if (allThreads?.page) {
-            for (const thread of allThreads.page) {
-                if (!thread.parentThreadIds?.length && !rootThreads.includes(thread._id)) {
-                    rootThreads.push(thread._id);
+            // Check local metadata first
+            for (const [id, metadata] of threadMetadata.entries()) {
+                if (metadata.parentThreadId === threadId) {
+                    children.push(id);
                 }
             }
-        }
 
-        return rootThreads.map((threadId) => buildTree(threadId));
-    };
+            // Then check Convex threads data
+            if (allThreads?.page) {
+                for (const thread of allThreads.page) {
+                    if (thread.parentThreadIds?.includes(threadId) && !children.includes(thread._id)) {
+                        children.push(thread._id);
+                    }
+                }
+            }
+
+            return children;
+        };
+    }, [threadMetadata, allThreads?.page]);
+
+    // Get the hierarchical tree structure of branches
+    const getBranchTree = useMemo(() => {
+        return (rootThreadId?: string): BranchNode[] => {
+            const buildTree = (threadId: string, depth: number = 0): BranchNode => {
+                // Try to get metadata from local state first
+                let metadata = threadMetadata.get(threadId);
+
+                // If not found locally, create metadata from Convex thread data
+                if (!metadata && allThreads?.page) {
+                    const convexThread = allThreads.page.find((t) => t._id === threadId);
+                    if (convexThread) {
+                        metadata = {
+                            title: convexThread.title || "Untitled Thread",
+                            status: convexThread.status === "active" ? "active" : "archived",
+                            parentThreadId: convexThread.parentThreadIds?.[0],
+                            createdAt: new Date(convexThread._creationTime),
+                            lastActivity: new Date(convexThread._creationTime),
+                        };
+                    }
+                }
+
+                if (!metadata) {
+                    throw new Error(`Metadata not found for thread ${threadId}`);
+                }
+
+                const children = getChildBranches(threadId).map((childId) => buildTree(childId, depth + 1));
+
+                return {
+                    threadId,
+                    metadata,
+                    children,
+                    depth,
+                };
+            };
+
+            if (rootThreadId) {
+                return [buildTree(rootThreadId)];
+            }
+
+            // Find all root threads (threads without parents)
+            const rootThreads: string[] = [];
+
+            // Check local threads
+            for (const [threadId, metadata] of threadMetadata.entries()) {
+                if (!metadata.parentThreadId) {
+                    rootThreads.push(threadId);
+                }
+            }
+
+            // Check Convex threads
+            if (allThreads?.page) {
+                for (const thread of allThreads.page) {
+                    if (!thread.parentThreadIds?.length && !rootThreads.includes(thread._id)) {
+                        rootThreads.push(thread._id);
+                    }
+                }
+            }
+
+            return rootThreads.map((threadId) => buildTree(threadId));
+        };
+    }, [threadMetadata, allThreads?.page, getChildBranches]);
 
     // Get the path from root to a specific thread
-    const getThreadPath = (threadId: string): string[] => {
-        const path: string[] = [];
-        let currentId: string | null = threadId;
+    const getThreadPath = useMemo(() => {
+        return (threadId: string): string[] => {
+            const path: string[] = [];
+            let currentId: string | null = threadId;
 
-        while (currentId) {
-            path.unshift(currentId);
-            currentId = getParentThread(currentId);
-        }
+            while (currentId) {
+                path.unshift(currentId);
+                currentId = getParentThread(currentId);
+            }
 
-        return path;
-    };
+            return path;
+        };
+    }, [getParentThread]);
 
     // Get sibling branches (branches with the same parent)
-    const getBranchSiblings = (threadId: string): string[] => {
-        const metadata = threadMetadata.get(threadId);
-        if (!metadata?.parentThreadId) {
-            return [];
-        }
+    const getBranchSiblings = useMemo(() => {
+        return (threadId: string): string[] => {
+            const metadata = threadMetadata.get(threadId);
+            if (!metadata?.parentThreadId) {
+                return [];
+            }
 
-        return getChildBranches(metadata.parentThreadId).filter((id) => id !== threadId);
-    };
+            return getChildBranches(metadata.parentThreadId).filter((id) => id !== threadId);
+        };
+    }, [threadMetadata, getChildBranches]);
 
     // Merge a branch back into its parent or target thread
     const mergeBranch = async (sourceThreadId: string, targetThreadId: string) => {
@@ -324,46 +374,6 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
                 return newMetadata;
             });
         }
-    };
-
-    // Get parent thread ID - now uses Convex threads data
-    const getParentThread = (threadId: string): string | null => {
-        // First check local metadata for local threads
-        const localMetadata = threadMetadata.get(threadId);
-        if (localMetadata?.parentThreadId) {
-            return localMetadata.parentThreadId;
-        }
-
-        // Then check Convex threads data
-        if (allThreads?.page) {
-            const thread = allThreads.page.find((t) => t._id === threadId);
-            return thread?.parentThreadIds?.[0] || null;
-        }
-
-        return null;
-    };
-
-    // Get child branch IDs - now uses Convex threads data
-    const getChildBranches = (threadId: string): string[] => {
-        const children: string[] = [];
-
-        // Check local metadata first
-        for (const [id, metadata] of threadMetadata.entries()) {
-            if (metadata.parentThreadId === threadId) {
-                children.push(id);
-            }
-        }
-
-        // Then check Convex threads data
-        if (allThreads?.page) {
-            for (const thread of allThreads.page) {
-                if (thread.parentThreadIds?.includes(threadId) && !children.includes(thread._id)) {
-                    children.push(thread._id);
-                }
-            }
-        }
-
-        return children;
     };
 
     return (
