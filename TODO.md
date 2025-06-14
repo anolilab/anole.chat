@@ -37,6 +37,18 @@
     - Works with both virtual scrolling and regular rendering modes
     - Keyboard accessibility support for drag and drop operations
 
+- [x] **Keyboard Shortcuts for Common Actions** - ✅ Completed: Added comprehensive keyboard navigation and shortcuts
+  - **Thread Actions**: `Ctrl+N` (new), `Ctrl+D` (delete), `Ctrl+P` (pin/unpin), `Ctrl+B` (branch)
+  - **Navigation**: `↑↓` arrows to navigate threads, `Enter` to open selected thread
+  - **Help System**: `?` to show/hide keyboard shortcuts help overlay
+  - **Escape Handling**: `Esc` to cancel navigation or close help
+  - **Smart Context**: Shortcuts disabled when typing in inputs/textareas
+  - **Visual Feedback**: Keyboard-selected threads highlighted with ring border
+  - **Mouse Integration**: Mouse hover automatically cancels keyboard navigation
+  - **Accessibility**: Full keyboard navigation support for all thread operations
+  - **Enhanced UI**: Professional keyboard shortcuts component with OS-specific symbols (⌘ on Mac, Ctrl on Windows)
+  - **Tooltips**: Hover tooltips for key symbols with full key names
+
 ## High Priority
 
 ### Model Display in Messages

@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { ThreadListPrimitive } from "@assistant-ui/react";
-import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown, Pin, PinOff, GripVertical } from "lucide-react";
-import { useState, useMemo, useRef } from "react";
+import { ArchiveIcon, PlusIcon, TrashIcon, GitBranch, ChevronRight, ChevronDown, Pin, PinOff, GripVertical, HelpCircle } from "lucide-react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -13,11 +13,11 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useThreadContext } from "@/routes/(chat)/-components/thread-context";
 import { cn } from "@/lib/utils";
 import { api } from "@cvx/_generated/api";
 import { useSession } from "@/hooks/auth-hooks";
+import { ShortcutsProvider, KeyCombo, KeySymbol, Keys, detectOS } from "@/components/ui/keyboard-shortcuts";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
@@ -35,6 +35,7 @@ interface BranchNode {
 
 export const ThreadList: FC = () => {
     const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
+    const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
     const toggleExpanded = (threadId: string) => {
         setExpandedThreads((prev) => {
@@ -50,8 +51,30 @@ export const ThreadList: FC = () => {
 
     return (
         <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5">
-            <ThreadListNew />
-            <HierarchicalThreadList expandedThreads={expandedThreads} toggleExpanded={toggleExpanded} />
+            <div className="flex items-center gap-2">
+                <ThreadListNew />
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
+                            >
+                                <HelpCircle className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Keyboard shortcuts (?)</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+            <HierarchicalThreadList 
+                expandedThreads={expandedThreads} 
+                toggleExpanded={toggleExpanded}
+                showKeyboardHelp={showKeyboardHelp}
+                setShowKeyboardHelp={setShowKeyboardHelp}
+            />
         </ThreadListPrimitive.Root>
     );
 };
@@ -71,12 +94,18 @@ const ThreadListNew: FC = () => {
 interface HierarchicalThreadListProps {
     expandedThreads: Set<string>;
     toggleExpanded: (threadId: string) => void;
+    showKeyboardHelp: boolean;
+    setShowKeyboardHelp: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThreads, toggleExpanded }) => {
+const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThreads, toggleExpanded, showKeyboardHelp, setShowKeyboardHelp }) => {
     const { currentThreadId, createBranch, deleteBranch, threads } = useThreadContext();
     const sessionData = useSession();
     const navigate = useNavigate();
+
+    // Keyboard navigation state
+    const [selectedThreadIndex, setSelectedThreadIndex] = useState<number>(-1);
+    const [isKeyboardNavigating, setIsKeyboardNavigating] = useState(false);
 
     // Get all threads to build the hierarchy
     const allThreads = useQuery(
@@ -242,6 +271,144 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         }
     };
 
+    // Keyboard shortcuts handlers
+    const handleKeyDown = useCallback(
+        (event: KeyboardEvent) => {
+            const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+            
+            // Don't handle shortcuts if user is typing in an input
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+                return;
+            }
+
+            switch (event.key) {
+                case 'n':
+                case 'N':
+                    if (isCtrlOrCmd) {
+                        event.preventDefault();
+                        // Create new thread
+                        navigate({ to: "/chat/new" });
+                    }
+                    break;
+
+                case 'd':
+                case 'D':
+                    if (isCtrlOrCmd && currentThreadId) {
+                        event.preventDefault();
+                        handleDeleteThread(currentThreadId);
+                    }
+                    break;
+
+                case 'p':
+                case 'P':
+                    if (isCtrlOrCmd && currentThreadId) {
+                        event.preventDefault();
+                        const currentThread = threadHierarchy.find(t => t.threadId === currentThreadId);
+                        if (currentThread) {
+                            if (currentThread.isPinned) {
+                                handleUnpinThread(currentThreadId);
+                            } else {
+                                handlePinThread(currentThreadId);
+                            }
+                        }
+                    }
+                    break;
+
+                case 'b':
+                case 'B':
+                    if (isCtrlOrCmd && currentThreadId) {
+                        event.preventDefault();
+                        handleCreateBranch(currentThreadId);
+                    }
+                    break;
+
+                case 'ArrowUp':
+                    if (!isCtrlOrCmd) {
+                        event.preventDefault();
+                        setIsKeyboardNavigating(true);
+                        setSelectedThreadIndex(prev => {
+                            const newIndex = prev <= 0 ? threadHierarchy.length - 1 : prev - 1;
+                            return newIndex;
+                        });
+                    }
+                    break;
+
+                case 'ArrowDown':
+                    if (!isCtrlOrCmd) {
+                        event.preventDefault();
+                        setIsKeyboardNavigating(true);
+                        setSelectedThreadIndex(prev => {
+                            const newIndex = prev >= threadHierarchy.length - 1 ? 0 : prev + 1;
+                            return newIndex;
+                        });
+                    }
+                    break;
+
+                case 'Enter':
+                    if (isKeyboardNavigating && selectedThreadIndex >= 0 && selectedThreadIndex < threadHierarchy.length) {
+                        event.preventDefault();
+                        const selectedThread = threadHierarchy[selectedThreadIndex];
+                        navigate({ to: "/chat/$threadId", params: { threadId: selectedThread.threadId } });
+                        setIsKeyboardNavigating(false);
+                        setSelectedThreadIndex(-1);
+                    }
+                    break;
+
+                case 'Escape':
+                    event.preventDefault();
+                    setIsKeyboardNavigating(false);
+                    setSelectedThreadIndex(-1);
+                    setShowKeyboardHelp(false);
+                    break;
+
+                case '?':
+                    if (!isCtrlOrCmd) {
+                        event.preventDefault();
+                        setShowKeyboardHelp(prev => !prev);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        },
+        [
+            currentThreadId,
+            threadHierarchy,
+            selectedThreadIndex,
+            isKeyboardNavigating,
+            navigate,
+            handleDeleteThread,
+            handlePinThread,
+            handleUnpinThread,
+            handleCreateBranch,
+            setShowKeyboardHelp,
+        ]
+    );
+
+    // Add keyboard event listeners
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleKeyDown]);
+
+    // Reset keyboard navigation when threads change
+    useEffect(() => {
+        if (isKeyboardNavigating && selectedThreadIndex >= threadHierarchy.length) {
+            setSelectedThreadIndex(threadHierarchy.length - 1);
+        }
+    }, [threadHierarchy.length, selectedThreadIndex, isKeyboardNavigating]);
+
+    // Reset keyboard navigation on mouse interaction
+    const handleMouseEnter = useCallback(() => {
+        if (isKeyboardNavigating) {
+            setIsKeyboardNavigating(false);
+            setSelectedThreadIndex(-1);
+        }
+    }, [isKeyboardNavigating]);
+
     const flattenedThreads = useMemo(() => {
         const flattened: BranchNode[] = [];
 
@@ -269,8 +436,17 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
     });
 
     // Sortable thread item component
-    const SortableThreadItem: FC<{ node: BranchNode }> = ({ node }) => {
-        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: node.threadId });
+    const SortableThreadItem: FC<{ node: BranchNode; index?: number }> = ({ node, index }) => {
+        const {
+            attributes,
+            listeners,
+            setNodeRef,
+            transform,
+            transition,
+            isDragging,
+        } = useSortable({ id: node.threadId });
+
+        const isKeyboardSelected = isKeyboardNavigating && index === selectedThreadIndex;
 
         const style = {
             transform: CSS.Transform.toString(transform),
@@ -279,13 +455,18 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
         };
 
         return (
-            <div ref={setNodeRef} style={style} {...attributes}>
-                {renderThreadNode(node, listeners)}
+            <div 
+                ref={setNodeRef} 
+                style={style} 
+                {...attributes}
+                onMouseEnter={handleMouseEnter}
+            >
+                {renderThreadNode(node, listeners, isKeyboardSelected)}
             </div>
         );
     };
 
-    const renderThreadNode = (node: BranchNode, dragListeners?: any): JSX.Element => {
+    const renderThreadNode = (node: BranchNode, dragListeners?: any, isKeyboardSelected?: boolean): JSX.Element => {
         const hasChildren = node.children.length > 0;
         const isExpanded = expandedThreads.has(node.threadId);
         const isActive = currentThreadId === node.threadId;
@@ -306,6 +487,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                             "group flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
                             "hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none",
                             isActive && "bg-muted",
+                            isKeyboardSelected && "ring-2 ring-primary bg-muted/50",
                             !isRootThread && "ml-6",
                         )}
                         onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId } })}
@@ -439,7 +621,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
                                 height: `${node.children.length * 44}px`,
                             }}
                         />
-                        {node.children.map((child) => renderThreadNode(child))}
+                        {node.children.map((child, childIndex) => (
+                            <SortableThreadItem key={child.threadId} node={child} index={childIndex} />
+                        ))}
                     </div>
                 )}
             </div>
@@ -451,9 +635,75 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
             <div className="text-muted-foreground px-3 py-8 text-center text-sm">
                 <p>No threads yet</p>
                 <p className="mt-1 text-xs">Start a new conversation to get started</p>
+                <p className="mt-2 text-xs opacity-70">Press ? for keyboard shortcuts</p>
             </div>
         );
     }
+
+    const customMappings = {
+        'n': { symbols: { default: 'N' }, label: 'N' },
+        'd': { symbols: { default: 'D' }, label: 'D' },
+        'p': { symbols: { default: 'P' }, label: 'P' },
+        'b': { symbols: { default: 'B' }, label: 'B' },
+        '?': { symbols: { default: '?' }, label: 'Question Mark' },
+    };
+
+    // Keyboard shortcuts help overlay
+    const KeyboardHelp = () => (
+        showKeyboardHelp && (
+            <div className="absolute inset-0 bg-background/95 backdrop-blur-sm z-50 p-4 rounded-lg border">
+                <ShortcutsProvider keyMappings={customMappings}>
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-semibold text-sm">Keyboard Shortcuts</h3>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowKeyboardHelp(false)}
+                                className="h-6 w-6 p-0"
+                            >
+                                ×
+                            </Button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2 text-xs">
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">New thread</span>
+                                <KeyCombo keyNames={[Keys.Command, "n"]} />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Delete thread</span>
+                                <KeyCombo keyNames={[Keys.Command, "d"]} />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Pin/Unpin thread</span>
+                                <KeyCombo keyNames={[Keys.Command, "p"]} />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Create branch</span>
+                                <KeyCombo keyNames={[Keys.Command, "b"]} />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Navigate threads</span>
+                                <KeyCombo keyNames={[Keys.ArrowUp, Keys.ArrowDown]} />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Open thread</span>
+                                <KeySymbol keyName={Keys.Enter} />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Show/hide help</span>
+                                <KeySymbol keyName="?" />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">Cancel/escape</span>
+                                <KeySymbol keyName={Keys.Escape} />
+                            </div>
+                        </div>
+                    </div>
+                </ShortcutsProvider>
+            </div>
+        )
+    );
 
     // Get thread IDs for sortable context
     const threadIds = threadHierarchy.map((thread) => thread.threadId);
@@ -461,57 +711,65 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({ expandedThrea
     // Use virtual scrolling for large lists
     if (shouldUseVirtualScrolling) {
         return (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
-                    <div
-                        ref={parentRef}
-                        className="h-full overflow-auto"
-                        style={{
-                            height: "400px", // Set a fixed height for the scrollable area
-                        }}
-                    >
+            <div className="relative">
+                <KeyboardHelp />
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
                         <div
+                            ref={parentRef}
+                            className="h-full overflow-auto"
                             style={{
-                                height: `${virtualizer.getTotalSize()}px`,
-                                width: "100%",
-                                position: "relative",
+                                height: "400px", // Set a fixed height for the scrollable area
                             }}
                         >
-                            {virtualizer.getVirtualItems().map((virtualItem) => {
-                                const node = flattenedThreads[virtualItem.index];
-                                return (
-                                    <div
-                                        key={virtualItem.key}
-                                        style={{
-                                            position: "absolute",
-                                            top: 0,
-                                            left: 0,
-                                            width: "100%",
-                                            height: `${virtualItem.size}px`,
-                                            transform: `translateY(${virtualItem.start}px)`,
-                                        }}
-                                    >
-                                        <SortableThreadItem node={node} />
-                                    </div>
-                                );
-                            })}
+                            <div
+                                style={{
+                                    height: `${virtualizer.getTotalSize()}px`,
+                                    width: "100%",
+                                    position: "relative",
+                                }}
+                            >
+                                {virtualizer.getVirtualItems().map((virtualItem) => {
+                                    const node = flattenedThreads[virtualItem.index];
+                                    // Find the original index in threadHierarchy for keyboard navigation
+                                    const originalIndex = threadHierarchy.findIndex(t => t.threadId === node.threadId);
+                                    return (
+                                        <div
+                                            key={virtualItem.key}
+                                            style={{
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                width: "100%",
+                                                height: `${virtualItem.size}px`,
+                                                transform: `translateY(${virtualItem.start}px)`,
+                                            }}
+                                        >
+                                            <SortableThreadItem node={node} index={originalIndex} />
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </div>
-                </SortableContext>
-            </DndContext>
+                    </SortableContext>
+                </DndContext>
+            </div>
         );
     }
 
     // Regular rendering for smaller lists
     return (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
-                <div className="space-y-1">
-                    {threadHierarchy.map((rootNode) => (
-                        <SortableThreadItem key={rootNode.threadId} node={rootNode} />
-                    ))}
-                </div>
-            </SortableContext>
-        </DndContext>
+        <div className="relative">
+            <KeyboardHelp />
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-1">
+                        {threadHierarchy.map((rootNode, index) => (
+                            <SortableThreadItem key={rootNode.threadId} node={rootNode} index={index} />
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
+        </div>
     );
 };
