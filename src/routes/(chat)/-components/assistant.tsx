@@ -17,7 +17,7 @@ export const Assistant = ({ threadId }: { threadId?: string }) => {
 
     return (
         <SidebarProvider>
-            <ThreadProvider>
+            <ThreadProvider model={selectedModel}>
                 <ConvexExternalRuntimeProvider model={selectedModel} threadId={threadId}>
                     <div className="flex h-dvh w-full">
                         <ChatSidebar />

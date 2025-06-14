@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { components, internal } from "./_generated/api";
-import { internalAction, mutation, action, query, httpAction } from "./_generated/server";
+import { internalAction, internalMutation, mutation, action, query, httpAction, internalQuery } from "./_generated/server";
 import { AgentModel, getAgent } from "./agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import { Id } from "./_generated/dataModel";
@@ -11,6 +11,9 @@ export const createThread = mutation({
     args: {
         model: v.string(),
         sessionToken: v.string(),
+        parentThreadId: v.optional(v.string()),
+        branchPoint: v.optional(v.number()),
+        branchName: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
@@ -23,9 +26,25 @@ export const createThread = mutation({
 
         const agent = getAgent(args.model as AgentModel);
 
-        const { threadId } = await agent.createThread(ctx, {
+        // Create the thread using the standard agent API
+        const createOptions = {
             userId: sessionData.userId as Id<"user">,
-        });
+            title: args.branchName || undefined,
+        };
+
+        const { threadId } = await agent.createThread(ctx, createOptions);
+        // TODO: Fix upstream - @convex-dev/agent createThread doesn't support parentThreadIds
+        // The agent's createThread function signature doesn't include parentThreadIds parameter
+        // Once this is added upstream, we can pass parentThreadIds directly in createOptions above
+        // Create thread relationship if this is a branch
+        if (args.parentThreadId) {
+            await ctx.runMutation(internal.chat.createThreadRelationship, {
+                threadId,
+                parentThreadId: args.parentThreadId,
+                branchPoint: args.branchPoint || 0,
+                branchType: "branch",
+            });
+        }
 
         return threadId;
     },
@@ -49,19 +68,57 @@ export const listMessages = query({
 
         const agent = getAgent(model as AgentModel);
 
+        // Check if this thread has a parent (is a branch)
+        const threadRelationship = await ctx.runQuery(internal.chat.getThreadRelationship, {
+            threadId,
+        });
+
+        if (threadRelationship) {
+            // Get parent messages up to the branch point
+            const parentMessages = await agent.listMessages(ctx, {
+                threadId: threadRelationship.parentThreadId,
+                paginationOpts: { numItems: 1000, cursor: null },
+            });
+
+            // Get current thread messages
+            const currentMessages = await agent.listMessages(ctx, {
+                threadId,
+                paginationOpts: { numItems: 1000, cursor: null },
+            });
+
+            // Take only parent messages up to the branch point (inclusive)
+            const parentMessagesUpToBranch = parentMessages.page.slice(0, (threadRelationship.branchPoint || 0) + 1);
+
+            // Merge parent messages with current thread messages
+            const mergedMessages = [...parentMessagesUpToBranch, ...currentMessages.page];
+
+            // Apply pagination to the merged result
+            const startIndex = paginationOpts.cursor ? mergedMessages.findIndex((m) => m._id === paginationOpts.cursor) + 1 : 0;
+            const endIndex = Math.min(startIndex + paginationOpts.numItems, mergedMessages.length);
+            const paginatedMessages = mergedMessages.slice(startIndex, endIndex);
+
+            return {
+                page: paginatedMessages,
+                isDone: endIndex >= mergedMessages.length,
+                continueCursor: endIndex < mergedMessages.length ? mergedMessages[endIndex - 1]?._id || null : null,
+            };
+        }
+
+        // If no parent, return current messages with original pagination
         const paginated = await agent.listMessages(ctx, {
             threadId,
             paginationOpts,
         });
+
         return paginated;
     },
 });
 
 export const continueThread = action({
     args: { prompt: v.string(), threadId: v.string(), model: v.string(), sessionToken: v.string() },
-    handler: async (ctx, { prompt, threadId, model }) => {
+    handler: async (ctx, { prompt, threadId, model, sessionToken }) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
+            sessionToken,
         });
 
         if (!sessionData) {
@@ -124,6 +181,7 @@ export const updateThread = mutation({
     },
 });
 
+// DEPRECATED: Use deleteThreadWithRelationships instead
 export const deleteThread = mutation({
     args: { threadId: v.string(), sessionToken: v.string() },
     handler: async (ctx, { threadId, sessionToken }) => {
@@ -134,6 +192,11 @@ export const deleteThread = mutation({
         if (!sessionData) {
             throw new ConvexError("Unauthorized");
         }
+
+        // Clean up relationships first
+        await ctx.runMutation(internal.chat.deleteThreadRelationship, {
+            threadId,
+        });
 
         return await ctx.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId });
     },
@@ -210,6 +273,118 @@ export const createTitleChat = internalAction({
     },
 });
 
+// Thread relationship management functions
+
+export const createThreadRelationship = internalMutation({
+    args: {
+        threadId: v.string(),
+        parentThreadId: v.string(),
+        branchPoint: v.optional(v.number()),
+        branchType: v.optional(v.union(v.literal("branch"), v.literal("continuation"))),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.insert("threadRelationships", {
+            threadId: args.threadId,
+            parentThreadId: args.parentThreadId,
+            branchPoint: args.branchPoint || 0,
+            branchType: args.branchType || "branch",
+            createdAt: Date.now(),
+        });
+    },
+});
+
+export const getThreadRelationship = internalQuery({
+    args: {
+        threadId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const relationship = await ctx.db
+            .query("threadRelationships")
+            .withIndex("by_thread", (q) => q.eq("threadId", args.threadId))
+            .unique();
+
+        return relationship;
+    },
+});
+
+export const getChildThreads = query({
+    args: {
+        parentThreadId: v.string(),
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Get all child threads for this parent
+        const relationships = await ctx.db
+            .query("threadRelationships")
+            .withIndex("by_parent", (q) => q.eq("parentThreadId", args.parentThreadId))
+            .collect();
+
+        // Get the actual thread data for each child
+        const childThreads = [];
+        for (const relationship of relationships) {
+            const thread = await ctx.runQuery(components.agent.threads.getThread, {
+                threadId: relationship.threadId,
+            });
+            if (thread) {
+                childThreads.push({
+                    ...thread,
+                    branchPoint: relationship.branchPoint,
+                    branchType: relationship.branchType,
+                    createdAt: relationship.createdAt,
+                });
+            }
+        }
+
+        return childThreads;
+    },
+});
+
+export const deleteThreadRelationship = internalMutation({
+    args: {
+        threadId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const relationship = await ctx.db
+            .query("threadRelationships")
+            .withIndex("by_thread", (q) => q.eq("threadId", args.threadId))
+            .unique();
+
+        if (relationship) {
+            await ctx.db.delete(relationship._id);
+        }
+    },
+});
+
+// Update deleteThread to also clean up relationships
+export const deleteThreadWithRelationships = mutation({
+    args: { threadId: v.string(), sessionToken: v.string() },
+    handler: async (ctx, { threadId, sessionToken }) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Delete the thread relationship
+        await ctx.runMutation(internal.chat.deleteThreadRelationship, {
+            threadId,
+        });
+
+        // Delete the actual thread
+        return await ctx.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId });
+    },
+});
+
 export const createSummarizeChat = internalAction({
     args: { threadId: v.string(), sessionToken: v.string() },
     handler: async (ctx, args) => {
@@ -247,5 +422,25 @@ export const createSummarizeChat = internalAction({
         const jsonResponse = o.toJsonResponse();
 
         await thread.updateMetadata(await jsonResponse.json());
+    },
+});
+
+export const getAllThreadRelationships = query({
+    args: {
+        sessionToken: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Get all thread relationships for building the hierarchy
+        const relationships = await ctx.db.query("threadRelationships").collect();
+
+        return relationships;
     },
 });

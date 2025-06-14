@@ -10,6 +10,8 @@ The `ConvexExternalRuntimeProvider` follows the ExternalStoreRuntime pattern fro
 - **Optimistic updates** - Immediate UI feedback with background persistence
 - **Real-time streaming** - Progressive response updates during AI generation
 - **Thread management** - Multi-conversation support with archiving and switching
+- **Thread branching** - Create conversation branches from any message to explore different paths
+- **Visual tree navigation** - Hierarchical view of conversation branches with interactive navigation
 - **File attachments** - Document upload and processing capabilities
 - **Message editing** - Edit and regenerate message functionality
 - **Centralized thread context** - Dedicated thread state management with ThreadProvider
@@ -19,7 +21,9 @@ The `ConvexExternalRuntimeProvider` follows the ExternalStoreRuntime pattern fro
 ### Core Implementation
 
 - `convex-external-runtime-provider.tsx` - Main provider implementing ExternalStoreRuntime with Convex integration
-- `thread-context.tsx` - Centralized thread state management with ThreadProvider and useThreadContext hook
+- `thread-context.tsx` - Centralized thread state management with ThreadProvider, useThreadContext hook, and branching support
+- `thread-branching-ui.tsx` - UI components for thread branching (tree view, navigation, controls)
+- `thread-branching-demo.tsx` - Interactive demo showcasing branching features
 - `hooks/use-convex-messages.ts` - Hooks for accessing external store data
 
 ### Supporting Files
@@ -71,7 +75,7 @@ import { useThreadContext } from "./thread-context";
 
 function ThreadSwitcher() {
     const { currentThreadId, setCurrentThreadId, threads, threadMetadata } = useThreadContext();
-    
+
     return (
         <div>
             <h3>Current Thread: {currentThreadId}</h3>
@@ -155,7 +159,41 @@ interface ThreadContextType {
 - **Content extraction**: Text extraction from uploaded files
 - **Attachment persistence**: Files stored in Convex storage
 
-### 6. Convex Integration
+### 6. Thread Branching
+
+- **Branch Creation**: Create new conversation paths from any message
+- **Visual Tree**: Hierarchical view of all conversation branches
+- **Branch Navigation**: Breadcrumb navigation and tree-based switching
+- **Context Preservation**: Each branch maintains its own message history
+- **Branch Management**: Rename, merge, and delete branches
+- **Interactive Demo**: Comprehensive demo showcasing all branching features
+
+#### Branching Usage
+
+```tsx
+import { useThreadContext } from "./thread-context";
+import { BranchTreeView, BranchNavigation } from "./thread-branching-ui";
+
+function BranchingInterface() {
+    const { createBranch, switchToBranch, getBranchTree } = useThreadContext();
+
+    // Create a branch from message index 3 with custom name
+    const handleCreateBranch = () => {
+        const branchId = createBranch(currentThreadId, 3, "Alternative Approach");
+        switchToBranch(branchId);
+    };
+
+    return (
+        <div>
+            <BranchNavigation />
+            <BranchTreeView />
+            <button onClick={handleCreateBranch}>Create Branch</button>
+        </div>
+    );
+}
+```
+
+### 7. Convex Integration
 
 - **Thread Creation**: Uses `api.chat.createThread` mutation for proper persistence
 - **Message Sync**: Automatic synchronization with Convex database
@@ -178,7 +216,7 @@ graph TD
     I --> J[Message Conversion]
     I --> K[Thread Management]
     I --> L[Attachment Handling]
-    
+
     B --> M[Thread Context]
     M --> N[Thread State]
     M --> O[Thread Metadata]
@@ -199,9 +237,7 @@ const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
     if (typeof content === "string") {
         displayContent = content;
     } else if (Array.isArray(content)) {
-        displayContent = content
-            .map((part) => part.type === "text" ? part.text : `[unsupported content: ${part.type}]`)
-            .join("");
+        displayContent = content.map((part) => (part.type === "text" ? part.text : `[unsupported content: ${part.type}]`)).join("");
     } else {
         displayContent = "";
     }
@@ -229,7 +265,7 @@ if (currentThreadId.startsWith("thread-") && sessionData?.data?.session?.token) 
         model,
         sessionToken: sessionData.data.session.token,
     });
-    
+
     // Update local state and navigation
     setCurrentThreadId(actualThreadId);
     navigate({ to: "/chat/$threadId", params: { threadId: actualThreadId }, replace: true });
@@ -263,13 +299,11 @@ try {
         console.log("Stream cancelled by user");
         return;
     }
-    
+
     // Update message with error state
     setThreads((prev) => {
         const updatedMessages = currentThreadMessages.map((m) =>
-            m.id === assistantId
-                ? { ...m, content: [{ type: "text" as const, text: `Error: ${error.message}` }] }
-                : m
+            m.id === assistantId ? { ...m, content: [{ type: "text" as const, text: `Error: ${error.message}` }] } : m,
         );
         return new Map(prev).set(useThreadId, updatedMessages);
     });
@@ -283,14 +317,7 @@ try {
 Access thread state and management functions:
 
 ```tsx
-const { 
-    currentThreadId, 
-    setCurrentThreadId, 
-    threads, 
-    setThreads, 
-    threadMetadata, 
-    setThreadMetadata 
-} = useThreadContext();
+const { currentThreadId, setCurrentThreadId, threads, setThreads, threadMetadata, setThreadMetadata } = useThreadContext();
 ```
 
 ### useConvexMessages
@@ -393,16 +420,19 @@ When making changes:
 ### Common Issues
 
 1. **"useThreadContext must be used within ThreadProvider"**
-   - Ensure your component is wrapped with `<ThreadProvider>`
+
+    - Ensure your component is wrapped with `<ThreadProvider>`
 
 2. **Thread creation fails**
-   - Check session token validity
-   - Verify Convex mutations are properly configured
+
+    - Check session token validity
+    - Verify Convex mutations are properly configured
 
 3. **Messages not syncing**
-   - Check network connectivity
-   - Verify Convex queries are running
+
+    - Check network connectivity
+    - Verify Convex queries are running
 
 4. **Streaming interruptions**
-   - Implement proper error boundaries
-   - Handle AbortController cancellations
+    - Implement proper error boundaries
+    - Handle AbortController cancellations

@@ -148,6 +148,18 @@ const schema = defineSchema({
             }),
         ),
     }).index("by_userId", ["userId"]),
+
+    // Thread relationships for branching and hierarchy
+    threadRelationships: defineTable({
+        threadId: v.string(), // The child thread
+        parentThreadId: v.string(), // The parent thread this was branched from
+        branchPoint: v.optional(v.number()), // Which message index the branch started from (0-based)
+        branchType: v.optional(v.union(v.literal("branch"), v.literal("continuation"))), // Type of relationship
+        createdAt: v.number(), // When this relationship was created
+    })
+        .index("by_thread", ["threadId"])
+        .index("by_parent", ["parentThreadId"])
+        .index("by_parent_and_thread", ["parentThreadId", "threadId"]),
 });
 
 export default schema;

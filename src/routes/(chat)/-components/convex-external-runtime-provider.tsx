@@ -91,7 +91,14 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             // Initialize thread if it doesn't exist
             if (!threads.has(threadId)) {
                 setThreads((prev) => new Map(prev).set(threadId, []));
-                setThreadMetadata((prev) => new Map(prev).set(threadId, { title: "New Chat", status: "active" }));
+                setThreadMetadata((prev) =>
+                    new Map(prev).set(threadId, {
+                        title: "New Chat",
+                        status: "active",
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                    }),
+                );
             }
         }
     }, [threadId, currentThreadId, setCurrentThreadId, threads, setThreads, setThreadMetadata]);
@@ -110,7 +117,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
     const convexThreads = usePaginatedQuery(api.chat.getThreads, { sessionToken: sessionData?.data?.session?.token as string }, { initialNumItems: 10 });
     const updateThread = useMutation(api.chat.updateThread);
-    const deleteThread = useMutation(api.chat.deleteThread);
+    const deleteThread = useMutation(api.chat.deleteThreadWithRelationships);
     const createThreadMutation = useMutation(api.chat.createThread);
 
     useEffect(() => {
@@ -407,7 +414,14 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
                 // Initialize new thread in context
                 setThreads((prev) => new Map(prev).set(newThreadId, []));
-                setThreadMetadata((prev) => new Map(prev).set(newThreadId, { title: "New Chat", status: "active" }));
+                setThreadMetadata((prev) =>
+                    new Map(prev).set(newThreadId, {
+                        title: "New Chat",
+                        status: "active",
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                    }),
+                );
                 setCurrentThreadId(newThreadId);
 
                 navigate({ to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true });
@@ -419,7 +433,14 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 }
 
                 if (!threadMetadata.has(switchThreadId)) {
-                    setThreadMetadata((prev) => new Map(prev).set(switchThreadId, { title: "Chat", status: "active" }));
+                    setThreadMetadata((prev) =>
+                        new Map(prev).set(switchThreadId, {
+                            title: "Chat",
+                            status: "active",
+                            createdAt: new Date(),
+                            lastActivity: new Date(),
+                        }),
+                    );
                 }
 
                 setCurrentThreadId(switchThreadId);
@@ -428,9 +449,18 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
             onRename: async (renameThreadId, newTitle) => {
                 setThreadMetadata((prev) => {
-                    const current = prev.get(renameThreadId) || { title: "Chat", status: "active" };
+                    const current = prev.get(renameThreadId) || {
+                        title: "Chat",
+                        status: "active",
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                    };
 
-                    return new Map(prev).set(renameThreadId, { ...current, title: newTitle });
+                    return new Map(prev).set(renameThreadId, {
+                        ...current,
+                        title: newTitle,
+                        lastActivity: new Date(),
+                    });
                 });
 
                 if (sessionData?.data?.session?.token) {
@@ -446,8 +476,17 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             onArchive: async (archiveThreadId) => {
                 // Update local metadata immediately
                 setThreadMetadata((prev) => {
-                    const current = prev.get(archiveThreadId) || { title: "Chat", status: "active" };
-                    return new Map(prev).set(archiveThreadId, { ...current, status: "archived" });
+                    const current = prev.get(archiveThreadId) || {
+                        title: "Chat",
+                        status: "active",
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                    };
+                    return new Map(prev).set(archiveThreadId, {
+                        ...current,
+                        status: "archived",
+                        lastActivity: new Date(),
+                    });
                 });
 
                 // Sync with Convex if session available
@@ -464,8 +503,17 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             onUnarchive: async (unarchiveThreadId) => {
                 // Update local metadata immediately
                 setThreadMetadata((prev) => {
-                    const current = prev.get(unarchiveThreadId) || { title: "Chat", status: "archived" };
-                    return new Map(prev).set(unarchiveThreadId, { ...current, status: "active" });
+                    const current = prev.get(unarchiveThreadId) || {
+                        title: "Chat",
+                        status: "archived",
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                    };
+                    return new Map(prev).set(unarchiveThreadId, {
+                        ...current,
+                        status: "active",
+                        lastActivity: new Date(),
+                    });
                 });
 
                 // Sync with Convex if session available
