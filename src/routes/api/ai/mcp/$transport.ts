@@ -1,5 +1,5 @@
 import { tools } from "@/lib/ai/mcp-tools";
-import { betterAuth } from "@/lib/auth/server";
+import { betterAuth } from "@/features/auth/lib/server";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 
 import { createMcpHandler } from "@vercel/mcp-adapter";

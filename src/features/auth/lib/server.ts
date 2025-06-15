@@ -1,8 +1,8 @@
-import { ResetPasswordEmail } from "@/components/emails/reset-password-email";
-import { SendMagicLinkEmail } from "@/components/emails/send-magic-link-email";
-import { SendVerificationOTP } from "@/components/emails/send-verification-otp";
-import { VerifyEmail } from "@/components/emails/verify-email";
-import { WelcomeEmail } from "@/components/emails/welcome-email";
+import { ResetPasswordEmail } from "@/features/emails/components/reset-password-email";
+import { SendMagicLinkEmail } from "@/features/emails/components/send-magic-link-email";
+import { SendVerificationOTP } from "@/features/emails/components/send-verification-otp";
+import { VerifyEmail } from "@/features/emails/components/verify-email";
+import { WelcomeEmail } from "@/features/emails/components/welcome-email";
 import { sendEmail } from "@/lib/resend";
 import { betterAuth as betterAuthBase } from "better-auth";
 import { anonymous, admin, magicLink, organization, jwt, oidcProvider } from "better-auth/plugins";
@@ -251,28 +251,28 @@ export const betterAuth = betterAuthBase({
         emailOTP({
             async sendVerificationOTP({ email, otp, type }) {
                 await sendEmail({
-                    subject: "Verify your email",
+                    subject: `${otp} is your ${type} code`,
                     template: SendVerificationOTP({
-                        username: email,
-                        otp: otp,
+                        otp,
+                        type,
                     }),
                     to: email,
                 });
             },
         }),
         magicLink({
-            sendMagicLink: async ({ email, token, url }, request) => {
+            async sendMagicLink({ url, user }) {
                 await sendEmail({
-                    subject: "Magic Link",
+                    subject: "Sign in to MyApp",
                     template: SendMagicLinkEmail({
-                        username: email,
-                        url: url,
-                        token: token,
+                        magicLink: url,
+                        username: user.email,
                     }),
-                    to: email,
+                    to: user.email,
                 });
             },
         }),
         reactStartCookies(), // make sure this is the last plugin in the array
     ],
+    cookies: reactStartCookies,
 });

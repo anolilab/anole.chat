@@ -3,7 +3,6 @@ import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexProviderWithAuth } from "convex/react";
 import { ConvexReactClient } from "convex/react";
-import { useAuthForConvex } from "@/lib/auth/client";
 import { AnalyticsProvider } from "@/providers/analytics-provider";
 
 // Import the generated route tree
@@ -14,6 +13,7 @@ import DefaultLoading from "./components/default-loading";
 import NotFound from "./components/not-found";
 import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GlobalErrorBoundaryProvider } from "@/components/error-boundaries/global-error-boundary-provider";
+import { useAuthForConvex } from "./features/auth/lib/client";
 
 export const createRouter = () => {
     const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL!;

@@ -1,13 +1,14 @@
 "use client";
 
+import React from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ConvexExternalRuntimeProvider } from "./convex-external-runtime-provider";
 import { Thread } from "@/components/assistant-ui/thread";
-import { useAiModelContext } from "../-provider/ai-model-provider";
-import { ChatSiteHeader } from "./site-header";
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { ChatSiteHeader } from "./chat-header";
+import { AppSidebar } from "@/features/layout/components/app-sidebar";
 import { ThreadProvider } from "./thread-context";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
+import { useAiModelContext } from "../providers/ai-model-provider";
 
 export const Assistant = ({ threadId }: { threadId: string }) => {
     const { selectedModel } = useAiModelContext();

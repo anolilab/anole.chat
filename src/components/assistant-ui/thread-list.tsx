@@ -27,12 +27,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useThreadContext } from "@/routes/(chat)/-components/thread-context";
 import { cn } from "@/lib/utils";
 import { api } from "@cvx/_generated/api";
-import { useSession } from "@/hooks/auth-hooks";
 import { ShortcutsProvider, KeyCombo, KeySymbol, Keys, detectOS } from "@/components/ui/keyboard-shortcuts";
 import { Input } from "@/components/ui/input";
+import { useSession } from "@/features/auth/hooks/auth-hooks";
+import { useThreadContext } from "@/features/chat/components/thread-context";
 
 // Type definitions for thread hierarchy
 interface BranchNode {

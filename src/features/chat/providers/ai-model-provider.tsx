@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@cvx/_generated/api";
 import { DEFAULT_MODEL, type AgentModel } from "@cvx/agents";
-import { useSession } from "@/hooks/auth-hooks";
+import { useSession } from "@/features/auth/hooks/auth-hooks";
 
 interface AiModelContextType {
     selectedModel: AgentModel;

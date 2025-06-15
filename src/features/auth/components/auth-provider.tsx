@@ -1,5 +1,4 @@
-import { useSession } from "@/hooks/auth-hooks";
-
+import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { useLocation, useRouter } from "@tanstack/react-router";
 
 import { Loader2 } from "lucide-react";

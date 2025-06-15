@@ -1,4 +1,4 @@
-import { authClient } from "@/lib/auth/client";
+import { authClient } from "@/features/auth/lib/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import type { ErrorContext } from "better-auth/react";

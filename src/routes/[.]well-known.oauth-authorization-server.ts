@@ -1,4 +1,4 @@
-import { betterAuth } from "@/lib/auth/server";
+import { betterAuth } from "@/features/auth/lib/server";
 
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import { oAuthDiscoveryMetadata } from "better-auth/plugins";

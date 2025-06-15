@@ -13,7 +13,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth/client";
+import { authClient } from "@/features/auth/lib/client";
 import { useRouter } from "@tanstack/react-router";
 
 export function NavUser() {

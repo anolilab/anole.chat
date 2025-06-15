@@ -1,6 +1,10 @@
 "use client";
 
-import { PasswordInput } from "@/components/password-input";
+import { useI18n } from "@/lib/intl/i18n";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { FormFieldInfo } from "@/components/form-field-info";
+import { PasswordInput } from "@/features/auth/components/password-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +15,8 @@ import { useRouter } from "@tanstack/react-router";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+const formSchema = z;
 
 export default function ResetPasswordForm() {
     const { t } = useTranslation();

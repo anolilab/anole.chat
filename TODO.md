@@ -91,11 +91,11 @@
 
 ### Message Feedback System
 
--   **Issue**: The current system for message feedback requires one database query per message to get its feedback state, which is inefficient.
--   **Goal**: Load message feedback data along with the messages themselves in a single query.
--   **Current Status**:
-    -   An attempt to augment the `listMessages` function in `convex/chat.ts` with feedback data was reverted. The underlying `@convex-dev/agent` package's `listMessages` function doesn't easily allow for augmenting the returned message objects.
--   **Potential Solutions**:
+- **Issue**: The current system for message feedback requires one database query per message to get its feedback state, which is inefficient.
+- **Goal**: Load message feedback data along with the messages themselves in a single query.
+- **Current Status**:
+    - An attempt to augment the `listMessages` function in `convex/chat.ts` with feedback data was reverted. The underlying `@convex-dev/agent` package's `listMessages` function doesn't easily allow for augmenting the returned message objects.
+- **Potential Solutions**:
     1.  **Fork `@convex-dev/agent`**: This would give us full control to modify the `listMessages` function to include additional data, like feedback, from other tables. This is the most likely path forward.
     2.  **Post-process messages on the client**: Fetch feedback for all visible messages in a single batch query after the messages are loaded. This is less efficient than doing it on the backend but avoids forking the package.
     3.  **Contribute to `@convex-dev/agent`**: Propose and contribute a change to the package that allows for augmenting message data, which would benefit the wider community.

@@ -14,13 +14,13 @@ import {
 import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSession } from "@/hooks/auth-hooks";
+import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { api } from "@cvx/_generated/api";
 import { useThreadMessages } from "@convex-dev/agent/react";
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
 import ConvexAttachmentAdapter from "./adapter/convex-attachment-adapter";
-import { useMutation, usePaginatedQuery } from "convex/react";
+import { useMutation, usePaginatedQuery, useAction } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadContext } from "./thread-context";
 
@@ -119,7 +119,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const paginatedMessages = useThreadMessages(api.chat.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
 
     const convexThreads = usePaginatedQuery(api.chat.getThreads, { sessionToken: sessionData?.data?.session?.token as string }, { initialNumItems: 10 });
-    const updateThread = useMutation(api.chat.updateThread);
+    const updateThreadMutation = useAction(api.chat.updateThread);
     const deleteThread = useMutation(api.chat.deleteThreadWithRelationships);
     const createThreadMutation = useMutation(api.chat.createThread);
 
@@ -470,7 +470,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 });
 
                 if (sessionData?.data?.session?.token) {
-                    await updateThread({
+                    await updateThreadMutation({
                         threadId: renameThreadId,
                         title: newTitle,
                         sessionToken: sessionData.data.session.token,
@@ -497,7 +497,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
                 // Sync with Convex if session available
                 if (sessionData?.data?.session?.token) {
-                    await updateThread({
+                    await updateThreadMutation({
                         threadId: archiveThreadId,
                         status: "archived",
                         sessionToken: sessionData.data.session.token,
@@ -524,7 +524,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
                 // Sync with Convex if session available
                 if (sessionData?.data?.session?.token) {
-                    await updateThread({
+                    await updateThreadMutation({
                         threadId: unarchiveThreadId,
                         status: "active",
                         sessionToken: sessionData.data.session.token,
@@ -571,7 +571,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
         setThreadMetadata,
         navigate,
         sessionData,
-        updateThread,
+        updateThreadMutation,
         deleteThread,
         model,
         createThreadMutation,

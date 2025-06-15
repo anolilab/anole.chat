@@ -15,9 +15,9 @@ import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import { useCallback } from "react";
-import { getConvexToken } from "@/lib/auth/get-convex-token";
 import type { ConvexProviderWithAuth } from "convex/react";
-import { betterAuth } from "@/lib/auth/server";
+import { betterAuth } from "./server";
+import { getConvexToken } from "./get-convex-token";
 
 export const authClient = createAuthClient({
     baseURL: env.VITE_SITE_URL,

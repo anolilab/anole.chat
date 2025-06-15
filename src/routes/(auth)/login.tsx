@@ -1,6 +1,6 @@
 import { useTranslation } from "@/lib/intl/react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import SignInForm from "./-components/sign-in-form";
+import SignInForm from "@/features/auth/components/sign-in-form";
 
 export const Route = createFileRoute("/(auth)/login")({
     component: RouteComponent,

@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useMemo, type ReactNode } from "re
 import type { ThreadMessageLike } from "@assistant-ui/react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@cvx/_generated/api";
-import { useSession } from "@/hooks/auth-hooks";
+import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { useNavigate } from "@tanstack/react-router";
 import type { AgentModel } from "convex/agents";
 import type { Doc } from "@cvx/_generated/dataModel";

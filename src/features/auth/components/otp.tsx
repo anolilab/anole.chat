@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthHelpers } from "@/hooks/auth-hooks";
+import { useAuthHelpers } from "@/features/auth/hooks/auth-hooks";
 import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { useRouter } from "@tanstack/react-router";

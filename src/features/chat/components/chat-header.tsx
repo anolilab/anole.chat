@@ -1,8 +1,9 @@
-import { SiteHeader } from "@/components/sidebar/site-header";
+"use client";
+import { SiteHeader } from "@/features/layout/components/site-header";
 import { useThreadListItem } from "@assistant-ui/react";
 
-export const ChatSiteHeader = () => {
+export function ChatSiteHeader() {
     const title = useThreadListItem((t) => t.title);
 
     return <SiteHeader title={title || "New Chat"} />;
-};
+}

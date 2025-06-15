@@ -15,8 +15,9 @@ export const createThread = mutation({
         branchPoint: v.optional(v.number()),
         branchName: v.optional(v.string()),
     },
+    returns: v.string(),
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
         });
 
@@ -32,7 +33,7 @@ export const createThread = mutation({
             title: args.branchName || undefined,
         };
 
-        const { threadId } = await agent.createThread(ctx, createOptions);
+        const { threadId }: { threadId: string } = await agent.createThread(ctx, createOptions);
         // TODO: Fix upstream - @convex-dev/agent createThread doesn't support parentThreadIds
         // The agent's createThread function signature doesn't include parentThreadIds parameter
         // Once this is added upstream, we can pass parentThreadIds directly in createOptions above
@@ -100,7 +101,7 @@ export const listMessages = query({
             return {
                 page: paginatedMessages,
                 isDone: endIndex >= mergedMessages.length,
-                continueCursor: endIndex < mergedMessages.length ? (mergedMessages[endIndex - 1]?._id ?? null) : null,
+                continueCursor: endIndex < mergedMessages.length ? (mergedMessages[endIndex - 1]?._id ?? "") : "",
             };
         }
 
@@ -117,7 +118,7 @@ export const listMessages = query({
 export const continueThread = action({
     args: { prompt: v.string(), threadId: v.string(), model: v.string(), sessionToken: v.string() },
     handler: async (ctx, { prompt, threadId, model, sessionToken }) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
 
@@ -138,7 +139,7 @@ export const continueThread = action({
 export const getThreads = query({
     args: { sessionToken: v.string(), paginationOpts: paginationOptsValidator },
     handler: async (ctx, { sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
 
@@ -152,7 +153,7 @@ export const getThreads = query({
     },
 });
 
-export const updateThread = mutation({
+export const updateThread = action({
     args: {
         threadId: v.string(),
         title: v.optional(v.string()),
@@ -163,7 +164,7 @@ export const updateThread = mutation({
         sessionToken: v.string(),
     },
     handler: async (ctx, { threadId, title, sessionToken, model, summary, order, status }) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
 
@@ -175,7 +176,7 @@ export const updateThread = mutation({
 
         const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
 
-        await thread.updateMetadata({ title, summary, order, status });
+        await thread.updateMetadata({ title, summary, status });
 
         return thread.threadId;
     },
@@ -560,8 +561,9 @@ export const getPinnedThreads = query({
     args: {
         sessionToken: v.string(),
     },
+    returns: v.array(v.any()),
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
         });
 
@@ -584,8 +586,9 @@ export const isThreadPinned = query({
         threadId: v.string(),
         sessionToken: v.string(),
     },
+    returns: v.boolean(),
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
         });
 
@@ -660,8 +663,9 @@ export const getThreadOrders = query({
     args: {
         sessionToken: v.string(),
     },
+    returns: v.array(v.any()),
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
         });
 
@@ -766,7 +770,7 @@ export const searchMessages = query({
             return {
                 page: [],
                 isDone: true,
-                continueCursor: null,
+                continueCursor: "",
             };
         }
 
@@ -820,7 +824,7 @@ export const searchMessages = query({
         return {
             page: paginatedThreads,
             isDone: endIndex >= threadsWithMessages.length,
-            continueCursor: endIndex < threadsWithMessages.length ? threadsWithMessages[endIndex - 1]?._id || null : null,
+            continueCursor: endIndex < threadsWithMessages.length ? threadsWithMessages[endIndex - 1]?._id || "" : "",
         };
     },
 });

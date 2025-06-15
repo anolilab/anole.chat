@@ -1,4 +1,4 @@
-import { betterAuth } from "@/lib/auth/server";
+import { betterAuth } from "@/features/auth/lib/server";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 
 export const ServerRoute = createServerFileRoute("/api/auth/$").methods({

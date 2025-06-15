@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, type FC } from "react";
 import { Sparkles, Loader2, AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { ThreadPrimitive } from "@assistant-ui/react";
-import { useSession } from "@/hooks/auth-hooks";
+import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
