@@ -1,7 +1,7 @@
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import type { FC } from "react";
 import { useState, useCallback } from "react";
-import { ArrowDownIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, PencilIcon, RefreshCwIcon, SendHorizontalIcon } from "lucide-react";
+import { ArrowDownIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, PencilIcon, RefreshCwIcon, SendHorizontalIcon, ThumbsDownIcon, ThumbsUpIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import { ScrollBar } from "@/components/ui/scroll-area";
@@ -12,6 +12,9 @@ import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { useTranslation } from "react-i18next";
 import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
+import { useAiModelContext } from "@/routes/(chat)/-provider/ai-model-provider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { agents, type AgentModel } from "@cvx/agents";
 
 export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
     return (
@@ -118,10 +121,10 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                     autoFocus
                     placeholder={t("WRITE_A_MESSAGE")}
                     className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
-                onChange={handleInputChange}
-            />
-            {threadId && <PromptImprovement threadId={threadId} currentInputValue={inputValue?.trim()} />}
-                <div className="flex flex-row items-center justify-between w-full">
+                    onChange={handleInputChange}
+                />
+                {threadId && <PromptImprovement threadId={threadId} currentInputValue={inputValue?.trim()} />}
+                <div className="flex w-full flex-row items-center justify-between">
                     <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as AgentModel)}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select a model" />

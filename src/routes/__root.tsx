@@ -19,14 +19,13 @@ interface MyRouterContext {
     convex: ConvexReactClient;
 }
 
-const TanStackRouterDevtools =
-    import.meta.env.PROD
-        ? () => null
-        : React.lazy(() =>
-              import("@tanstack/react-router-devtools").then((res) => ({
-                  default: res.TanStackRouterDevtools,
-              })),
-          );
+const TanStackRouterDevtools = import.meta.env.PROD
+    ? () => null
+    : React.lazy(() =>
+          import("@tanstack/react-router-devtools").then((res) => ({
+              default: res.TanStackRouterDevtools,
+          })),
+      );
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
     head: () => ({

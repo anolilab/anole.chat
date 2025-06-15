@@ -5,39 +5,7 @@ import { AgentModel, getAgent } from "./agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import { Id } from "./_generated/dataModel";
 import z from "zod";
-import { vStreamArgs, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
-
-const messageContentTextValidator = v.object({
-    type: v.literal("text"),
-    text: v.string(),
-});
-
-const messageContentImageValidator = v.object({
-    type: v.literal("image"),
-    image: v.string(),
-    mediaType: v.optional(v.string()),
-});
-
-const messageDocValidator = v.object({
-    _id: v.string(),
-    _creationTime: v.number(),
-    threadId: v.string(),
-    userId: v.optional(v.string()),
-    role: v.optional(v.string()),
-    content: v.optional(v.array(v.any())),
-    data: v.optional(v.any()),
-    metadata: v.optional(v.any()),
-});
-
-const threadDocValidator = v.object({
-    _id: v.string(),
-    _creationTime: v.number(),
-    userId: v.optional(v.string()),
-    title: v.optional(v.string()),
-    summary: v.optional(v.string()),
-    status: v.optional(v.string()),
-    metadata: v.optional(v.any()),
-});
+import type { MessageDoc, ThreadDoc } from "@convex-dev/agent";
 
 export const createThread = mutation({
     args: {
@@ -47,8 +15,7 @@ export const createThread = mutation({
         branchPoint: v.optional(v.number()),
         branchName: v.optional(v.string()),
     },
-    returns: v.string(),
-    handler: async (ctx, args): Promise<string> => {
+    handler: async (ctx, args) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
         });
@@ -83,22 +50,14 @@ export const createThread = mutation({
     },
 });
 
-export const listThreadMessages = query({
+export const listMessages = query({
     args: {
         threadId: v.string(),
         paginationOpts: paginationOptsValidator,
         model: v.string(),
         sessionToken: v.string(),
-        streamArgs: vStreamArgs,
     },
-    // TODO: fix this type
-    //returns: v.object({
-    //    page: v.array(messageDocValidator),
-    //    isDone: v.boolean(),
-    //    continueCursor: v.string(),
-    //    streams: v.any(),
-    //}),
-    handler: async (ctx, { threadId, paginationOpts, model, sessionToken, streamArgs }): Promise<PaginationResult<MessageDoc>> => {
+    handler: async (ctx, { threadId, paginationOpts, model, sessionToken }): Promise<PaginationResult<MessageDoc>> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
@@ -178,11 +137,6 @@ export const continueThread = action({
 
 export const getThreads = query({
     args: { sessionToken: v.string(), paginationOpts: paginationOptsValidator },
-    returns: v.object({
-        page: v.array(threadDocValidator),
-        isDone: v.boolean(),
-        continueCursor: v.string(),
-    }),
     handler: async (ctx, { sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
@@ -203,12 +157,12 @@ export const updateThread = mutation({
         threadId: v.string(),
         title: v.optional(v.string()),
         summary: v.optional(v.string()),
+        order: v.optional(v.number()),
         status: v.optional(v.union(v.literal("active"), v.literal("archived"))),
         model: v.string(),
         sessionToken: v.string(),
     },
-    returns: v.string(),
-    handler: async (ctx, { threadId, title, sessionToken, model, summary, status }): Promise<string> => {
+    handler: async (ctx, { threadId, title, sessionToken, model, summary, order, status }) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
@@ -219,9 +173,9 @@ export const updateThread = mutation({
 
         const agent = getAgent(model as AgentModel);
 
-        const { thread } = await agent.continueThread(ctx as any, { threadId, userId: sessionData.userId as Id<"user"> });
+        const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
 
-        await thread.updateMetadata({ title, summary, status });
+        await thread.updateMetadata({ title, summary, order, status });
 
         return thread.threadId;
     },
@@ -230,10 +184,6 @@ export const updateThread = mutation({
 // DEPRECATED: Use deleteThreadWithRelationships instead
 export const deleteThread = mutation({
     args: { threadId: v.string(), sessionToken: v.string() },
-    returns: {
-        cursor: v.string(),
-        isDone: v.boolean(),
-    },
     handler: async (ctx, { threadId, sessionToken }) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
@@ -285,14 +235,13 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         sessionToken,
     });
 
-    const result = await thread.streamText({ prompt }, { saveStreamDeltas: { chunking: "line", throttleMs: 1000 } });
+    const result = await thread.streamText({ prompt });
 
     return result.toDataStreamResponse();
 });
 
 export const createTitleChat = internalAction({
     args: { threadId: v.string(), prompt: v.string(), sessionToken: v.string() },
-    returns: v.null(),
     handler: async (ctx, args) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
@@ -308,55 +257,13 @@ export const createTitleChat = internalAction({
 
         const metaData = await thread.getMetadata();
 
-        if (metaData.title) {
-            return null;
+        if (!metaData.title) {
+            return;
         }
-
-        const titleGeneratorPrompt = `# Mission
-- Generate a concise, relevant title for a chat conversation based on the first user message and the main AI's context
-- Create titles that accurately reflect conversation topic without any AI commentary
-
-# Context
-- This title generation happens at the start of each new conversation
-- The title will be displayed in the conversation history/list for users to identify past conversations
-- Effective titles help users quickly locate and resume relevant conversations
-- You are generating titles for conversations with a main AI assistant, not about yourself as a title generator
-
-# Rules
-- Titles must be 4 words or fewer
-- Never respond to the message content directly
-- Never apologize or explain AI limitations
-- Never ask follow-up questions
-- Generate "Inappropriate Content" as the title if message contains harmful, offensive, or unsafe content
-- Do not engage with the user in any way beyond generating the title
-
-# Instructions
-- First, read the main AI's system prompt to understand its identity and context
-- Extract the main topic/intent from the user's first message
-- When creating titles, consider the specific role of the AI as defined in its system prompt
-- Distill to a concise phrase (1-4 words)
-- Use specific, descriptive nouns and active verbs when possible
-- Prioritize clarity and relevance over creative expression
-- For code-related queries, include the relevant programming language
-- For factual queries, include the subject area
-- For multi-topic messages, prioritize the primary request
-- For questions about the AI's nature or capabilities, frame titles based on the AI's defined identity (e.g., "Legal Assistant" or "Coding Helper" rather than generic "AI Assistant")?
-
-# Input
-${args.prompt}
-
-# Output Format
-- Plain text string
-- 1-4 words maximum
-- No punctuation at the end
-- Title case formatting
-- No quotes or other formatting characters
-- No "Title:" word at the start of the title. The "Title:" indicator in the examples are just for examples.
-`;
 
         const o = await thread.generateObject(
             {
-                prompt: titleGeneratorPrompt,
+                prompt: `Generate a concise, 4-5 word title for a new conversation that captures the core topic of this user's prompt. Do not use quotation marks in the title. User prompt: "${args.prompt}"`,
                 schema: z.object({ title: z.string() }),
             },
             {
@@ -369,7 +276,6 @@ ${args.prompt}
         const jsonResponse = o.toJsonResponse();
 
         await thread.updateMetadata(await jsonResponse.json());
-        return null;
     },
 });
 
@@ -487,7 +393,6 @@ export const deleteThreadWithRelationships = mutation({
 
 export const createSummarizeChat = internalAction({
     args: { threadId: v.string(), sessionToken: v.string() },
-    returns: v.null(),
     handler: async (ctx, args) => {
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken: args.sessionToken,
@@ -521,8 +426,8 @@ export const createSummarizeChat = internalAction({
         );
 
         const jsonResponse = o.toJsonResponse();
+
         await thread.updateMetadata(await jsonResponse.json());
-        return null;
     },
 });
 

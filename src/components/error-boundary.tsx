@@ -158,8 +158,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         try {
             // Send to PostHog error tracking
             posthog?.captureException(errorReport.error, {
-                $level: 'error',
-                errorBoundary: 'main',
+                $level: "error",
+                errorBoundary: "main",
                 level: errorReport.level,
                 errorId: errorReport.id,
                 componentStack: errorReport.errorInfo.componentStack,

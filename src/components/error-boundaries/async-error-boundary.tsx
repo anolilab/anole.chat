@@ -24,16 +24,16 @@ export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBo
         () => ({
             handleAsyncError: (error: Error) => {
                 onError?.(error);
-                
+
                 // Send error to PostHog
                 posthog?.captureException(error, {
-                    $level: 'error',
-                    errorBoundary: 'async',
-                    context: 'async-operation',
+                    $level: "error",
+                    errorBoundary: "async",
+                    context: "async-operation",
                     url: window.location.href,
                     timestamp: new Date().toISOString(),
                 });
-                
+
                 handleError(error);
             },
         }),
@@ -46,16 +46,16 @@ export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBo
                 level="component"
                 onError={(error, errorInfo) => {
                     onError?.(error);
-                    
+
                     // Send error to PostHog
                     posthog?.captureException(error, {
-                        $level: 'error',
-                        errorBoundary: 'async',
+                        $level: "error",
+                        errorBoundary: "async",
                         componentStack: errorInfo.componentStack,
                         url: window.location.href,
                         timestamp: new Date().toISOString(),
                     });
-                    
+
                     console.group("🔄 Async Error Boundary");
                     console.error("Error:", error);
                     console.error("Error Info:", errorInfo);

@@ -49,8 +49,8 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
 
             // Send error to PostHog
             posthog?.captureException(error, {
-                $level: 'error',
-                errorType: 'unhandled-promise-rejection',
+                $level: "error",
+                errorType: "unhandled-promise-rejection",
                 url: window.location.href,
                 userAgent: navigator.userAgent,
                 timestamp: new Date().toISOString(),
@@ -80,8 +80,8 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
 
             // Send error to PostHog
             posthog?.captureException(error, {
-                $level: 'error',
-                errorType: 'javascript-error',
+                $level: "error",
+                errorType: "javascript-error",
                 filename: event.filename,
                 lineno: event.lineno,
                 colno: event.colno,
@@ -108,9 +108,9 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
 
         // Send comprehensive error report to PostHog
         posthog?.captureException(error, {
-            $level: 'error',
-            errorBoundary: 'global',
-            errorType: 'react-error-boundary',
+            $level: "error",
+            errorBoundary: "global",
+            errorType: "react-error-boundary",
             componentStack: errorInfo.componentStack,
             context: {
                 isOnline,

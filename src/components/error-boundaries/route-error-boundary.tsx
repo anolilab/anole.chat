@@ -33,9 +33,9 @@ export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute
 
         // Send error report with route context to PostHog
         posthog?.captureException(error, {
-            $level: 'error',
-            errorBoundary: 'route',
-            feature: 'route',
+            $level: "error",
+            errorBoundary: "route",
+            feature: "route",
             routeName,
             route: window.location.pathname,
             referrer: document.referrer,

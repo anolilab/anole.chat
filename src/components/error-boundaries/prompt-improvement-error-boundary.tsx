@@ -26,9 +26,9 @@ export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToIn
     const handleError = (error: Error, errorInfo: ErrorInfo) => {
         // Send error to PostHog
         posthog?.captureException(error, {
-            $level: 'error',
-            errorBoundary: 'prompt-improvement',
-            feature: 'prompt-improvement',
+            $level: "error",
+            errorBoundary: "prompt-improvement",
+            feature: "prompt-improvement",
             componentStack: errorInfo.componentStack,
             url: window.location.href,
             timestamp: new Date().toISOString(),

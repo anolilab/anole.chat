@@ -21,7 +21,7 @@ import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream
 import ConvexAttachmentAdapter from "./adapter/convex-attachment-adapter";
 import { useMutation, usePaginatedQuery } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
-import { useThreadContext, ThreadProvider } from "./thread-context";
+import { useThreadContext } from "./thread-context";
 
 // Define our message format that matches Convex agent messages
 export type ConvexMessage = {
@@ -618,6 +618,3 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
     return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>;
 };
-
-// Re-export ThreadProvider for convenience
-export { ThreadProvider };

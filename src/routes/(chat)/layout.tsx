@@ -1,5 +1,6 @@
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { AiModelProvider } from "@/routes/(chat)/-provider/ai-model-provider";
 
 export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,
@@ -8,7 +9,9 @@ export const Route = createFileRoute("/(chat)")({
 function RouteComponent() {
     return (
         <AuthProvider>
-            <Outlet />
+            <AiModelProvider>
+                <Outlet />
+            </AiModelProvider>
         </AuthProvider>
     );
 }
