@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useRegister } from "@/features/auth/hooks/auth-hooks";
 import { useTranslation } from "@/lib/intl/react";
 import { useNavigate } from "@tanstack/react-router";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -156,7 +156,7 @@ export default function RegisterCredentialsForm() {
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isSubmitting]) => (
                         <Button type="submit" disabled={!canSubmit} className="mt-3 h-12">
-                            {isSubmitting ? "..." : t("CREATE_ACCOUNT")}
+                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("CREATE_ACCOUNT")}
                         </Button>
                     )}
                 />

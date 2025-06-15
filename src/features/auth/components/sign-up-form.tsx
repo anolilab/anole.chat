@@ -224,9 +224,14 @@ export function SignUpForm() {
                                     </field.FormItem>
                                 )}
                             />
-                            <Button type="submit" className="w-full" disabled={loading}>
-                                {loading ? <Loader2 size={16} className="animate-spin" /> : t("CREATE_ACCOUNT")}
-                            </Button>
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button type="submit" className="w-full" disabled={!canSubmit}>
+                                        {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("CREATE_ACCOUNT")}
+                                    </Button>
+                                )}
+                            />
                         </div>
                     </CardContent>
                 </form>

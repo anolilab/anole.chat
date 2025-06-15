@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuthHelpers } from "@/features/auth/hooks/auth-hooks";
 import { useTranslation } from "@/lib/intl/react";
 import { useRouter } from "@tanstack/react-router";
-import { AlertCircle, CheckCircle2, Mail } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 
@@ -44,6 +44,7 @@ export default function OtpForm() {
             const res = await verifyOtp.mutateAsync({
                 code: value.otp,
             });
+
             if (res.data) {
                 setMessage(t("OTP_VALIDATED"));
                 setIsError(false);
@@ -100,9 +101,15 @@ export default function OtpForm() {
                                         )}
                                     />
                                 </div>
-                                <Button type="submit" disabled={form.state.values.otp.length !== 6 || isValidated} className="mt-4 w-full">
-                                    {t("VALIDATE_OTP")}
-                                </Button>
+
+                                <form.Subscribe
+                                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                    children={([canSubmit, isSubmitting]) => (
+                                        <Button type="submit" className="w-full" disabled={form.state.values.otp.length !== 6 || !canSubmit}>
+                                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("VALIDATE_OTP")}
+                                        </Button>
+                                    )}
+                                />
                             </form>
                         </form.AppForm>
                     )}

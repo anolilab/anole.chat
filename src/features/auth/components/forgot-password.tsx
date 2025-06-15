@@ -111,9 +111,15 @@ export default function ForgotPasswordForm() {
                                     <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                             )}
-                            <Button className="mt-4 w-full" type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? t("SENDING") : t("SEND_RESET_LINK")}
-                            </Button>
+
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button type="submit" className="w-full" disabled={!canSubmit}>
+                                        {isSubmitting ? t("SENDING") : t("SEND_RESET_LINK")}
+                                    </Button>
+                                )}
+                            />
                         </form>
                     </form.AppForm>
                 </CardContent>

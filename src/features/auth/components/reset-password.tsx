@@ -112,9 +112,14 @@ export default function ResetPasswordForm() {
                                     <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                             )}
-                            <Button className="mt-4 w-full" type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? t("RESETTING") : t("RESET_PASSWORD_BUTTON")}
-                            </Button>
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button type="submit" className="w-full" disabled={!canSubmit}>
+                                        {isSubmitting ? t("RESETTING") : t("RESET_PASSWORD_BUTTON")}
+                                    </Button>
+                                )}
+                            />
                         </form>
                     </form.AppForm>
                 </CardContent>

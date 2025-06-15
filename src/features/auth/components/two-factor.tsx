@@ -6,7 +6,7 @@ import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/lib/intl/react";
 import { Link } from "@tanstack/react-router";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 import { authClient } from "../lib/client";
@@ -86,9 +86,14 @@ export default function TwoFactorForm() {
                                         <span className="text-sm">{error}</span>
                                     </div>
                                 )}
-                                <Button type="submit" className="mt-4 w-full">
-                                    {t("VERIFY")}
-                                </Button>
+                                <form.Subscribe
+                                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                    children={([canSubmit, isSubmitting]) => (
+                                        <Button type="submit" className="mt-4 w-full" disabled={!canSubmit}>
+                                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("VERIFY")}
+                                        </Button>
+                                    )}
+                                />
                             </form>
                         </form.AppForm>
                     ) : (
