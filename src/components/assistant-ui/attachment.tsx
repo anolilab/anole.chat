@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, useEffect, useState, type FC } from "react";
+import { type PropsWithChildren, useEffect, useState, type FC } from "react";
 import { CircleXIcon, FileIcon, PaperclipIcon } from "lucide-react";
 import { AttachmentPrimitive, ComposerPrimitive, MessagePrimitive, useAttachment } from "@assistant-ui/react";
 import { useShallow } from "zustand/shallow";
@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Dialog, DialogTitle, DialogTrigger, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { DialogContent as DialogPrimitiveContent } from "@radix-ui/react-dialog";
+import { Dialog as RadixDialog } from "radix-ui";
 
 const useFileSrc = (file: File | undefined) => {
     const [src, setSrc] = useState<string | undefined>(undefined);
@@ -184,6 +184,6 @@ export const ComposerAddAttachment: FC = () => {
 const AttachmentDialogContent: FC<PropsWithChildren> = ({ children }) => (
     <DialogPortal>
         <DialogOverlay />
-        <DialogPrimitiveContent className="aui-dialog-content">{children}</DialogPrimitiveContent>
+        <RadixDialog.Content className="aui-dialog-content">{children}</RadixDialog.Content>
     </DialogPortal>
 );

@@ -3,36 +3,46 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuthHelpers } from "@/features/auth/hooks/auth-hooks";
 import { useTranslation } from "@/lib/intl/react";
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
+import * as z from "zod";
+
+const formSchema = z.object({
+    email: z.string().email("Invalid email address."),
+});
 
 export default function ForgotPasswordForm() {
     const { t } = useTranslation();
     const { forgotPassword } = useAuthHelpers();
-    const [email, setEmail] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [error, setError] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setError("");
-
-        try {
-            await forgotPassword.mutateAsync({ email });
-            setIsSubmitted(true);
-        } catch (err) {
-            setError("An error occurred. Please try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    const form = useAppForm({
+        defaultValues: {
+            email: "",
+        },
+        validators: {
+            onBlur: formSchema,
+        },
+        onSubmit: async ({ value }) => {
+            setIsSubmitting(true);
+            setError("");
+            try {
+                await forgotPassword.mutateAsync(value);
+                setIsSubmitted(true);
+            } catch (err) {
+                setError("An error occurred. Please try again.");
+            } finally {
+                setIsSubmitting(false);
+            }
+        },
+    });
 
     if (isSubmitted) {
         return (
@@ -66,30 +76,46 @@ export default function ForgotPasswordForm() {
                     <CardDescription>{t("FORGOT_PASSWORD_DESC")}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit}>
-                        <div className="grid w-full items-center gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="email">{t("EMAIL")}</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder={t("ENTER_EMAIL")}
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
+                    <form.AppForm>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                form.handleSubmit();
+                            }}
+                        >
+                            <div className="grid w-full items-center gap-4">
+                                <form.AppField
+                                    name="email"
+                                    children={(field) => (
+                                        <field.FormItem>
+                                            <field.FormLabel>{t("EMAIL")}</field.FormLabel>
+                                            <field.FormControl>
+                                                <Input
+                                                    type="email"
+                                                    placeholder={t("ENTER_EMAIL")}
+                                                    value={field.state.value}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    required
+                                                />
+                                            </field.FormControl>
+                                            <field.FormMessage />
+                                        </field.FormItem>
+                                    )}
                                 />
                             </div>
-                        </div>
-                        {error && (
-                            <Alert variant="destructive" className="mt-4">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        )}
-                        <Button className="mt-4 w-full" type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? t("SENDING") : t("SEND_RESET_LINK")}
-                        </Button>
-                    </form>
+                            {error && (
+                                <Alert variant="destructive" className="mt-4">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+                            <Button className="mt-4 w-full" type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? t("SENDING") : t("SEND_RESET_LINK")}
+                            </Button>
+                        </form>
+                    </form.AppForm>
                 </CardContent>
                 <CardFooter className="flex justify-center">
                     <Link to="/login">

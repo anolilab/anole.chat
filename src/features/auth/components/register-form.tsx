@@ -1,27 +1,25 @@
-import FormFieldInfo from "@/components/form-field-info";
 import { Button } from "@/components/ui/button";
+import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useRegister } from "@/features/auth/hooks/auth-hooks";
 import { useTranslation } from "@/lib/intl/react";
-import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const FormSchema = z
-    .object({
-        name: z.string().min(2, "Name must be at least 2 characters"),
-        email: z.string().email("Please enter a valid email address"),
-        password: z.string().min(5, "Password must be at least 5 characters"),
-        confirmPassword: z.string(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-        message: "The two passwords do not match.",
-        path: ["confirmPassword"], // Shows error on confirmPassword field
-    });
+const baseFormSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(5, "Password must be at least 5 characters"),
+    confirmPassword: z.string(),
+});
+
+const formSchema = baseFormSchema.refine((data) => data.password === data.confirmPassword, {
+    message: "The two passwords do not match.",
+    path: ["confirmPassword"],
+});
 
 export default function RegisterCredentialsForm() {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -36,7 +34,8 @@ export default function RegisterCredentialsForm() {
             toast.error(error.error.message ?? JSON.stringify(error.error));
         },
     });
-    const form = useForm({
+
+    const form = useAppForm({
         defaultValues: {
             name: "",
             email: "",
@@ -44,7 +43,7 @@ export default function RegisterCredentialsForm() {
             confirmPassword: "",
         },
         validators: {
-            onChange: FormSchema,
+            onBlur: formSchema,
         },
         onSubmit: async ({ value }) => {
             registerWithCredentials.mutate({
@@ -56,70 +55,53 @@ export default function RegisterCredentialsForm() {
     });
 
     return (
-        <form
-            className="flex flex-col gap-y-3"
-            onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                form.handleSubmit();
-            }}
-        >
-            <div>
-                <form.Field
+        <form.AppForm>
+            <form
+                className="flex flex-col gap-y-3"
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    form.handleSubmit();
+                }}
+            >
+                <form.AppField
                     name="name"
                     children={(field) => (
-                        <>
-                            <Label htmlFor={field.name}>{t("NAME")}</Label>
-                            <Input
-                                className="mt-1"
-                                id={field.name}
-                                type="text"
-                                name={field.name}
-                                value={field.state.value}
-                                onBlur={field.handleBlur}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                            />
-                            <FormFieldInfo field={field} />
-                        </>
+                        <field.FormItem>
+                            <field.FormLabel>{t("NAME")}</field.FormLabel>
+                            <field.FormControl>
+                                <Input value={field.state.value} onBlur={field.handleBlur} onChange={(e) => field.handleChange(e.target.value)} />
+                            </field.FormControl>
+                            <field.FormMessage />
+                        </field.FormItem>
                     )}
                 />
-            </div>
-            <div>
-                <form.Field
+                <form.AppField
                     name="email"
                     children={(field) => (
-                        <>
-                            <Label htmlFor={field.name}>{t("EMAIL")}</Label>
-                            <Input
-                                className="mt-1"
-                                id={field.name}
-                                type="email"
-                                name={field.name}
-                                value={field.state.value}
-                                onBlur={field.handleBlur}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                            />
-                            <FormFieldInfo field={field} />
-                        </>
+                        <field.FormItem>
+                            <field.FormLabel>{t("EMAIL")}</field.FormLabel>
+                            <field.FormControl>
+                                <Input type="email" value={field.state.value} onBlur={field.handleBlur} onChange={(e) => field.handleChange(e.target.value)} />
+                            </field.FormControl>
+                            <field.FormMessage />
+                        </field.FormItem>
                     )}
                 />
-            </div>
-            <div>
-                <form.Field
+                <form.AppField
                     name="password"
                     children={(field) => (
-                        <>
-                            <Label htmlFor={field.name}>{t("PASSWORD")}</Label>
+                        <field.FormItem>
+                            <field.FormLabel>{t("PASSWORD")}</field.FormLabel>
                             <div className="relative flex w-full items-center justify-end">
-                                <Input
-                                    className="mt-1"
-                                    id={field.name}
-                                    type={isPasswordVisible ? "text" : "password"}
-                                    name={field.name}
-                                    value={field.state.value}
-                                    onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
-                                />
+                                <field.FormControl>
+                                    <Input
+                                        type={isPasswordVisible ? "text" : "password"}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => field.handleChange(e.target.value)}
+                                    />
+                                </field.FormControl>
                                 <Button
                                     className="absolute mr-2 h-7 w-7 rounded-full"
                                     type="button"
@@ -134,27 +116,24 @@ export default function RegisterCredentialsForm() {
                                     {isPasswordVisible ? <EyeIcon /> : <EyeOffIcon />}
                                 </Button>
                             </div>
-                            <FormFieldInfo field={field} />
-                        </>
+                            <field.FormMessage />
+                        </field.FormItem>
                     )}
                 />
-            </div>
-            <div>
-                <form.Field
+                <form.AppField
                     name="confirmPassword"
                     children={(field) => (
-                        <>
-                            <Label htmlFor={field.name}>{t("CONFIRM_PASSWORD")}</Label>
+                        <field.FormItem>
+                            <field.FormLabel>{t("CONFIRM_PASSWORD")}</field.FormLabel>
                             <div className="relative flex w-full items-center justify-end">
-                                <Input
-                                    className="mt-1"
-                                    id={field.name}
-                                    type={isConfirmPasswordVisible ? "text" : "password"}
-                                    name={field.name}
-                                    value={field.state.value}
-                                    onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
-                                />
+                                <field.FormControl>
+                                    <Input
+                                        type={isConfirmPasswordVisible ? "text" : "password"}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => field.handleChange(e.target.value)}
+                                    />
+                                </field.FormControl>
                                 <Button
                                     className="absolute mr-2 h-7 w-7 rounded-full"
                                     type="button"
@@ -169,19 +148,19 @@ export default function RegisterCredentialsForm() {
                                     {isConfirmPasswordVisible ? <EyeIcon /> : <EyeOffIcon />}
                                 </Button>
                             </div>
-                            <FormFieldInfo field={field} />
-                        </>
+                            <field.FormMessage />
+                        </field.FormItem>
                     )}
                 />
-            </div>
-            <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                children={([canSubmit, isSubmitting]) => (
-                    <Button type="submit" disabled={!canSubmit} className="mt-3 h-12">
-                        {isSubmitting ? "..." : t("REGISTER")}
-                    </Button>
-                )}
-            />
-        </form>
+                <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isSubmitting]) => (
+                        <Button type="submit" disabled={!canSubmit} className="mt-3 h-12">
+                            {isSubmitting ? "..." : t("CREATE_ACCOUNT")}
+                        </Button>
+                    )}
+                />
+            </form>
+        </form.AppForm>
     );
 }

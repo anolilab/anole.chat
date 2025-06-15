@@ -1,9 +1,11 @@
 # Project Brief: AI Chat App
 
 ## Vision
+
 Build a cool AI chat app. Have fun with it. Make it look and feel however you like.
 
 ## Core Requirements
+
 The minimum to qualify for a prize.
 
 - **Chat with Various LLMs**: Implement support for multiple language models and providers. (Required)
@@ -12,6 +14,7 @@ The minimum to qualify for a prize.
 - **Easy to Try**: A simple way for users to test the application. (Required)
 
 ## Bonus Features
+
 Ideas to go above and beyond.
 
 - **Attachment Support**: Allow users to upload files (images and pdfs).
