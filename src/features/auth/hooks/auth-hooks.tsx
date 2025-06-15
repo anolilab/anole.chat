@@ -37,16 +37,17 @@ export const useLogin = () => {
     });
 
     const loginWithPasskey = useMutation({
-        mutationFn: async () => await authClient.signIn.passkey({
-            fetchOptions: {
-                onSuccess: () => {
-                    router.navigate({ to: "/dashboard" });
+        mutationFn: async () =>
+            await authClient.signIn.passkey({
+                fetchOptions: {
+                    onSuccess: () => {
+                        router.navigate({ to: "/dashboard" });
+                    },
+                    onError(error: ErrorContext) {
+                        toast.error(error.error.message);
+                    },
                 },
-                onError(error: ErrorContext) {
-                    toast.error(error.error.message);
-                },
-            },
-        })
+            }),
     });
 
     const loginWithSocial = useMutation({

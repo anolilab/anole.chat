@@ -111,10 +111,10 @@ export default function SignInForm() {
                                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
                                     <Button type="submit" className="w-full" disabled={!canSubmit}>
-                                    {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("LOG_IN")}
+                                        {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("LOG_IN")}
                                     </Button>
                                 )}
-                                />
+                            />
 
                             <Button
                                 variant="secondary"
