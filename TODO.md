@@ -62,6 +62,18 @@
     - **Error Handling**: Proper cleanup of loading states in finally blocks to ensure UI consistency
     - **Search UI**: Loading indicator in search input field and dedicated loading state for search results
 
+- [x] **AI-Powered Prompt Improvement** - ✅ Completed: Added intelligent prompt enhancement feature with Sparkles icon
+
+    - **Smart Prompt Enhancement**: AI-powered prompt improvement using GPT-4o-mini with expert prompt engineering system prompt
+    - **Convex HTTP Integration**: Implemented HTTP action endpoint at `/convex-http/chat/improve-prompt` for prompt processing
+    - **Seamless UI Integration**: Added Sparkles icon button in message composer with hover tooltips and loading states
+    - **Real-time Feedback**: Visual loading indicators with pulsing animation during prompt improvement
+    - **Error Handling**: Graceful fallback to original prompt if improvement fails
+    - **Session Security**: Proper authentication and session validation for all improvement requests
+    - **Temporary Thread Management**: Automatic cleanup of temporary threads used for prompt processing
+    - **Expert System Prompt**: Comprehensive guidelines for making prompts more specific, clear, and effective
+    - **One-Click Enhancement**: Simple click to instantly improve any prompt before sending
+
 ## High Priority
 
 ### Model Display in Messages
@@ -116,7 +128,6 @@
 ### Features
 
 - [ ] Export conversation functionality
-- [ ] Message search within threads
 - [ ] Custom model configuration UI
 - [ ] Message reactions/feedback system
 

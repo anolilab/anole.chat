@@ -51,7 +51,7 @@ export const Assistant = ({ threadId }: { threadId?: string }) => {
                             </div>
                             <Separator />
                             <SidebarInset className="flex flex-1 flex-col">
-                                <Thread />
+                                <Thread threadId={threadId} />
                             </SidebarInset>
                         </main>
                     </div>

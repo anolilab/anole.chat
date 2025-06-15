@@ -1,6 +1,6 @@
 import { httpRouter } from "convex/server";
 import { corsRouter } from "convex-helpers/server/cors";
-import { streamHttpAction } from "./chat";
+import { streamHttpAction, improvePromptHttpAction } from "./chat";
 
 const http = httpRouter();
 
@@ -13,6 +13,12 @@ cors.route({
     path: "/chat/stream",
     method: "POST",
     handler: streamHttpAction,
+});
+
+cors.route({
+    path: "/chat/improve-prompt",
+    method: "POST",
+    handler: improvePromptHttpAction,
 });
 
 export default http;

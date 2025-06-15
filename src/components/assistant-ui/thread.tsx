@@ -6,13 +6,15 @@ import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import { ScrollBar } from "@/components/ui/scroll-area";
 import { ComposerAttachments, ComposerAddAttachment } from "@/components/assistant-ui/attachment";
 import { UserMessageAttachments } from "@/components/assistant-ui/attachment";
-
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { useTranslation } from "react-i18next";
+import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
 
-export const Thread: FC = () => {
+
+
+export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
     return (
         <ScrollAreaPrimitive.Root asChild>
             <ThreadPrimitive.Root
@@ -39,7 +41,7 @@ export const Thread: FC = () => {
 
                         <div className="sticky bottom-0 mt-3 flex w-full max-w-[var(--thread-max-width)] flex-col items-center justify-end rounded-t-lg bg-inherit pb-4">
                             <ThreadScrollToBottom />
-                            <Composer />
+                            <Composer threadId={threadId} />
                         </div>
                     </ThreadPrimitive.Viewport>
                 </ScrollAreaPrimitive.Viewport>
@@ -95,7 +97,7 @@ const ThreadWelcomeSuggestions: FC = () => {
     );
 };
 
-const Composer: FC = () => {
+const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
     const { t } = useTranslation();
 
     return (
@@ -103,15 +105,19 @@ const Composer: FC = () => {
             <ComposerAttachments />
             <ComposerAddAttachment />
             <ComposerPrimitive.Input
+                data-composer-input
                 rows={1}
                 autoFocus
                 placeholder={t("WRITE_A_MESSAGE")}
                 className="placeholder:text-muted-foreground max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
             />
+            {threadId && <PromptImprovement threadId={threadId} />}
             <ComposerAction />
         </ComposerPrimitive.Root>
     );
 };
+
+
 
 const ComposerAction: FC = () => {
     return (

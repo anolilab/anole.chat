@@ -818,3 +818,98 @@ export const searchMessages = query({
         };
     },
 });
+
+// Action for prompt improvement
+export const improvePrompt = internalAction({
+    args: {
+        prompt: v.string(),
+        sessionToken: v.string(),
+        threadId: v.string(),
+    },
+    handler: async (ctx, { prompt, sessionToken, threadId }) => {
+        // Verify session
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        if (!prompt.trim()) {
+            throw new ConvexError("Prompt cannot be empty");
+        }
+
+        const agent = getAgent("gemini-1.5-flash");
+
+        const { thread } = await agent.continueThread(ctx, { threadId });
+
+        // System prompt for improving user prompts
+        const systemPrompt = `You are an expert prompt engineer. Your task is to improve user prompts to make them more effective, clear, and likely to produce better AI responses.
+
+Guidelines for improvement:
+1. Make the prompt more specific and detailed
+2. Add context where helpful
+3. Structure the request clearly
+4. Include examples if beneficial
+5. Specify the desired format or style of response
+6. Remove ambiguity and add clarity
+7. Keep the core intent intact while enhancing effectiveness
+
+Return the improved prompt in the improvedPrompt field. The improved prompt should be ready to use directly without any explanation or meta-commentary.
+
+Original prompt to improve: "${prompt.trim()}"`;
+
+            const result = await thread.generateObject(
+                {
+                    prompt: systemPrompt,
+                    schema: z.object({ improvedPrompt: z.string() }),
+                },
+                {
+                    storageOptions: {
+                        saveMessages: "none",
+                    },
+                },
+            );
+
+            const jsonResponse = result.toJsonResponse();
+            return await jsonResponse.json();
+
+    },
+});
+
+// HTTP action for prompt improvement (wrapper around the action)
+export const improvePromptHttpAction = httpAction(async (ctx, request) => {
+    // Parse the request body
+    const body = await request.json();
+    const { prompt, sessionToken, threadId } = body;
+
+    if (!prompt || !sessionToken) {
+        return new Response(JSON.stringify({ error: "Missing prompt or sessionToken" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
+    try {
+        const result = await ctx.runAction(internal.chat.improvePrompt, {
+            prompt,
+            sessionToken,
+            threadId,
+        });
+
+        return new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
+    } catch (error) {
+        console.error("Error improving prompt:", error);
+
+        const errorMessage = error instanceof ConvexError ? error.message : "Failed to improve prompt";
+
+        return new Response(JSON.stringify({ error: errorMessage }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+});
