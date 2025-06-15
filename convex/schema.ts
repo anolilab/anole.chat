@@ -128,15 +128,6 @@ const schema = defineSchema({
         selectedAgent: v.optional(v.string()),
     }).index("by_userId", ["userId"]),
 
-    messageFeedbacks: defineTable({
-        messageId: v.string(),
-        userId: v.id("user"),
-        feedback: v.union(v.literal("positive"), v.literal("negative")),
-    })
-        .index("by_messageId", ["messageId"])
-        .index("by_userId", ["userId"])
-        .index("by_messageId_and_userId", ["messageId", "userId"]),
-
     // Thread relationships for branching and hierarchy
     threadRelationships: defineTable({
         threadId: v.string(), // The child thread

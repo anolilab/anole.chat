@@ -273,6 +273,7 @@ const AssistantActionBar: FC = () => {
                     <RefreshCwIcon />
                 </TooltipIconButton>
             </ActionBarPrimitive.Reload>
+            {/* TODO: Improve the message feedback
             <ActionBarPrimitive.FeedbackPositive asChild>
                 <TooltipIconButton tooltip="Positive Feedback">
                     <ThumbsUpIcon />
@@ -283,6 +284,7 @@ const AssistantActionBar: FC = () => {
                     <ThumbsDownIcon />
                 </TooltipIconButton>
             </ActionBarPrimitive.FeedbackNegative>
+             */}
         </ActionBarPrimitive.Root>
     );
 };
