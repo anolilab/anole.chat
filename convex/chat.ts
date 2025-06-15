@@ -100,7 +100,7 @@ export const listMessages = query({
             return {
                 page: paginatedMessages,
                 isDone: endIndex >= mergedMessages.length,
-                continueCursor: endIndex < mergedMessages.length ? mergedMessages[endIndex - 1]?._id || null : null,
+                continueCursor: endIndex < mergedMessages.length ? (mergedMessages[endIndex - 1]?._id ?? null) : null,
             };
         }
 
@@ -833,12 +833,46 @@ export const improvePrompt = internalAction({
             sessionToken,
         });
 
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const isAuthenticated = !!sessionData;
+        const userId = sessionData?.userId;
 
         if (!prompt.trim()) {
             throw new ConvexError("Prompt cannot be empty");
+        }
+
+        // Import rate limiter functions
+        const { checkRateLimit, getRateLimitName } = await import("./rateLimiter");
+
+        // Check rate limits
+        const rateLimitName = getRateLimitName("promptImprovement", isAuthenticated);
+        const rateLimitResult = await checkRateLimit(ctx, rateLimitName, {
+            key: userId || "anonymous",
+            count: 1,
+        });
+
+        if (!rateLimitResult.ok) {
+            const retryAfterSeconds = Math.ceil((rateLimitResult.retryAfter || 60000) / 1000);
+            throw new ConvexError({
+                kind: "RateLimitError",
+                message: `Rate limit exceeded. Please try again in ${retryAfterSeconds} seconds.`,
+                retryAfter: rateLimitResult.retryAfter,
+                name: rateLimitName,
+            });
+        }
+
+        // Check global rate limit as well
+        const globalRateLimitResult = await checkRateLimit(ctx, "globalPromptImprovement", {
+            key: "global",
+            count: 1,
+        });
+
+        if (!globalRateLimitResult.ok) {
+            throw new ConvexError({
+                kind: "RateLimitError",
+                message: "System is currently busy. Please try again in a moment.",
+                retryAfter: globalRateLimitResult.retryAfter,
+                name: "globalPromptImprovement",
+            });
         }
 
         const agent = getAgent("gemini-1.5-flash");
@@ -866,21 +900,20 @@ Original prompt to improve: "${prompt.trim()}"`;
             systemPrompt += `\n\nSpecific improvement instructions: ${improvementInstructions.trim()}`;
         }
 
-            const result = await thread.generateObject(
-                {
-                    prompt: systemPrompt,
-                    schema: z.object({ improvedPrompt: z.string() }),
+        const result = await thread.generateObject(
+            {
+                prompt: systemPrompt,
+                schema: z.object({ improvedPrompt: z.string() }),
+            },
+            {
+                storageOptions: {
+                    saveMessages: "none",
                 },
-                {
-                    storageOptions: {
-                        saveMessages: "none",
-                    },
-                },
-            );
+            },
+        );
 
-            const jsonResponse = result.toJsonResponse();
-            return await jsonResponse.json();
-
+        const jsonResponse = result.toJsonResponse();
+        return await jsonResponse.json();
     },
 });
 

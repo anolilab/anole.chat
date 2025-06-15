@@ -131,6 +131,85 @@
 - [ ] Custom model configuration UI
 - [ ] Message reactions/feedback system
 
+## Enhanced Error Handling & Rate Limiting Implementation
+
+### Phase 1: Error System Foundation
+
+- [x] Create `src/lib/errors/` directory structure
+- [x] Implement custom error classes extending base Error
+- [x] Create error types for different scenarios:
+    - [x] `PromptImprovementError` - Base error for prompt improvement
+    - [x] `RateLimitError` - Rate limiting exceeded
+    - [x] `AuthenticationError` - Session/auth issues
+    - [x] `ValidationError` - Input validation failures
+    - [x] `NetworkError` - Connection/timeout issues
+    - [x] `ServerError` - Backend/API errors
+
+### Phase 2: Rate Limiting Integration
+
+- [x] Install `@convex-dev/rate-limiter` package
+- [x] Configure rate limiter in Convex backend
+- [x] Implement rate limiting for prompt improvement endpoint
+- [x] Add rate limit configuration:
+    - [x] Per-user limits (e.g., 10 improvements per minute)
+    - [x] Global limits for system protection
+    - [x] Different limits for authenticated vs anonymous users
+- [x] Handle rate limit responses in frontend
+
+### Phase 3: Sonner Toast Integration
+
+- [x] Install `sonner` package for toast notifications
+- [x] Create toast provider and wrapper components
+- [x] Implement toast notifications for:
+    - [x] Success states (improvement completed)
+    - [x] Error states (with specific error messages)
+    - [x] Rate limit warnings
+    - [x] Network/connectivity issues
+- [x] Add toast positioning and styling
+
+### Phase 4: Enhanced User Experience
+
+- [x] Implement retry mechanisms with exponential backoff
+- [x] Add progress indicators for long-running operations
+- [x] Create error recovery flows
+- [x] Add input validation with real-time feedback
+- [x] Implement graceful degradation for offline scenarios
+
+### Phase 5: Backend Error Handling
+
+- [x] Update Convex functions to return structured error responses
+- [x] Add proper error logging and monitoring
+- [x] Implement error categorization and response codes
+- [x] Add request validation and sanitization
+
+### Phase 6: Testing & Monitoring
+
+- [x] Add error boundary components
+- [x] Implement error tracking and analytics
+- [ ] Add unit tests for error scenarios
+- [ ] Test rate limiting behavior under load
+- [ ] Add monitoring for error rates and patterns
+
+### References
+
+- [Convex Rate Limiter](https://github.com/get-convex/rate-limiter)
+- [Agent Rate Limiting Example](https://github.com/get-convex/agent/tree/main/examples/rate-limiting)
+- [Sonner Toast Library](https://sonner.emilkowal.ski/)
+
 ---
+
+## Current Features
+
+- [x] Multi-model streaming chat with @convex-dev/agent
+- [x] Prompt improvement dialog with current/improved prompt separation
+- [x] Clean input value tracking without DOM manipulation
+- [x] Proper button event handling to prevent form submission
+- [x] Cancel/Apply functionality with original prompt restoration
+
+## Next Steps
+
+- [ ] Implement enhanced error handling system
+- [ ] Add rate limiting protection
+- [ ] Improve user feedback with toast notifications
 
 _Last updated: Current session_

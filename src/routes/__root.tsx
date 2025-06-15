@@ -20,7 +20,7 @@ interface MyRouterContext {
 }
 
 const TanStackRouterDevtools =
-    process.env.NODE_ENV === "production"
+    import.meta.env.PROD
         ? () => null
         : React.lazy(() =>
               import("@tanstack/react-router-devtools").then((res) => ({

@@ -11,8 +11,6 @@ export default function ErrorComponent({ error }: { error: Error }) {
 
     const queryClientErrorBoundary = useQueryErrorResetBoundary();
 
-    const isDev = process.env.NODE_ENV !== "production";
-
     useEffect(() => {
         queryClientErrorBoundary.reset();
     }, [queryClientErrorBoundary]);
@@ -37,7 +35,7 @@ export default function ErrorComponent({ error }: { error: Error }) {
                     <Button asChild className="w-full" variant={"outline"}>
                         <Link to="/">Return to home</Link>
                     </Button>
-                    {isDev ? (
+                    {import.meta.env.DEV ? (
                         <Accordion type="single" collapsible className="w-full">
                             <AccordionItem value="error-details">
                                 <AccordionTrigger>View error details</AccordionTrigger>

@@ -13,8 +13,6 @@ import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button
 import { useTranslation } from "react-i18next";
 import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
 
-
-
 export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
     return (
         <ScrollAreaPrimitive.Root asChild>
@@ -123,8 +121,6 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
         </ComposerPrimitive.Root>
     );
 };
-
-
 
 const ComposerAction: FC = () => {
     return (

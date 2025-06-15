@@ -12,6 +12,7 @@ import "./styles.css";
 import DefaultLoading from "./components/default-loading";
 import NotFound from "./components/not-found";
 import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { GlobalErrorBoundaryProvider } from "@/components/error-boundaries/global-error-boundary-provider";
 
 export const createRouter = () => {
     const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL!;
@@ -52,9 +53,11 @@ export const createRouter = () => {
             defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
             Wrap: (props: { children: React.ReactNode }) => {
                 return (
-                    <ConvexProviderWithAuth client={convexQueryClient.convexClient} useAuth={useAuthForConvex}>
-                        <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
-                    </ConvexProviderWithAuth>
+                    <GlobalErrorBoundaryProvider>
+                        <ConvexProviderWithAuth client={convexQueryClient.convexClient} useAuth={useAuthForConvex}>
+                            <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+                        </ConvexProviderWithAuth>
+                    </GlobalErrorBoundaryProvider>
                 );
             },
         }),
