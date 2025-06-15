@@ -3,6 +3,7 @@
 import React, { Component } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { AlertTriangle, RefreshCw, Home, Bug, ChevronDown, ChevronUp } from "lucide-react";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -155,16 +156,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     private sendErrorReport = async (errorReport: any) => {
         try {
-            // Send to your error reporting service (e.g., Sentry, LogRocket, etc.)
-            await fetch("/api/errors", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(errorReport),
+            // Send to PostHog error tracking
+            posthog?.captureException(errorReport.error, {
+                $level: 'error',
+                errorBoundary: 'main',
+                level: errorReport.level,
+                errorId: errorReport.id,
+                componentStack: errorReport.errorInfo.componentStack,
+                url: errorReport.url,
+                userAgent: errorReport.userAgent,
+                userId: errorReport.userId,
+                sessionId: errorReport.sessionId,
+                timestamp: errorReport.timestamp,
+                errorType: errorReport.error.name,
             });
         } catch (reportingError) {
-            console.error("Failed to send error report:", reportingError);
+            console.error("Failed to send error report to PostHog:", reportingError);
         }
     };
 

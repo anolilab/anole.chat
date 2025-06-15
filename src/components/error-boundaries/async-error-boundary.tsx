@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { usePostHog } from "posthog-js/react";
 import { ErrorBoundary, useErrorHandler } from "../error-boundary";
 import { ErrorUtils } from "@/lib/errors";
 
@@ -16,16 +17,27 @@ interface AsyncErrorBoundaryProps {
  */
 export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBoundaryProps) {
     const handleError = useErrorHandler();
+    const posthog = usePostHog();
 
     // Create a context to provide error handling to child components
     const errorContext = React.useMemo(
         () => ({
             handleAsyncError: (error: Error) => {
                 onError?.(error);
+                
+                // Send error to PostHog
+                posthog?.captureException(error, {
+                    $level: 'error',
+                    errorBoundary: 'async',
+                    context: 'async-operation',
+                    url: window.location.href,
+                    timestamp: new Date().toISOString(),
+                });
+                
                 handleError(error);
             },
         }),
-        [handleError, onError],
+        [handleError, onError, posthog],
     );
 
     return (
@@ -34,6 +46,16 @@ export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBo
                 level="component"
                 onError={(error, errorInfo) => {
                     onError?.(error);
+                    
+                    // Send error to PostHog
+                    posthog?.captureException(error, {
+                        $level: 'error',
+                        errorBoundary: 'async',
+                        componentStack: errorInfo.componentStack,
+                        url: window.location.href,
+                        timestamp: new Date().toISOString(),
+                    });
+                    
                     console.group("🔄 Async Error Boundary");
                     console.error("Error:", error);
                     console.error("Error Info:", errorInfo);

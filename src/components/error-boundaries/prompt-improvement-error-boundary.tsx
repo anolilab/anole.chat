@@ -3,6 +3,7 @@
 import React from "react";
 import type { ErrorInfo } from "react";
 import { Sparkles, AlertTriangle, RefreshCw } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 import { ErrorBoundary } from "../error-boundary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,24 +21,19 @@ interface PromptImprovementErrorBoundaryProps {
  * Provides context-aware error handling and recovery options
  */
 export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToInput = true }: PromptImprovementErrorBoundaryProps) {
+    const posthog = usePostHog();
+
     const handleError = (error: Error, errorInfo: ErrorInfo) => {
-        if (typeof window !== "undefined" && import.meta.env.PROD) {
-            fetch("/api/errors", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    feature: "prompt-improvement",
-                    error: {
-                        name: error.name,
-                        message: error.message,
-                        stack: error.stack,
-                    },
-                    errorInfo,
-                    timestamp: new Date().toISOString(),
-                    url: window.location.href,
-                }),
-            }).catch(console.error);
-        }
+        // Send error to PostHog
+        posthog?.captureException(error, {
+            $level: 'error',
+            errorBoundary: 'prompt-improvement',
+            feature: 'prompt-improvement',
+            componentStack: errorInfo.componentStack,
+            url: window.location.href,
+            timestamp: new Date().toISOString(),
+            errorType: error.constructor.name,
+        });
     };
 
     const renderFallback = (error: Error, retry: () => void) => {

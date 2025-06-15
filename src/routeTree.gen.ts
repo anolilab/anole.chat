@@ -280,11 +280,11 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/(auth)': {
-      id: '/(auth)'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof authLayoutRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(chat)': {
@@ -294,53 +294,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof chatLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardLayoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/forgot-password': {
-      id: '/(auth)/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof authForgotPasswordRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(auth)/register': {
-      id: '/(auth)/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof authRegisterRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/(auth)/reset-password': {
-      id: '/(auth)/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof authResetPasswordRouteImport
-      parentRoute: typeof authLayoutRoute
-    }
-    '/.well-known/oauth-authorization-server': {
-      id: '/.well-known/oauth-authorization-server'
-      path: ''
-      fullPath: '/.well-known/oauth-authorization-server'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootRouteImport
-    }
-    '/(public)/': {
-      id: '/(public)/'
+    '/(auth)': {
+      id: '/(auth)'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof publicIndexRouteImport
+      preLoaderRoute: typeof authLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -350,11 +308,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardLayoutRoute
     }
-    '/(auth)/two-factor/otp': {
-      id: '/(auth)/two-factor/otp'
-      path: '/two-factor/otp'
-      fullPath: '/two-factor/otp'
-      preLoaderRoute: typeof authTwoFactorOtpRouteImport
+    '/(public)/': {
+      id: '/(public)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof publicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authResetPasswordRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
+    '/(auth)/register': {
+      id: '/(auth)/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof authRegisterRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
+    '/(auth)/forgot-password': {
+      id: '/(auth)/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof authForgotPasswordRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
+    '/dashboard/settings/': {
+      id: '/dashboard/settings/'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/(chat)/chat/': {
+      id: '/(chat)/chat/'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof chatChatIndexRouteImport
+      parentRoute: typeof chatLayoutRoute
+    }
+    '/(auth)/two-factor/': {
+      id: '/(auth)/two-factor/'
+      path: '/two-factor'
+      fullPath: '/two-factor'
+      preLoaderRoute: typeof authTwoFactorIndexRouteImport
       parentRoute: typeof authLayoutRoute
     }
     '/(chat)/chat/$threadId': {
@@ -364,47 +371,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof chatChatThreadIdRouteImport
       parentRoute: typeof chatLayoutRoute
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: ''
-      fullPath: '/api/auth/$'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/two-factor/': {
-      id: '/(auth)/two-factor/'
-      path: '/two-factor'
-      fullPath: '/two-factor'
-      preLoaderRoute: typeof authTwoFactorIndexRouteImport
+    '/(auth)/two-factor/otp': {
+      id: '/(auth)/two-factor/otp'
+      path: '/two-factor/otp'
+      fullPath: '/two-factor/otp'
+      preLoaderRoute: typeof authTwoFactorOtpRouteImport
       parentRoute: typeof authLayoutRoute
-    }
-    '/(chat)/chat/': {
-      id: '/(chat)/chat/'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof chatChatIndexRouteImport
-      parentRoute: typeof chatLayoutRoute
-    }
-    '/api/errors/': {
-      id: '/api/errors/'
-      path: ''
-      fullPath: '/api/errors'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/settings/': {
-      id: '/dashboard/settings/'
-      path: '/settings'
-      fullPath: '/dashboard/settings'
-      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
-    '/api/ai/mcp/$transport': {
-      id: '/api/ai/mcp/$transport'
-      path: ''
-      fullPath: '/api/ai/mcp/$transport'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootRouteImport
     }
     '/(auth)/accept-invitation/$invitationId/': {
       id: '/(auth)/accept-invitation/$invitationId/'
@@ -417,109 +389,11 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
-    '/(auth)': {
-      id: '/(auth)'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(chat)': {
-      id: '/(chat)'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(auth)/forgot-password': {
-      id: '/(auth)/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(auth)/register': {
-      id: '/(auth)/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(auth)/reset-password': {
-      id: '/(auth)/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
     '/.well-known/oauth-authorization-server': {
       id: '/.well-known/oauth-authorization-server'
       path: '/.well-known/oauth-authorization-server'
       fullPath: '/.well-known/oauth-authorization-server'
       preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(public)/': {
-      id: '/(public)/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(auth)/two-factor/otp': {
-      id: '/(auth)/two-factor/otp'
-      path: '/two-factor/otp'
-      fullPath: '/two-factor/otp'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(chat)/chat/$threadId': {
-      id: '/(chat)/chat/$threadId'
-      path: '/chat/$threadId'
-      fullPath: '/chat/$threadId'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(auth)/two-factor/': {
-      id: '/(auth)/two-factor/'
-      path: '/two-factor'
-      fullPath: '/two-factor'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(chat)/chat/': {
-      id: '/(chat)/chat/'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
     '/api/errors/': {
@@ -529,11 +403,11 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof ApiErrorsIndexServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
-    '/dashboard/settings/': {
-      id: '/dashboard/settings/'
-      path: '/settings'
-      fullPath: '/dashboard/settings'
-      preLoaderRoute: unknown
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
     '/api/ai/mcp/$transport': {
@@ -541,13 +415,6 @@ declare module '@tanstack/react-start/server' {
       path: '/api/ai/mcp/$transport'
       fullPath: '/api/ai/mcp/$transport'
       preLoaderRoute: typeof ApiAiMcpTransportServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/(auth)/accept-invitation/$invitationId/': {
-      id: '/(auth)/accept-invitation/$invitationId/'
-      path: '/accept-invitation/$invitationId'
-      fullPath: '/accept-invitation/$invitationId'
-      preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
   }

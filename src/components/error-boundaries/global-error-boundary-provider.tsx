@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { ErrorInfo } from "react";
+import { usePostHog } from "posthog-js/react";
 import { ErrorBoundary } from "../error-boundary";
 import { showError, networkToast } from "@/lib/toast";
 import { NetworkError, ServerError, ErrorUtils } from "@/lib/errors";
@@ -12,6 +13,7 @@ interface GlobalErrorBoundaryProviderProps {
 
 export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryProviderProps) {
     const [isOnline, setIsOnline] = React.useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+    const posthog = usePostHog();
 
     // Monitor network status
     React.useEffect(() => {
@@ -45,24 +47,15 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
             // Show user-friendly error
             showError(error);
 
-            // Send error report
-            if (import.meta.env.PROD) {
-                fetch("/api/errors", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        type: "unhandled-promise-rejection",
-                        error: {
-                            name: error.name,
-                            message: error.message,
-                            stack: error.stack,
-                        },
-                        timestamp: new Date().toISOString(),
-                        url: window.location.href,
-                        userAgent: navigator.userAgent,
-                    }),
-                }).catch(console.error);
-            }
+            // Send error to PostHog
+            posthog?.captureException(error, {
+                $level: 'error',
+                errorType: 'unhandled-promise-rejection',
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                isOnline,
+            });
 
             // Prevent default browser error handling
             event.preventDefault();
@@ -73,7 +66,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
         return () => {
             window.removeEventListener("unhandledrejection", handleUnhandledRejection);
         };
-    }, []);
+    }, [posthog, isOnline]);
 
     // Global error handler for JavaScript errors
     React.useEffect(() => {
@@ -85,27 +78,18 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
             // Show user-friendly error
             showError(error);
 
-            // Send error report
-            if (import.meta.env.PROD) {
-                fetch("/api/errors", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        type: "javascript-error",
-                        error: {
-                            name: error.name,
-                            message: error.message,
-                            stack: error.stack,
-                        },
-                        filename: event.filename,
-                        lineno: event.lineno,
-                        colno: event.colno,
-                        timestamp: new Date().toISOString(),
-                        url: window.location.href,
-                        userAgent: navigator.userAgent,
-                    }),
-                }).catch(console.error);
-            }
+            // Send error to PostHog
+            posthog?.captureException(error, {
+                $level: 'error',
+                errorType: 'javascript-error',
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                isOnline,
+            });
         };
 
         window.addEventListener("error", handleError);
@@ -113,7 +97,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
         return () => {
             window.removeEventListener("error", handleError);
         };
-    }, []);
+    }, [posthog, isOnline]);
 
     const handleGlobalError = (error: Error, errorInfo: ErrorInfo) => {
         console.group("🌍 Global Error Boundary");
@@ -122,33 +106,21 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
         console.error("Online Status:", isOnline);
         console.groupEnd();
 
-        // Send comprehensive error report
-        if (import.meta.env.PROD) {
-            fetch("/api/errors", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    type: "react-error-boundary",
-                    level: "global",
-                    error: {
-                        name: error.name,
-                        message: error.message,
-                        stack: error.stack,
-                    },
-                    errorInfo: {
-                        componentStack: errorInfo.componentStack,
-                    },
-                    context: {
-                        isOnline,
-                        url: window.location.href,
-                        userAgent: navigator.userAgent,
-                        timestamp: new Date().toISOString(),
-                        localStorage: getLocalStorageSnapshot(),
-                        sessionStorage: getSessionStorageSnapshot(),
-                    },
-                }),
-            }).catch(console.error);
-        }
+        // Send comprehensive error report to PostHog
+        posthog?.captureException(error, {
+            $level: 'error',
+            errorBoundary: 'global',
+            errorType: 'react-error-boundary',
+            componentStack: errorInfo.componentStack,
+            context: {
+                isOnline,
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                localStorage: getLocalStorageSnapshot(),
+                sessionStorage: getSessionStorageSnapshot(),
+            },
+        });
     };
 
     const getLocalStorageSnapshot = React.useCallback(() => {

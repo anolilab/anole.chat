@@ -3,13 +3,19 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { defineConfig, loadEnv } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
-import { wrapVinxiConfigWithSentry } from "@sentry/tanstackstart-react";
-
-const config = defineConfig(({ mode }) => {
+export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
 
     return {
+        react: {
+            babel: {
+                plugins: [["babel-plugin-react-compiler", { target: "19" }]],
+            },
+        },
         server: {
+            routeRules: {
+                "/pr/posthog/**": { proxy: { to: "https://eu.i.posthog.com/**" } },
+            },
             proxy: {
                 "/convex-http": {
                     target: env.VITE_CONVEX_SITE_URL,
@@ -44,13 +50,4 @@ const config = defineConfig(({ mode }) => {
             }),
         ],
     };
-});
-
-export default wrapVinxiConfigWithSentry(config, {
-    org: process.env.VITE_SENTRY_ORG,
-    project: process.env.VITE_SENTRY_PROJECT,
-    authToken: process.env.SENTRY_AUTH_TOKEN,
-    // Only print logs for uploading source maps in CI
-    // Set to `true` to suppress logs
-    silent: !process.env.CI,
 });

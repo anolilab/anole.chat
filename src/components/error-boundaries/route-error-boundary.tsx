@@ -3,6 +3,7 @@
 import React from "react";
 import type { ErrorInfo } from "react";
 import { Home, RefreshCw, ArrowLeft, AlertTriangle } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 import { ErrorBoundary } from "../error-boundary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,8 @@ interface RouteErrorBoundaryProps {
  * Provides navigation recovery and route-specific error handling
  */
 export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute = "/" }: RouteErrorBoundaryProps) {
+    const posthog = usePostHog();
+
     const handleError = (error: Error, errorInfo: ErrorInfo) => {
         // Log route-specific context
         console.group(`🛣️ Route Error (${routeName})`);
@@ -28,27 +31,20 @@ export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute
         console.error("Referrer:", document.referrer);
         console.groupEnd();
 
-        // Send error report with route context
-        if (typeof window !== "undefined" && import.meta.env.PROD) {
-            fetch("/api/errors", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    feature: "route",
-                    routeName,
-                    route: window.location.pathname,
-                    referrer: document.referrer,
-                    error: {
-                        name: error.name,
-                        message: error.message,
-                        stack: error.stack,
-                    },
-                    errorInfo,
-                    timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent,
-                }),
-            }).catch(console.error);
-        }
+        // Send error report with route context to PostHog
+        posthog?.captureException(error, {
+            $level: 'error',
+            errorBoundary: 'route',
+            feature: 'route',
+            routeName,
+            route: window.location.pathname,
+            referrer: document.referrer,
+            componentStack: errorInfo.componentStack,
+            url: window.location.href,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            errorType: error.constructor.name,
+        });
     };
 
     const handleGoBack = () => {

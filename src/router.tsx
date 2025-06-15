@@ -4,6 +4,7 @@ import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexProviderWithAuth } from "convex/react";
 import { ConvexReactClient } from "convex/react";
 import { useAuthForConvex } from "@/lib/auth/client";
+import { AnalyticsProvider } from "@/providers/analytics-provider";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -54,9 +55,11 @@ export const createRouter = () => {
             Wrap: (props: { children: React.ReactNode }) => {
                 return (
                     <GlobalErrorBoundaryProvider>
-                        <ConvexProviderWithAuth client={convexQueryClient.convexClient} useAuth={useAuthForConvex}>
-                            <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
-                        </ConvexProviderWithAuth>
+                        <AnalyticsProvider>
+                            <ConvexProviderWithAuth client={convexQueryClient.convexClient} useAuth={useAuthForConvex}>
+                                <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+                            </ConvexProviderWithAuth>
+                        </AnalyticsProvider>
                     </GlobalErrorBoundaryProvider>
                 );
             },

@@ -2,17 +2,11 @@ import { Assistant } from "@/routes/(chat)/-components/assistant";
 import { redirect, createFileRoute } from "@tanstack/react-router";
 import { api } from "@cvx/_generated/api";
 import { getServerSession } from "@/lib/auth/client";
-import { ErrorBoundaryDemo } from "@/components/error-boundaries/error-boundary-demo";
 
 const ChatPage = () => {
     const { threadId } = Route.useParams();
 
-    return (
-        <>
-            <Assistant threadId={threadId} />
-            <ErrorBoundaryDemo />
-        </>
-    );
+    return <Assistant threadId={threadId} />;
 };
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({
