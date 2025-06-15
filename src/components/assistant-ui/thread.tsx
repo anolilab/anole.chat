@@ -1,5 +1,6 @@
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import type { FC } from "react";
+import { useState, useCallback } from "react";
 import { ArrowDownIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, PencilIcon, RefreshCwIcon, SendHorizontalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
@@ -99,6 +100,11 @@ const ThreadWelcomeSuggestions: FC = () => {
 
 const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
     const { t } = useTranslation();
+    const [inputValue, setInputValue] = useState("");
+
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setInputValue(e.target.value);
+    }, []);
 
     return (
         <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in">
@@ -110,8 +116,9 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                 autoFocus
                 placeholder={t("WRITE_A_MESSAGE")}
                 className="placeholder:text-muted-foreground max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
+                onChange={handleInputChange}
             />
-            {threadId && <PromptImprovement threadId={threadId} />}
+            {threadId && <PromptImprovement threadId={threadId} currentInputValue={inputValue?.trim()} />}
             <ComposerAction />
         </ComposerPrimitive.Root>
     );

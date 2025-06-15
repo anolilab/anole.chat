@@ -825,8 +825,9 @@ export const improvePrompt = internalAction({
         prompt: v.string(),
         sessionToken: v.string(),
         threadId: v.string(),
+        improvementInstructions: v.optional(v.string()),
     },
-    handler: async (ctx, { prompt, sessionToken, threadId }) => {
+    handler: async (ctx, { prompt, sessionToken, threadId, improvementInstructions }) => {
         // Verify session
         const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
@@ -844,8 +845,8 @@ export const improvePrompt = internalAction({
 
         const { thread } = await agent.continueThread(ctx, { threadId });
 
-        // System prompt for improving user prompts
-        const systemPrompt = `You are an expert prompt engineer. Your task is to improve user prompts to make them more effective, clear, and likely to produce better AI responses.
+        // Build the system prompt with optional improvement instructions
+        let systemPrompt = `You are an expert prompt engineer. Your task is to improve user prompts to make them more effective, clear, and likely to produce better AI responses.
 
 Guidelines for improvement:
 1. Make the prompt more specific and detailed
@@ -859,6 +860,11 @@ Guidelines for improvement:
 Return the improved prompt in the improvedPrompt field. The improved prompt should be ready to use directly without any explanation or meta-commentary.
 
 Original prompt to improve: "${prompt.trim()}"`;
+
+        // Add specific improvement instructions if provided
+        if (improvementInstructions?.trim()) {
+            systemPrompt += `\n\nSpecific improvement instructions: ${improvementInstructions.trim()}`;
+        }
 
             const result = await thread.generateObject(
                 {
@@ -882,7 +888,7 @@ Original prompt to improve: "${prompt.trim()}"`;
 export const improvePromptHttpAction = httpAction(async (ctx, request) => {
     // Parse the request body
     const body = await request.json();
-    const { prompt, sessionToken, threadId } = body;
+    const { prompt, sessionToken, threadId, improvementInstructions } = body;
 
     if (!prompt || !sessionToken) {
         return new Response(JSON.stringify({ error: "Missing prompt or sessionToken" }), {
@@ -896,6 +902,7 @@ export const improvePromptHttpAction = httpAction(async (ctx, request) => {
             prompt,
             sessionToken,
             threadId,
+            improvementInstructions,
         });
 
         return new Response(JSON.stringify(result), {
