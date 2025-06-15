@@ -959,3 +959,18 @@ export const improvePromptHttpAction = httpAction(async (ctx, request) => {
         });
     }
 });
+
+export const createFeedback = mutation({
+    args: { messageId: v.string(), feedback: v.union(v.literal("positive"), v.literal("negative")), sessionToken: v.string() },
+    handler: async (ctx, args) => {
+        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        await ctx.db.insert("messageFeedbacks", { messageId: args.messageId, userId: sessionData.userId as Id<"user">, feedback: args.feedback });
+    },
+});

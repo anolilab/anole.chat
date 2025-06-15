@@ -9,6 +9,7 @@ import {
     type ExternalStoreThreadData,
     type ExternalStoreThreadListAdapter,
     CompositeAttachmentAdapter,
+    type FeedbackAdapter,
 } from "@assistant-ui/react";
 import type { ReactNode } from "react";
 import type { AgentModel } from "convex/agents";
@@ -119,6 +120,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const convexThreads = usePaginatedQuery(api.chat.getThreads, { sessionToken: sessionData?.data?.session?.token as string }, { initialNumItems: 10 });
     const updateThread = useMutation(api.chat.updateThread);
     const deleteThread = useMutation(api.chat.deleteThreadWithRelationships);
+    const createFeedback = useMutation(api.chat.createFeedback);
     const createThreadMutation = useMutation(api.chat.createThread);
 
     useEffect(() => {
@@ -575,6 +577,16 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
         createThreadMutation,
     ]);
 
+    const feedbackAdapter: FeedbackAdapter = {
+        async submit(feedback) {
+            await createFeedback({
+                messageId: feedback.message.id,
+                feedback: feedback.type,
+                sessionToken: sessionData?.data?.session?.token as string,
+            });
+        },
+    };
+
     // Create the external store adapter
     const adapter: ExternalStoreAdapter<ThreadMessageLike> = useMemo(
         () => ({
@@ -593,6 +605,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     new ConvexAttachmentAdapter(sessionData?.data?.session?.token as string, threadId as string, model),
                 ]),
                 threadList: threadListAdapter,
+                feedback: feedbackAdapter,
             },
             unstable_capabilities: {
                 copy: true,

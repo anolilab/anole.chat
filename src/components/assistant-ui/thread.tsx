@@ -263,12 +263,12 @@ const AssistantActionBar: FC = () => {
                 </TooltipIconButton>
             </ActionBarPrimitive.Reload>
             <ActionBarPrimitive.FeedbackPositive asChild>
-                <TooltipIconButton tooltip="Feedback">
+                <TooltipIconButton tooltip="Positive Feedback">
                     <ThumbsUpIcon />
                 </TooltipIconButton>
             </ActionBarPrimitive.FeedbackPositive>
             <ActionBarPrimitive.FeedbackNegative asChild>
-                <TooltipIconButton tooltip="Feedback">
+                <TooltipIconButton tooltip="Negative Feedback">
                     <ThumbsDownIcon />
                 </TooltipIconButton>
             </ActionBarPrimitive.FeedbackNegative>
