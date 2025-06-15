@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import type { ErrorContext } from "better-auth/react";
 import type { SocialProvider } from "better-auth/social-providers";
+import { toast } from "sonner";
 
 const authQueryKeys = {
     session: ["session"],
@@ -24,25 +25,28 @@ export const useLogin = () => {
                 rememberMe,
                 fetchOptions: {
                     onSuccess: () => {
-                        console.log("loginWithCredentials onSuccess");
                         router.navigate({ to: "/dashboard" });
+                    },
+                    onError(error: ErrorContext) {
+                        console.log("loginWithCredentials onError", error);
+                        toast.error(error.error.message);
                     },
                 },
             });
         },
-        onSuccess(response, variables, context) {
-            console.log("loginWithCredentials mutate onSuccess", response, variables, context);
-            if (response.data?.user.id) {
-                router.navigate({ to: "/dashboard" });
-            }
-        },
     });
 
     const loginWithPasskey = useMutation({
-        mutationFn: async () => await authClient.signIn.passkey(),
-        onSuccess: () => {
-            router.navigate({ to: "/dashboard" });
-        },
+        mutationFn: async () => await authClient.signIn.passkey({
+            fetchOptions: {
+                onSuccess: () => {
+                    router.navigate({ to: "/dashboard" });
+                },
+                onError(error: ErrorContext) {
+                    toast.error(error.error.message);
+                },
+            },
+        })
     });
 
     const loginWithSocial = useMutation({
@@ -63,10 +67,12 @@ export const useLogin = () => {
 export const useLogout = () => {
     const queryClient = useQueryClient();
     const router = useRouter();
+
     return useMutation({
         mutationFn: async () => await authClient.signOut(),
         onSettled: async () => {
             queryClient.removeQueries({ queryKey: authQueryKeys.session });
+
             await router.navigate({ to: "/login" });
         },
     });

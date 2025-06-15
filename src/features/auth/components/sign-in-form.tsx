@@ -107,9 +107,14 @@ export default function SignInForm() {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full" disabled={loginWithCredentials.isPending}>
-                                {loginWithCredentials.isPending ? <Loader2 size={16} className="animate-spin" /> : t("LOG_IN")}
-                            </Button>
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button type="submit" className="w-full" disabled={!canSubmit}>
+                                    {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("LOG_IN")}
+                                    </Button>
+                                )}
+                                />
 
                             <Button
                                 variant="secondary"
