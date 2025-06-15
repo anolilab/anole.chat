@@ -1,14 +1,14 @@
 "use client";
 
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input, type InputProps } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { forwardRef, useState } from "react";
 
-const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
-    const [showPassword, setShowPassword] = React.useState(false);
+const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
+    const [showPassword, setShowPassword] = useState(false);
     const disabled = props.value === "" || props.value === undefined || props.disabled;
 
     return (

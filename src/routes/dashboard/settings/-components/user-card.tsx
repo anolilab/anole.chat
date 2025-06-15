@@ -15,7 +15,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { Laptop, Loader2, LogOut, PhoneIcon, QrCode, ShieldCheck, ShieldOff } from "lucide-react";
 
 import { useLogout } from "@/hooks/auth-hooks";
-import { authClient } from "@/lib/auth/client";
 import type { AuthClient } from "@/lib/auth/client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

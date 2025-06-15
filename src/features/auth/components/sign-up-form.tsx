@@ -8,10 +8,10 @@ import { useState } from "react";
 
 import { Loader2, X } from "lucide-react";
 
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { authClient } from "../lib/client";
 
 export function SignUpForm() {
     const { t } = useTranslation();

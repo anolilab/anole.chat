@@ -1,22 +1,21 @@
 "use client";
 
-import { useI18n } from "@/lib/intl/i18n";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { FormFieldInfo } from "@/components/form-field-info";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { useRouter } from "@tanstack/react-router";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const formSchema = z;
+const formSchema = z.object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 export default function ResetPasswordForm() {
     const { t } = useTranslation();

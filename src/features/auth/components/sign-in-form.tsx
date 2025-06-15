@@ -6,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/features/auth/hooks/auth-hooks";
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";

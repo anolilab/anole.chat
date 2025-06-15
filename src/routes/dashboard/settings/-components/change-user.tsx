@@ -9,7 +9,6 @@ import { useRouter } from "@tanstack/react-router";
 import { Edit, Loader2, X } from "lucide-react";
 
 import { useSession } from "@/hooks/auth-hooks";
-import { authClient } from "@/lib/auth/client";
 import { convertImageToBase64 } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

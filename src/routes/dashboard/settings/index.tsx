@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { authClient } from "@/lib/auth/client";
 import { useQuery } from "@tanstack/react-query";
 import {} from "@tanstack/react-router";
 import AdminDashboard from "./-components/admin";

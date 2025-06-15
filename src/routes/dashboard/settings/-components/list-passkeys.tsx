@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Fingerprint, Loader2, Trash } from "lucide-react";
 
-import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

@@ -248,9 +248,6 @@ importers:
       react-email:
         specifier: 4.0.16
         version: 4.0.16(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.52.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react-hook-form:
-        specifier: ^7.58.0
-        version: 7.58.0(react@19.1.0)
       react-i18next:
         specifier: ^15.5.3
         version: 15.5.3(i18next@25.2.1(typescript@5.8.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
@@ -7373,12 +7370,6 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  react-hook-form@7.58.0:
-    resolution: {integrity: sha512-zGijmEed35oNfOfy7ub99jfjkiLhHwA3dl5AgyKdWC6QQzhnc7tkWewSa+T+A2EpLrc6wo5DUoZctS9kufWJjA==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: ^16.8.0 || ^17 || ^18 || ^19
-
   react-i18next@15.5.3:
     resolution: {integrity: sha512-ypYmOKOnjqPEJZO4m1BI0kS8kWqkBNsKYyhVUfij0gvjy9xJNoG/VcGkxq5dRlVwzmrmY1BQMAmpbbUBLwC4Kw==}
     peerDependencies:
@@ -14258,7 +14249,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.9.0(debug@4.4.1))
+      retry-axios: 2.6.0(axios@1.9.0)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -16165,10 +16156,6 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  react-hook-form@7.58.0(react@19.1.0):
-    dependencies:
-      react: 19.1.0
-
   react-i18next@15.5.3(i18next@25.2.1(typescript@5.8.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3):
     dependencies:
       '@babel/runtime': 7.27.6
@@ -16532,7 +16519,7 @@ snapshots:
       onetime: 7.0.0
       signal-exit: 4.1.0
 
-  retry-axios@2.6.0(axios@1.9.0(debug@4.4.1)):
+  retry-axios@2.6.0(axios@1.9.0):
     dependencies:
       axios: 1.9.0(debug@4.4.1)
 

@@ -108,7 +108,6 @@
         "react-day-picker": "9.7.0",
         "react-dom": "19.1.0",
         "react-email": "4.0.16",
-        "react-hook-form": "^7.58.0",
         "react-i18next": "^15.5.3",
         "react-markdown": "^10.1.0",
         "react-qr-code": "^2.0.15",

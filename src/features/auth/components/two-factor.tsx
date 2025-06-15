@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
+import { authClient } from "../lib/client";
 
 export default function Component() {
     const { t } = useTranslation();

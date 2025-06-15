@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRegister } from "@/features/auth/hooks/auth-hooks";
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";

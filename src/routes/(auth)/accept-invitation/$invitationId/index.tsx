@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { useRouter, createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, XIcon } from "lucide-react";

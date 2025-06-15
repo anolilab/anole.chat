@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthHelpers } from "@/features/auth/hooks/auth-hooks";
-import { authClient } from "@/lib/auth/client";
 import { useTranslation } from "@/lib/intl/react";
 import { useRouter } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2, Mail } from "lucide-react";

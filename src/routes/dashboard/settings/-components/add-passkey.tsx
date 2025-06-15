@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 
 import { Fingerprint, Loader2, Plus } from "lucide-react";
 
-import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
