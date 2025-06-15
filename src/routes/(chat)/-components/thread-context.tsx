@@ -7,6 +7,9 @@ import { api } from "@cvx/_generated/api";
 import { useSession } from "@/hooks/auth-hooks";
 import { useNavigate } from "@tanstack/react-router";
 import type { AgentModel } from "convex/agents";
+import type { Doc } from "@cvx/_generated/dataModel";
+
+type ThreadDoc = Doc<"threads">;
 
 // Enhanced thread metadata with branching support
 interface ThreadMetadata {
@@ -123,7 +126,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
         // Automatically switch to the new branch
         setCurrentThreadId(branchId);
-        navigate({ to: "/chat/$threadId", params: { threadId: branchId } });
+        navigate({ to: "/chat/$threadId", params: { threadId: branchId }, search: (prev) => ({ ...prev }) });
 
         return branchId;
     };
@@ -172,7 +175,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
             const parentId = getParentThread(threadId);
             if (parentId && parentId !== "default") {
                 setCurrentThreadId(parentId);
-                navigate({ to: "/chat/$threadId", params: { threadId: parentId } });
+                navigate({ to: "/chat/$threadId", params: { threadId: parentId }, search: (prev) => ({ ...prev }) });
             } else {
                 // Redirect to main chat with notification
                 navigate({
@@ -194,7 +197,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
             // Then check Convex threads data
             if (allThreads?.page) {
-                const thread = allThreads.page.find((t) => t._id === threadId);
+                const thread = allThreads.page.find((t) => (t as ThreadDoc)._id === threadId) as ThreadDoc | undefined;
                 return thread?.parentThreadIds?.[0] || null;
             }
 
@@ -236,7 +239,8 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
                 // If not found locally, create metadata from Convex thread data
                 if (!metadata && allThreads?.page) {
-                    const convexThread = allThreads.page.find((t) => t._id === threadId);
+                    const convexThread = allThreads.page.find((t) => (t as ThreadDoc)._id === threadId) as ThreadDoc | undefined;
+
                     if (convexThread) {
                         metadata = {
                             title: convexThread.title || "Untitled Thread",
@@ -359,7 +363,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
     const switchToBranch = (threadId: string) => {
         if (threads.has(threadId)) {
             setCurrentThreadId(threadId);
-            navigate({ to: "/chat/$threadId", params: { threadId } });
+            navigate({ to: "/chat/$threadId", params: { threadId }, search: (prev) => ({ ...prev }) });
 
             // Update last activity
             setThreadMetadata((prev) => {

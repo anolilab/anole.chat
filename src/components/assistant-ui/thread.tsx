@@ -1,7 +1,18 @@
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import type { FC } from "react";
 import { useState, useCallback } from "react";
-import { ArrowDownIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, PencilIcon, RefreshCwIcon, SendHorizontalIcon, ThumbsDownIcon, ThumbsUpIcon } from "lucide-react";
+import {
+    ArrowDownIcon,
+    CheckIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    CopyIcon,
+    PencilIcon,
+    RefreshCwIcon,
+    SendHorizontalIcon,
+    ThumbsDownIcon,
+    ThumbsUpIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import { ScrollBar } from "@/components/ui/scroll-area";

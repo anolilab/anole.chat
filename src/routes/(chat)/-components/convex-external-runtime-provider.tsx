@@ -92,6 +92,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             // Initialize thread if it doesn't exist
             if (!threads.has(threadId)) {
                 setThreads((prev) => new Map(prev).set(threadId, []));
+
                 setThreadMetadata((prev) =>
                     new Map(prev).set(threadId, {
                         title: "New Chat",
