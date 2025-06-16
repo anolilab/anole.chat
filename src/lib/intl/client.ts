@@ -5,8 +5,8 @@ import { detect, fromCookie, fromNavigator } from "@lingui/detect-locale";
 export const DEFAULT_LOCALE = "en";
 
 export const locales = {
-    en: "English",
-    de: "Deutsch",
+    en: "EN",
+    de: "DE",
 };
 
 export const isLocaleValid = (locale: string) => Object.keys(locales).includes(locale);
