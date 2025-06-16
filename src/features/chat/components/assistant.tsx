@@ -1,7 +1,7 @@
 "use client";
 
 import { SidebarInset } from "@/components/ui/sidebar";
-import { ConvexExternalRuntimeProvider } from "./convex-external-runtime-provider";
+import { ConvexExternalRuntimeProvider } from "@/features/chat/providers/convex-external-runtime-provider";
 import { Thread } from "@/components/assistant-ui/thread";
 import { ChatSiteHeader } from "./chat-header";
 import { AppSidebar } from "@/features/layout/components/app-sidebar";

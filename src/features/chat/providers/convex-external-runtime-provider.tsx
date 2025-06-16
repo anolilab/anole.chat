@@ -19,10 +19,10 @@ import { api } from "@cvx/_generated/api";
 import { useThreadMessages } from "@convex-dev/agent/react";
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
-import ConvexAttachmentAdapter from "./adapter/convex-attachment-adapter";
+import ConvexAttachmentAdapter from "@/features/chat/components/adapter/convex-attachment-adapter";
 import { useMutation, usePaginatedQuery, useAction } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
-import { useThreadContext } from "./thread-context";
+import { useThreadContext } from "@/features/chat/components/thread-context";
 
 // Define our message format that matches Convex agent messages
 export type ConvexMessage = {
@@ -263,7 +263,6 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     const currentMessages = threads.get(currentThreadId) || [];
                     const currentMetadata = threadMetadata.get(currentThreadId) || { title: "New Chat", status: "active" as const };
 
-                    // Remove old local thread and add new Convex thread
                     setThreads((prev) => {
                         const next = new Map(prev);
                         next.delete(currentThreadId);

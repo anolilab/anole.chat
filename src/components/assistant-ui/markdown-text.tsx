@@ -14,14 +14,20 @@ import remarkMath from "remark-math";
 import { type FC, memo, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { SyntaxHighlighter } from "./shiki-highlighter";
+import rehypeKatex from "rehype-katex";
+import remarkDirective from "remark-directive";
+import rehypeRaw from "rehype-raw";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 
+import "katex/dist/katex.min.css";
+
 const MarkdownTextImpl = () => {
     return (
         <MarkdownTextPrimitive
-            remarkPlugins={[remarkGfm, remarkMath]}
+            remarkPlugins={[remarkGfm, remarkMath, remarkDirective]}
+            rehypePlugins={[rehypeKatex, rehypeRaw]}
             className="aui-md"
             components={defaultComponents}
             componentsByLanguage={{

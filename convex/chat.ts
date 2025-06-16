@@ -963,3 +963,66 @@ export const improvePromptHttpAction = httpAction(async (ctx, request) => {
         });
     }
 });
+
+export const getFullThreadForExport = query({
+    args: {
+        threadId: v.string(),
+        sessionToken: v.string(),
+        model: v.string(),
+    },
+    async handler(ctx, { threadId, sessionToken, model }) {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const thread = await ctx.runQuery(components.agent.threads.getThread, { threadId });
+        if (!thread) {
+            throw new Error("Thread not found");
+        }
+
+        if (thread.userId !== sessionData.userId) {
+            throw new ConvexError("Unauthorized access to thread");
+        }
+
+        const agent = getAgent(model as AgentModel);
+
+        // This logic is copied from listMessages to handle branches correctly.
+        const threadRelationship = await ctx.runQuery(internal.chat.getThreadRelationship, {
+            threadId,
+        });
+
+        let allMessages: MessageDoc[] = [];
+
+        if (threadRelationship) {
+            // Get parent messages up to the branch point
+            const parentMessages = await agent.listMessages(ctx, {
+                threadId: threadRelationship.parentThreadId,
+                paginationOpts: { numItems: 10000, cursor: null }, // Fetch all
+            });
+
+            // Get current thread messages
+            const currentMessages = await agent.listMessages(ctx, {
+                threadId,
+                paginationOpts: { numItems: 10000, cursor: null }, // Fetch all
+            });
+
+            // Take only parent messages up to the branch point (inclusive)
+            const parentMessagesUpToBranch = parentMessages.page.slice(0, (threadRelationship.branchPoint || 0) + 1);
+
+            // Merge parent messages with current thread messages
+            allMessages = [...parentMessagesUpToBranch, ...currentMessages.page];
+        } else {
+            const messages = await agent.listMessages(ctx, {
+                threadId,
+                paginationOpts: { numItems: 10000, cursor: null }, // Fetch all
+            });
+            allMessages = messages.page;
+        }
+
+        return { thread, messages: allMessages };
+    },
+});

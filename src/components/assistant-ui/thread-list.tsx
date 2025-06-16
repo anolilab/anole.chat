@@ -14,9 +14,10 @@ import {
     Search,
     X,
     Loader2,
+    DownloadIcon,
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvex } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
@@ -25,14 +26,21 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { api } from "@cvx/_generated/api";
-import { ShortcutsProvider, KeyCombo, KeySymbol, Keys, detectOS } from "@/components/ui/keyboard-shortcuts";
+import { ShortcutsProvider, KeyCombo, KeySymbol, Keys } from "@/components/ui/keyboard-shortcuts";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { useThreadContext } from "@/features/chat/components/thread-context";
+import { handleDownload, type DownloadFormat } from "@/lib/download";
+import type { Doc } from "@cvx/_generated/dataModel";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
@@ -46,6 +54,7 @@ interface BranchNode {
     depth: number;
     isPinned?: boolean;
     order?: number;
+    model?: string;
     relevantMessages?: any[]; // Messages that matched the search query
 }
 
@@ -61,11 +70,13 @@ export const ThreadList: FC = () => {
         deleting: Set<string>;
         branching: Set<string>;
         reordering: boolean;
+        downloading: Set<string>;
     }>({
         pinning: new Set(),
         deleting: new Set(),
         branching: new Set(),
         reordering: false,
+        downloading: new Set(),
     });
 
     // Search threads when there's a search query and search type is "threads"
@@ -221,6 +232,7 @@ interface HierarchicalThreadListProps {
         deleting: Set<string>;
         branching: Set<string>;
         reordering: boolean;
+        downloading: Set<string>;
     };
     setLoadingStates: React.Dispatch<
         React.SetStateAction<{
@@ -228,6 +240,7 @@ interface HierarchicalThreadListProps {
             deleting: Set<string>;
             branching: Set<string>;
             reordering: boolean;
+            downloading: Set<string>;
         }>
     >;
     isSearchLoading: boolean;
@@ -252,6 +265,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     const { currentThreadId, createBranch, deleteBranch, threads } = useThreadContext();
     const sessionData = useSession();
     const navigate = useNavigate();
+    const convex = useConvex();
 
     // Keyboard navigation state
     const [selectedThreadIndex, setSelectedThreadIndex] = useState<number>(-1);
@@ -327,6 +341,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 depth,
                 isPinned: pinnedThreadsSet.has(threadId),
                 order: threadOrderMap.get(threadId),
+                model: thread.model,
                 // Add search relevance info if available (for message search)
                 relevantMessages: thread.relevantMessages,
             };
@@ -361,6 +376,47 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             return b.createdAt - a.createdAt;
         });
     }, [threadsData?.page, threadSearchResults?.page, messageSearchResults?.page, threadRelationships, pinnedThreads, threadOrders, searchQuery, searchType]);
+
+    const handleDownloadThread = useCallback(
+        async (node: BranchNode, format: DownloadFormat) => {
+            if (!sessionData?.data?.session?.token) return;
+            if (!node.model) {
+                console.error("Thread model is unknown, cannot download.");
+                // TODO: Add user-facing error notification
+                return;
+            }
+
+            setLoadingStates((prev) => ({
+                ...prev,
+                downloading: new Set(prev.downloading).add(node.threadId),
+            }));
+
+            try {
+                const data = await convex.query(api.chat.getFullThreadForExport, {
+                    threadId: node.threadId,
+                    sessionToken: sessionData.data.session.token,
+                    model: node.model,
+                });
+
+                if (data && data.thread && data.messages) {
+                    handleDownload(
+                        data.thread,
+                        data.messages as (Doc<"messages"> | Doc<"toolMessages">)[],
+                        format,
+                    );
+                }
+            } catch (error) {
+                console.error("Failed to download thread:", error);
+            } finally {
+                setLoadingStates((prev) => {
+                    const newDownloading = new Set(prev.downloading);
+                    newDownloading.delete(node.threadId);
+                    return { ...prev, downloading: newDownloading };
+                });
+            }
+        },
+        [convex, setLoadingStates, sessionData],
+    );
 
     const handleCreateBranch = async (threadId: string) => {
         setLoadingStates((prev) => ({
@@ -714,6 +770,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         const isPinning = loadingStates.pinning.has(node.threadId);
         const isDeleting = loadingStates.deleting.has(node.threadId);
         const isBranching = loadingStates.branching.has(node.threadId);
+        const isDownloading = loadingStates.downloading.has(node.threadId);
 
         return (
             <TooltipProvider>
@@ -807,6 +864,41 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                 </TooltipTrigger>
                                 <TooltipContent>{isBranching ? "Creating branch..." : "Create branch"}</TooltipContent>
                             </Tooltip>
+
+                            {/* Download Button */}
+                            <DropdownMenu>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="hover:text-primary h-6 w-6 p-0"
+                                                onClick={(e) => e.stopPropagation()}
+                                                disabled={isDownloading}
+                                            >
+                                                {isDownloading ? (
+                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                ) : (
+                                                    <DownloadIcon className="h-3 w-3" />
+                                                )}
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent>{isDownloading ? "Downloading..." : "Download thread"}</TooltipContent>
+                                </Tooltip>
+                                <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "json")}>
+                                        JSON
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "txt")}>
+                                        TXT
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "pdf")}>
+                                        PDF
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
 
                             {/* Archive button (placeholder) */}
                             <Tooltip>

@@ -1,9 +1,6 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Assistant } from "@/features/chat/components/assistant";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(chat)/chat/")({
-    loader: () => {
-        throw redirect({
-            to: "/chat/new" as any,
-        });
-    },
+    component: Assistant,
 });
