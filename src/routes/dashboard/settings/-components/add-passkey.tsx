@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Fingerprint, Loader2, Plus } from "lucide-react";
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useLingui } from "@lingui/react/macro";
 import { toast } from "sonner";
+import { authClient } from "@/features/auth/lib/client";
 
 export function AddPasskey() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
     const [isOpen, setIsOpen] = useState(false);
     const [passkeyName, setPasskeyName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -39,16 +40,16 @@ export function AddPasskey() {
             <DialogTrigger asChild>
                 <Button variant="outline" className="gap-2 text-xs md:text-sm">
                     <Plus size={15} />
-                    {t("ADD_NEW_PASSKEY")}
+                    {t`Add New Passkey`}
                 </Button>
             </DialogTrigger>
             <DialogContent className="w-11/12 sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{t("ADD_NEW_PASSKEY")}</DialogTitle>
-                    <DialogDescription>{t("ADD_PASSKEY_DESC")}</DialogDescription>
+                    <DialogTitle>{t`Add New Passkey`}</DialogTitle>
+                    <DialogDescription>{t`Create a new passkey to securely access your account without a password.`}</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-2">
-                    <Label htmlFor="passkey-name">{t("PASSKEY_NAME")}</Label>
+                    <Label htmlFor="passkey-name">{t`Passkey Name`}</Label>
                     <Input id="passkey-name" value={passkeyName} onChange={(e) => setPasskeyName(e.target.value)} />
                 </div>
                 <DialogFooter>
@@ -58,7 +59,7 @@ export function AddPasskey() {
                         ) : (
                             <>
                                 <Fingerprint className="mr-2 h-4 w-4" />
-                                {t("CREATE_PASSKEY")}
+                                {t`Create Passkey`}
                             </>
                         )}
                     </Button>

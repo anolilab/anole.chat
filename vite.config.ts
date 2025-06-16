@@ -2,16 +2,12 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { defineConfig, loadEnv } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
+import { lingui } from "@lingui/vite-plugin";
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
 
     return {
-        react: {
-            babel: {
-                plugins: [["babel-plugin-react-compiler", { target: "19" }]],
-            },
-        },
         server: {
             routeRules: {
                 "/pr/posthog/**": { proxy: { to: "https://eu.i.posthog.com/**" } },
@@ -37,7 +33,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         plugins: [
-            // this is the plugin that enables path aliases
+            lingui(),
             viteTsConfigPaths({
                 projects: ["./tsconfig.json"],
             }),
@@ -47,7 +43,15 @@ export default defineConfig(({ mode }) => {
                     routeToken: "layout",
                     enableCodeSplitting: true,
                 },
+                react: {
+                    babel: {
+                        plugins: [["babel-plugin-react-compiler", { target: "19" }], "@lingui/babel-plugin-lingui-macro"],
+                    },
+                },
             }),
         ],
+        define: {
+            global: "globalThis",
+        },
     };
 });

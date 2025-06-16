@@ -14,10 +14,8 @@ import { AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useNavigate } from "@tanstack/react-router";
 import { Laptop, Loader2, LogOut, PhoneIcon, QrCode, ShieldCheck, ShieldOff } from "lucide-react";
 
-import { useLogout } from "@/hooks/auth-hooks";
-import type { AuthClient } from "@/lib/auth/client";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useLingui } from "@lingui/react/macro";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
 import { UAParser } from "ua-parser-js";
@@ -26,9 +24,11 @@ import { ChangePassword } from "./change-password";
 import { ChangeUser } from "./change-user";
 import { LanguageSwitch } from "./language-switch";
 import { ListPasskeys } from "./list-passkeys";
+import { authClient } from "@/features/auth/lib/client";
+import { useLogout } from "@/features/auth/hooks/auth-hooks";
 
 export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["Session"]["session"][] }) {
-    const { t } = useTranslation();
+    const { t } = useLingui();
     const logout = useLogout();
     const navigate = useNavigate();
     const { data: session } = authClient.useSession();
@@ -43,7 +43,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
         <div className="flex w-full flex-1 p-4">
             <Card className="w-full">
                 <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>{t("USER")}</CardTitle>
+                    <CardTitle>{t`User`}</CardTitle>
                     <LanguageSwitch />
                 </CardHeader>
                 <CardContent className="flex flex-col gap-8">
@@ -64,8 +64,8 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                     {session?.user.emailVerified ? null : (
                         <div className="flex flex-col gap-2">
                             <div className="flex flex-col gap-2">
-                                <AlertTitle>{t("VERIFY_EMAIL")}</AlertTitle>
-                                <AlertDescription className="text-muted-foreground">{t("VERIFY_EMAIL_DESC")}</AlertDescription>
+                                <AlertTitle>{t`Verify Email`}</AlertTitle>
+                                <AlertDescription className="text-muted-foreground">{t`Please verify your email address to access all features`}</AlertDescription>
                                 <Button
                                     size="sm"
                                     variant="secondary"
@@ -91,14 +91,14 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                         );
                                     }}
                                 >
-                                    {emailVerificationPending ? <Loader2 size={15} className="animate-spin" /> : t("RESEND_VERIFICATION")}
+                                    {emailVerificationPending ? <Loader2 size={15} className="animate-spin" /> : t`Resend Verification`}
                                 </Button>
                             </div>
                         </div>
                     )}
 
                     <div className="flex w-max flex-col gap-1 border-l-2 px-2">
-                        <p className="text-xs font-medium">{t("ACTIVE_SESSIONS")}</p>
+                        <p className="text-xs font-medium">{t`Active Sessions`}</p>
                         {props?.activeSessions
                             ?.filter((item) => item.userAgent)
                             .map((item) => {
@@ -140,9 +140,9 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                 {isTerminating === item.id ? (
                                                     <Loader2 size={15} className="animate-spin" />
                                                 ) : item.id === session?.session?.id ? (
-                                                    t("SIGN_OUT")
+                                                    t`Sign Out`
                                                 ) : (
-                                                    t("TERMINATE")
+                                                    t`Terminate`
                                                 )}
                                             </Button>
                                         </div>
@@ -152,27 +152,27 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2 border-y py-4">
                         <div className="flex flex-col gap-2">
-                            <p className="text-sm">{t("PASSKEYS")}</p>
+                            <p className="text-sm">{t`Passkeys`}</p>
                             <div className="flex flex-wrap gap-2">
                                 <AddPasskey />
                                 <ListPasskeys />
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <p className="text-sm">{t("TWO_FACTOR")}</p>
+                            <p className="text-sm">{t`Two Factor`}</p>
                             <div className="flex gap-2">
                                 {!!session?.user.twoFactorEnabled && (
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <Button variant="outline" className="gap-2">
                                                 <QrCode size={16} />
-                                                <span className="text-xs md:text-sm">{t("SCAN_QR_CODE")}</span>
+                                                <span className="text-xs md:text-sm">{t`Scan QR Code`}</span>
                                             </Button>
                                         </DialogTrigger>
                                         <DialogContent className="w-11/12 sm:max-w-[425px]">
                                             <DialogHeader>
-                                                <DialogTitle>{t("SCAN_QR_CODE")}</DialogTitle>
-                                                <DialogDescription>{t("SCAN_QR_DESC")}</DialogDescription>
+                                                <DialogTitle>{t`Scan QR Code`}</DialogTitle>
+                                                <DialogDescription>{t`Scan this QR code with your authenticator app`}</DialogDescription>
                                             </DialogHeader>
 
                                             {twoFactorVerifyURI ? (
@@ -181,7 +181,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                         <QRCode value={twoFactorVerifyURI} />
                                                     </div>
                                                     <div className="flex items-center justify-center gap-2">
-                                                        <p className="text-muted-foreground text-sm">{t("COPY_URI")}</p>
+                                                        <p className="text-muted-foreground text-sm">{t`Copy URI`}</p>
                                                         <CopyButton textToCopy={twoFactorVerifyURI} />
                                                     </div>
                                                 </>
@@ -190,7 +190,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                     <PasswordInput
                                                         value={twoFaPassword}
                                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTwoFaPassword(e.target.value)}
-                                                        placeholder={t("ENTER_PASSWORD")}
+                                                        placeholder={t`Enter Password`}
                                                     />
                                                     <Button
                                                         onClick={async () => {
@@ -211,7 +211,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                             setTwoFaPassword("");
                                                         }}
                                                     >
-                                                        {t("SHOW_QR_CODE")}
+                                                        {t`Show QR Code`}
                                                     </Button>
                                                 </div>
                                             )}
@@ -222,14 +222,16 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                     <DialogTrigger asChild>
                                         <Button variant={session?.user.twoFactorEnabled ? "destructive" : "outline"} className="gap-2">
                                             {session?.user.twoFactorEnabled ? <ShieldOff size={16} /> : <ShieldCheck size={16} />}
-                                            <span className="text-xs md:text-sm">{session?.user.twoFactorEnabled ? t("DISABLE_2FA") : t("ENABLE_2FA")}</span>
+                                            <span className="text-xs md:text-sm">{session?.user.twoFactorEnabled ? t`Disable 2FA` : t`Enable 2FA`}</span>
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="w-11/12 sm:max-w-[425px]">
                                         <DialogHeader>
-                                            <DialogTitle>{session?.user.twoFactorEnabled ? t("DISABLE_2FA") : t("ENABLE_2FA")}</DialogTitle>
+                                            <DialogTitle>{session?.user.twoFactorEnabled ? t`Disable 2FA` : t`Enable 2FA`}</DialogTitle>
                                             <DialogDescription>
-                                                {session?.user.twoFactorEnabled ? t("DISABLE_2FA_DESC") : t("ENABLE_2FA_DESC")}
+                                                {session?.user.twoFactorEnabled
+                                                    ? t`Disable two-factor authentication for your account`
+                                                    : t`Enable two-factor authentication for enhanced security`}
                                             </DialogDescription>
                                         </DialogHeader>
 
@@ -238,15 +240,15 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                 <div className="flex items-center justify-center">
                                                     <QRCode value={twoFactorVerifyURI} />
                                                 </div>
-                                                <Label htmlFor="password">{t("SCAN_QR_DESC")}</Label>
-                                                <Input value={twoFaPassword} onChange={(e) => setTwoFaPassword(e.target.value)} placeholder={t("ENTER_OTP")} />
+                                                <Label htmlFor="password">{t`Scan this QR code with your authenticator app`}</Label>
+                                                <Input value={twoFaPassword} onChange={(e) => setTwoFaPassword(e.target.value)} placeholder={t`Enter OTP`} />
                                             </div>
                                         ) : (
                                             <div className="flex flex-col gap-2">
-                                                <Label htmlFor="password">{t("PASSWORD")}</Label>
+                                                <Label htmlFor="password">{t`Password`}</Label>
                                                 <PasswordInput
                                                     id="password"
-                                                    placeholder={t("PASSWORD")}
+                                                    placeholder={t`Password`}
                                                     value={twoFaPassword}
                                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTwoFaPassword(e.target.value)}
                                                 />
@@ -315,9 +317,9 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                 {isPendingTwoFa ? (
                                                     <Loader2 size={15} className="animate-spin" />
                                                 ) : session?.user.twoFactorEnabled ? (
-                                                    t("DISABLE_2FA")
+                                                    t`Disable 2FA`
                                                 ) : (
-                                                    t("ENABLE_2FA")
+                                                    t`Enable 2FA`
                                                 )}
                                             </Button>
                                         </DialogFooter>
@@ -352,7 +354,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                             ) : (
                                 <div className="flex items-center gap-2">
                                     <LogOut size={16} />
-                                    {t("SIGN_OUT")}
+                                    {t`Sign Out`}
                                 </div>
                             )}
                         </span>

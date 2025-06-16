@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppForm } from "@/components/ui/form";
 import { PasswordInput } from "@/features/auth/components/password-input";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
 import { useRouter } from "@tanstack/react-router";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
@@ -24,8 +24,8 @@ const formSchema = baseFormSchema.refine((data) => data.password === data.confir
 });
 
 export default function ResetPasswordForm() {
-    const { t } = useTranslation();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { t } = useLingui();
+
     const [error, setError] = useState("");
     const router = useRouter();
 
@@ -38,7 +38,6 @@ export default function ResetPasswordForm() {
             onBlur: formSchema,
         },
         onSubmit: async ({ value }) => {
-            setIsSubmitting(true);
             setError("");
             const res = await authClient.resetPassword({
                 newPassword: value.password,
@@ -47,7 +46,7 @@ export default function ResetPasswordForm() {
             if (res.error) {
                 toast.error(res.error.message);
             }
-            setIsSubmitting(false);
+
             router.navigate({ to: "/login" });
         },
     });
@@ -56,8 +55,8 @@ export default function ResetPasswordForm() {
         <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
             <Card className="w-[350px]">
                 <CardHeader>
-                    <CardTitle>{t("RESET_PASSWORD")}</CardTitle>
-                    <CardDescription>{t("RESET_PASSWORD_DESC")}</CardDescription>
+                    <CardTitle>{t`Reset Password`}</CardTitle>
+                    <CardDescription>{t`Enter your new password below`}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form.AppForm>
@@ -73,11 +72,11 @@ export default function ResetPasswordForm() {
                                     name="password"
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>{t("NEW_PASSWORD")}</field.FormLabel>
+                                            <field.FormLabel>{t`New Password`}</field.FormLabel>
                                             <field.FormControl>
                                                 <PasswordInput
                                                     autoComplete="new-password"
-                                                    placeholder={t("PASSWORD")}
+                                                    placeholder={t`Password`}
                                                     value={field.state.value}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -91,11 +90,11 @@ export default function ResetPasswordForm() {
                                     name="confirmPassword"
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>{t("CONFIRM_NEW_PASSWORD")}</field.FormLabel>
+                                            <field.FormLabel>{t`Confirm New Password`}</field.FormLabel>
                                             <field.FormControl>
                                                 <PasswordInput
                                                     autoComplete="new-password"
-                                                    placeholder={t("PASSWORD")}
+                                                    placeholder={t`Password`}
                                                     value={field.state.value}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -116,7 +115,7 @@ export default function ResetPasswordForm() {
                                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
                                     <Button type="submit" className="w-full" disabled={!canSubmit}>
-                                        {isSubmitting ? t("RESETTING") : t("RESET_PASSWORD_BUTTON")}
+                                        {isSubmitting ? t`Resetting...` : t`Reset Password`}
                                     </Button>
                                 )}
                             />

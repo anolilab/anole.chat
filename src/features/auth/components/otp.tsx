@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthHelpers } from "@/features/auth/hooks/auth-hooks";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
 import { useRouter } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
@@ -16,19 +16,19 @@ const formSchema = z.object({
 });
 
 export default function OtpForm() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
+
     const { sendOtp, verifyOtp } = useAuthHelpers();
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
-    const [isValidated, setIsValidated] = useState(false);
     const router = useRouter();
 
     const userEmail = "user@example.com";
 
     const requestOTP = async () => {
         await sendOtp.mutateAsync();
-        setMessage(t("OTP_SENT"));
+        setMessage(t`OTP sent to your email`);
         setIsError(false);
         setIsOtpSent(true);
     };
@@ -46,13 +46,12 @@ export default function OtpForm() {
             });
 
             if (res.data) {
-                setMessage(t("OTP_VALIDATED"));
+                setMessage(t`OTP validated successfully`);
                 setIsError(false);
-                setIsValidated(true);
                 router.navigate({ to: "/" });
             } else {
                 setIsError(true);
-                setMessage(t("INVALID_OTP"));
+                setMessage(t`Invalid OTP`);
             }
         },
     });
@@ -61,13 +60,13 @@ export default function OtpForm() {
         <main className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
             <Card className="w-[350px]">
                 <CardHeader>
-                    <CardTitle>{t("TWO_FACTOR_AUTH")}</CardTitle>
-                    <CardDescription>{t("VERIFY_IDENTITY")}</CardDescription>
+                    <CardTitle>{t`Two-Factor Authentication`}</CardTitle>
+                    <CardDescription>{t`Verify your identity with a one-time password`}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {!isOtpSent ? (
                         <Button onClick={requestOTP} className="w-full">
-                            <Mail className="mr-2 h-4 w-4" /> {t("SEND_OTP_EMAIL")}
+                            <Mail className="mr-2 h-4 w-4" /> {t`Send OTP to Email`}
                         </Button>
                     ) : (
                         <form.AppForm>
@@ -83,13 +82,13 @@ export default function OtpForm() {
                                         name="otp"
                                         children={(field) => (
                                             <field.FormItem>
-                                                <field.FormLabel>{t("ONE_TIME_PASSWORD")}</field.FormLabel>
+                                                <field.FormLabel>{t`One-Time Password`}</field.FormLabel>
                                                 <p className="text-muted-foreground py-2 text-sm">
-                                                    {t("CHECK_EMAIL_OTP")} {userEmail}
+                                                    {t`Check your email for the OTP sent to`} {userEmail}
                                                 </p>
                                                 <field.FormControl>
                                                     <Input
-                                                        placeholder={t("ENTER_6_DIGIT")}
+                                                        placeholder={t`Enter 6-digit code`}
                                                         maxLength={6}
                                                         value={field.state.value}
                                                         onBlur={field.handleBlur}
@@ -106,7 +105,7 @@ export default function OtpForm() {
                                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                                     children={([canSubmit, isSubmitting]) => (
                                         <Button type="submit" className="w-full" disabled={form.state.values.otp.length !== 6 || !canSubmit}>
-                                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("VALIDATE_OTP")}
+                                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t`Validate OTP`}
                                         </Button>
                                     )}
                                 />

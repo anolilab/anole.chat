@@ -1,23 +1,22 @@
-import { useTranslation } from "@/lib/intl/react";
+import OtpForm from "@/features/auth/components/otp";
+import { useLingui } from "@lingui/react/macro";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import OtpForm from "../-components/otp";
 
 export const Route = createFileRoute("/(auth)/two-factor/otp")({
     component: RouteComponent,
 });
 
 function RouteComponent() {
-    const { t } = useTranslation();
-
+    const { t } = useLingui();
     return (
         <div className="flex flex-col items-center p-2 md:p-6">
             <div className="bg-elevated w-full max-w-md rounded-lg p-4 md:p-8">
                 <OtpForm />
 
                 <div className="mt-4 text-center">
-                    {t("DONT_HAVE_ACCOUNT")}{" "}
+                    {t`Don't have an account?`}{" "}
                     <Link to="/login" className="underline">
-                        {t("LOGIN")}
+                        {t`Login`}
                     </Link>
                     !
                 </div>

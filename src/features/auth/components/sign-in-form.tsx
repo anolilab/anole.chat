@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useLogin } from "@/features/auth/hooks/auth-hooks";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { Key, Loader2 } from "lucide-react";
@@ -20,7 +20,7 @@ const formSchema = z.object({
 });
 
 export default function SignInForm() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
     const { loginWithCredentials, loginWithPasskey, loginWithSocial } = useLogin();
 
     const form = useAppForm({
@@ -40,8 +40,8 @@ export default function SignInForm() {
     return (
         <Card className="w-full max-w-md">
             <CardHeader>
-                <CardTitle className="text-lg md:text-xl">{t("SIGN_IN")}</CardTitle>
-                <CardDescription className="text-xs md:text-sm">{t("SIGN_IN_DESC")}</CardDescription>
+                <CardTitle className="text-lg md:text-xl">{t`Sign In`}</CardTitle>
+                <CardDescription className="text-xs md:text-sm">{t`Enter your email below to login to your account`}</CardDescription>
             </CardHeader>
             <form.AppForm>
                 <form
@@ -57,7 +57,7 @@ export default function SignInForm() {
                                 name="email"
                                 children={(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>{t("EMAIL")}</field.FormLabel>
+                                        <field.FormLabel>{t`Email`}</field.FormLabel>
                                         <field.FormControl>
                                             <Input
                                                 type="email"
@@ -77,9 +77,9 @@ export default function SignInForm() {
                                 children={(field) => (
                                     <field.FormItem>
                                         <div className="flex items-center">
-                                            <field.FormLabel>{t("PASSWORD")}</field.FormLabel>
+                                            <field.FormLabel>{t`Password`}</field.FormLabel>
                                             <Link to="/forgot-password" className="ml-auto inline-block text-sm underline">
-                                                {t("FORGOT_YOUR_PASSWORD")}
+                                                {t`Forgot your password?`}
                                             </Link>
                                         </div>
                                         <field.FormControl>
@@ -102,7 +102,7 @@ export default function SignInForm() {
                                         <field.FormControl>
                                             <Checkbox checked={field.state.value} onCheckedChange={(checked) => field.handleChange(checked as boolean)} />
                                         </field.FormControl>
-                                        <field.FormLabel>{t("REMEMBER_ME")}</field.FormLabel>
+                                        <field.FormLabel>{t`Remember me`}</field.FormLabel>
                                     </field.FormItem>
                                 )}
                             />
@@ -111,7 +111,7 @@ export default function SignInForm() {
                                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
                                     <Button type="submit" className="w-full" disabled={!canSubmit}>
-                                        {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("LOG_IN")}
+                                        {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t`Log In`}
                                     </Button>
                                 )}
                             />
@@ -125,7 +125,7 @@ export default function SignInForm() {
                                 type="button"
                             >
                                 <Key size={16} />
-                                {t("SIGN_IN_WITH_PASSKEY")}
+                                {t`Sign in with Passkey`}
                                 {loginWithPasskey.isPending && <Loader2 size={16} className="animate-spin" />}
                             </Button>
 
@@ -159,7 +159,7 @@ export default function SignInForm() {
                                             d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                                         ></path>
                                     </svg>
-                                    {t("SIGN_IN_WITH_GOOGLE")}
+                                    {t`Sign in with Google`}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -178,7 +178,7 @@ export default function SignInForm() {
                                             d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5c.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34c-.46-1.16-1.11-1.47-1.11-1.47c-.91-.62.07-.6.07-.6c1 .07 1.53 1.03 1.53 1.03c.87 1.52 2.34 1.07 2.91.83c.09-.65.35-1.09.63-1.34c-2.22-.25-4.55-1.11-4.55-4.92c0-1.11.38-2 1.03-2.71c-.1-.25-.45-1.29.1-2.64c0 0 .84-.27 2.75 1.02c.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02c.55 1.35.2 2.39.1 2.64c.65.71 1.03 1.6 1.03 2.71c0 3.82-2.34 4.66-4.57 4.91c.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"
                                         ></path>
                                     </svg>
-                                    {t("SIGN_IN_WITH_GITHUB")}
+                                    {t`Sign in with GitHub`}
                                 </Button>
                             </div>
                         </div>
@@ -188,7 +188,7 @@ export default function SignInForm() {
             <CardFooter>
                 <div className="flex w-full justify-center border-t py-4">
                     <p className="text-center text-xs text-neutral-500">
-                        {t("POWERED_BY")}{" "}
+                        {t`Powered by`}{" "}
                         <a href="https://better-auth.com" className="underline" target="_blank" rel="noopener noreferrer">
                             <span className="dark:text-orange-200/90">better-auth.</span>
                         </a>

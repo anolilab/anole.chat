@@ -9,11 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Fingerprint, Loader2, Trash } from "lucide-react";
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useLingui } from "@lingui/react/macro";
 import { toast } from "sonner";
+import { authClient } from "@/features/auth/lib/client";
 
 export function ListPasskeys() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
+
     const { data } = authClient.useListPasskeys();
     const [isOpen, setIsOpen] = useState(false);
     const [passkeyName, setPasskeyName] = useState("");
@@ -42,26 +44,26 @@ export function ListPasskeys() {
                 <Button variant="outline" className="text-xs md:text-sm">
                     <Fingerprint className="mr-2 h-4 w-4" />
                     <span>
-                        {t("PASSKEYS")} {data?.length ? `[${data?.length}]` : ""}
+                        {t`Passkeys`} {data?.length ? `[${data?.length}]` : ""}
                     </span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="w-11/12 sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{t("PASSKEYS")}</DialogTitle>
-                    <DialogDescription>{t("LIST_PASSKEYS")}</DialogDescription>
+                    <DialogTitle>{t`Passkeys`}</DialogTitle>
+                    <DialogDescription>{t`Manage your passkeys for secure authentication`}</DialogDescription>
                 </DialogHeader>
                 {data?.length ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>{t("NAME")}</TableHead>
+                                <TableHead>{t`Name`}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {data.map((passkey) => (
                                 <TableRow key={passkey.id} className="flex items-center justify-between">
-                                    <TableCell>{passkey.name || t("NEW_PASSKEY")}</TableCell>
+                                    <TableCell>{passkey.name || t`New Passkey`}</TableCell>
                                     <TableCell className="text-right">
                                         <Button
                                             onClick={async () => {
@@ -95,15 +97,15 @@ export function ListPasskeys() {
                         </TableBody>
                     </Table>
                 ) : (
-                    <p className="text-muted-foreground text-sm">{t("NO_PASSKEYS")}</p>
+                    <p className="text-muted-foreground text-sm">{t`No passkeys found`}</p>
                 )}
                 {!data?.length && (
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="passkey-name" className="text-sm">
-                                {t("NEW_PASSKEY")}
+                                {t`New Passkey`}
                             </Label>
-                            <Input id="passkey-name" value={passkeyName} onChange={(e) => setPasskeyName(e.target.value)} placeholder={t("NEW_PASSKEY")} />
+                            <Input id="passkey-name" value={passkeyName} onChange={(e) => setPasskeyName(e.target.value)} placeholder={t`New Passkey`} />
                         </div>
                         <Button type="submit" onClick={handleAddPasskey} className="w-full">
                             {isLoading ? (
@@ -111,14 +113,14 @@ export function ListPasskeys() {
                             ) : (
                                 <>
                                     <Fingerprint className="mr-2 h-4 w-4" />
-                                    {t("CREATE_PASSKEY")}
+                                    {t`Create Passkey`}
                                 </>
                             )}
                         </Button>
                     </div>
                 )}
                 <DialogFooter>
-                    <Button onClick={() => setIsOpen(false)}>{t("CLOSE")}</Button>
+                    <Button onClick={() => setIsOpen(false)}>{t`Close`}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

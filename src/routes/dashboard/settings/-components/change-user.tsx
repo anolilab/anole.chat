@@ -8,14 +8,14 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "@tanstack/react-router";
 import { Edit, Loader2, X } from "lucide-react";
 
-import { useSession } from "@/hooks/auth-hooks";
 import { convertImageToBase64 } from "@/lib/utils";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useLingui } from "@lingui/react/macro";
 import { toast } from "sonner";
+import { useSession } from "@/features/auth/hooks/auth-hooks";
 
 export function ChangeUser() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
     const { data } = useSession();
     const [name, setName] = useState<string>();
     const router = useRouter();
@@ -39,16 +39,16 @@ export function ChangeUser() {
             <DialogTrigger asChild>
                 <Button size="sm" className="gap-2" variant="secondary">
                     <Edit size={13} />
-                    {t("EDIT_USER")}
+                    {t`Edit User`}
                 </Button>
             </DialogTrigger>
             <DialogContent className="w-11/12 sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{t("EDIT_USER")}</DialogTitle>
-                    <DialogDescription>{t("EDIT_USER_DESC")}</DialogDescription>
+                    <DialogTitle>{t`Edit User`}</DialogTitle>
+                    <DialogDescription>{t`Update your profile information`}</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-2">
-                    <Label htmlFor="name">{t("FULL_NAME")}</Label>
+                    <Label htmlFor="name">{t`Full Name`}</Label>
                     <Input
                         id="name"
                         type="name"
@@ -59,7 +59,7 @@ export function ChangeUser() {
                         }}
                     />
                     <div className="grid gap-2">
-                        <Label htmlFor="image">{t("PROFILE_IMAGE")}</Label>
+                        <Label htmlFor="image">{t`Profile Image`}</Label>
                         <div className="flex items-end gap-4">
                             {imagePreview && (
                                 <div className="relative h-16 w-16 overflow-hidden rounded-sm">
@@ -106,7 +106,7 @@ export function ChangeUser() {
                             setOpen(false);
                         }}
                     >
-                        {isLoading ? <Loader2 size={15} className="animate-spin" /> : t("UPDATE")}
+                        {isLoading ? <Loader2 size={15} className="animate-spin" /> : t`Update`}
                     </Button>
                 </DialogFooter>
             </DialogContent>

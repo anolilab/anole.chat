@@ -3,18 +3,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslation } from "@/lib/intl/react";
+import { InvitationError } from "@/features/auth/components/invitation-error";
+import { authClient } from "@/features/auth/lib/client";
+import { useLingui } from "@lingui/react/macro";
 import { useRouter, createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { InvitationError } from "../../-components/invitation-error";
 
 export const Route = createFileRoute("/(auth)/accept-invitation/$invitationId/")({
     component: RouteComponent,
 });
 
 function RouteComponent() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
+
     const params = Route.useParams();
     const router = useRouter();
     const [invitationStatus, setInvitationStatus] = useState<"pending" | "accepted" | "rejected">("pending");
@@ -85,17 +87,17 @@ function RouteComponent() {
             {invitation ? (
                 <Card className="w-full max-w-md">
                     <CardHeader>
-                        <CardTitle>{t("ORG_INVITATION")}</CardTitle>
-                        <CardDescription>{t("ORG_INVITATION_DESC")}</CardDescription>
+                        <CardTitle>{t`Organization Invitation`}</CardTitle>
+                        <CardDescription>{t`You have been invited to join an organization`}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {invitationStatus === "pending" && (
                             <div className="space-y-4">
                                 <p>
-                                    <strong>{invitation?.inviterEmail}</strong> {t("INVITED_BY")} <strong>{invitation?.organizationName}</strong>.
+                                    <strong>{invitation?.inviterEmail}</strong> {t`invited you to join`} <strong>{invitation?.organizationName}</strong>.
                                 </p>
                                 <p>
-                                    {t("INVITATION_SENT_TO")} <strong>{invitation?.email}</strong>.
+                                    {t`Invitation sent to`} <strong>{invitation?.email}</strong>.
                                 </p>
                             </div>
                         )}
@@ -105,9 +107,9 @@ function RouteComponent() {
                                     <CheckIcon className="h-8 w-8 text-green-600" />
                                 </div>
                                 <h2 className="text-center text-2xl font-bold">
-                                    {t("WELCOME_TO")} {invitation?.organizationName}!
+                                    {t`Welcome to`} {invitation?.organizationName}!
                                 </h2>
-                                <p className="text-center">{t("JOIN_SUCCESS")}</p>
+                                <p className="text-center">{t`You have successfully joined the organization`}</p>
                             </div>
                         )}
                         {invitationStatus === "rejected" && (
@@ -115,9 +117,9 @@ function RouteComponent() {
                                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                                     <XIcon className="h-8 w-8 text-red-600" />
                                 </div>
-                                <h2 className="text-center text-2xl font-bold">{t("INVITATION_DECLINED")}</h2>
+                                <h2 className="text-center text-2xl font-bold">{t`Invitation Declined`}</h2>
                                 <p className="text-center">
-                                    {t("DECLINED_MESSAGE")} {invitation?.organizationName}.
+                                    {t`You have declined the invitation to join`} {invitation?.organizationName}.
                                 </p>
                             </div>
                         )}
@@ -125,9 +127,9 @@ function RouteComponent() {
                     {invitationStatus === "pending" && (
                         <CardFooter className="flex justify-between">
                             <Button variant="outline" onClick={handleReject}>
-                                {t("DECLINE")}
+                                {t`Decline`}
                             </Button>
-                            <Button onClick={handleAccept}>{t("ACCEPT_INVITATION")}</Button>
+                            <Button onClick={handleAccept}>{t`Accept Invitation`}</Button>
                         </CardFooter>
                     )}
                 </Card>

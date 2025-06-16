@@ -8,10 +8,8 @@ import type { QueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { seo } from "@/lib/seo";
 
-import i18n from "@/lib/intl/i18n";
 import { ThemeProvider } from "next-themes";
 import React from "react";
-import { I18nextProvider } from "react-i18next";
 import type { ConvexReactClient } from "convex/react";
 
 interface MyRouterContext {
@@ -63,14 +61,14 @@ const RootDocument = () => {
             </head>
             <body suppressHydrationWarning>
                 <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                    <I18nextProvider i18n={i18n} defaultNS={"translation"}>
                         <Outlet />
                         <Toaster />
-                        <TanStackRouterDevtools position="top-right" />
                         <Scripts />
-                    </I18nextProvider>
                 </ThemeProvider>
-                <ReactScan />
+                {import.meta.env.DEBUG && <>
+                    <TanStackRouterDevtools position="top-right" />
+                    <ReactScan />
+                </>}
             </body>
         </html>
     );

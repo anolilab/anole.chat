@@ -1,13 +1,45 @@
-import i18next from "./i18n";
+import { getHeaders, getWebRequest, setHeader } from "@tanstack/react-start/server";
+import { parse, serialize } from "cookie-es";
 
-export async function getI18n(lng: string) {
-    // TODO: check if lng is supported
-    if (lng && i18next.resolvedLanguage !== lng) {
-        await i18next.changeLanguage(lng);
+import { defaultLocale, dynamicActivate, isLocaleValid } from "./client";
+
+function getLocaleFromRequest() {
+    const request = getWebRequest();
+    const headers = getHeaders();
+    const cookie = parse(headers.cookie ?? "");
+
+    if (request) {
+        const url = new URL(request.url);
+        const queryLocale = url.searchParams.get("locale") ?? "";
+
+        if (isLocaleValid(queryLocale)) {
+            setHeader(
+                "Set-Cookie",
+                serialize("locale", queryLocale, {
+                    maxAge: 30 * 24 * 60 * 60,
+                    path: "/",
+                }),
+            );
+
+            return queryLocale;
+        }
     }
 
-    return {
-        t: i18next.getFixedT(lng),
-        i18n: i18next,
-    };
+    if (cookie.locale && isLocaleValid(cookie.locale)) {
+        return cookie.locale;
+    }
+
+    setHeader(
+        "Set-Cookie",
+        serialize("locale", defaultLocale, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: "/",
+        }),
+    );
+
+    return defaultLocale;
+}
+
+export async function setupLocaleFromRequest() {
+    await dynamicActivate(getLocaleFromRequest());
 }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -16,7 +16,8 @@ const formSchema = z.object({
 });
 
 export default function TwoFactorForm() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
+
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
 
@@ -37,7 +38,7 @@ export default function TwoFactorForm() {
                         setSuccess(true);
                         setError("");
                     } else {
-                        setError(t("INVALID_OTP"));
+                        setError(t`Invalid OTP`);
                     }
                 });
         },
@@ -47,8 +48,8 @@ export default function TwoFactorForm() {
         <main className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
             <Card className="w-[350px]">
                 <CardHeader>
-                    <CardTitle>{t("TOTP_VERIFICATION")}</CardTitle>
-                    <CardDescription>{t("ENTER_TOTP")}</CardDescription>
+                    <CardTitle>{t`TOTP Verification`}</CardTitle>
+                    <CardDescription>{t`Enter your TOTP code from your authenticator app`}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {!success ? (
@@ -64,13 +65,13 @@ export default function TwoFactorForm() {
                                     name="totpCode"
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>{t("TOTP_CODE")}</field.FormLabel>
+                                            <field.FormLabel>{t`TOTP Code`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     inputMode="numeric"
                                                     pattern="\\d{6}"
                                                     maxLength={6}
-                                                    placeholder={t("ENTER_6_DIGIT_CODE")}
+                                                    placeholder={t`Enter 6-digit code`}
                                                     value={field.state.value}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -90,7 +91,7 @@ export default function TwoFactorForm() {
                                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                                     children={([canSubmit, isSubmitting]) => (
                                         <Button type="submit" className="mt-4 w-full" disabled={!canSubmit}>
-                                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("VERIFY")}
+                                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t`Verify`}
                                         </Button>
                                     )}
                                 />
@@ -99,14 +100,14 @@ export default function TwoFactorForm() {
                     ) : (
                         <div className="flex flex-col items-center justify-center space-y-2">
                             <CheckCircle2 className="h-12 w-12 text-green-500" />
-                            <p className="text-lg font-semibold">{t("VERIFICATION_SUCCESSFUL")}</p>
+                            <p className="text-lg font-semibold">{t`Verification Successful`}</p>
                         </div>
                     )}
                 </CardContent>
                 <CardFooter className="text-muted-foreground gap-2 text-sm">
                     <Link to="/two-factor/otp">
                         <Button variant="link" size="sm">
-                            {t("SWITCH_EMAIL_VERIFICATION")}
+                            {t`Switch to Email Verification`}
                         </Button>
                     </Link>
                 </CardFooter>

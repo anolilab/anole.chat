@@ -21,7 +21,7 @@ import { UserMessageAttachments } from "@/components/assistant-ui/attachment";
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { useTranslation } from "react-i18next";
+import { useLingui } from "@lingui/react/macro";
 import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { agents, type AgentModel } from "@cvx/ai/lib/agents";
@@ -111,7 +111,7 @@ const ThreadWelcomeSuggestions: FC = () => {
 };
 
 const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
-    const { t } = useTranslation();
+    const { t } = useLingui();
     const { selectedModel, setSelectedModel } = useAiModelContext();
     const [inputValue, setInputValue] = useState("");
 
@@ -130,7 +130,7 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                     data-composer-input
                     rows={1}
                     autoFocus
-                    placeholder={t("WRITE_A_MESSAGE")}
+                    placeholder={t`Type your message here...`}
                     className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
                     onChange={handleInputChange}
                 />

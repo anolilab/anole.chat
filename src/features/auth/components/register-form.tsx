@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRegister } from "@/features/auth/hooks/auth-hooks";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
 import { useNavigate } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -22,10 +22,11 @@ const formSchema = baseFormSchema.refine((data) => data.password === data.confir
 });
 
 export default function RegisterCredentialsForm() {
+    const { t } = useLingui();
+
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
     const navigate = useNavigate();
-    const { t } = useTranslation();
     const registerWithCredentials = useRegister({
         onSuccess: () => {
             navigate({ to: "/" });
@@ -68,7 +69,7 @@ export default function RegisterCredentialsForm() {
                     name="name"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel>{t("NAME")}</field.FormLabel>
+                            <field.FormLabel>{t`Name`}</field.FormLabel>
                             <field.FormControl>
                                 <Input value={field.state.value} onBlur={field.handleBlur} onChange={(e) => field.handleChange(e.target.value)} />
                             </field.FormControl>
@@ -80,7 +81,7 @@ export default function RegisterCredentialsForm() {
                     name="email"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel>{t("EMAIL")}</field.FormLabel>
+                            <field.FormLabel>{t`Email`}</field.FormLabel>
                             <field.FormControl>
                                 <Input type="email" value={field.state.value} onBlur={field.handleBlur} onChange={(e) => field.handleChange(e.target.value)} />
                             </field.FormControl>
@@ -92,7 +93,7 @@ export default function RegisterCredentialsForm() {
                     name="password"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel>{t("PASSWORD")}</field.FormLabel>
+                            <field.FormLabel>{t`Password`}</field.FormLabel>
                             <div className="relative flex w-full items-center justify-end">
                                 <field.FormControl>
                                     <Input
@@ -124,7 +125,7 @@ export default function RegisterCredentialsForm() {
                     name="confirmPassword"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel>{t("CONFIRM_PASSWORD")}</field.FormLabel>
+                            <field.FormLabel>{t`Confirm Password`}</field.FormLabel>
                             <div className="relative flex w-full items-center justify-end">
                                 <field.FormControl>
                                     <Input
@@ -156,7 +157,7 @@ export default function RegisterCredentialsForm() {
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isSubmitting]) => (
                         <Button type="submit" disabled={!canSubmit} className="mt-3 h-12">
-                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("CREATE_ACCOUNT")}
+                            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t`Create Account`}
                         </Button>
                     )}
                 />

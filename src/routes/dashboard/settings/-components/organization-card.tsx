@@ -16,12 +16,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import type { AuthClient } from "@/lib/auth/client";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
+import { authClient } from "@/features/auth/lib/client";
 
 type ActiveOrganization = Awaited<ReturnType<typeof authClient.organization.getFullOrganization>>;
 
 export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session"] | null; activeOrganization: ActiveOrganization | null }) {
-    const { t } = useTranslation();
+    const { t } = useLingui();
     const { data: organizations } = authClient.useListOrganizations();
 
     const optimisticOrg = props.activeOrganization;
@@ -42,13 +43,13 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
         <div className="flex w-full flex-1 p-4">
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>{t("ORGANIZATION")}</CardTitle>
+                    <CardTitle>{t`Organization`}</CardTitle>
                     <div className="flex justify-between">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <div className="flex cursor-pointer items-center gap-1">
                                     <p className="text-sm">
-                                        <span className="font-bold"></span> {optimisticOrg?.name || t("PERSONAL")}
+                                        <span className="font-bold"></span> {optimisticOrg?.name || t`Personal`}
                                     </p>
 
                                     <ChevronDownIcon />
@@ -66,7 +67,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                                         window.location.reload();
                                     }}
                                 >
-                                    <p className="sm text-sm">{t("PERSONAL")}</p>
+                                    <p className="sm text-sm">{t`Personal`}</p>
                                 </DropdownMenuItem>
                                 {organizations?.map((org) => (
                                     <DropdownMenuItem
@@ -106,9 +107,9 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                             <AvatarFallback className="rounded-none">{optimisticOrg?.name?.charAt(0) || "P"}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <p>{optimisticOrg?.name || t("PERSONAL")}</p>
+                            <p>{optimisticOrg?.name || t`Personal`}</p>
                             <p className="text-muted-foreground text-xs">
-                                {optimisticOrg?.members.length || 1} {t("MEMBERS")}
+                                {optimisticOrg?.members.length || 1} {t`Members`}
                             </p>
                         </div>
                     </div>
@@ -116,7 +117,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                 <CardContent>
                     <div className="flex flex-col gap-8 md:flex-row">
                         <div className="flex flex-grow flex-col gap-2">
-                            <p className="border-b-foreground/10 border-b-2 font-medium">{t("MEMBERS")}</p>
+                            <p className="border-b-foreground/10 border-b-2 font-medium">{t`Members`}</p>
                             <div className="flex flex-col gap-2">
                                 {optimisticOrg?.members.map((member: any) => (
                                     <div key={member.id} className="flex items-center justify-between">
@@ -128,7 +129,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                                             <div>
                                                 <p className="text-sm">{member.user.name}</p>
                                                 <p className="text-muted-foreground text-xs">
-                                                    {member.role === "owner" ? t("OWNER") : member.role === "member" ? t("MEMBER") : t("ADMIN")}
+                                                    {member.role === "owner" ? t`Owner` : member.role === "member" ? t`Member` : t`Admin`}
                                                 </p>
                                             </div>
                                         </div>
@@ -142,7 +143,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                                                     });
                                                 }}
                                             >
-                                                {currentMember?.id === member.id ? t("LEAVE") : t("REMOVE")}
+                                                {currentMember?.id === member.id ? t`Leave` : t`Remove`}
                                             </Button>
                                         )}
                                     </div>
@@ -156,7 +157,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                                             </Avatar>
                                             <div>
                                                 <p className="text-sm">{session?.user.name}</p>
-                                                <p className="text-muted-foreground text-xs">{t("OWNER")}</p>
+                                                <p className="text-muted-foreground text-xs">{t`Owner`}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -164,7 +165,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                             </div>
                         </div>
                         <div className="flex flex-grow flex-col gap-2">
-                            <p className="border-b-foreground/10 border-b-2 font-medium">{t("INVITES")}</p>
+                            <p className="border-b-foreground/10 border-b-2 font-medium">{t`Invites`}</p>
                             <div className="flex flex-col gap-2">
                                 <AnimatePresence>
                                     {optimisticOrg?.invitations
@@ -182,7 +183,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                                                 <div>
                                                     <p className="text-sm">{invitation.email}</p>
                                                     <p className="text-muted-foreground text-xs">
-                                                        {invitation.role === "owner" ? t("OWNER") : invitation.role === "member" ? t("MEMBER") : t("ADMIN")}
+                                                        {invitation.role === "owner" ? t`Owner` : invitation.role === "member" ? t`Member` : t`Admin`}
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
@@ -211,7 +212,7 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                                                             );
                                                         }}
                                                     >
-                                                        {isRevoking.includes(invitation.id) ? <Loader2 className="animate-spin" size={16} /> : t("REVOKE")}
+                                                        {isRevoking.includes(invitation.id) ? <Loader2 className="animate-spin" size={16} /> : t`Revoke`}
                                                     </Button>
                                                     <div>
                                                         <CopyButton textToCopy={`${window.location.origin}/accept-invitation/${invitation.id}`} />
@@ -222,10 +223,12 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
                                 </AnimatePresence>
                                 {optimisticOrg?.invitations.length === 0 && (
                                     <motion.p className="text-muted-foreground text-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                        {t("NO_ACTIVE_INVITATIONS")}
+                                        {t`No active invitations`}
                                     </motion.p>
                                 )}
-                                {!optimisticOrg?.id && <Label className="text-muted-foreground text-xs">{t("CANT_INVITE_PERSONAL")}</Label>}
+                                {!optimisticOrg?.id && (
+                                    <Label className="text-muted-foreground text-xs">{t`Cannot invite members to personal workspace`}</Label>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -241,7 +244,6 @@ export function OrganizationCard(props: { session: AuthClient["$Infer"]["Session
 }
 
 function CreateOrganizationDialog() {
-    const { t } = useTranslation();
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
     const [loading, setLoading] = useState(false);
@@ -281,21 +283,21 @@ function CreateOrganizationDialog() {
             <DialogTrigger asChild>
                 <Button size="sm" className="w-full gap-2" variant="default">
                     <PlusIcon />
-                    <p>{t("NEW_ORGANIZATION")}</p>
+                    <p>{t`New Organization`}</p>
                 </Button>
             </DialogTrigger>
             <DialogContent className="w-11/12 sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{t("NEW_ORGANIZATION")}</DialogTitle>
-                    <DialogDescription>{t("CREATE_ORGANIZATION")}</DialogDescription>
+                    <DialogTitle>{t`New Organization`}</DialogTitle>
+                    <DialogDescription>{t`Create a new organization to collaborate with your team`}</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                        <Label>{t("ORGANIZATION_NAME")}</Label>
-                        <Input placeholder={t("NAME")} value={name} onChange={(e) => setName(e.target.value)} />
+                        <Label>{t`Organization Name`}</Label>
+                        <Input placeholder={t`Name`} value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2">
-                        <Label>{t("ORGANIZATION_SLUG")}</Label>
+                        <Label>{t`Organization Slug`}</Label>
                         <Input
                             value={slug}
                             onChange={(e) => {
@@ -306,7 +308,7 @@ function CreateOrganizationDialog() {
                         />
                     </div>
                     <div className="flex flex-col gap-2">
-                        <Label>{t("LOGO")}</Label>
+                        <Label>{t`Logo`}</Label>
                         <Input type="file" accept="image/*" onChange={handleLogoChange} />
                         {logo && (
                             <div className="mt-2">
@@ -342,7 +344,7 @@ function CreateOrganizationDialog() {
                             );
                         }}
                     >
-                        {loading ? <Loader2 className="animate-spin" size={16} /> : t("CREATE")}
+                        {loading ? <Loader2 className="animate-spin" size={16} /> : t`Create`}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -351,7 +353,6 @@ function CreateOrganizationDialog() {
 }
 
 function InviteMemberDialog() {
-    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("member");
@@ -361,25 +362,25 @@ function InviteMemberDialog() {
             <DialogTrigger asChild>
                 <Button size="sm" className="w-full gap-2" variant="secondary">
                     <MailPlus size={16} />
-                    <p>{t("INVITE_MEMBER")}</p>
+                    <p>{t`Invite Member`}</p>
                 </Button>
             </DialogTrigger>
             <DialogContent className="w-11/12 sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{t("INVITE_MEMBER")}</DialogTitle>
-                    <DialogDescription>{t("INVITE_MEMBER_DESC")}</DialogDescription>
+                    <DialogTitle>{t`Invite Member`}</DialogTitle>
+                    <DialogDescription>{t`Invite a new member to join your organization`}</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-2">
-                    <Label>{t("EMAIL")}</Label>
-                    <Input placeholder={t("EMAIL")} value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <Label>{t("ROLE")}</Label>
+                    <Label>{t`Email`}</Label>
+                    <Input placeholder={t`Email`} value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Label>{t`Role`}</Label>
                     <Select value={role} onValueChange={setRole}>
                         <SelectTrigger>
-                            <SelectValue placeholder={`${t("SELECT_USER")}`} />
+                            <SelectValue placeholder={`${t`Select User`}`} />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="admin">{t("ADMIN")}</SelectItem>
-                            <SelectItem value="member">{t("MEMBER")}</SelectItem>
+                            <SelectItem value="admin">{t`Admin`}</SelectItem>
+                            <SelectItem value="member">{t`Member`}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -405,7 +406,7 @@ function InviteMemberDialog() {
                                 });
                             }}
                         >
-                            {t("INVITE")}
+                            {t`Invite`}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

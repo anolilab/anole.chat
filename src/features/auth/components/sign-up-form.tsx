@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2, X } from "lucide-react";
 import { useState } from "react";
@@ -28,7 +28,8 @@ const formSchema = baseFormSchema.refine((data) => data.password === data.passwo
 });
 
 export function SignUpForm() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
+
     const navigate = useNavigate();
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -90,8 +91,8 @@ export function SignUpForm() {
     return (
         <Card className="z-50 max-w-md rounded-2xl">
             <CardHeader>
-                <CardTitle className="text-lg md:text-xl">{t("SIGN_UP")}</CardTitle>
-                <CardDescription className="text-xs md:text-sm">{t("SIGN_UP_DESC")}</CardDescription>
+                <CardTitle className="text-lg md:text-xl">{t`Sign Up`}</CardTitle>
+                <CardDescription className="text-xs md:text-sm">{t`Create an account to get started`}</CardDescription>
             </CardHeader>
             <form.AppForm>
                 <form
@@ -109,7 +110,7 @@ export function SignUpForm() {
                                     validators={{ onChange: baseFormSchema.shape.firstName }}
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>{t("FIRST_NAME")}</field.FormLabel>
+                                            <field.FormLabel>{t`First Name`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     placeholder="Max"

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthHelpers } from "@/features/auth/hooks/auth-hooks";
-import { useTranslation } from "@/lib/intl/react";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
@@ -17,9 +17,8 @@ const formSchema = z.object({
 });
 
 export default function ForgotPasswordForm() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
     const { forgotPassword } = useAuthHelpers();
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [error, setError] = useState("");
 
@@ -31,15 +30,11 @@ export default function ForgotPasswordForm() {
             onBlur: formSchema,
         },
         onSubmit: async ({ value }) => {
-            setIsSubmitting(true);
             setError("");
             try {
                 await forgotPassword.mutateAsync(value);
-                setIsSubmitted(true);
             } catch (err) {
                 setError("An error occurred. Please try again.");
-            } finally {
-                setIsSubmitting(false);
             }
         },
     });
@@ -49,18 +44,18 @@ export default function ForgotPasswordForm() {
             <main className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
                 <Card className="w-[350px]">
                     <CardHeader>
-                        <CardTitle>{t("CHECK_EMAIL")}</CardTitle>
-                        <CardDescription>{t("PASSWORD_RESET_LINK_SENT")}</CardDescription>
+                        <CardTitle>{t`Check Email`}</CardTitle>
+                        <CardDescription>{t`Password reset link sent`}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Alert>
                             <CheckCircle2 className="h-4 w-4" />
-                            <AlertDescription>{t("CHECK_SPAM")}</AlertDescription>
+                            <AlertDescription>{t`Check your spam folder if you don't see the email`}</AlertDescription>
                         </Alert>
                     </CardContent>
                     <CardFooter>
                         <Button variant="outline" className="w-full" onClick={() => setIsSubmitted(false)}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> {t("BACK_TO_RESET")}
+                            <ArrowLeft className="mr-2 h-4 w-4" /> {t`Back to Reset`}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -72,8 +67,8 @@ export default function ForgotPasswordForm() {
         <main className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
             <Card className="w-[350px]">
                 <CardHeader>
-                    <CardTitle>{t("FORGOT_PASSWORD")}</CardTitle>
-                    <CardDescription>{t("FORGOT_PASSWORD_DESC")}</CardDescription>
+                    <CardTitle>{t`Forgot Password`}</CardTitle>
+                    <CardDescription>{t`Enter your email to receive a password reset link`}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form.AppForm>
@@ -89,11 +84,11 @@ export default function ForgotPasswordForm() {
                                     name="email"
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>{t("EMAIL")}</field.FormLabel>
+                                            <field.FormLabel>{t`Email`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     type="email"
-                                                    placeholder={t("ENTER_EMAIL")}
+                                                    placeholder={t`Enter your email`}
                                                     value={field.state.value}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -116,7 +111,7 @@ export default function ForgotPasswordForm() {
                                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
                                     <Button type="submit" className="w-full" disabled={!canSubmit}>
-                                        {isSubmitting ? t("SENDING") : t("SEND_RESET_LINK")}
+                                        {isSubmitting ? t`Sending...` : t`Send Reset Link`}
                                     </Button>
                                 )}
                             />
@@ -126,7 +121,7 @@ export default function ForgotPasswordForm() {
                 <CardFooter className="flex justify-center">
                     <Link to="/login">
                         <Button variant="link" className="px-0">
-                            {t("BACK_TO_SIGN_IN")}
+                            {t`Back to Sign In`}
                         </Button>
                     </Link>
                 </CardFooter>

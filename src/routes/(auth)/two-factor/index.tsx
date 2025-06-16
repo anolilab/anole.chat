@@ -1,13 +1,13 @@
-import { useTranslation } from "@/lib/intl/react";
+import TwoFactorForm from "@/features/auth/components/two-factor";
+import { useLingui } from "@lingui/react/macro";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import TwoFactorForm from "../-components/two-factor";
 
 export const Route = createFileRoute("/(auth)/two-factor/")({
     component: RouteComponent,
 });
 
 function RouteComponent() {
-    const { t } = useTranslation();
+    const { t } = useLingui();
 
     return (
         <div className="flex flex-col items-center p-2 md:p-6">
@@ -15,9 +15,9 @@ function RouteComponent() {
                 <TwoFactorForm />
 
                 <div className="mt-4 text-center">
-                    {t("DONT_HAVE_ACCOUNT")}{" "}
+                    {t`Don't have an account?`}{" "}
                     <Link to="/login" className="underline">
-                        {t("LOGIN")}
+                        {t`Login`}
                     </Link>
                     !
                 </div>
