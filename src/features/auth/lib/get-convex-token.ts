@@ -31,7 +31,7 @@ async function getJwkDetails() {
     // The 'privateKey' field from the DB stores the *encrypted* JWK. Decrypt it.
     const decryptedJwkString = JSON.parse(
         await symmetricDecrypt({
-            key: env.VITE_BETTER_AUTH_SECRET,
+            key: env.ENCRYPTION_KEY,
             data: JSON.parse(jwkRecord.privateKey),
         }),
     );

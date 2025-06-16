@@ -1,4 +1,4 @@
-import type { Doc } from "./_generated/dataModel";
+import type { Doc } from "../_generated/dataModel";
 
 // Base User (from auth, extended in application's `user` table)
 export type BaseUser = Doc<"user">;

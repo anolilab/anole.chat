@@ -72,12 +72,12 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
     // Convex hooks
     const sessionData = useSession();
-    const createThreadMutation = useMutation(api.chat.createThread);
-    const deleteThreadMutation = useMutation(api.chat.deleteThreadWithRelationships);
+    const createThreadMutation = useMutation(api.chat.functions.createThread);
+    const deleteThreadMutation = useMutation(api.chat.functions.deleteThreadWithRelationships);
 
     // Query to get all threads for building the hierarchy
     const allThreads = useQuery(
-        api.chat.getThreads,
+        api.chat.functions.getThreads,
         sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token, paginationOpts: { numItems: 100, cursor: null } } : "skip",
     );
 

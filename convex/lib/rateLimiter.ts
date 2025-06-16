@@ -1,5 +1,5 @@
 import { RateLimiter } from "@convex-dev/rate-limiter";
-import { components } from "./_generated/api";
+import { components } from "../_generated/api";
 
 // Time constants for readability
 const SECOND = 1000;

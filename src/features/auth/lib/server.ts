@@ -39,11 +39,11 @@ const safeParseDate = (value: string | Date | null | undefined): Date | null => 
 
 export const ALGORITHM = "RS256";
 export const AUDIENCE = "convex";
-export const ISSUER = `${env.VITE_SITE_URL?.includes("localhost") ? "http" : "https"}://${env.VITE_SITE_URL}/api/auth`;
+export const ISSUER = `${env.VITE_SITE_URL?.includes("localhost") || env.VITE_SITE_URL?.includes("127.0.0.1") ? "http" : "https"}://${env.VITE_SITE_URL}/api/auth`;
 
 export const betterAuth = betterAuthBase({
     database: convexAdapter(convexClient),
-    secret: env.VITE_BETTER_AUTH_SECRET,
+    secret: env.ENCRYPTION_KEY,
     basePath: "/api/auth",
     baseURL: env.SERVER_URL,
     onAPIError: {

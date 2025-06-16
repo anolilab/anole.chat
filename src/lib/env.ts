@@ -11,6 +11,7 @@ export const env = createEnv({
         POLAR_ACCESS_TOKEN: z.string(),
         POLAR_SUCCESS_URL: z.string(),
         POLAR_WEBHOOK_SECRET: z.string(),
+        ENCRYPTION_KEY: z.string(),
     },
 
     /**
@@ -21,7 +22,6 @@ export const env = createEnv({
     client: {
         VITE_APP_TITLE: z.string().min(1).optional(),
         VITE_SITE_URL: z.string().url(),
-        VITE_BETTER_AUTH_SECRET: z.string(),
         VITE_CONVEX_URL: z.string().url(),
         VITE_CONVEX_SITE_URL: z.string().url(),
     },

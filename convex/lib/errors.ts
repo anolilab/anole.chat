@@ -1,5 +1,10 @@
 import { ConvexError } from "convex/values";
 
+export const ERRORS = {
+    ENVS_NOT_INITIALIZED: "Environment variables not initialized",
+    RESEND_FROM_EMAIL_NOT_SENT: "Failed to send email via Resend",
+} as const;
+
 export class BaseError extends ConvexError<{
     code: number;
     message: string;

@@ -27,12 +27,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { api } from "@cvx/_generated/api";
 import { ShortcutsProvider, KeyCombo, KeySymbol, Keys } from "@/components/ui/keyboard-shortcuts";
@@ -81,7 +76,7 @@ export const ThreadList: FC = () => {
 
     // Search threads when there's a search query and search type is "threads"
     const threadSearchResults = useQuery(
-        api.chat.searchThreads,
+        api.chat.functions.searchThreads,
         sessionData?.data?.session?.token && searchQuery.trim() && searchType === "threads"
             ? {
                   searchQuery: searchQuery.trim(),
@@ -93,7 +88,7 @@ export const ThreadList: FC = () => {
 
     // Search messages when there's a search query and search type is "messages"
     const messageSearchResults = useQuery(
-        api.chat.searchMessages,
+        api.chat.functions.searchMessages,
         sessionData?.data?.session?.token && searchQuery.trim() && searchType === "messages"
             ? {
                   searchQuery: searchQuery.trim(),
@@ -273,28 +268,34 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
     // Get all threads to build the hierarchy
     const threadsData = useQuery(
-        api.chat.getThreads,
+        api.chat.functions.getThreads,
         sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token, paginationOpts: { numItems: 100, cursor: null } } : "skip",
     );
 
     // Get thread relationships to build hierarchy
     const threadRelationships = useQuery(
-        api.chat.getAllThreadRelationships,
+        api.chat.functions.getAllThreadRelationships,
         sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip",
     );
 
     // Get pinned threads
-    const pinnedThreads = useQuery(api.chat.getPinnedThreads, sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip");
+    const pinnedThreads = useQuery(
+        api.chat.functions.getPinnedThreads,
+        sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip",
+    );
 
     // Get thread orders
-    const threadOrders = useQuery(api.chat.getThreadOrders, sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip");
+    const threadOrders = useQuery(
+        api.chat.functions.getThreadOrders,
+        sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip",
+    );
 
     // Pin/unpin mutations
-    const pinThreadMutation = useMutation(api.chat.pinThread);
-    const unpinThreadMutation = useMutation(api.chat.unpinThread);
+    const pinThreadMutation = useMutation(api.chat.functions.pinThread);
+    const unpinThreadMutation = useMutation(api.chat.functions.unpinThread);
 
     // Thread order mutation
-    const updateThreadOrderMutation = useMutation(api.chat.updateThreadOrder);
+    const updateThreadOrderMutation = useMutation(api.chat.functions.updateThreadOrder);
 
     // Build the hierarchical structure
     const threadHierarchy = useMemo(() => {
@@ -392,18 +393,14 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             }));
 
             try {
-                const data = await convex.query(api.chat.getFullThreadForExport, {
+                const data = await convex.query(api.chat.functions.getFullThreadForExport, {
                     threadId: node.threadId,
                     sessionToken: sessionData.data.session.token,
                     model: node.model,
                 });
 
                 if (data && data.thread && data.messages) {
-                    handleDownload(
-                        data.thread,
-                        data.messages as (Doc<"messages"> | Doc<"toolMessages">)[],
-                        format,
-                    );
+                    handleDownload(data.thread, data.messages as (Doc<"messages"> | Doc<"toolMessages">)[], format);
                 }
             } catch (error) {
                 console.error("Failed to download thread:", error);
@@ -877,26 +874,16 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                                 onClick={(e) => e.stopPropagation()}
                                                 disabled={isDownloading}
                                             >
-                                                {isDownloading ? (
-                                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                                ) : (
-                                                    <DownloadIcon className="h-3 w-3" />
-                                                )}
+                                                {isDownloading ? <Loader2 className="h-3 w-3 animate-spin" /> : <DownloadIcon className="h-3 w-3" />}
                                             </Button>
                                         </DropdownMenuTrigger>
                                     </TooltipTrigger>
                                     <TooltipContent>{isDownloading ? "Downloading..." : "Download thread"}</TooltipContent>
                                 </Tooltip>
                                 <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "json")}>
-                                        JSON
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "txt")}>
-                                        TXT
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "pdf")}>
-                                        PDF
-                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "json")}>JSON</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "txt")}>TXT</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDownloadThread(node, "pdf")}>PDF</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
 

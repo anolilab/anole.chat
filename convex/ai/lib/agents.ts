@@ -4,8 +4,8 @@ import type { LanguageModelRequestMetadata, LanguageModelResponseMetadata, ToolS
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
-import { components } from "./_generated/api";
-import { ActionCtx } from "./_generated/server";
+import { components } from "../../_generated/api";
+import { ActionCtx } from "../../_generated/server";
 
 type RawRequestResponseHandler = (
     ctx: ActionCtx,

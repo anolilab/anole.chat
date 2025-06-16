@@ -24,7 +24,7 @@ import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button
 import { useTranslation } from "react-i18next";
 import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { agents, type AgentModel } from "@cvx/agents";
+import { agents, type AgentModel } from "@cvx/ai/lib/agents";
 import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
 
 export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {

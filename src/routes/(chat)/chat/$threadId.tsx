@@ -1,7 +1,7 @@
 import { redirect, createFileRoute } from "@tanstack/react-router";
 import { api } from "@cvx/_generated/api";
 import { getServerSession } from "@/features/auth/lib/client";
-import { DEFAULT_MODEL } from "@cvx/agents";
+import { DEFAULT_MODEL } from "@cvx/ai/lib/agents";
 import { Assistant } from "@/features/chat/components/assistant";
 
 const ChatPage = () => {
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
         const session = await getServerSession();
 
         if (params.threadId === "new") {
-            const newThreadId = await context.convex.mutation(api.chat.createThread, {
+            const newThreadId = await context.convex.mutation(api.chat.functions.createThread, {
                 model: DEFAULT_MODEL,
                 sessionToken: session?.session?.token as string,
             });
@@ -36,7 +36,7 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
         // Validate that the threadId exists in the database
         if (session?.session?.token) {
             try {
-                const threadExists = await context.convex.query(api.chat.validateThreadExists, {
+                const threadExists = await context.convex.query(api.chat.functions.validateThreadExists, {
                     threadId: params.threadId,
                     sessionToken: session.session.token,
                 });

@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { render } from "@react-email/render";
 import { Body, Container, Head, Hr, Html, Link, Img, Preview, Text } from "@react-email/components";
-import { sendEmail } from "@cvx/email";
-import { SITE_URL } from "@cvx/env";
+import { sendEmail } from "../functions";
+import { SITE_URL } from "../../env";
 
 type SubscriptionEmailOptions = {
     email: string;

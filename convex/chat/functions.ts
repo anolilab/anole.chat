@@ -1,11 +1,12 @@
 import { ConvexError, v } from "convex/values";
-import { components, internal } from "./_generated/api";
-import { internalAction, internalMutation, mutation, action, query, httpAction, internalQuery } from "./_generated/server";
-import { AgentModel, getAgent } from "./agents";
+import { components, internal } from "../_generated/api";
+import { internalAction, internalMutation, mutation, action, query, httpAction, internalQuery } from "../_generated/server";
+import { AgentModel, getAgent } from "../ai/lib/agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
-import { Id } from "./_generated/dataModel";
+import { Id } from "../_generated/dataModel";
 import z from "zod";
 import type { MessageDoc, ThreadDoc } from "@convex-dev/agent";
+import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
 
 export const createThread = mutation({
     args: {
@@ -39,7 +40,7 @@ export const createThread = mutation({
         // Once this is added upstream, we can pass parentThreadIds directly in createOptions above
         // Create thread relationship if this is a branch
         if (args.parentThreadId) {
-            await ctx.runMutation(internal.chat.createThreadRelationship, {
+            await ctx.runMutation(internal.chat.functions.createThreadRelationship, {
                 threadId,
                 parentThreadId: args.parentThreadId,
                 branchPoint: args.branchPoint || 0,
@@ -70,7 +71,7 @@ export const listMessages = query({
         const agent = getAgent(model as AgentModel);
 
         // Check if this thread has a parent (is a branch)
-        const threadRelationship = await ctx.runQuery(internal.chat.getThreadRelationship, {
+        const threadRelationship = await ctx.runQuery(internal.chat.functions.getThreadRelationship, {
             threadId,
         });
 
@@ -195,7 +196,7 @@ export const deleteThread = mutation({
         }
 
         // Clean up relationships first
-        await ctx.runMutation(internal.chat.deleteThreadRelationship, {
+        await ctx.runMutation(internal.chat.functions.deleteThreadRelationship, {
             threadId,
         });
 
@@ -225,13 +226,13 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         ? await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> })
         : await agent.createThread(ctx, { userId: sessionData.userId as Id<"user"> });
 
-    await ctx.scheduler.runAfter(0, internal.chat.createTitleChat, {
+    await ctx.scheduler.runAfter(0, internal.chat.functions.createTitleChat, {
         threadId: thread.threadId,
         sessionToken,
         prompt,
     });
 
-    await ctx.scheduler.runAfter(0, internal.chat.createSummarizeChat, {
+    await ctx.scheduler.runAfter(0, internal.chat.functions.createSummarizeChat, {
         threadId: thread.threadId,
         sessionToken,
     });
@@ -383,7 +384,7 @@ export const deleteThreadWithRelationships = mutation({
         }
 
         // Delete the thread relationship
-        await ctx.runMutation(internal.chat.deleteThreadRelationship, {
+        await ctx.runMutation(internal.chat.functions.deleteThreadRelationship, {
             threadId,
         });
 
@@ -850,9 +851,6 @@ export const improvePrompt = internalAction({
             throw new ConvexError("Prompt cannot be empty");
         }
 
-        // Import rate limiter functions
-        const { checkRateLimit, getRateLimitName } = await import("./rateLimiter");
-
         // Check rate limits
         const rateLimitName = getRateLimitName("promptImprovement", isAuthenticated);
         const rateLimitResult = await checkRateLimit(ctx, rateLimitName, {
@@ -941,7 +939,7 @@ export const improvePromptHttpAction = httpAction(async (ctx, request) => {
     }
 
     try {
-        const result = await ctx.runAction(internal.chat.improvePrompt, {
+        const result = await ctx.runAction(internal.chat.functions.improvePrompt, {
             prompt,
             sessionToken,
             threadId,
@@ -991,7 +989,7 @@ export const getFullThreadForExport = query({
         const agent = getAgent(model as AgentModel);
 
         // This logic is copied from listMessages to handle branches correctly.
-        const threadRelationship = await ctx.runQuery(internal.chat.getThreadRelationship, {
+        const threadRelationship = await ctx.runQuery(internal.chat.functions.getThreadRelationship, {
             threadId,
         });
 

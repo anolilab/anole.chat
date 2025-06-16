@@ -116,12 +116,16 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
               }
             : "skip";
 
-    const paginatedMessages = useThreadMessages(api.chat.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
+    const paginatedMessages = useThreadMessages(api.chat.functions.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
 
-    const convexThreads = usePaginatedQuery(api.chat.getThreads, { sessionToken: sessionData?.data?.session?.token as string }, { initialNumItems: 10 });
-    const updateThreadMutation = useAction(api.chat.updateThread);
-    const deleteThread = useMutation(api.chat.deleteThreadWithRelationships);
-    const createThreadMutation = useMutation(api.chat.createThread);
+    const convexThreads = usePaginatedQuery(
+        api.chat.functions.getThreads,
+        { sessionToken: sessionData?.data?.session?.token as string },
+        { initialNumItems: 10 },
+    );
+    const updateThreadMutation = useAction(api.chat.functions.updateThread);
+    const deleteThread = useMutation(api.chat.functions.deleteThreadWithRelationships);
+    const createThreadMutation = useMutation(api.chat.functions.createThread);
 
     useEffect(() => {
         setIsRunning(paginatedMessagesArgs === "skip" ? false : paginatedMessages.isLoading);

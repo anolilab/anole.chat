@@ -1,6 +1,6 @@
 import { httpRouter } from "convex/server";
 import { corsRouter } from "convex-helpers/server/cors";
-import { streamHttpAction, improvePromptHttpAction } from "./chat";
+import { streamHttpAction, improvePromptHttpAction } from "./chat/functions";
 
 const http = httpRouter();
 

@@ -8,20 +8,19 @@
  * @module
  */
 
-import type * as agents from "../agents.js";
+import type * as ai_lib_agents from "../ai/lib/agents.js";
 import type * as betterAuth from "../betterAuth.js";
-import type * as chat from "../chat.js";
+import type * as chat_functions from "../chat/functions.js";
 import type * as crons from "../crons.js";
-import type * as email_index from "../email/index.js";
+import type * as email_functions from "../email/functions.js";
 import type * as email_templates_subscription_email from "../email/templates/subscription_email.js";
 import type * as env from "../env.js";
-import type * as errors from "../errors.js";
 import type * as http from "../http.js";
-import type * as rateLimiter from "../rateLimiter.js";
-import type * as types from "../types.js";
-import type * as user from "../user.js";
-import type * as utils_auth from "../utils/auth.js";
-import type * as utils_errors from "../utils/errors.js";
+import type * as lib_errors from "../lib/errors.js";
+import type * as lib_rateLimiter from "../lib/rateLimiter.js";
+import type * as lib_systemFields from "../lib/systemFields.js";
+import type * as lib_types from "../lib/types.js";
+import type * as user_functions from "../user/functions.js";
 
 import type {
   ApiFromModules,
@@ -38,20 +37,19 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  agents: typeof agents;
+  "ai/lib/agents": typeof ai_lib_agents;
   betterAuth: typeof betterAuth;
-  chat: typeof chat;
+  "chat/functions": typeof chat_functions;
   crons: typeof crons;
-  "email/index": typeof email_index;
+  "email/functions": typeof email_functions;
   "email/templates/subscription_email": typeof email_templates_subscription_email;
   env: typeof env;
-  errors: typeof errors;
   http: typeof http;
-  rateLimiter: typeof rateLimiter;
-  types: typeof types;
-  user: typeof user;
-  "utils/auth": typeof utils_auth;
-  "utils/errors": typeof utils_errors;
+  "lib/errors": typeof lib_errors;
+  "lib/rateLimiter": typeof lib_rateLimiter;
+  "lib/systemFields": typeof lib_systemFields;
+  "lib/types": typeof lib_types;
+  "user/functions": typeof user_functions;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

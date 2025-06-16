@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@cvx/_generated/api";
-import { DEFAULT_MODEL, type AgentModel } from "@cvx/agents";
+import { DEFAULT_MODEL, type AgentModel } from "@cvx/ai/lib/agents";
 import { useSession } from "@/features/auth/hooks/auth-hooks";
 
 interface AiModelContextType {
@@ -14,10 +14,13 @@ const AiModelContext = createContext<AiModelContextType | undefined>(undefined);
 // TODO: use thread model first if provided, then user model
 export const AiModelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [selectedModel, setSelectedModelState] = useState<AgentModel>(DEFAULT_MODEL);
-    const updateSelectedModel = useMutation(api.user.updateSelectedModel);
+    const updateSelectedModel = useMutation(api.user.functions.updateSelectedModel);
     const sessionToken = useSession();
 
-    const fetchedModel = useQuery(api.user.getSelectedModel, sessionToken?.data?.session?.token ? { sessionToken: sessionToken.data.session.token } : "skip");
+    const fetchedModel = useQuery(
+        api.user.functions.getSelectedModel,
+        sessionToken?.data?.session?.token ? { sessionToken: sessionToken.data.session.token } : "skip",
+    );
 
     useEffect(() => {
         if (fetchedModel && typeof fetchedModel === "string") {

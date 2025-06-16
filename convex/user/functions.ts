@@ -1,8 +1,8 @@
 import { ConvexError, v } from "convex/values";
-import { mutation, query, internalMutation } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
-import { ROLES, type Role } from "./types";
-import { api, internal } from "./_generated/api";
+import { mutation, query, internalMutation } from "../_generated/server";
+import type { Id } from "../_generated/dataModel";
+import { ROLES, type Role } from "../lib/types";
+import { api, internal } from "../_generated/api";
 
 export const publicUserProfileValidator = v.object({
     _id: v.id("user"),
@@ -61,7 +61,7 @@ export const getPublicUserProfile = query({
             return null;
         }
 
-        const vouchStats: VouchStats = await ctx.runQuery(api.vouches.getUserVouchStats, { userId });
+        const vouchStats: VouchStats = await ctx.runQuery(api.user.functions.getUserVouchStats, { userId });
 
         return {
             _id: user._id,
