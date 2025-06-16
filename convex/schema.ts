@@ -5,6 +5,7 @@ import { userTables } from "./user/schema";
 import { subscriptionTables } from "./subscription/schema";
 import { emailTables } from "./email/schema";
 import { aiTables } from "./ai/schema";
+import { filesTables } from "./files/schema";
 
 const schema = defineSchema({
     ...authTables,
@@ -13,6 +14,7 @@ const schema = defineSchema({
     ...subscriptionTables,
     ...emailTables,
     ...aiTables,
+    ...filesTables,
 });
 
 export default schema;

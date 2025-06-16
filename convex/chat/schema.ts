@@ -16,9 +16,9 @@ export const chatTables = {
 
     // Pinned threads for users
     pinnedThreads: defineTable({
-        userId: v.id("user"), // The user who pinned the thread
-        threadId: v.string(), // The thread that was pinned
-        pinnedAt: v.number(), // When the thread was pinned
+        userId: v.id("user"),
+        threadId: v.string(),
+        pinnedAt: v.number(),
     })
         .index("by_user", ["userId"])
         .index("by_thread", ["threadId"])
@@ -26,10 +26,10 @@ export const chatTables = {
 
     // Thread ordering for users
     threadOrder: defineTable({
-        userId: v.id("user"), // The user who set the order
-        threadId: v.string(), // The thread being ordered
-        order: v.number(), // The order position (lower numbers appear first)
-        updatedAt: v.number(), // When the order was last updated
+        userId: v.id("user"),
+        threadId: v.string(),
+        order: v.number(),
+        updatedAt: v.number(),
     })
         .index("by_user", ["userId"])
         .index("by_user_and_order", ["userId", "order"])

@@ -16,15 +16,16 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "run-p env:generate-encryption dev:convex dev:tanstack",
+        "dev": "run-p dev:convex dev:r2 dev:tanstack",
         "dev:convex": "convex dev --local --typecheck=disable",
         "dev:tanstack": "vite dev --port 5173",
+        "dev:r2": "node scripts/cloudflare-r2-dev-server.js --port=4902",
         "email:dev": "email dev --dir src/components/emails --port 5555",
         "env:clear": "npx convex env unset",
         "env:generate-encryption": "node scripts/generate-encryption-key.js",
         "env:list": "npx convex env list",
-        "env:sync": "node scripts/sync-env-to-convex.js",
-        "env:sync:local": "node scripts/sync-env-to-convex.js --env=development",
+        "sync:env": "node scripts/sync-env-to-convex.js",
+        "sync:env:local": "node scripts/sync-env-to-convex.js --env=development",
         "lint:prettier:fix": "prettier --write .",
         "serve": "vite preview",
         "sort-package-json": "sort-package-json ./package.json",
@@ -45,6 +46,7 @@
         "@convex-dev/agent": "^0.1.8",
         "@convex-dev/migrations": "^0.2.9",
         "@convex-dev/persistent-text-streaming": "^0.2.3",
+        "@convex-dev/r2": "^0.6.2",
         "@convex-dev/rate-limiter": "^0.2.7",
         "@convex-dev/react-query": "0.0.0-alpha.8",
         "@convex-dev/workflow": "^0.2.4",
@@ -166,7 +168,8 @@
         "vite": "^6.3.5",
         "vite-tsconfig-paths": "^5.1.4",
         "vitest": "^3.2.3",
-        "web-vitals": "^5.0.3"
+        "web-vitals": "^5.0.3",
+        "wrangler": "^4.20.0"
     },
     "packageManager": "pnpm@10.12.1"
 }

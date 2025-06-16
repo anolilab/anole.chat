@@ -12,7 +12,6 @@ import {
     type FeedbackAdapter,
 } from "@assistant-ui/react";
 import type { ReactNode } from "react";
-import type { AgentModel } from "convex/agents";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { api } from "@cvx/_generated/api";
@@ -20,9 +19,11 @@ import { useThreadMessages } from "@convex-dev/agent/react";
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
 import ConvexAttachmentAdapter from "@/features/chat/components/adapter/convex-attachment-adapter";
+import R2AttachmentAdapter from "@/features/chat/components/adapter/r2-attachment-adapter";
 import { useMutation, usePaginatedQuery, useAction } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadContext } from "@/features/chat/components/thread-context";
+import type { AgentModel } from "@cvx/ai/lib/agents";
 
 // Define our message format that matches Convex agent messages
 export type ConvexMessage = {
@@ -32,10 +33,16 @@ export type ConvexMessage = {
         role: "user" | "assistant" | "system";
         content:
             | string
-            | Array<{
-                  type: "text";
-                  text: string;
-              }>;
+            | Array<
+                  | {
+                        type: "text";
+                        text: string;
+                    }
+                  | {
+                        type: "image_url";
+                        image_url: { url: string };
+                    }
+              >;
     };
 };
 
@@ -127,6 +134,10 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const deleteThread = useMutation(api.chat.functions.deleteThreadWithRelationships);
     const createThreadMutation = useMutation(api.chat.functions.createThread);
 
+    // Create a generic convex action runner for the attachment adapter
+    const uploadFileAction = useAction(api.chat.functions.uploadFileForChat);
+    const deleteFileAction = useMutation(api.chat.functions.deleteUploadedFile);
+
     useEffect(() => {
         setIsRunning(paginatedMessagesArgs === "skip" ? false : paginatedMessages.isLoading);
     }, [paginatedMessages.isLoading]);
@@ -140,7 +151,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     }, [paginatedMessages.isLoading, currentThreadId, setThreads]);
 
     const streamMessage = useCallback(
-        async (input: string, targetThreadId?: string) => {
+        async (input: string, targetThreadId?: string, fileIds: string[] = []) => {
             if (!sessionData?.data?.session?.token) {
                 throw new Error("No session token available");
             }
@@ -176,6 +187,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                         threadId: useThreadId,
                         model: model,
                         sessionToken: sessionData.data.session.token,
+                        fileIds: fileIds,
                     }),
                     signal: abortController.signal,
                 });
@@ -246,11 +258,32 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     // Handler for new messages
     const handleNewMessage = useCallback(
         async (message: AppendMessage) => {
-            if (message.content[0]?.type !== "text") {
-                throw new Error("Only text messages are supported");
+            // Extract text content and file IDs from attachments
+            let textContent = "";
+            const fileIds: string[] = [];
+
+            for (const content of message.content) {
+                if (content.type === "text") {
+                    textContent += content.text;
+                } else if (content.type === "image" && content.image) {
+                    // Handle image attachments - extract fileId from metadata if available
+                    const attachment = message.attachments?.find((att) => att.content?.some((c) => c.type === "image" && c.image === content.image));
+                    if (attachment && "metadata" in attachment && attachment.metadata?.fileId) {
+                        fileIds.push(attachment.metadata.fileId);
+                    }
+                }
             }
 
-            const input = message.content[0].text;
+            // Also check for file attachments directly
+            if (message.attachments) {
+                for (const attachment of message.attachments) {
+                    if (attachment && "metadata" in attachment && attachment.metadata?.fileId && !fileIds.includes(attachment.metadata.fileId)) {
+                        fileIds.push(attachment.metadata.fileId);
+                    }
+                }
+            }
+
+            const input = textContent;
 
             // Check if we need to create the thread in Convex first
             let actualThreadId = currentThreadId;
@@ -303,7 +336,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             });
 
             // Stream the assistant response
-            await streamMessage(input, actualThreadId);
+            await streamMessage(input, actualThreadId, fileIds);
         },
         [
             streamMessage,
@@ -433,7 +466,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 );
                 setCurrentThreadId(newThreadId);
 
-                navigate({ to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true });
+                navigate({ to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true, search: {} });
             },
 
             onSwitchToThread: async (switchThreadId) => {
@@ -606,6 +639,13 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             },
             adapters: {
                 attachments: new CompositeAttachmentAdapter([
+                    new R2AttachmentAdapter({
+                        sessionToken: sessionData?.data?.session?.token as string,
+                        threadId: threadId as string,
+                        model,
+                        uploadFileAction,
+                        deleteFileAction,
+                    }),
                     new ConvexAttachmentAdapter(sessionData?.data?.session?.token as string, threadId as string, model),
                 ]),
                 threadList: threadListAdapter,

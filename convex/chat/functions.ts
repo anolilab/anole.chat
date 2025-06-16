@@ -7,6 +7,12 @@ import { Id } from "../_generated/dataModel";
 import z from "zod";
 import type { MessageDoc, ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
+import { Agent, storeFile, getFile } from "@convex-dev/agent";
+import { FilePart, ImagePart } from "ai";
+import { R2 } from "@convex-dev/r2";
+
+// Initialize R2 client
+const r2 = new R2(components.r2);
 
 export const createThread = mutation({
     args: {
@@ -117,8 +123,14 @@ export const listMessages = query({
 });
 
 export const continueThread = action({
-    args: { prompt: v.string(), threadId: v.string(), model: v.string(), sessionToken: v.string() },
-    handler: async (ctx, { prompt, threadId, model, sessionToken }) => {
+    args: {
+        prompt: v.string(),
+        threadId: v.string(),
+        model: v.string(),
+        sessionToken: v.string(),
+        fileIds: v.optional(v.array(v.string())),
+    },
+    handler: async (ctx, { prompt, threadId, model, sessionToken, fileIds = [] }) => {
         const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
             sessionToken,
         });
@@ -131,7 +143,41 @@ export const continueThread = action({
 
         const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
 
-        const result = await thread.streamText({ prompt });
+        // If no files, use simple prompt
+        if (fileIds.length === 0) {
+            const result = await thread.streamText({ prompt });
+            return result.toDataStreamResponse();
+        }
+
+        // Prepare message content with files
+        const content: Array<{ type: "text"; text: string } | ImagePart | FilePart> = [];
+
+        // Add file attachments
+        for (const fileId of fileIds) {
+            try {
+                const { filePart, imagePart } = await getFile(ctx, components.agent, fileId);
+                if (imagePart) {
+                    content.push(imagePart);
+                } else if (filePart) {
+                    content.push(filePart);
+                }
+            } catch (error) {
+                console.error(`Failed to get file ${fileId}:`, error);
+                // Continue with other files
+            }
+        }
+
+        // Add text prompt
+        content.push({ type: "text", text: prompt });
+
+        const result = await thread.streamText({
+            messages: [
+                {
+                    role: "user",
+                    content,
+                },
+            ],
+        });
 
         return result.toDataStreamResponse();
     },
@@ -205,11 +251,18 @@ export const deleteThread = mutation({
 });
 
 export const streamHttpAction = httpAction(async (ctx, request) => {
-    const { threadId, prompt, model, sessionToken } = (await request.json()) as {
+    const {
+        threadId,
+        prompt,
+        model,
+        sessionToken,
+        fileIds = [],
+    } = (await request.json()) as {
         threadId?: string;
         prompt: string;
         model: string;
         sessionToken: string;
+        fileIds?: string[];
     };
 
     const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
@@ -237,7 +290,41 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         sessionToken,
     });
 
-    const result = await thread.streamText({ prompt });
+    // If no files, use simple prompt
+    if (fileIds.length === 0) {
+        const result = await thread.streamText({ prompt });
+        return result.toDataStreamResponse();
+    }
+
+    // Prepare message content with files
+    const content: Array<{ type: "text"; text: string } | ImagePart | FilePart> = [];
+
+    // Add file attachments
+    for (const fileId of fileIds) {
+        try {
+            const { filePart, imagePart } = await getFile(ctx, components.agent, fileId);
+            if (imagePart) {
+                content.push(imagePart);
+            } else if (filePart) {
+                content.push(filePart);
+            }
+        } catch (error) {
+            console.error(`Failed to get file ${fileId}:`, error);
+            // Continue with other files
+        }
+    }
+
+    // Add text prompt
+    content.push({ type: "text", text: prompt });
+
+    const result = await thread.streamText({
+        messages: [
+            {
+                role: "user",
+                content,
+            },
+        ],
+    });
 
     return result.toDataStreamResponse();
 });
@@ -1022,5 +1109,433 @@ export const getFullThreadForExport = query({
         }
 
         return { thread, messages: allMessages };
+    },
+});
+
+// Generate upload URL for R2 (to be used with the useUploadFile hook)
+export const generateUploadUrl = mutation({
+    args: {},
+    returns: v.object({
+        uploadUrl: v.string(),
+        key: v.string(),
+    }),
+    handler: async (ctx) => {
+        // For now, we'll use the agent storage and then sync to R2 later
+        // This is a placeholder - the actual R2 upload should be handled client-side
+        const key = crypto.randomUUID();
+        return {
+            uploadUrl: "", // This would be filled by the R2 component
+            key,
+        };
+    },
+});
+
+// File upload action for chat - simplified to use agent storage
+export const uploadFileForChat = action({
+    args: {
+        filename: v.string(),
+        mimeType: v.string(),
+        bytes: v.bytes(),
+        sha256: v.optional(v.string()),
+        sessionToken: v.string(),
+    },
+    returns: v.object({
+        fileId: v.string(),
+        url: v.string(),
+    }),
+    handler: async (ctx, args) => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Rate limit file uploads using chat message rate limit
+        const rateLimitResult = await checkRateLimit(ctx, getRateLimitName("chatMessage", true), {
+            key: sessionData.userId,
+            count: 1,
+        });
+
+        if (!rateLimitResult.ok) {
+            throw new ConvexError("Rate limit exceeded for file uploads");
+        }
+
+        // Create a blob from the bytes
+        const blob = new Blob([args.bytes], { type: args.mimeType });
+
+        // Store in agent for file handling (this works with the existing system)
+        const {
+            file: { fileId, url },
+        } = await storeFile(ctx, components.agent, blob, args.filename, args.sha256);
+
+        return { fileId, url };
+    },
+});
+
+// Continue thread with file attachments
+export const continueThreadWithFiles = action({
+    args: {
+        prompt: v.string(),
+        threadId: v.string(),
+        model: v.string(),
+        sessionToken: v.string(),
+        fileIds: v.optional(v.array(v.string())),
+    },
+    returns: v.any(),
+    handler: async (ctx, { prompt, threadId, model, sessionToken, fileIds = [] }): Promise<any> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const agent = getAgent(model as AgentModel);
+        const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
+
+        // Prepare message content with files
+        const content: Array<{ type: "text"; text: string } | ImagePart | FilePart> = [];
+
+        // Add file attachments
+        for (const fileId of fileIds) {
+            try {
+                const { filePart, imagePart } = await getFile(ctx, components.agent, fileId);
+                if (imagePart) {
+                    content.push(imagePart);
+                } else if (filePart) {
+                    content.push(filePart);
+                }
+            } catch (error) {
+                console.error(`Failed to get file ${fileId}:`, error);
+                // Continue with other files
+            }
+        }
+
+        // Add text prompt
+        content.push({ type: "text", text: prompt });
+
+        const result = await thread.streamText({
+            messages: [
+                {
+                    role: "user",
+                    content,
+                },
+            ],
+        });
+
+        return result.toDataStreamResponse();
+    },
+});
+
+// Submit a question about files in a new thread
+export const submitFileQuestion = action({
+    args: {
+        fileIds: v.array(v.string()),
+        question: v.string(),
+        model: v.string(),
+        sessionToken: v.string(),
+    },
+    returns: v.object({
+        threadId: v.string(),
+        response: v.string(),
+    }),
+    handler: async (ctx, args): Promise<{ threadId: string; response: string }> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const agent = getAgent(args.model as AgentModel);
+        const { thread, threadId } = await agent.createThread(ctx, { userId: sessionData.userId as Id<"user"> });
+
+        // Prepare message content with files
+        const content: Array<{ type: "text"; text: string } | ImagePart | FilePart> = [];
+
+        // Add file attachments
+        for (const fileId of args.fileIds) {
+            try {
+                const { filePart, imagePart } = await getFile(ctx, components.agent, fileId);
+                if (imagePart) {
+                    content.push(imagePart);
+                } else if (filePart) {
+                    content.push(filePart);
+                }
+            } catch (error) {
+                console.error(`Failed to get file ${fileId}:`, error);
+                // Continue with other files
+            }
+        }
+
+        // Add text question
+        content.push({ type: "text", text: args.question });
+
+        const result = await thread.generateText({
+            messages: [
+                {
+                    role: "user",
+                    content,
+                },
+            ],
+        });
+
+        return {
+            threadId,
+            response: result.text,
+        };
+    },
+});
+
+// Get files attached to a message - simplified version
+export const getMessageFiles = query({
+    args: {
+        messageId: v.string(),
+        sessionToken: v.string(),
+    },
+    returns: v.array(
+        v.object({
+            fileId: v.string(),
+            filename: v.string(),
+            mimeType: v.string(),
+            url: v.string(),
+        }),
+    ),
+    handler: async (ctx, args): Promise<Array<{ fileId: string; filename: string; mimeType: string; url: string }>> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // For now, return empty array since the agent API doesn't expose message.get directly
+        // This would need to be implemented based on your specific message storage structure
+        return [];
+    },
+});
+
+// Upload file and submit question in one action (convenience function)
+export const uploadFileAndSubmitQuestion = action({
+    args: {
+        filename: v.string(),
+        mimeType: v.string(),
+        bytes: v.bytes(),
+        question: v.string(),
+        model: v.string(),
+        sessionToken: v.string(),
+        sha256: v.optional(v.string()),
+    },
+    returns: v.object({
+        threadId: v.string(),
+        response: v.string(),
+        fileId: v.string(),
+    }),
+    handler: async (ctx, args): Promise<{ threadId: string; response: string; fileId: string }> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Upload the file first
+        const { fileId } = await ctx.runAction(internal.chat.functions.uploadFileForChatInternal, {
+            filename: args.filename,
+            mimeType: args.mimeType,
+            bytes: args.bytes,
+            sha256: args.sha256,
+            sessionToken: args.sessionToken,
+        });
+
+        // Submit question with the file
+        const { threadId, response } = await ctx.runAction(internal.chat.functions.submitFileQuestionInternal, {
+            fileIds: [fileId],
+            question: args.question,
+            model: args.model,
+            sessionToken: args.sessionToken,
+        });
+
+        return { threadId, response, fileId };
+    },
+});
+
+// List files uploaded by user - simplified version
+export const listUserUploadedFiles = query({
+    args: {
+        sessionToken: v.string(),
+        paginationOpts: paginationOptsValidator,
+    },
+    returns: v.object({
+        page: v.array(
+            v.object({
+                fileId: v.string(),
+                filename: v.string(),
+                mimeType: v.string(),
+                url: v.string(),
+                uploadedAt: v.number(),
+            }),
+        ),
+        isDone: v.boolean(),
+        continueCursor: v.string(),
+    }),
+    handler: async (
+        ctx,
+        args,
+    ): Promise<{
+        page: Array<{ fileId: string; filename: string; mimeType: string; url: string; uploadedAt: number }>;
+        isDone: boolean;
+        continueCursor: string;
+    }> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // For now, return empty results since the agent API doesn't expose listByUserId directly
+        // This would need to be implemented based on your specific file storage structure
+        return {
+            page: [],
+            isDone: true,
+            continueCursor: "",
+        };
+    },
+});
+
+// Delete uploaded file - simplified version
+export const deleteUploadedFile = mutation({
+    args: {
+        fileId: v.string(),
+        sessionToken: v.string(),
+    },
+    returns: v.null(),
+    handler: async (ctx, args): Promise<null> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // For now, this is a placeholder since the agent API doesn't expose deleteFile directly
+        // This would need to be implemented based on your specific file storage structure
+        console.log(`Would delete file ${args.fileId} for user ${sessionData.userId}`);
+
+        return null;
+    },
+});
+
+// Export the uploadFileForChat as internal for use by other functions
+export const uploadFileForChatInternal = internalAction({
+    args: {
+        filename: v.string(),
+        mimeType: v.string(),
+        bytes: v.bytes(),
+        sha256: v.optional(v.string()),
+        sessionToken: v.string(),
+    },
+    returns: v.object({
+        fileId: v.string(),
+        url: v.string(),
+    }),
+    handler: async (ctx, args): Promise<{ fileId: string; url: string }> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        // Rate limit file uploads using chat message rate limit
+        const rateLimitResult = await checkRateLimit(ctx, getRateLimitName("chatMessage", true), {
+            key: sessionData.userId,
+            count: 1,
+        });
+
+        if (!rateLimitResult.ok) {
+            throw new ConvexError("Rate limit exceeded for file uploads");
+        }
+
+        // Create a blob from the bytes
+        const blob = new Blob([args.bytes], { type: args.mimeType });
+
+        // Store in agent for file handling (this works with the existing system)
+        const {
+            file: { fileId, url },
+        } = await storeFile(ctx, components.agent, blob, args.filename, args.sha256);
+
+        return { fileId, url };
+    },
+});
+
+// Export submitFileQuestion as internal
+export const submitFileQuestionInternal = internalAction({
+    args: {
+        fileIds: v.array(v.string()),
+        question: v.string(),
+        model: v.string(),
+        sessionToken: v.string(),
+    },
+    returns: v.object({
+        threadId: v.string(),
+        response: v.string(),
+    }),
+    handler: async (ctx, args): Promise<{ threadId: string; response: string }> => {
+        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
+            sessionToken: args.sessionToken,
+        });
+
+        if (!sessionData) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const agent = getAgent(args.model as AgentModel);
+        const { thread, threadId } = await agent.createThread(ctx, { userId: sessionData.userId as Id<"user"> });
+
+        // Prepare message content with files
+        const content: Array<{ type: "text"; text: string } | ImagePart | FilePart> = [];
+
+        // Add file attachments
+        for (const fileId of args.fileIds) {
+            try {
+                const { filePart, imagePart } = await getFile(ctx, components.agent, fileId);
+                if (imagePart) {
+                    content.push(imagePart);
+                } else if (filePart) {
+                    content.push(filePart);
+                }
+            } catch (error) {
+                console.error(`Failed to get file ${fileId}:`, error);
+                // Continue with other files
+            }
+        }
+
+        // Add text question
+        content.push({ type: "text", text: args.question });
+
+        const result = await thread.generateText({
+            messages: [
+                {
+                    role: "user",
+                    content,
+                },
+            ],
+        });
+
+        return {
+            threadId,
+            response: result.text,
+        };
     },
 });

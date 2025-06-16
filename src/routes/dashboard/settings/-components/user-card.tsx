@@ -44,7 +44,6 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
             <Card className="w-full">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>{t`User`}</CardTitle>
-                    <LanguageSwitch />
                 </CardHeader>
                 <CardContent className="flex flex-col gap-8">
                     <div className="flex items-start justify-between">
