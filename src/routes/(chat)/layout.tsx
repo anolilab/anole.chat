@@ -11,14 +11,16 @@ function RouteComponent() {
     return (
         <AuthProvider>
             <AiModelProvider>
+                {/* TODO: check why the bg-sidebar with inset variant is not working */}
                 <SidebarProvider
                     style={
                         {
                             "--sidebar-width": "calc(var(--spacing) * 72)",
-                            "--header-height": "calc(var(--spacing) * 12)",
+                            "--header-height": "calc(var(--spacing) * 8.5)",
                         } as React.CSSProperties
                     }
                     className="bg-accent-foreground"
+                    variant="inset"
                 >
                     <Outlet />
                 </SidebarProvider>

@@ -27,7 +27,7 @@ function RouteComponent() {
                 style={
                     {
                         "--sidebar-width": "calc(var(--spacing) * 72)",
-                        "--header-height": "calc(var(--spacing) * 12)",
+                        "--header-height": "calc(var(--spacing) * 8.5)",
                     } as React.CSSProperties
                 }
                 className="bg-accent-foreground"

@@ -84,7 +84,6 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
     // Create a new branch from a specific message in a thread
     const createBranch = async (fromThreadId: string, fromMessageIndex: number, branchName?: string): Promise<string> => {
         const sourceThread = threads.get(fromThreadId);
-        console.log(sourceThread);
         const sourceMetadata = threadMetadata.get(fromThreadId);
 
         if (!sourceThread || !sourceMetadata) {

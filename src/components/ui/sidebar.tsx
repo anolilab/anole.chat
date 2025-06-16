@@ -49,11 +49,13 @@ function SidebarProvider({
     className,
     style,
     children,
+    variant = "sidebar",
     ...props
 }: React.ComponentProps<"div"> & {
     defaultOpen?: boolean;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    variant?: "sidebar" | "floating" | "inset";
 }) {
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
@@ -125,6 +127,7 @@ function SidebarProvider({
                         } as React.CSSProperties
                     }
                     className={cn("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full", className)}
+                    data-variant={variant}
                     {...props}
                 >
                     {children}

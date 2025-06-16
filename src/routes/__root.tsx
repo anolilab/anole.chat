@@ -60,15 +60,17 @@ const RootDocument = () => {
                 <HeadContent />
             </head>
             <body suppressHydrationWarning>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                        <Outlet />
-                        <Toaster />
-                        <Scripts />
+                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                    <Outlet />
+                    <Toaster />
+                    <Scripts />
                 </ThemeProvider>
-                {import.meta.env.DEBUG && <>
-                    <TanStackRouterDevtools position="top-right" />
-                    <ReactScan />
-                </>}
+                {import.meta.env.DEBUG && (
+                    <>
+                        <TanStackRouterDevtools position="top-right" />
+                        <ReactScan />
+                    </>
+                )}
             </body>
         </html>
     );

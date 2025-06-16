@@ -70,7 +70,7 @@ export default function AdminDashboard() {
                 name: newUser.name,
                 role: newUser.role,
             });
-            console.log(result);
+
             toast.success(t`User created successfully`);
             setNewUser({ email: "", password: "", name: "", role: "user" });
             setIsDialogOpen(false);
