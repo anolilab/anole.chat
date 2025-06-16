@@ -12,7 +12,6 @@ import {
     type FeedbackAdapter,
 } from "@assistant-ui/react";
 import type { ReactNode } from "react";
-import type { AgentModel } from "convex/agents";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { api } from "@cvx/_generated/api";
@@ -23,6 +22,7 @@ import ConvexAttachmentAdapter from "@/features/chat/components/adapter/convex-a
 import { useMutation, usePaginatedQuery, useAction } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadContext } from "@/features/chat/components/thread-context";
+import type { AgentModel } from "@cvx/ai/lib/agents";
 
 // Define our message format that matches Convex agent messages
 export type ConvexMessage = {
@@ -31,11 +31,11 @@ export type ConvexMessage = {
     message: {
         role: "user" | "assistant" | "system";
         content:
-            | string
-            | Array<{
-                  type: "text";
-                  text: string;
-              }>;
+        | string
+        | Array<{
+            type: "text";
+            text: string;
+        }>;
     };
 };
 
@@ -110,10 +110,10 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const paginatedMessagesArgs =
         currentThreadId !== "default"
             ? {
-                  threadId: currentThreadId,
-                  model: model,
-                  sessionToken: sessionData?.data?.session?.token,
-              }
+                threadId: currentThreadId,
+                model: model,
+                sessionToken: sessionData?.data?.session?.token,
+            }
             : "skip";
 
     const paginatedMessages = useThreadMessages(api.chat.functions.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
@@ -204,9 +204,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                                 const updatedMessages = currentThreadMessages.map((m) =>
                                     m.id === assistantId
                                         ? {
-                                              ...m,
-                                              content: [{ type: "text" as const, text: textPart.text }],
-                                          }
+                                            ...m,
+                                            content: [{ type: "text" as const, text: textPart.text }],
+                                        }
                                         : m,
                                 );
                                 return new Map(prev).set(useThreadId, updatedMessages);
@@ -228,9 +228,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     const updatedMessages = currentThreadMessages.map((m) =>
                         m.id === assistantId
                             ? {
-                                  ...m,
-                                  content: [{ type: "text" as const, text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` }],
-                              }
+                                ...m,
+                                content: [{ type: "text" as const, text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` }],
+                            }
                             : m,
                     );
                     return new Map(prev).set(useThreadId, updatedMessages);
@@ -254,7 +254,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
             // Check if we need to create the thread in Convex first
             let actualThreadId = currentThreadId;
-            if (sessionData?.data?.session?.token) {
+            const isLocalThread = currentThreadId === "default" || !convexThreads.results.some(t => t._id === currentThreadId);
+
+            if (sessionData?.data?.session?.token && isLocalThread) {
                 try {
                     // This is a local thread, create it in Convex
                     actualThreadId = await createThreadMutation({
@@ -265,7 +267,12 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
                     // Update our local state to use the Convex thread ID
                     const currentMessages = threads.get(currentThreadId) || [];
-                    const currentMetadata = threadMetadata.get(currentThreadId) || { title: "New Chat", status: "active" as const };
+                    const currentMetadata = threadMetadata.get(currentThreadId) || {
+                        title: "New Chat",
+                        status: "active" as const,
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                    };
 
                     setThreads((prev) => {
                         const next = new Map(prev);
@@ -282,7 +289,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     });
 
                     setCurrentThreadId(actualThreadId);
-                    navigate({ to: "/chat/$threadId", params: { threadId: actualThreadId }, replace: true });
+                    navigate({ to: "/chat/$threadId", params: { threadId: actualThreadId }, replace: true, search: { initialMessage: undefined } });
                 } catch (error) {
                     console.error("Failed to create thread in Convex:", error);
                     // Continue with local thread ID
@@ -433,7 +440,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 );
                 setCurrentThreadId(newThreadId);
 
-                navigate({ to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true });
+                navigate({ to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true, search: { initialMessage: undefined } });
             },
 
             onSwitchToThread: async (switchThreadId) => {
@@ -453,7 +460,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 }
 
                 setCurrentThreadId(switchThreadId);
-                navigate({ to: "/chat/$threadId", params: { threadId: switchThreadId } });
+                navigate({ to: "/chat/$threadId", params: { threadId: switchThreadId }, search: { initialMessage: undefined } });
             },
 
             onRename: async (renameThreadId, newTitle) => {

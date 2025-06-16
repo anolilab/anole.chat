@@ -1,7 +1,6 @@
 "use client";
 
 import CopyButton from "@/components/copy-button";
-import { PasswordInput } from "@/components/password-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,10 +21,10 @@ import { UAParser } from "ua-parser-js";
 import { AddPasskey } from "./add-passkey";
 import { ChangePassword } from "./change-password";
 import { ChangeUser } from "./change-user";
-import { LanguageSwitch } from "./language-switch";
 import { ListPasskeys } from "./list-passkeys";
-import { authClient } from "@/features/auth/lib/client";
+import { authClient, type AuthClient } from "@/features/auth/lib/client";
 import { useLogout } from "@/features/auth/hooks/auth-hooks";
+import { PasswordInput } from "@/features/auth/components/password-input";
 
 export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["Session"]["session"][] }) {
     const { t } = useLingui();
@@ -44,7 +43,6 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
             <Card className="w-full">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>{t`User`}</CardTitle>
-                    <LanguageSwitch />
                 </CardHeader>
                 <CardContent className="flex flex-col gap-8">
                     <div className="flex items-start justify-between">

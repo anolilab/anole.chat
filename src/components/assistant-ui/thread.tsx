@@ -115,44 +115,52 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
     const { selectedModel, setSelectedModel } = useAiModelContext();
     const [inputValue, setInputValue] = useState("");
 
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setInputValue(e.target.value);
-    }, []);
-
     return (
-        <div className="w-full rounded-lg bg-neutral-200/80 p-1 backdrop-blur-lg">
-            <div className="flex flex-row items-center justify-between">
-                <ComposerAddAttachment />
-                <ComposerAttachments />
-            </div>
-            <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg transition-colors ease-in">
-                <ComposerPrimitive.Input
-                    data-composer-input
-                    rows={1}
-                    autoFocus
-                    placeholder={t`Type your message here...`}
-                    className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
-                    onChange={handleInputChange}
-                />
-                {threadId && <PromptImprovement threadId={threadId} currentInputValue={inputValue?.trim()} />}
-                <div className="flex w-full flex-row items-center justify-between">
-                    <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as AgentModel)}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a model" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {Object.keys(agents).map((model) => (
-                                <SelectItem key={model} value={model}>
-                                    {model}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <div className="grow" />
-                    <ComposerAction />
+        <>
+            <div className="w-full rounded-lg bg-neutral-200/80 p-1 backdrop-blur-lg">
+                <div className="flex flex-row items-center justify-between">
+                    <ComposerAddAttachment />
+                    <ComposerAttachments />
                 </div>
-            </ComposerPrimitive.Root>
-        </div>
+                <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg transition-colors ease-in">
+                    <div className="flex w-full flex-row items-center justify-between">
+                        <ComposerPrimitive.Input
+                            data-composer-input
+                            rows={1}
+                            autoFocus
+                            placeholder={t`Type your message here...`}
+                            className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                                setInputValue(e.target.value);
+                            }}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    setInputValue("");
+                                }
+                            }}
+                        />
+                        {threadId && <PromptImprovement key={threadId} threadId={threadId} currentInputValue={inputValue?.trim()} />}
+                    </div>
+                    <div className="flex w-full flex-row items-center justify-between">
+                        <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as AgentModel)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Object.keys(agents).map((model) => (
+                                    <SelectItem key={model} value={model}>
+                                        {model}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <div className="grow" />
+                        <ComposerAction />
+                    </div>
+                </ComposerPrimitive.Root>
+            </div>
+            <div className="w-full h-4 -mt-2 bg-background" />
+        </>
     );
 };
 

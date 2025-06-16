@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, type FC } from "react";
+import { useState, useCallback, useEffect, type FC, useRef } from "react";
 import { Sparkles, Loader2, AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { ThreadPrimitive } from "@assistant-ui/react";
 import { useSession } from "@/features/auth/hooks/auth-hooks";
@@ -370,12 +370,9 @@ interface PromptImprovementProps {
 // Component that receives the current input value
 export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId, currentInputValue }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [currentPrompt, setCurrentPrompt] = useState("");
-    const [originalPrompt, setOriginalPrompt] = useState("");
+    const originalPrompt = useRef(currentInputValue);
 
     const handleOpenDialog = useCallback(() => {
-        setCurrentPrompt(currentInputValue);
-        setOriginalPrompt(currentInputValue);
         setIsDialogOpen(true);
     }, [currentInputValue]);
 
@@ -396,13 +393,13 @@ export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId, curren
     const handleCancel = useCallback(() => {
         // Restore the original prompt back to the input field
         const inputElement = document.querySelector("[data-composer-input]") as HTMLTextAreaElement;
-        if (inputElement && originalPrompt) {
-            inputElement.value = originalPrompt;
+        if (inputElement && originalPrompt.current) {
+            inputElement.value = originalPrompt.current;
             // Trigger input event to update the composer state
             const event = new Event("input", { bubbles: true });
             inputElement.dispatchEvent(event);
         }
-    }, [originalPrompt]);
+    }, [originalPrompt.current]);
 
     return (
         <PromptImprovementErrorBoundary onRetry={handleOpenDialog} fallbackToInput={true}>
@@ -410,7 +407,7 @@ export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId, curren
             <PromptImprovementDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
-                currentPrompt={currentPrompt}
+                currentPrompt={currentInputValue}
                 onApplyImprovement={handleApplyImprovement}
                 onCancel={handleCancel}
                 threadId={threadId}

@@ -15,7 +15,7 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                 <ModeToggle />
             </div>
             <div
-                className="fixed top-0 right-0 z-10 h-14 w-28 max-sm:hidden"
+                className="absolute -top-2 -right-2 z-10 h-14 w-28 max-sm:hidden"
                 style={{
                     clipPath: "inset(0px 8px 0px 0px)",
                 }}
