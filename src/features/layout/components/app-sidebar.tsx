@@ -10,7 +10,7 @@ export const AppSidebar = ({
     ...props
 }: React.ComponentProps<typeof Sidebar> & { header?: React.ReactNode; content: React.ReactNode | React.ReactElement; footer?: React.ReactElement }) => {
     return (
-        <Sidebar collapsible="offcanvas" {...props}>
+        <Sidebar collapsible="offcanvas" variant="inset" {...props}>
             <SidebarHeader>{header}</SidebarHeader>
             <SidebarContent>{content}</SidebarContent>
             <SidebarFooter>

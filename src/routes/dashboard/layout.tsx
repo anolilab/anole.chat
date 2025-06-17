@@ -26,14 +26,13 @@ function RouteComponent() {
             <SidebarProvider
                 style={
                     {
+                        "--sidebar-width": "calc(var(--spacing) * 72)",
                         "--header-height": "calc(var(--spacing) * 8.5)",
                     } as React.CSSProperties
                 }
-                className="bg-accent-foreground relative isolate flex"
-                variant="inset"
             >
                 <div className="flex h-dvh w-full">
-                    <AppSidebar content={<div />} variant="inset" />
+                    <AppSidebar content={<div />} />
                     <SidebarInset>
                         <SiteHeader>
                             <Breadcrumb>
@@ -42,11 +41,11 @@ function RouteComponent() {
                                         <BreadcrumbItem className="hidden md:block" key={item.href}>
                                             <BreadcrumbLink
                                                 href={item.href}
-                                                className="flex items-center gap-2 text-sm capitalize text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors"
+                                                className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm capitalize transition-colors dark:hover:text-white"
                                             >
                                                 {item.label}
                                                 {index < breadcrumb.length - 1 && index !== 0 && (
-                                                    <BreadcrumbSeparator className="hidden md:block text-muted-foreground" />
+                                                    <BreadcrumbSeparator className="text-muted-foreground hidden md:block" />
                                                 )}
                                             </BreadcrumbLink>
                                         </BreadcrumbItem>

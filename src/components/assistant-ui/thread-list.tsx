@@ -701,8 +701,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             let overIndex = -1;
 
             for (const group of threadGroups) {
-                const activeThreadIndex = group.threads.findIndex(t => t.threadId === active.id);
-                const overThreadIndex = group.threads.findIndex(t => t.threadId === over.id);
+                const activeThreadIndex = group.threads.findIndex((t) => t.threadId === active.id);
+                const overThreadIndex = group.threads.findIndex((t) => t.threadId === over.id);
 
                 if (activeThreadIndex !== -1) {
                     activeGroup = group;
@@ -723,7 +723,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             // Reorder threads within the group
             const reorderedThreads = arrayMove(activeGroup.threads, activeIndex, overIndex);
 
-                        // Update the order in the database
+            // Update the order in the database
             const threadOrders = reorderedThreads.map((thread, index) => ({
                 threadId: thread.threadId,
                 order: index,
@@ -969,10 +969,10 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     )}
                     onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId }, search: { initialMessage: undefined } })}
                 >
-                    <div className="group relative flex items-center gap-2 rounded-lg px-2.5 py-2 overflow-hidden">
+                    <div className="group/action-item relative flex items-center gap-2 overflow-hidden rounded-lg px-2.5 py-2">
                         {/* Drag handle - only show if not loading */}
                         {!isDeleting && !loadingStates.reordering && (
-                            <div className="opacity-0 transition-opacity group-hover:opacity-100" {...dragListeners}>
+                            <div className="opacity-0 transition-opacity group-hover/action-item:opacity-100" {...dragListeners}>
                                 <GripVertical className="h-3 w-3 cursor-grab text-white/60 active:cursor-grabbing" />
                             </div>
                         )}
@@ -998,7 +998,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         {/* Thread title */}
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <span className="flex-1 -mr-4 truncate text-sm text-white cursor-pointer">{node.title}</span>
+                                <span className="-mr-4 flex-1 cursor-pointer truncate text-sm text-white">{node.title}</span>
                             </TooltipTrigger>
                             <TooltipContent side="right" className="max-w-xs">
                                 <p className="break-words">{node.title}</p>
@@ -1006,7 +1006,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         </Tooltip>
 
                         {/* Action buttons */}
-                        <div className="absolute right-0 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 bg-accent-foreground/80 rounded-l-lg">
+                        <div className="bg-accent-foreground/80 absolute right-0 flex items-center gap-1 rounded-l-lg opacity-0 transition-opacity group-hover/action-item:opacity-100">
                             {/* Pin/Unpin button */}
                             <Tooltip>
                                 <TooltipTrigger asChild>

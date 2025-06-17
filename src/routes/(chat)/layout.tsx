@@ -19,8 +19,6 @@ function RouteComponent() {
                             "--header-height": "calc(var(--spacing) * 8.5)",
                         } as React.CSSProperties
                     }
-                    className="bg-accent-foreground relative isolate flex"
-                    variant="inset"
                 >
                     <Outlet />
                 </SidebarProvider>

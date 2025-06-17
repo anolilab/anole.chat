@@ -1,18 +1,17 @@
 "use client";
-
-import { Slot as SlotPrimitive } from "radix-ui";
-import { type VariantProps, cva } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
+import { Slot as SlotPrimitive } from "radix-ui";
+import { cva, type VariantProps } from "class-variance-authority";
+import { PanelLeftIcon } from "lucide-react";
 
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -49,13 +48,11 @@ function SidebarProvider({
     className,
     style,
     children,
-    variant = "sidebar",
     ...props
 }: React.ComponentProps<"div"> & {
     defaultOpen?: boolean;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
-    variant?: "sidebar" | "floating" | "inset";
 }) {
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
@@ -127,7 +124,6 @@ function SidebarProvider({
                         } as React.CSSProperties
                     }
                     className={cn("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full", className)}
-                    data-variant={variant}
                     {...props}
                 >
                     {children}
@@ -186,7 +182,7 @@ function Sidebar({
 
     return (
         <div
-            className="peer text-sidebar-foreground hidden md:block"
+            className="group peer text-sidebar-foreground hidden md:block"
             data-state={state}
             data-collapsible={state === "collapsed" ? collapsible : ""}
             data-variant={variant}
@@ -284,7 +280,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
         <main
             data-slot="sidebar-inset"
             className={cn(
-                "relative grow pb-6 lg:rounded-lg lg:bg-white lg:pb-10 lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10",
+                "bg-background relative flex w-full flex-1 flex-col",
                 "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
                 className,
             )}
