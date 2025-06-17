@@ -17,7 +17,7 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                     <ModeToggle className="text-white" />
                 </div>
                 <div
-                    className="absolute -top-2 -right-2.5 z-10 h-14 w-28 max-sm:hidden"
+                    className="absolute -top-2.5 -right-2.5 z-10 h-14.5 w-25.5 max-sm:hidden"
                     style={{
                         clipPath: "inset(0px 8px 0px 0px)",
                     }}
@@ -38,11 +38,11 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                         >
                             <line
                                 stroke="var(--color-site-header-background)"
-                                stroke-width="2px"
-                                shape-rendering="optimizeQuality"
-                                vector-effect="non-scaling-stroke"
-                                stroke-linecap="round"
-                                stroke-miterlimit="10"
+                                strokeWidth="2px"
+                                shapeRendering="optimizeQuality"
+                                vectorEffect="non-scaling-stroke"
+                                strokeLinecap="round"
+                                strokeMiterlimit="10"
                                 x1="1"
                                 y1="0"
                                 x2="128"
@@ -52,11 +52,11 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                                 stroke="var(--color-site-header-border)"
                                 className="translate-y-[0.5px]"
                                 fill="var(--color-site-header-background)"
-                                shape-rendering="optimizeQuality"
-                                stroke-width="1px"
-                                stroke-linecap="round"
-                                stroke-miterlimit="10"
-                                vector-effect="non-scaling-stroke"
+                                shapeRendering="optimizeQuality"
+                                strokeWidth="1px"
+                                strokeLinecap="round"
+                                strokeMiterlimit="10"
+                                vectorEffect="non-scaling-stroke"
                                 d="M0,0c5.9,0,10.7,4.8,10.7,10.7v10.7c0,5.9,4.8,10.7,10.7,10.7H128V0"
                             ></path>
                         </svg>

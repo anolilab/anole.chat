@@ -847,12 +847,38 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
     // Virtual scrolling setup
     const parentRef = useRef<HTMLDivElement>(null);
-    const shouldUseVirtualScrolling = flattenedThreads.length > 100;
 
+    // Flatten all visible items for virtualization (groups + threads)
+    const virtualItems = useMemo(() => {
+        const items: Array<{ type: "group"; group: ThreadGroup; groupType: GroupType } | { type: "thread"; thread: BranchNode; index: number }> = [];
+
+        threadGroups.forEach((group) => {
+            const groupType =
+                group.title === "Pinned" ? "pinned" : group.title === "Last 7 days" ? "last7days" : group.title === "Last month" ? "lastMonth" : "older";
+
+            // Add group header
+            items.push({ type: "group", group, groupType });
+
+            // Add threads if group is not collapsed
+            if (!group.isCollapsed) {
+                group.threads.forEach((thread, index) => {
+                    items.push({ type: "thread", thread, index });
+                });
+            }
+        });
+
+        return items;
+    }, [threadGroups]);
+
+    // Always call virtualizer hook to avoid "more hooks" error
     const virtualizer = useVirtualizer({
-        count: flattenedThreads.length,
+        count: virtualItems.length,
         getScrollElement: () => parentRef.current,
-        estimateSize: () => 44, // Estimated height of each thread item
+        estimateSize: (index) => {
+            const item = virtualItems[index];
+
+            return item?.type === "group" ? 32 : 44; // Group headers are shorter
+        },
         overscan: 10,
     });
 
@@ -899,7 +925,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     )}
                     onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId }, search: { initialMessage: undefined } })}
                 >
-                    <div className="flex items-center gap-2 rounded-lg px-2.5 py-2">
+                    <div className="group relative flex items-center gap-2 rounded-lg px-2.5 py-2 overflow-hidden">
                         {/* Drag handle - only show if not loading */}
                         {!isDeleting && !loadingStates.reordering && (
                             <div className="opacity-0 transition-opacity group-hover:opacity-100" {...dragListeners}>
@@ -926,10 +952,17 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         )}
 
                         {/* Thread title */}
-                        <span className="flex-1 truncate text-sm text-white">{node.title}</span>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <span className="flex-1 -mr-4 truncate text-sm text-white cursor-pointer">{node.title}</span>
+                            </TooltipTrigger>
+                            <TooltipContent side="right" className="max-w-xs">
+                                <p className="break-words">{node.title}</p>
+                            </TooltipContent>
+                        </Tooltip>
 
                         {/* Action buttons */}
-                        <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                        <div className="absolute right-0 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 bg-accent-foreground/80 rounded-l-lg">
                             {/* Pin/Unpin button */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1130,8 +1163,10 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     // Keyboard shortcuts help overlay
-    const KeyboardHelp = () =>
-        showKeyboardHelp && (
+    const KeyboardHelp = () => {
+        if (!showKeyboardHelp) return null;
+
+        return (
             <div className="bg-background/95 absolute inset-0 z-50 rounded-lg border p-4 backdrop-blur-sm">
                 <ShortcutsProvider keyMappings={customMappings}>
                     <div className="space-y-3">
@@ -1183,43 +1218,104 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 </ShortcutsProvider>
             </div>
         );
+    };
 
-    // Render thread groups
+    // Render thread groups with virtualization
     const renderThreadGroups = () => {
-        return (
-            <div className="space-y-3">
-                {threadGroups.map((group, groupIndex) => (
-                    <div key={group.title} className="space-y-1">
-                        {/* Group Header */}
-                        <div
-                            className="flex cursor-pointer items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white"
-                            onClick={() => {
-                                const groupType =
-                                    group.title === "Pinned"
-                                        ? "pinned"
-                                        : group.title === "Last 7 days"
-                                          ? "last7days"
-                                          : group.title === "Last month"
-                                            ? "lastMonth"
-                                            : "older";
-                                toggleGroupCollapsed(groupType);
-                            }}
-                        >
-                            {group.isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                            <span>{group.title}</span>
-                            <span className="text-white/50">({group.threads.length})</span>
-                        </div>
+        // Determine if we should use virtual scrolling based on total items
+        const shouldUseVirtualScrolling = virtualItems.length > 100;
 
-                        {/* Group Threads */}
-                        {!group.isCollapsed && (
-                            <div className="space-y-1">
-                                {group.threads.map((thread, threadIndex) => (
-                                    <SortableThreadItem key={thread.threadId} node={thread} index={threadIndex} />
-                                ))}
+        if (!shouldUseVirtualScrolling) {
+            // Non-virtualized rendering for small lists
+            return (
+                <div className="space-y-3">
+                    {threadGroups.map((group) => (
+                        <div key={group.title} className="space-y-1">
+                            {/* Group Header */}
+                            <div
+                                className="flex cursor-pointer items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white"
+                                onClick={() => {
+                                    const groupType =
+                                        group.title === "Pinned"
+                                            ? "pinned"
+                                            : group.title === "Last 7 days"
+                                              ? "last7days"
+                                              : group.title === "Last month"
+                                                ? "lastMonth"
+                                                : "older";
+                                    toggleGroupCollapsed(groupType);
+                                }}
+                            >
+                                {group.isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                <span>{group.title}</span>
+                                <span className="text-white/50">({group.threads.length})</span>
                             </div>
-                        )}
-                    </div>
-                ))}
+
+                            {/* Group Threads */}
+                            {!group.isCollapsed && (
+                                <div className="space-y-1">
+                                    {group.threads.map((thread, threadIndex) => (
+                                        <SortableThreadItem key={thread.threadId} node={thread} index={threadIndex} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Virtualized rendering for large lists
+        return (
+            <div
+                ref={parentRef}
+                className="h-full overflow-auto"
+                style={{
+                    height: "100%",
+                    width: "100%",
+                }}
+            >
+                <div
+                    style={{
+                        height: `${virtualizer.getTotalSize()}px`,
+                        width: "100%",
+                        position: "relative",
+                    }}
+                >
+                    {virtualizer.getVirtualItems().map((virtualItem) => {
+                        const item = virtualItems[virtualItem.index];
+                        if (!item) return null;
+
+                        return (
+                            <div
+                                key={virtualItem.key}
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100%",
+                                    height: `${virtualItem.size}px`,
+                                    transform: `translateY(${virtualItem.start}px)`,
+                                }}
+                            >
+                                {item.type === "group" ? (
+                                    // Group Header
+                                    <div
+                                        className="flex cursor-pointer items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white"
+                                        onClick={() => toggleGroupCollapsed(item.groupType)}
+                                    >
+                                        {item.group.isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                        <span>{item.group.title}</span>
+                                        <span className="text-white/50">({item.group.threads.length})</span>
+                                    </div>
+                                ) : (
+                                    // Thread Item
+                                    <SortableThreadItem key={item.thread.threadId} node={item.thread} index={item.index} />
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         );
     };
