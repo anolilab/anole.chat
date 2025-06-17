@@ -151,20 +151,47 @@ code {
         @apply cursor-pointer;
     }
 
-    /* Only animate essential UI elements for performance */
-    body,
-    [data-slot="sidebar"],
-    [data-slot="sidebar-inset"],
-    .bg-background,
-    .bg-card,
-    #composer-placeholder {
-        transition: background-color 0.3s ease-out;
+    /* Custom scrollbar styles */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
     }
 
-    /* Quick hover effects only */
-    button:hover,
-    [role="button"]:hover,
-    a:hover {
-        transition: opacity 0.2s ease-out;
+    ::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: oklch(0.7 0 0 / 0.3);
+        border-radius: 4px;
+        transition: background-color 0.2s ease-out;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: oklch(0.6 0 0 / 0.5);
+    }
+
+    ::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    /* Dark mode scrollbar */
+    .dark ::-webkit-scrollbar-thumb {
+        background: oklch(0.4 0 0 / 0.4);
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: oklch(0.5 0 0 / 0.6);
+    }
+
+    /* Firefox scrollbar */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(0.7 0 0 / 0.3) transparent;
+    }
+
+    .dark * {
+        scrollbar-color: oklch(0.4 0 0 / 0.4) transparent;
     }
 }

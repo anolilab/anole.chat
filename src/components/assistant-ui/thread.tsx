@@ -91,7 +91,7 @@ const ThreadWelcomeSuggestions: FC = () => {
     return (
         <div className="mt-3 flex w-full items-stretch justify-center gap-4">
             <ThreadPrimitive.Suggestion
-                className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
+                className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3"
                 prompt="What is the weather in Tokyo?"
                 method="replace"
                 autoSend
@@ -99,7 +99,7 @@ const ThreadWelcomeSuggestions: FC = () => {
                 <span className="line-clamp-2 text-sm font-semibold text-ellipsis">What is the weather in Tokyo?</span>
             </ThreadPrimitive.Suggestion>
             <ThreadPrimitive.Suggestion
-                className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
+                className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3"
                 prompt="What is assistant-ui?"
                 method="replace"
                 autoSend
@@ -122,7 +122,7 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                     <ComposerAddAttachment />
                     <ComposerAttachments />
                 </div>
-                <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg transition-colors ease-in">
+                <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg">
                     <div className="flex w-full flex-row items-center justify-between">
                         <ComposerPrimitive.Input
                             data-composer-input
@@ -187,7 +187,7 @@ const ComposerAction: FC = () => {
 
 const UserMessage: FC = () => {
     return (
-        <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 transition-colors duration-300 [&:where(>*)]:col-start-2">
+        <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 [&:where(>*)]:col-start-2">
             <UserActionBar />
             <UserMessageAttachments />
             <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[var(--thread-max-width)] rounded-3xl px-5 py-2.5 break-words">
