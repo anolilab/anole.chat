@@ -94,6 +94,7 @@
 
         /* Site header colors for dark mode */
         --color-site-header-border: oklch(1 0 0 / 0.1);
+        --color-site-header-background: oklch(0.483 0.763 224.3);
     }
 }
 
