@@ -12,7 +12,7 @@ export const ModeToggle = () => {
     };
 
     return (
-        <Button variant="icon" size="icon" className="relative overflow-hidden text-white" onClick={toggleTheme}>
+        <Button variant="icon" size="icon" className="relative overflow-hidden" onClick={toggleTheme}>
             <Sun
                 className={cn("absolute scale-100 rotate-0 transform opacity-100 transition-all duration-200 ease-in-out", {
                     "scale-0 rotate-90 opacity-0": theme === "dark",

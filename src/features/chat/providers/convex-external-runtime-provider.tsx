@@ -28,14 +28,21 @@ import type { AgentModel } from "@cvx/ai/lib/agents";
 export type ConvexMessage = {
     _id: string;
     _creationTime: number;
-    message: {
+    id?: string;
+    userId?: string;
+    embeddingId?: string;
+    fileIds?: string[];
+    error?: string;
+    agentName?: string;
+    tool: boolean;
+    message?: {
         role: "user" | "assistant" | "system";
         content:
-        | string
-        | Array<{
-            type: "text";
-            text: string;
-        }>;
+            | string
+            | Array<{
+                  type: "text";
+                  text: string;
+              }>;
     };
 };
 
@@ -48,6 +55,16 @@ interface ConvexExternalRuntimeProviderProps {
 const generateId = () => Math.random().toString(36).slice(2);
 
 const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
+    if (!message.message) {
+        // Handle case where message is undefined
+        return {
+            id: message._id,
+            role: "assistant",
+            content: [{ type: "text", text: message.error || "Error: No message content" }],
+            createdAt: new Date(message._creationTime),
+        };
+    }
+
     const role = message.message.role;
     const content = message.message.content;
 
@@ -108,12 +125,12 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const currentMessages = threads.get(currentThreadId) || [];
     // Currently tanstack query has no other way to check if a query is skipped
     const paginatedMessagesArgs =
-        currentThreadId !== "default"
+        currentThreadId !== "default" && sessionData?.data?.session?.token
             ? {
-                threadId: currentThreadId,
-                model: model,
-                sessionToken: sessionData?.data?.session?.token,
-            }
+                  threadId: currentThreadId,
+                  model: model,
+                  sessionToken: sessionData.data.session.token,
+              }
             : "skip";
 
     const paginatedMessages = useThreadMessages(api.chat.functions.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
@@ -133,7 +150,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
     useEffect(() => {
         if (!paginatedMessages.isLoading && paginatedMessages.results && currentThreadId) {
-            const newConvertedMessages = paginatedMessages.results.map(convertConvexMessage);
+            const newConvertedMessages = paginatedMessages.results.map((message) => convertConvexMessage(message as unknown as ConvexMessage));
 
             setThreads((prev) => new Map(prev).set(currentThreadId, newConvertedMessages));
         }
@@ -204,9 +221,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                                 const updatedMessages = currentThreadMessages.map((m) =>
                                     m.id === assistantId
                                         ? {
-                                            ...m,
-                                            content: [{ type: "text" as const, text: textPart.text }],
-                                        }
+                                              ...m,
+                                              content: [{ type: "text" as const, text: textPart.text }],
+                                          }
                                         : m,
                                 );
                                 return new Map(prev).set(useThreadId, updatedMessages);
@@ -228,9 +245,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     const updatedMessages = currentThreadMessages.map((m) =>
                         m.id === assistantId
                             ? {
-                                ...m,
-                                content: [{ type: "text" as const, text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` }],
-                            }
+                                  ...m,
+                                  content: [{ type: "text" as const, text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` }],
+                              }
                             : m,
                     );
                     return new Map(prev).set(useThreadId, updatedMessages);
@@ -254,7 +271,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
             // Check if we need to create the thread in Convex first
             let actualThreadId = currentThreadId;
-            const isLocalThread = currentThreadId === "default" || !convexThreads.results.some(t => t._id === currentThreadId);
+            const isLocalThread = currentThreadId === "default" || !convexThreads.results.some((t) => t._id === currentThreadId);
 
             if (sessionData?.data?.session?.token && isLocalThread) {
                 try {
