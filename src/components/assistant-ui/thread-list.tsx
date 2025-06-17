@@ -61,7 +61,7 @@ interface ThreadGroup {
     isCollapsed?: boolean;
 }
 
-type GroupType = 'pinned' | 'last7days' | 'lastMonth' | 'older';
+type GroupType = "pinned" | "last7days" | "lastMonth" | "older";
 
 export const ThreadList: FC = () => {
     const sessionData = useSession();
@@ -90,10 +90,10 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchThreads,
         sessionData?.data?.session?.token && searchQuery.trim() && searchType === "threads"
             ? {
-                searchQuery: searchQuery.trim(),
-                sessionToken: sessionData.data.session.token,
-                paginationOpts: { numItems: 100, cursor: null },
-            }
+                  searchQuery: searchQuery.trim(),
+                  sessionToken: sessionData.data.session.token,
+                  paginationOpts: { numItems: 100, cursor: null },
+              }
             : "skip",
     );
 
@@ -102,10 +102,10 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchMessages,
         sessionData?.data?.session?.token && searchQuery.trim() && searchType === "messages"
             ? {
-                searchQuery: searchQuery.trim(),
-                sessionToken: sessionData.data.session.token,
-                paginationOpts: { numItems: 100, cursor: null },
-            }
+                  searchQuery: searchQuery.trim(),
+                  sessionToken: sessionData.data.session.token,
+                  paginationOpts: { numItems: 100, cursor: null },
+              }
             : "skip",
     );
 
@@ -143,7 +143,12 @@ export const ThreadList: FC = () => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white" onClick={() => setShowSearch(!showSearch)}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
+                                onClick={() => setShowSearch(!showSearch)}
+                            >
                                 <Search className="h-4 w-4" />
                             </Button>
                         </TooltipTrigger>
@@ -153,7 +158,12 @@ export const ThreadList: FC = () => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white" onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
+                                onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
+                            >
                                 <HelpCircle className="h-4 w-4" />
                             </Button>
                         </TooltipTrigger>
@@ -168,7 +178,7 @@ export const ThreadList: FC = () => {
                             variant={searchType === "threads" ? "default" : "outline"}
                             size="sm"
                             onClick={() => setSearchType("threads")}
-                            className="text-xs border-white/20 text-white hover:bg-white/10 data-[active]:bg-white/20"
+                            className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
                         >
                             Threads
                         </Button>
@@ -176,7 +186,7 @@ export const ThreadList: FC = () => {
                             variant={searchType === "messages" ? "default" : "outline"}
                             size="sm"
                             onClick={() => setSearchType("messages")}
-                            className="text-xs border-white/20 text-white hover:bg-white/10 data-[active]:bg-white/20"
+                            className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
                         >
                             Messages
                         </Button>
@@ -186,7 +196,7 @@ export const ThreadList: FC = () => {
                             placeholder={searchType === "threads" ? "Search thread titles..." : "Search message content..."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pr-8 bg-white/5 border-white/20 text-white placeholder:text-white/60"
+                            className="border-white/20 bg-white/5 pr-8 text-white placeholder:text-white/60"
                             autoFocus
                         />
                         {searchQuery && (
@@ -230,7 +240,10 @@ export const ThreadList: FC = () => {
 const ThreadListNew: FC = () => {
     return (
         <ThreadListPrimitive.New asChild>
-            <Button className="data-[active]:bg-white/20 hover:bg-white/10 flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start text-white" variant="ghost">
+            <Button
+                className="flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start text-white hover:bg-white/10 data-[active]:bg-white/20"
+                variant="ghost"
+            >
                 <PlusIcon />
                 New Thread
             </Button>
@@ -412,14 +425,14 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     title: `Search Results (${sortedThreads.length})`,
                     threads: sortedThreads,
                     isCollapsed: false,
-                }
+                },
             ];
         }
 
         // Group threads by time periods
         const now = Date.now();
-        const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
-        const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+        const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+        const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
         const pinnedThreadsList: BranchNode[] = [];
         const last7DaysThreads: BranchNode[] = [];
@@ -458,7 +471,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             groups.push({
                 title: "Pinned",
                 threads: sortThreads(pinnedThreadsList),
-                isCollapsed: collapsedGroups.has('pinned'),
+                isCollapsed: collapsedGroups.has("pinned"),
             });
         }
 
@@ -466,7 +479,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             groups.push({
                 title: "Last 7 days",
                 threads: sortThreads(last7DaysThreads),
-                isCollapsed: collapsedGroups.has('last7days'),
+                isCollapsed: collapsedGroups.has("last7days"),
             });
         }
 
@@ -474,7 +487,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             groups.push({
                 title: "Last month",
                 threads: sortThreads(lastMonthThreads),
-                isCollapsed: collapsedGroups.has('lastMonth'),
+                isCollapsed: collapsedGroups.has("lastMonth"),
             });
         }
 
@@ -482,12 +495,22 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             groups.push({
                 title: "Older",
                 threads: sortThreads(olderThreads),
-                isCollapsed: collapsedGroups.has('older'),
+                isCollapsed: collapsedGroups.has("older"),
             });
         }
 
         return groups;
-    }, [threadsData?.page, threadSearchResults?.page, messageSearchResults?.page, threadRelationships, pinnedThreads, threadOrders, searchQuery, searchType, collapsedGroups]);
+    }, [
+        threadsData?.page,
+        threadSearchResults?.page,
+        messageSearchResults?.page,
+        threadRelationships,
+        pinnedThreads,
+        threadOrders,
+        searchQuery,
+        searchType,
+        collapsedGroups,
+    ]);
 
     // Flatten threads for keyboard navigation
     const flattenedThreads = useMemo(() => {
@@ -500,7 +523,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             }
         };
 
-        threadGroups.forEach(group => {
+        threadGroups.forEach((group) => {
             if (!group.isCollapsed) {
                 group.threads.forEach(flattenNode);
             }
@@ -516,17 +539,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             }
 
             if (!node.model) {
-                throw new ValidationError(
-                    "Cannot download thread: Model information is missing",
-                    "model",
-                    ["required"],
-                    {
-                        context: {
-                            threadId: node.threadId,
-                            threadTitle: node.title
-                        }
-                    }
-                );
+                throw new ValidationError("Cannot download thread: Model information is missing", "model", ["required"], {
+                    context: {
+                        threadId: node.threadId,
+                        threadTitle: node.title,
+                    },
+                });
             }
 
             setLoadingStates((prev) => ({
@@ -542,7 +560,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 });
 
                 if (data && data.thread && data.messages) {
-                    handleDownload(data.thread, data.messages as (Doc<"messages">)[], format);
+                    handleDownload(data.thread, data.messages as Doc<"messages">[], format);
                 }
             } catch (error) {
                 console.error("Failed to download thread:", error);
@@ -873,9 +891,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             <TooltipProvider>
                 <div
                     className={cn(
-                        "hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-white/50 cursor-pointer focus-visible:ring-2 focus-visible:outline-none",
+                        "cursor-pointer hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none",
                         isActive && "bg-white/20",
-                        isKeyboardSelected && "ring-white/50 bg-white/10 ring-2",
+                        isKeyboardSelected && "bg-white/10 ring-2 ring-white/50",
                         !isRootThread && "ml-6",
                         (isDeleting || loadingStates.reordering) && "pointer-events-none opacity-50",
                     )}
@@ -885,12 +903,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         {/* Drag handle - only show if not loading */}
                         {!isDeleting && !loadingStates.reordering && (
                             <div className="opacity-0 transition-opacity group-hover:opacity-100" {...dragListeners}>
-                                <GripVertical className="text-white/60 h-3 w-3 cursor-grab active:cursor-grabbing" />
+                                <GripVertical className="h-3 w-3 cursor-grab text-white/60 active:cursor-grabbing" />
                             </div>
                         )}
 
                         {/* Loading indicator for reordering */}
-                        {loadingStates.reordering && <Loader2 className="text-white/60 h-3 w-3 animate-spin" />}
+                        {loadingStates.reordering && <Loader2 className="h-3 w-3 animate-spin text-white/60" />}
 
                         {/* Expand/collapse button for threads with children */}
                         {hasChildren && (
@@ -1174,19 +1192,20 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     <div key={group.title} className="space-y-1">
                         {/* Group Header */}
                         <div
-                            className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white cursor-pointer"
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white"
                             onClick={() => {
-                                const groupType = group.title === "Pinned" ? 'pinned' :
-                                                 group.title === "Last 7 days" ? 'last7days' :
-                                                 group.title === "Last month" ? 'lastMonth' : 'older';
+                                const groupType =
+                                    group.title === "Pinned"
+                                        ? "pinned"
+                                        : group.title === "Last 7 days"
+                                          ? "last7days"
+                                          : group.title === "Last month"
+                                            ? "lastMonth"
+                                            : "older";
                                 toggleGroupCollapsed(groupType);
                             }}
                         >
-                            {group.isCollapsed ? (
-                                <ChevronRight className="h-3 w-3" />
-                            ) : (
-                                <ChevronDown className="h-3 w-3" />
-                            )}
+                            {group.isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                             <span>{group.title}</span>
                             <span className="text-white/50">({group.threads.length})</span>
                         </div>
@@ -1195,11 +1214,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         {!group.isCollapsed && (
                             <div className="space-y-1">
                                 {group.threads.map((thread, threadIndex) => (
-                                    <SortableThreadItem
-                                        key={thread.threadId}
-                                        node={thread}
-                                        index={threadIndex}
-                                    />
+                                    <SortableThreadItem key={thread.threadId} node={thread} index={threadIndex} />
                                 ))}
                             </div>
                         )}
@@ -1210,7 +1225,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     // Get all thread IDs for sortable context
-    const allThreadIds = threadGroups.flatMap(group => group.threads.map(thread => thread.threadId));
+    const allThreadIds = threadGroups.flatMap((group) => group.threads.map((thread) => thread.threadId));
 
     // Regular rendering with groups
     return (

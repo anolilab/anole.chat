@@ -30,7 +30,8 @@ function RouteComponent() {
                         "--header-height": "calc(var(--spacing) * 8.5)",
                     } as React.CSSProperties
                 }
-                className="bg-accent-foreground"
+                className="bg-accent-foreground relative isolate flex"
+                variant="inset"
             >
                 <div className="flex h-dvh w-full">
                     <AppSidebar header={null} content={null} variant="inset" />

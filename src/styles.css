@@ -150,4 +150,21 @@ code {
     button {
         @apply cursor-pointer;
     }
+
+    /* Only animate essential UI elements for performance */
+    body,
+    [data-slot="sidebar"],
+    [data-slot="sidebar-inset"],
+    .bg-background,
+    .bg-card,
+    #composer-placeholder {
+        transition: background-color 0.3s ease-out;
+    }
+
+    /* Quick hover effects only */
+    button:hover,
+    [role="button"]:hover,
+    a:hover {
+        transition: opacity 0.2s ease-out;
+    }
 }
