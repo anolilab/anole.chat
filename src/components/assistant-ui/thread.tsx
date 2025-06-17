@@ -1,6 +1,6 @@
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import type { FC } from "react";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
     ArrowDownIcon,
     CheckIcon,

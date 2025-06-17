@@ -15,9 +15,9 @@ import { ChevronDownIcon, Loader2, MailPlus, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import type { AuthClient } from "@/lib/auth/client";
 import { useLingui } from "@lingui/react/macro";
 import { authClient } from "@/features/auth/lib/client";
+import type { AuthClient } from "@/features/auth/lib/client";
 
 type ActiveOrganization = Awaited<ReturnType<typeof authClient.organization.getFullOrganization>>;
 
@@ -250,6 +250,7 @@ function CreateOrganizationDialog() {
     const [open, setOpen] = useState(false);
     const [isSlugEdited, setIsSlugEdited] = useState(false);
     const [logo, setLogo] = useState<string | null>(null);
+    const { t } = useLingui();
 
     useEffect(() => {
         if (!isSlugEdited) {
@@ -357,6 +358,8 @@ function InviteMemberDialog() {
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("member");
     const [loading, setLoading] = useState(false);
+    const { t } = useLingui();
+
     return (
         <Dialog>
             <DialogTrigger asChild>

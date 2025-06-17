@@ -1,8 +1,8 @@
 import { AppSidebar } from "@/features/layout/components/app-sidebar";
 import { AuthProvider } from "@/features/auth/components/auth-provider";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet, useLocation, createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/features/layout/components/site-header";
 
@@ -26,7 +26,6 @@ function RouteComponent() {
             <SidebarProvider
                 style={
                     {
-                        "--sidebar-width": "calc(var(--spacing) * 72)",
                         "--header-height": "calc(var(--spacing) * 8.5)",
                     } as React.CSSProperties
                 }
@@ -34,25 +33,33 @@ function RouteComponent() {
                 variant="inset"
             >
                 <div className="flex h-dvh w-full">
-                    <AppSidebar header={null} content={null} variant="inset" />
+                    <AppSidebar content={<div />} variant="inset" />
                     <SidebarInset>
                         <SiteHeader>
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     {breadcrumb.map((item, index) => (
                                         <BreadcrumbItem className="hidden md:block" key={item.href}>
-                                            <BreadcrumbLink href={item.href} className="flex items-center gap-2 text-sm capitalize">
+                                            <BreadcrumbLink
+                                                href={item.href}
+                                                className="flex items-center gap-2 text-sm capitalize text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors"
+                                            >
                                                 {item.label}
-                                                {index < breadcrumb.length - 1 && index !== 0 && <BreadcrumbSeparator className="hidden md:block" />}
+                                                {index < breadcrumb.length - 1 && index !== 0 && (
+                                                    <BreadcrumbSeparator className="hidden md:block text-muted-foreground" />
+                                                )}
                                             </BreadcrumbLink>
                                         </BreadcrumbItem>
                                     ))}
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </SiteHeader>
-                        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-                            <Outlet />
-                        </div>
+
+                        <ScrollArea className="h-full w-full">
+                            <div className="flex flex-1 flex-col items-center bg-inherit px-4 pt-8 [&>div]:w-full">
+                                <Outlet />
+                            </div>
+                        </ScrollArea>
                     </SidebarInset>
                 </div>
             </SidebarProvider>
