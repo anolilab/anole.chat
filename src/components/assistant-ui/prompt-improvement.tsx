@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, type FC, useRef } from "react";
 import { Sparkles, Loader2, AlertCircle, Wifi, WifiOff } from "lucide-react";
-import { ThreadPrimitive } from "@assistant-ui/react";
+import { ThreadPrimitive, useComposer, useComposerRuntime } from "@assistant-ui/react";
 import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,8 @@ const usePromptImprovement = (threadId: string) => {
             }
 
             setIsImproving(true);
-            const toastId = promptToast.improving("prompt-improvement");
+
+            promptToast.improving("prompt-improvement");
 
             try {
                 const controller = new AbortController();
@@ -364,42 +365,23 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onO
 
 interface PromptImprovementProps {
     threadId: string;
-    currentInputValue: string;
 }
 
-// Component that receives the current input value
-export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId, currentInputValue }) => {
+export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId }) => {
+    const composerRuntime = useComposerRuntime();
+
+    const currentInputValue = useComposer((c) => {
+        if (!c.isEditing) return "";
+        return c.text;
+    });
+
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const originalPrompt = useRef(currentInputValue);
 
     const handleOpenDialog = useCallback(() => {
+        originalPrompt.current = currentInputValue;
         setIsDialogOpen(true);
     }, [currentInputValue]);
-
-    const handleApplyImprovement = useCallback((improvedPrompt: string) => {
-        // Get the current input value and update it
-        const inputElement = document.querySelector("[data-composer-input]") as HTMLTextAreaElement;
-        if (!inputElement) return;
-
-        // Update the input value
-        inputElement.value = improvedPrompt;
-        // Trigger input event to update the composer state
-        const event = new Event("input", { bubbles: true });
-        inputElement.dispatchEvent(event);
-        // Focus the input
-        inputElement.focus();
-    }, []);
-
-    const handleCancel = useCallback(() => {
-        // Restore the original prompt back to the input field
-        const inputElement = document.querySelector("[data-composer-input]") as HTMLTextAreaElement;
-        if (inputElement && originalPrompt.current) {
-            inputElement.value = originalPrompt.current;
-            // Trigger input event to update the composer state
-            const event = new Event("input", { bubbles: true });
-            inputElement.dispatchEvent(event);
-        }
-    }, [originalPrompt.current]);
 
     return (
         <PromptImprovementErrorBoundary onRetry={handleOpenDialog} fallbackToInput={true}>
@@ -408,8 +390,12 @@ export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId, curren
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 currentPrompt={currentInputValue}
-                onApplyImprovement={handleApplyImprovement}
-                onCancel={handleCancel}
+                onApplyImprovement={(improvedPrompt) => {
+                    composerRuntime.setText(improvedPrompt);
+                }}
+                onCancel={() => {
+                    composerRuntime.setText(originalPrompt.current);
+                }}
                 threadId={threadId}
             />
         </PromptImprovementErrorBoundary>

@@ -1,6 +1,6 @@
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import type { FC } from "react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
     ArrowDownIcon,
     CheckIcon,
@@ -113,7 +113,6 @@ const ThreadWelcomeSuggestions: FC = () => {
 const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
     const { t } = useLingui();
     const { selectedModel, setSelectedModel } = useAiModelContext();
-    const [inputValue, setInputValue] = useState("");
 
     return (
         <>
@@ -129,17 +128,9 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                             rows={1}
                             autoFocus
                             placeholder={t`Type your message here...`}
-                            className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed dark:text-neutral-100 dark:placeholder:text-neutral-400"
-                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                                setInputValue(e.target.value);
-                            }}
-                            onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-                                if (e.key === "Enter" && !e.shiftKey) {
-                                    setInputValue("");
-                                }
-                            }}
+                            className="placeholder:text-muted-foreground min-h-10 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed dark:text-neutral-100 dark:placeholder:text-neutral-400"
                         />
-                        {threadId && <PromptImprovement key={threadId} threadId={threadId} currentInputValue={inputValue?.trim()} />}
+                        {threadId && <PromptImprovement key={threadId} threadId={threadId} />}
                     </div>
                     <div className="flex w-full flex-row items-center justify-between">
                         <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as AgentModel)}>
