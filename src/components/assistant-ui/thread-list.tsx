@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import type { JSX } from "react";
 import { ThreadListPrimitive } from "@assistant-ui/react";
 import {
     ArchiveIcon,
@@ -36,6 +37,7 @@ import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { useThreadContext } from "@/features/chat/components/thread-context";
 import { handleDownload, type DownloadFormat } from "@/lib/download";
 import type { Doc } from "@cvx/_generated/dataModel";
+import { ValidationError } from "@/lib/errors";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
@@ -53,9 +55,18 @@ interface BranchNode {
     relevantMessages?: any[]; // Messages that matched the search query
 }
 
+interface ThreadGroup {
+    title: string;
+    threads: BranchNode[];
+    isCollapsed?: boolean;
+}
+
+type GroupType = 'pinned' | 'last7days' | 'lastMonth' | 'older';
+
 export const ThreadList: FC = () => {
     const sessionData = useSession();
     const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
+    const [collapsedGroups, setCollapsedGroups] = useState<Set<GroupType>>(new Set());
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearch, setShowSearch] = useState(false);
@@ -108,6 +119,18 @@ export const ThreadList: FC = () => {
                 next.delete(threadId);
             } else {
                 next.add(threadId);
+            }
+            return next;
+        });
+    };
+
+    const toggleGroupCollapsed = (groupType: GroupType) => {
+        setCollapsedGroups((prev) => {
+            const next = new Set(prev);
+            if (next.has(groupType)) {
+                next.delete(groupType);
+            } else {
+                next.add(groupType);
             }
             return next;
         });
@@ -187,6 +210,8 @@ export const ThreadList: FC = () => {
             <HierarchicalThreadList
                 expandedThreads={expandedThreads}
                 toggleExpanded={toggleExpanded}
+                collapsedGroups={collapsedGroups}
+                toggleGroupCollapsed={toggleGroupCollapsed}
                 showKeyboardHelp={showKeyboardHelp}
                 setShowKeyboardHelp={setShowKeyboardHelp}
                 searchQuery={searchQuery}
@@ -217,6 +242,8 @@ const ThreadListNew: FC = () => {
 interface HierarchicalThreadListProps {
     expandedThreads: Set<string>;
     toggleExpanded: (threadId: string) => void;
+    collapsedGroups: Set<GroupType>;
+    toggleGroupCollapsed: (groupType: GroupType) => void;
     showKeyboardHelp: boolean;
     setShowKeyboardHelp: React.Dispatch<React.SetStateAction<boolean>>;
     searchQuery: string;
@@ -246,6 +273,8 @@ interface HierarchicalThreadListProps {
 const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     expandedThreads,
     toggleExpanded,
+    collapsedGroups,
+    toggleGroupCollapsed,
     showKeyboardHelp,
     setShowKeyboardHelp,
     searchQuery,
@@ -297,8 +326,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     // Thread order mutation
     const updateThreadOrderMutation = useMutation(api.chat.functions.updateThreadOrder);
 
-    // Build the hierarchical structure
-    const threadHierarchy = useMemo(() => {
+    // Group threads by time periods
+    const threadGroups = useMemo(() => {
         // Determine which threads to use based on search type
         let threadsToUse;
 
@@ -348,43 +377,156 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             };
         };
 
-        const hierarchy = rootThreads.map((thread: any) => buildHierarchy(thread._id)).filter((node): node is BranchNode => node !== null);
+        const allThreads = rootThreads.map((thread: any) => buildHierarchy(thread._id)).filter((node): node is BranchNode => node !== null);
 
-        // Sort: if searching, sort by relevance first, otherwise use normal sorting
-        return hierarchy.sort((a, b) => {
-            // If we have message search results, sort by relevance first
-            if (searchQuery.trim() && searchType === "messages" && messageSearchResults?.page) {
-                const aRelevance = a.relevantMessages?.length || 0;
-                const bRelevance = b.relevantMessages?.length || 0;
+        // If searching, return all threads in a single group
+        if (searchQuery.trim()) {
+            const sortedThreads = allThreads.sort((a, b) => {
+                // If we have message search results, sort by relevance first
+                if (searchType === "messages" && messageSearchResults?.page) {
+                    const aRelevance = a.relevantMessages?.length || 0;
+                    const bRelevance = b.relevantMessages?.length || 0;
 
-                if (aRelevance !== bRelevance) {
-                    return bRelevance - aRelevance; // More relevant first
+                    if (aRelevance !== bRelevance) {
+                        return bRelevance - aRelevance; // More relevant first
+                    }
                 }
+
+                // Normal sorting: pinned threads first, then by custom order, then by newest first
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+
+                // Within pinned/unpinned groups, sort by custom order if available
+                if (a.order !== undefined && b.order !== undefined) {
+                    return a.order - b.order;
+                }
+                if (a.order !== undefined && b.order === undefined) return -1;
+                if (a.order === undefined && b.order !== undefined) return 1;
+
+                // Finally, sort by creation time (newest first)
+                return b.createdAt - a.createdAt;
+            });
+
+            return [
+                {
+                    title: `Search Results (${sortedThreads.length})`,
+                    threads: sortedThreads,
+                    isCollapsed: false,
+                }
+            ];
+        }
+
+        // Group threads by time periods
+        const now = Date.now();
+        const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+        const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+
+        const pinnedThreadsList: BranchNode[] = [];
+        const last7DaysThreads: BranchNode[] = [];
+        const lastMonthThreads: BranchNode[] = [];
+        const olderThreads: BranchNode[] = [];
+
+        allThreads.forEach((thread) => {
+            if (thread.isPinned) {
+                pinnedThreadsList.push(thread);
+            } else if (thread.createdAt >= sevenDaysAgo) {
+                last7DaysThreads.push(thread);
+            } else if (thread.createdAt >= thirtyDaysAgo) {
+                lastMonthThreads.push(thread);
+            } else {
+                olderThreads.push(thread);
             }
-
-            // Normal sorting: pinned threads first, then by custom order, then by newest first
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
-
-            // Within pinned/unpinned groups, sort by custom order if available
-            if (a.order !== undefined && b.order !== undefined) {
-                return a.order - b.order;
-            }
-            if (a.order !== undefined && b.order === undefined) return -1;
-            if (a.order === undefined && b.order !== undefined) return 1;
-
-            // Finally, sort by creation time (newest first)
-            return b.createdAt - a.createdAt;
         });
-    }, [threadsData?.page, threadSearchResults?.page, messageSearchResults?.page, threadRelationships, pinnedThreads, threadOrders, searchQuery, searchType]);
+
+        // Sort each group
+        const sortThreads = (threads: BranchNode[]) => {
+            return threads.sort((a, b) => {
+                // Within groups, sort by custom order if available, then by newest first
+                if (a.order !== undefined && b.order !== undefined) {
+                    return a.order - b.order;
+                }
+                if (a.order !== undefined && b.order === undefined) return -1;
+                if (a.order === undefined && b.order !== undefined) return 1;
+
+                return b.createdAt - a.createdAt;
+            });
+        };
+
+        const groups: ThreadGroup[] = [];
+
+        if (pinnedThreadsList.length > 0) {
+            groups.push({
+                title: "Pinned",
+                threads: sortThreads(pinnedThreadsList),
+                isCollapsed: collapsedGroups.has('pinned'),
+            });
+        }
+
+        if (last7DaysThreads.length > 0) {
+            groups.push({
+                title: "Last 7 days",
+                threads: sortThreads(last7DaysThreads),
+                isCollapsed: collapsedGroups.has('last7days'),
+            });
+        }
+
+        if (lastMonthThreads.length > 0) {
+            groups.push({
+                title: "Last month",
+                threads: sortThreads(lastMonthThreads),
+                isCollapsed: collapsedGroups.has('lastMonth'),
+            });
+        }
+
+        if (olderThreads.length > 0) {
+            groups.push({
+                title: "Older",
+                threads: sortThreads(olderThreads),
+                isCollapsed: collapsedGroups.has('older'),
+            });
+        }
+
+        return groups;
+    }, [threadsData?.page, threadSearchResults?.page, messageSearchResults?.page, threadRelationships, pinnedThreads, threadOrders, searchQuery, searchType, collapsedGroups]);
+
+    // Flatten threads for keyboard navigation
+    const flattenedThreads = useMemo(() => {
+        const flattened: BranchNode[] = [];
+
+        const flattenNode = (node: BranchNode) => {
+            flattened.push(node);
+            if (expandedThreads.has(node.threadId)) {
+                node.children.forEach(flattenNode);
+            }
+        };
+
+        threadGroups.forEach(group => {
+            if (!group.isCollapsed) {
+                group.threads.forEach(flattenNode);
+            }
+        });
+
+        return flattened;
+    }, [threadGroups, expandedThreads]);
 
     const handleDownloadThread = useCallback(
         async (node: BranchNode, format: DownloadFormat) => {
-            if (!sessionData?.data?.session?.token) return;
-            if (!node.model) {
-                console.error("Thread model is unknown, cannot download.");
-                // TODO: Add user-facing error notification
+            if (!sessionData?.data?.session?.token) {
                 return;
+            }
+
+            if (!node.model) {
+                throw new ValidationError(
+                    "Cannot download thread: Model information is missing",
+                    "model",
+                    ["required"],
+                    {
+                        context: {
+                            threadId: node.threadId,
+                            threadTitle: node.title
+                        }
+                    }
+                );
             }
 
             setLoadingStates((prev) => ({
@@ -400,7 +542,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 });
 
                 if (data && data.thread && data.messages) {
-                    handleDownload(data.thread, data.messages as (Doc<"messages"> | Doc<"toolMessages">)[], format);
+                    handleDownload(data.thread, data.messages as (Doc<"messages">)[], format);
                 }
             } catch (error) {
                 console.error("Failed to download thread:", error);
@@ -524,45 +666,16 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         }),
     );
 
-    // Handle drag end
+    // Handle drag end - simplified for groups
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
 
         if (!over || active.id === over.id) return;
         if (!sessionData?.data?.session?.token) return;
 
-        const oldIndex = threadHierarchy.findIndex((thread) => thread.threadId === active.id);
-        const newIndex = threadHierarchy.findIndex((thread) => thread.threadId === over.id);
-
-        if (oldIndex === -1 || newIndex === -1) return;
-
-        setLoadingStates((prev) => ({
-            ...prev,
-            reordering: true,
-        }));
-
-        // Create new order based on the reordered array
-        const reorderedThreads = arrayMove(threadHierarchy, oldIndex, newIndex);
-
-        // Generate new order values
-        const threadOrderUpdates = reorderedThreads.map((thread, index) => ({
-            threadId: thread.threadId,
-            order: index,
-        }));
-
-        try {
-            await updateThreadOrderMutation({
-                threadOrders: threadOrderUpdates,
-                sessionToken: sessionData.data.session.token,
-            });
-        } catch (error) {
-            console.error("Failed to update thread order:", error);
-        } finally {
-            setLoadingStates((prev) => ({
-                ...prev,
-                reordering: false,
-            }));
-        }
+        // For now, we'll disable reordering across groups to keep it simple
+        // TODO: Implement cross-group reordering if needed
+        console.log("Drag and drop reordering temporarily disabled for grouped view");
     };
 
     // Keyboard shortcuts handlers
@@ -597,7 +710,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 case "P":
                     if (isCtrlOrCmd && currentThreadId) {
                         event.preventDefault();
-                        const currentThread = threadHierarchy.find((t) => t.threadId === currentThreadId);
+                        const currentThread = flattenedThreads.find((t) => t.threadId === currentThreadId);
                         if (currentThread) {
                             if (currentThread.isPinned) {
                                 handleUnpinThread(currentThreadId);
@@ -621,7 +734,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         event.preventDefault();
                         setIsKeyboardNavigating(true);
                         setSelectedThreadIndex((prev) => {
-                            const newIndex = prev <= 0 ? threadHierarchy.length - 1 : prev - 1;
+                            const totalThreads = flattenedThreads.length;
+                            const newIndex = prev <= 0 ? totalThreads - 1 : prev - 1;
                             return newIndex;
                         });
                     }
@@ -632,17 +746,18 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         event.preventDefault();
                         setIsKeyboardNavigating(true);
                         setSelectedThreadIndex((prev) => {
-                            const newIndex = prev >= threadHierarchy.length - 1 ? 0 : prev + 1;
+                            const totalThreads = flattenedThreads.length;
+                            const newIndex = prev >= totalThreads - 1 ? 0 : prev + 1;
                             return newIndex;
                         });
                     }
                     break;
 
                 case "Enter":
-                    if (isKeyboardNavigating && selectedThreadIndex >= 0 && selectedThreadIndex < threadHierarchy.length) {
+                    if (isKeyboardNavigating && selectedThreadIndex >= 0 && selectedThreadIndex < flattenedThreads.length) {
                         event.preventDefault();
-                        const selectedThread = threadHierarchy[selectedThreadIndex];
-                        navigate({ to: "/chat/$threadId", params: { threadId: selectedThread.threadId } });
+                        const selectedThread = flattenedThreads[selectedThreadIndex];
+                        navigate({ to: "/chat/$threadId", params: { threadId: selectedThread.threadId }, search: { initialMessage: undefined } });
                         setIsKeyboardNavigating(false);
                         setSelectedThreadIndex(-1);
                     }
@@ -676,7 +791,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         },
         [
             currentThreadId,
-            threadHierarchy,
+            flattenedThreads,
             selectedThreadIndex,
             isKeyboardNavigating,
             navigate,
@@ -699,10 +814,10 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
     // Reset keyboard navigation when threads change
     useEffect(() => {
-        if (isKeyboardNavigating && selectedThreadIndex >= threadHierarchy.length) {
-            setSelectedThreadIndex(threadHierarchy.length - 1);
+        if (isKeyboardNavigating && selectedThreadIndex >= flattenedThreads.length) {
+            setSelectedThreadIndex(flattenedThreads.length - 1);
         }
-    }, [threadHierarchy.length, selectedThreadIndex, isKeyboardNavigating]);
+    }, [flattenedThreads.length, selectedThreadIndex, isKeyboardNavigating]);
 
     // Reset keyboard navigation on mouse interaction
     const handleMouseEnter = useCallback(() => {
@@ -711,21 +826,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             setSelectedThreadIndex(-1);
         }
     }, [isKeyboardNavigating]);
-
-    const flattenedThreads = useMemo(() => {
-        const flattened: BranchNode[] = [];
-
-        const flattenNode = (node: BranchNode) => {
-            flattened.push(node);
-            if (expandedThreads.has(node.threadId)) {
-                node.children.forEach(flattenNode);
-            }
-        };
-
-        threadHierarchy.forEach(flattenNode);
-
-        return flattened;
-    }, [threadHierarchy, expandedThreads]);
 
     // Virtual scrolling setup
     const parentRef = useRef<HTMLDivElement>(null);
@@ -979,7 +1079,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     }
 
     // Show empty state for search results
-    if (!threadHierarchy.length && searchQuery.trim()) {
+    if (!threadGroups.length && searchQuery.trim()) {
         return (
             <div className="text-muted-foreground px-3 py-8 text-center text-sm">
                 {isSearchLoading ? (
@@ -1066,69 +1166,59 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             </div>
         );
 
-    // Get thread IDs for sortable context
-    const threadIds = threadHierarchy.map((thread) => thread.threadId);
-
-    // Use virtual scrolling for large lists
-    if (shouldUseVirtualScrolling) {
+    // Render thread groups
+    const renderThreadGroups = () => {
         return (
-            <div className="relative">
-                <KeyboardHelp />
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3">
+                {threadGroups.map((group, groupIndex) => (
+                    <div key={group.title} className="space-y-1">
+                        {/* Group Header */}
                         <div
-                            ref={parentRef}
-                            className="h-full overflow-auto"
-                            style={{
-                                height: "400px", // Set a fixed height for the scrollable area
+                            className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white cursor-pointer"
+                            onClick={() => {
+                                const groupType = group.title === "Pinned" ? 'pinned' :
+                                                 group.title === "Last 7 days" ? 'last7days' :
+                                                 group.title === "Last month" ? 'lastMonth' : 'older';
+                                toggleGroupCollapsed(groupType);
                             }}
                         >
-                            <div
-                                style={{
-                                    height: `${virtualizer.getTotalSize()}px`,
-                                    width: "100%",
-                                    position: "relative",
-                                }}
-                            >
-                                {virtualizer.getVirtualItems().map((virtualItem) => {
-                                    const node = flattenedThreads[virtualItem.index];
-                                    // Find the original index in threadHierarchy for keyboard navigation
-                                    const originalIndex = threadHierarchy.findIndex((t) => t.threadId === node.threadId);
-                                    return (
-                                        <div
-                                            key={virtualItem.key}
-                                            style={{
-                                                position: "absolute",
-                                                top: 0,
-                                                left: 0,
-                                                width: "100%",
-                                                height: `${virtualItem.size}px`,
-                                                transform: `translateY(${virtualItem.start}px)`,
-                                            }}
-                                        >
-                                            <SortableThreadItem node={node} index={originalIndex} />
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            {group.isCollapsed ? (
+                                <ChevronRight className="h-3 w-3" />
+                            ) : (
+                                <ChevronDown className="h-3 w-3" />
+                            )}
+                            <span>{group.title}</span>
+                            <span className="text-white/50">({group.threads.length})</span>
                         </div>
-                    </SortableContext>
-                </DndContext>
+
+                        {/* Group Threads */}
+                        {!group.isCollapsed && (
+                            <div className="space-y-1">
+                                {group.threads.map((thread, threadIndex) => (
+                                    <SortableThreadItem
+                                        key={thread.threadId}
+                                        node={thread}
+                                        index={threadIndex}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ))}
             </div>
         );
-    }
+    };
 
-    // Regular rendering for smaller lists
+    // Get all thread IDs for sortable context
+    const allThreadIds = threadGroups.flatMap(group => group.threads.map(thread => thread.threadId));
+
+    // Regular rendering with groups
     return (
         <div className="relative">
             <KeyboardHelp />
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={threadIds} strategy={verticalListSortingStrategy}>
-                    <div className="space-y-1">
-                        {threadHierarchy.map((rootNode, index) => (
-                            <SortableThreadItem key={rootNode.threadId} node={rootNode} index={index} />
-                        ))}
-                    </div>
+                <SortableContext items={allThreadIds} strategy={verticalListSortingStrategy}>
+                    {renderThreadGroups()}
                 </SortableContext>
             </DndContext>
         </div>
