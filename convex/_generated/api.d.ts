@@ -15,6 +15,7 @@ import type * as crons from "../crons.js";
 import type * as email_functions from "../email/functions.js";
 import type * as email_templates_subscription_email from "../email/templates/subscription_email.js";
 import type * as env from "../env.js";
+import type * as file from "../file.js";
 import type * as http from "../http.js";
 import type * as lib_errors from "../lib/errors.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   "email/functions": typeof email_functions;
   "email/templates/subscription_email": typeof email_templates_subscription_email;
   env: typeof env;
+  file: typeof file;
   http: typeof http;
   "lib/errors": typeof lib_errors;
   "lib/rateLimiter": typeof lib_rateLimiter;
@@ -1645,7 +1647,7 @@ export declare const components: {
           start: number;
           streamId: string;
         },
-        null
+        boolean
       >;
       create: FunctionReference<
         "mutation",
@@ -1672,6 +1674,12 @@ export declare const components: {
         "action",
         "internal",
         { threadId: string },
+        null
+      >;
+      deleteStreamAsync: FunctionReference<
+        "mutation",
+        "internal",
+        { cursor?: string; streamId: string },
         null
       >;
       deleteStreamSync: FunctionReference<
@@ -1835,13 +1843,21 @@ export declare const components: {
       deleteAllForThreadIdAsync: FunctionReference<
         "mutation",
         "internal",
-        { cursor?: string; limit?: number; threadId: string },
-        { cursor: string; isDone: boolean }
+        {
+          cursor?: string;
+          deltaCursor?: string;
+          limit?: number;
+          messagesDone?: boolean;
+          streamOrder?: number;
+          streamsDone?: boolean;
+          threadId: string;
+        },
+        { isDone: boolean }
       >;
       deleteAllForThreadIdSync: FunctionReference<
         "action",
         "internal",
-        { cursor?: string; limit?: number; threadId: string },
+        { limit?: number; threadId: string },
         null
       >;
       getThread: FunctionReference<

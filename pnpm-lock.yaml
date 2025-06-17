@@ -39,8 +39,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2(better-auth@1.2.9)(convex@1.24.8(react@19.1.0))(typescript@5.8.3)
       '@convex-dev/agent':
-        specifier: ^0.1.8
-        version: 0.1.8(ai@4.3.16(react@19.1.0)(zod@3.25.67))(convex-helpers@0.1.94(@standard-schema/spec@1.0.0)(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.67))(convex@1.24.8(react@19.1.0))(react@19.1.0)
+        specifier: 0.1.9-alpha.6
+        version: 0.1.9-alpha.6(ai@4.3.16(react@19.1.0)(zod@3.25.67))(convex-helpers@0.1.94(@standard-schema/spec@1.0.0)(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.67))(convex@1.24.8(react@19.1.0))(react@19.1.0)
       '@convex-dev/migrations':
         specifier: ^0.2.9
         version: 0.2.9(convex@1.24.8(react@19.1.0))
@@ -748,8 +748,8 @@ packages:
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
 
-  '@convex-dev/agent@0.1.8':
-    resolution: {integrity: sha512-5X2sIZ7tUA7efL0cy5kO7jsE7uhN7VqB00vwjjjvdZBZv4PSNFdS/Kzek0R5pONsrc7/n0O/8p56oEg8SbJrTg==}
+  '@convex-dev/agent@0.1.9-alpha.6':
+    resolution: {integrity: sha512-XYdCiQ686cYcvwCfyP9EtRo/ng/VTftatBqartEFQcw4A44/GcUF2Srv2aJuWupReyWTMUEBLS2TbhVUfMCF+Q==}
     peerDependencies:
       ai: ^4.3.16
       convex: ^1.23.0
@@ -9952,7 +9952,7 @@ snapshots:
 
   '@colors/colors@1.6.0': {}
 
-  '@convex-dev/agent@0.1.8(ai@4.3.16(react@19.1.0)(zod@3.25.67))(convex-helpers@0.1.94(@standard-schema/spec@1.0.0)(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.67))(convex@1.24.8(react@19.1.0))(react@19.1.0)':
+  '@convex-dev/agent@0.1.9-alpha.6(ai@4.3.16(react@19.1.0)(zod@3.25.67))(convex-helpers@0.1.94(@standard-schema/spec@1.0.0)(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.67))(convex@1.24.8(react@19.1.0))(react@19.1.0)':
     dependencies:
       ai: 4.3.16(react@19.1.0)(zod@3.25.67)
       convex: 1.24.8(react@19.1.0)

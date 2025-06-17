@@ -5,7 +5,7 @@ import { AgentModel, getAgent } from "../ai/lib/agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import { Id } from "../_generated/dataModel";
 import z from "zod";
-import type { MessageDoc, ThreadDoc } from "@convex-dev/agent";
+import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
 
 export const createThread = mutation({
@@ -183,33 +183,13 @@ export const updateThread = action({
     },
 });
 
-// DEPRECATED: Use deleteThreadWithRelationships instead
-export const deleteThread = mutation({
-    args: { threadId: v.string(), sessionToken: v.string() },
-    handler: async (ctx, { threadId, sessionToken }) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        // Clean up relationships first
-        await ctx.runMutation(internal.chat.functions.deleteThreadRelationship, {
-            threadId,
-        });
-
-        return await ctx.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId });
-    },
-});
-
 export const streamHttpAction = httpAction(async (ctx, request) => {
-    const { threadId, prompt, model, sessionToken } = (await request.json()) as {
+    const { threadId, prompt, model, sessionToken, fileIds } = (await request.json()) as {
         threadId?: string;
-        prompt: string;
+        prompt?: string;
         model: string;
         sessionToken: string;
+        fileIds?: string[];
     };
 
     const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
@@ -226,10 +206,48 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         ? await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> })
         : await agent.createThread(ctx, { userId: sessionData.userId as Id<"user"> });
 
+        // Create message content with file support
+    let messageContent: any[] = [];
+
+    if (fileIds) {
+        try {
+            for (const fileId of fileIds) {
+                // @ts-ignore - Ignoring TypeScript errors for getFile function
+                const { filePart, imagePart } = await getFile(ctx, components.agent, fileId);
+
+                // Add file content to message (image takes precedence over file)
+                if (imagePart && Object.keys(imagePart).length > 0) {
+                    messageContent.push(imagePart);
+                } else if (filePart && Object.keys(filePart).length > 0) {
+                    messageContent.push(filePart);
+                }
+            }
+        } catch (error) {
+            console.error("Error processing file:", error);
+            // TODO: Show a message to the user that the file is not supported
+            // Continue without file if there's an error
+        }
+    }
+
+    // Always ensure we have text content (never empty)
+    const textContent = prompt?.trim() || "Please analyze the uploaded file.";
+
+    messageContent.push({ type: "text", text: textContent });
+
+    const { messageId } = await agent.saveMessage(ctx, {
+        threadId: thread.threadId,
+        message: {
+          role: "user",
+          content: messageContent,
+        },
+        // This will track the usage of the file, so we can delete old ones
+        metadata: fileIds && fileIds.length > 0 ? { fileIds } : undefined,
+      });
+
     await ctx.scheduler.runAfter(0, internal.chat.functions.createTitleChat, {
         threadId: thread.threadId,
         sessionToken,
-        prompt,
+        prompt: prompt ?? " ", // TODO: add prompt based on image
     });
 
     await ctx.scheduler.runAfter(0, internal.chat.functions.createSummarizeChat, {
@@ -237,7 +255,7 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         sessionToken,
     });
 
-    const result = await thread.streamText({ prompt });
+    const result = await thread.streamText({ promptMessageId: messageId });
 
     return result.toDataStreamResponse();
 });

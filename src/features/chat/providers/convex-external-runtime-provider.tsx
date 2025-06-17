@@ -19,7 +19,7 @@ import { useThreadMessages } from "@convex-dev/agent/react";
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
 import ConvexAttachmentAdapter from "@/features/chat/components/adapter/convex-attachment-adapter";
-import { useMutation, usePaginatedQuery, useAction } from "convex/react";
+import { useMutation, usePaginatedQuery, useAction, useConvex } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadContext } from "@/features/chat/components/thread-context";
 import type { AgentModel } from "@cvx/ai/lib/agents";
@@ -39,10 +39,16 @@ export type ConvexMessage = {
         role: "user" | "assistant" | "system";
         content:
             | string
-            | Array<{
-                  type: "text";
-                  text: string;
-              }>;
+            | Array<
+                  | {
+                        type: "text";
+                        text: string;
+                    }
+                  | {
+                        type: "image";
+                        image: string;
+                    }
+              >;
     };
 };
 
@@ -68,27 +74,28 @@ const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
     const role = message.message.role;
     const content = message.message.content;
 
-    let displayContent: string;
+    let messageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [];
 
     if (typeof content === "string") {
-        displayContent = content;
+        messageContent = [{ type: "text", text: content }];
     } else if (Array.isArray(content)) {
-        displayContent = content
-            .map((part) => {
-                if (part.type === "text") {
-                    return part.text;
-                }
-                return `[unsupported content: ${part.type}]`;
-            })
-            .join("");
+        messageContent = content.map((part) => {
+            if (part.type === "text") {
+                return { type: "text", text: part.text };
+            } else if (part.type === "image" && part.image) {
+                return { type: "image", image: part.image };
+            }
+
+            return { type: "text", text: `[unsupported content: ${part.type}]` };
+        });
     } else {
-        displayContent = "";
+        messageContent = [{ type: "text", text: "" }];
     }
 
     return {
         id: message._id,
         role: role,
-        content: [{ type: "text", text: displayContent }],
+        content: messageContent,
         createdAt: new Date(message._creationTime),
     };
 };
@@ -97,6 +104,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const navigate = useNavigate();
     const sessionData = useSession();
     const threadContext = useThreadContext();
+    const convex = useConvex();
     const [isRunning, setIsRunning] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -157,7 +165,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     }, [paginatedMessages.isLoading, currentThreadId, setThreads]);
 
     const streamMessage = useCallback(
-        async (input: string, targetThreadId?: string) => {
+        async (input: string, targetThreadId?: string, fileIds?: string[]) => {
             if (!sessionData?.data?.session?.token) {
                 throw new Error("No session token available");
             }
@@ -191,8 +199,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     body: JSON.stringify({
                         prompt: input,
                         threadId: useThreadId,
-                        model: model,
+                        model,
                         sessionToken: sessionData.data.session.token,
+                        fileIds,
                     }),
                     signal: abortController.signal,
                 });
@@ -263,11 +272,38 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     // Handler for new messages
     const handleNewMessage = useCallback(
         async (message: AppendMessage) => {
-            if (message.content[0]?.type !== "text") {
-                throw new Error("Only text messages are supported");
+                        // Extract text content and file IDs from attachments
+            let textContent = "";
+            const fileIds: string[] = [];
+            const messageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [];
+
+            // Process message content
+            for (const content of message.content) {
+                if (content.type === "text") {
+                    textContent += content.text;
+                    messageContent.push({ type: "text", text: content.text });
+                } else if (content.type === "image" && content.image) {
+                    // Add image content to the message
+                    messageContent.push({ type: "image", image: content.image });
+
+                    // Extract fileId from metadata if available
+                    const attachment = message.attachments?.find((att) => att.content?.some((c) => c.type === "image" && c.image === content.image));
+                    if (attachment && "metadata" in attachment && attachment.metadata && (attachment.metadata as any).fileId) {
+                        fileIds.push((attachment.metadata as any).fileId);
+                    }
+                }
             }
 
-            const input = message.content[0].text;
+            // Also check for file attachments directly
+            if (message.attachments) {
+                for (const attachment of message.attachments) {
+                    if (attachment && "metadata" in attachment && attachment.metadata && (attachment.metadata as any).fileId && !fileIds.includes((attachment.metadata as any).fileId)) {
+                        fileIds.push((attachment.metadata as any).fileId);
+                    }
+                }
+            }
+
+            const input = textContent;
 
             // Check if we need to create the thread in Convex first
             let actualThreadId = currentThreadId;
@@ -306,6 +342,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     });
 
                     setCurrentThreadId(actualThreadId);
+
                     navigate({ to: "/chat/$threadId", params: { threadId: actualThreadId }, replace: true, search: { initialMessage: undefined } });
                 } catch (error) {
                     console.error("Failed to create thread in Convex:", error);
@@ -316,8 +353,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             const userMessage: ThreadMessageLike = {
                 role: "user",
                 id: generateId(),
-                content: [{ type: "text", text: input }],
+                content: messageContent.length > 0 ? messageContent : [{ type: "text", text: input }],
                 createdAt: new Date(),
+                attachments: message.attachments,
             };
 
             // Optimistically add user message to current thread
@@ -327,7 +365,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             });
 
             // Stream the assistant response
-            await streamMessage(input, actualThreadId);
+            await streamMessage(input, actualThreadId, fileIds);
         },
         [
             streamMessage,
@@ -630,7 +668,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             },
             adapters: {
                 attachments: new CompositeAttachmentAdapter([
-                    new ConvexAttachmentAdapter(sessionData?.data?.session?.token as string, threadId as string, model),
+                    new ConvexAttachmentAdapter(sessionData?.data?.session?.token as string, convex),
                 ]),
                 threadList: threadListAdapter,
                 //feedback: feedbackAdapter,
@@ -651,6 +689,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             sessionData?.data?.session?.token,
             model,
             threadListAdapter,
+            convex,
         ],
     );
 

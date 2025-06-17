@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
 
     return {
+        optimizeDeps: {
+            exclude: ["scripts/*"],
+        },
         server: {
             routeRules: {
                 "/pr/posthog/**": { proxy: { to: "https://eu.i.posthog.com/**" } },

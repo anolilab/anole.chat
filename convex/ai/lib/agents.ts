@@ -19,17 +19,80 @@ type RawRequestResponseHandler = (
 ) => void | Promise<void>;
 
 export const agents = {
+    // Google's latest and most powerful thinking model
+    "gemini-2.5-pro": {
+        chat: google.chat("gemini-2.5-pro"),
+        instructions: "You are a highly intelligent assistant with advanced reasoning capabilities. Think through complex problems step by step and provide detailed, accurate responses.",
+        textEmbedding: google.textEmbeddingModel("gemini-embedding-exp-03-07"),
+        maxSteps: 10,
+        maxRetries: 3,
+        contextOptions: {
+            recentMessages: 20,
+        },
+    },
+    // Best price-performance ratio with thinking capabilities
+    "gemini-2.5-flash": {
+        chat: google.chat("gemini-2.5-flash"),
+        instructions: "You are a helpful and efficient assistant that balances speed with intelligent reasoning. Provide clear, accurate, and well-structured responses.",
+        textEmbedding: google.textEmbeddingModel("gemini-embedding-exp-03-07"),
+        maxSteps: 8,
+        maxRetries: 3,
+        contextOptions: {
+            recentMessages: 15,
+        },
+    },
+    // Most cost-effective option for high-volume tasks
+    "gemini-2.5-flash-lite": {
+        chat: google.chat("gemini-2.5-flash-lite"),
+        instructions: "You are an efficient assistant optimized for quick responses. Provide helpful, concise answers while maintaining accuracy.",
+        textEmbedding: google.textEmbeddingModel("text-embedding-004"),
+        maxSteps: 5,
+        maxRetries: 2,
+        contextOptions: {
+            recentMessages: 10,
+        },
+    },
+    // Next-generation model with superior speed and capabilities
+    "gemini-2.0-flash": {
+        chat: google.chat("gemini-2.0-flash"),
+        instructions: "You are an advanced AI assistant with next-generation capabilities. Provide intelligent, contextually aware responses with superior understanding.",
+        textEmbedding: google.textEmbeddingModel("text-embedding-004"),
+        maxSteps: 8,
+        maxRetries: 3,
+        contextOptions: {
+            recentMessages: 15,
+        },
+    },
+    // Reliable previous generation model
+    "gemini-1.5-flash": {
+        chat: google.chat("gemini-1.5-flash"),
+        instructions: "You are a helpful assistant with strong multimodal capabilities. Provide accurate and contextually relevant responses.",
+        textEmbedding: google.textEmbeddingModel("text-embedding-004"),
+        maxSteps: 6,
+        maxRetries: 2,
+        contextOptions: {
+            recentMessages: 12,
+        },
+    },
+    // Legacy OpenAI model for comparison
     "gpt-4o-mini": {
         chat: openai.chat("gpt-4o-mini"),
         instructions: "You are a helpful assistant.",
+        maxSteps: 5,
+        maxRetries: 2,
+        contextOptions: {
+            recentMessages: 10,
+        },
     },
+    // Legacy Anthropic model for comparison
     "claude-3-5-sonnet": {
         chat: anthropic.chat("claude-3-5-sonnet-20240620"),
         instructions: "You are a helpful assistant.",
-    },
-    "gemini-1.5-flash": {
-        chat: google.chat("gemini-1.5-flash-latest"),
-        instructions: "You are a helpful assistant.",
+        maxSteps: 6,
+        maxRetries: 2,
+        contextOptions: {
+            recentMessages: 12,
+        },
     },
 } satisfies Record<
     string,
@@ -105,7 +168,8 @@ export const agents = {
 
 export type AgentModel = keyof typeof agents;
 
-export const DEFAULT_MODEL: AgentModel = "gemini-1.5-flash";
+// Updated default to use the best price-performance model with thinking capabilities
+export const DEFAULT_MODEL: AgentModel = "gemini-2.5-flash";
 
 export function getAgent(model: AgentModel) {
     const agent = agents[model];

@@ -1,4 +1,4 @@
-import { RateLimiter } from "@convex-dev/rate-limiter";
+import { RateLimiter, RateLimitReturns } from "@convex-dev/rate-limiter";
 import { components } from "../_generated/api";
 
 // Time constants for readability
@@ -168,13 +168,15 @@ export async function getRateLimitStatus(
     remaining: number;
     resetTime: number;
     config: any;
+    status: RateLimitReturns;
 }> {
     const status = await rateLimiter.check(ctx, operation, { key });
     const value = await rateLimiter.getValue(ctx, operation, { key });
 
     return {
-        remaining: Math.max(0, value.config.capacity - value.value),
-        resetTime: value.ts + value.config.period,
+        remaining: Math.max(0, (value.config?.capacity ?? 0) - value.value),
+        resetTime: value.ts + (value.config?.period ?? 0),
         config: value.config,
+        status,
     };
 }
