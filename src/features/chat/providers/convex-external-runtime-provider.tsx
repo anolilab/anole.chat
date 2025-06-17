@@ -38,11 +38,11 @@ export type ConvexMessage = {
     message?: {
         role: "user" | "assistant" | "system";
         content:
-            | string
-            | Array<{
-                  type: "text";
-                  text: string;
-              }>;
+        | string
+        | Array<{
+            type: "text";
+            text: string;
+        }>;
     };
 };
 
@@ -127,10 +127,10 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const paginatedMessagesArgs =
         currentThreadId !== "default" && sessionData?.data?.session?.token
             ? {
-                  threadId: currentThreadId,
-                  model: model,
-                  sessionToken: sessionData.data.session.token,
-              }
+                threadId: currentThreadId,
+                model: model,
+                sessionToken: sessionData.data.session.token,
+            }
             : "skip";
 
     const paginatedMessages = useThreadMessages(api.chat.functions.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
@@ -221,9 +221,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                                 const updatedMessages = currentThreadMessages.map((m) =>
                                     m.id === assistantId
                                         ? {
-                                              ...m,
-                                              content: [{ type: "text" as const, text: textPart.text }],
-                                          }
+                                            ...m,
+                                            content: [{ type: "text" as const, text: textPart.text }],
+                                        }
                                         : m,
                                 );
                                 return new Map(prev).set(useThreadId, updatedMessages);
@@ -245,9 +245,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     const updatedMessages = currentThreadMessages.map((m) =>
                         m.id === assistantId
                             ? {
-                                  ...m,
-                                  content: [{ type: "text" as const, text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` }],
-                              }
+                                ...m,
+                                content: [{ type: "text" as const, text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` }],
+                            }
                             : m,
                     );
                     return new Map(prev).set(useThreadId, updatedMessages);
