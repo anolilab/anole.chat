@@ -45,7 +45,7 @@
 
     /* Site header colors */
     --color-site-header-background: oklch(0.205 0 0);
-    --color-site-header-border: oklch(0.09 0.005 286.062 / 0.05);
+    --color-site-header-border: oklch(1 0 0 / 10%);
 
     /* Border radius */
     --radius: 0.625rem;
@@ -93,7 +93,6 @@
         --color-sidebar-ring: oklch(0.592 0.912 217.2);
 
         /* Site header colors for dark mode */
-        --color-site-header-border: oklch(1 0 0 / 0.1);
         --color-site-header-background: oklch(0.483 0.763 224.3);
     }
 }

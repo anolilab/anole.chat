@@ -17,19 +17,19 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                     <ModeToggle className="text-white" />
                 </div>
                 <div
-                    className="absolute -top-2.5 -right-2.5 z-10 h-14.5 w-25.5 max-sm:hidden"
+                    className="absolute -top-2 -right-2.5 z-10 h-14.5 w-25.5 max-sm:hidden"
                     style={{
                         clipPath: "inset(0px 8px 0px 0px)",
                     }}
                 >
                     <div
-                        className="group ease-snappy pointer-events-none absolute top-1.5 z-10 -mb-8 h-32 w-full origin-top transition-all"
+                        className="group ease-snappy pointer-events-none absolute top-2 z-10 w-full origin-top transition-all"
                         style={{
                             boxShadow: "10px -10px 8px 2px var(--color-site-header-background)",
                         }}
                     >
                         <svg
-                            className="absolute -right-8 h-9 origin-top-left skew-x-[30deg] overflow-visible"
+                            className="absolute -right-10 origin-top-left skew-x-[30deg] overflow-visible"
                             version="1.1"
                             xmlns="http://www.w3.org/2000/svg"
                             xmlnsXlink="http://www.w3.org/1999/xlink"

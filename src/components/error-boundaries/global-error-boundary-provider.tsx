@@ -184,10 +184,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
 
                     <div className="space-y-3">
                         {ErrorUtils.isRetryable(error) && (
-                            <button
-                                onClick={retry}
-                                className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
-                            >
+                            <button onClick={retry} className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
                                 Try Again
                             </button>
                         )}
