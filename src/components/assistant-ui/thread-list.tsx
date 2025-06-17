@@ -79,10 +79,10 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchThreads,
         sessionData?.data?.session?.token && searchQuery.trim() && searchType === "threads"
             ? {
-                  searchQuery: searchQuery.trim(),
-                  sessionToken: sessionData.data.session.token,
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
+                searchQuery: searchQuery.trim(),
+                sessionToken: sessionData.data.session.token,
+                paginationOpts: { numItems: 100, cursor: null },
+            }
             : "skip",
     );
 
@@ -91,10 +91,10 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchMessages,
         sessionData?.data?.session?.token && searchQuery.trim() && searchType === "messages"
             ? {
-                  searchQuery: searchQuery.trim(),
-                  sessionToken: sessionData.data.session.token,
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
+                searchQuery: searchQuery.trim(),
+                sessionToken: sessionData.data.session.token,
+                paginationOpts: { numItems: 100, cursor: null },
+            }
             : "skip",
     );
 
@@ -114,13 +114,13 @@ export const ThreadList: FC = () => {
     };
 
     return (
-        <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5">
+        <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5 text-white">
             <div className="flex items-center gap-2">
                 <ThreadListNew />
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowSearch(!showSearch)}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white" onClick={() => setShowSearch(!showSearch)}>
                                 <Search className="h-4 w-4" />
                             </Button>
                         </TooltipTrigger>
@@ -130,7 +130,7 @@ export const ThreadList: FC = () => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white" onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}>
                                 <HelpCircle className="h-4 w-4" />
                             </Button>
                         </TooltipTrigger>
@@ -145,7 +145,7 @@ export const ThreadList: FC = () => {
                             variant={searchType === "threads" ? "default" : "outline"}
                             size="sm"
                             onClick={() => setSearchType("threads")}
-                            className="text-xs"
+                            className="text-xs border-white/20 text-white hover:bg-white/10 data-[active]:bg-white/20"
                         >
                             Threads
                         </Button>
@@ -153,7 +153,7 @@ export const ThreadList: FC = () => {
                             variant={searchType === "messages" ? "default" : "outline"}
                             size="sm"
                             onClick={() => setSearchType("messages")}
-                            className="text-xs"
+                            className="text-xs border-white/20 text-white hover:bg-white/10 data-[active]:bg-white/20"
                         >
                             Messages
                         </Button>
@@ -163,7 +163,7 @@ export const ThreadList: FC = () => {
                             placeholder={searchType === "threads" ? "Search thread titles..." : "Search message content..."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pr-8"
+                            className="pr-8 bg-white/5 border-white/20 text-white placeholder:text-white/60"
                             autoFocus
                         />
                         {searchQuery && (
@@ -205,7 +205,7 @@ export const ThreadList: FC = () => {
 const ThreadListNew: FC = () => {
     return (
         <ThreadListPrimitive.New asChild>
-            <Button className="data-[active]:bg-muted hover:bg-muted flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start" variant="ghost">
+            <Button className="data-[active]:bg-white/20 hover:bg-white/10 flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start text-white" variant="ghost">
                 <PlusIcon />
                 New Thread
             </Button>
@@ -773,24 +773,24 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             <TooltipProvider>
                 <div
                     className={cn(
-                        "hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none",
-                        isActive && "bg-muted",
-                        isKeyboardSelected && "ring-primary bg-muted/50 ring-2",
+                        "hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-white/50 cursor-pointer focus-visible:ring-2 focus-visible:outline-none",
+                        isActive && "bg-white/20",
+                        isKeyboardSelected && "ring-white/50 bg-white/10 ring-2",
                         !isRootThread && "ml-6",
                         (isDeleting || loadingStates.reordering) && "pointer-events-none opacity-50",
                     )}
-                    onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId } })}
+                    onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId }, search: { initialMessage: undefined } })}
                 >
                     <div className="flex items-center gap-2 rounded-lg px-2.5 py-2">
                         {/* Drag handle - only show if not loading */}
                         {!isDeleting && !loadingStates.reordering && (
                             <div className="opacity-0 transition-opacity group-hover:opacity-100" {...dragListeners}>
-                                <GripVertical className="text-muted-foreground h-3 w-3 cursor-grab active:cursor-grabbing" />
+                                <GripVertical className="text-white/60 h-3 w-3 cursor-grab active:cursor-grabbing" />
                             </div>
                         )}
 
                         {/* Loading indicator for reordering */}
-                        {loadingStates.reordering && <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />}
+                        {loadingStates.reordering && <Loader2 className="text-white/60 h-3 w-3 animate-spin" />}
 
                         {/* Expand/collapse button for threads with children */}
                         {hasChildren && (
@@ -808,7 +808,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         )}
 
                         {/* Thread title */}
-                        <span className="flex-1 truncate text-sm">{node.title}</span>
+                        <span className="flex-1 truncate text-sm text-white">{node.title}</span>
 
                         {/* Action buttons */}
                         <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
