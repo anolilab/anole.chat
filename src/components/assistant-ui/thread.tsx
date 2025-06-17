@@ -117,19 +117,19 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
 
     return (
         <>
-            <div className="w-full rounded-lg bg-neutral-200/80 p-1 backdrop-blur-lg">
+            <div className="w-full rounded-lg bg-neutral-200/80 p-1 backdrop-blur-lg dark:bg-neutral-800/80">
                 <div className="flex flex-row items-center justify-between">
                     <ComposerAddAttachment />
                     <ComposerAttachments />
                 </div>
-                <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg">
+                <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg dark:border-neutral-700 dark:bg-neutral-900/60">
                     <div className="flex w-full flex-row items-center justify-between">
                         <ComposerPrimitive.Input
                             data-composer-input
                             rows={1}
                             autoFocus
                             placeholder={t`Type your message here...`}
-                            className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
+                            className="placeholder:text-muted-foreground max-h-40 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed dark:text-neutral-100 dark:placeholder:text-neutral-400"
                             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                                 setInputValue(e.target.value);
                             }}
@@ -143,12 +143,12 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                     </div>
                     <div className="flex w-full flex-row items-center justify-between">
                         <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as AgentModel)}>
-                            <SelectTrigger>
+                            <SelectTrigger className="dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100">
                                 <SelectValue placeholder="Select a model" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="dark:border-neutral-600 dark:bg-neutral-800">
                                 {Object.keys(agents).map((model) => (
-                                    <SelectItem key={model} value={model}>
+                                    <SelectItem key={model} value={model} className="dark:text-neutral-100 dark:focus:bg-neutral-700">
                                         {model}
                                     </SelectItem>
                                 ))}
@@ -159,7 +159,7 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                     </div>
                 </ComposerPrimitive.Root>
             </div>
-            <div id="composer-placeholder" className="-mt-2 h-4 w-full lg:bg-white dark:lg:bg-zinc-900" />
+            <div id="composer-placeholder" className="-mt-2 h-4 w-full lg:bg-white dark:lg:bg-neutral-900" />
         </>
     );
 };

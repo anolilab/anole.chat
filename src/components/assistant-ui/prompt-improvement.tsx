@@ -171,7 +171,7 @@ export const PromptImprovementButton: FC<PromptImprovementButtonProps> = ({ onIm
             <TooltipIconButton
                 tooltip={isImproving ? "Improving prompt..." : "Improve prompt with AI"}
                 variant="ghost"
-                className="my-2.5 size-8 p-2 transition-opacity ease-in"
+                className="my-2.5 size-8 p-2 transition-opacity ease-in dark:text-neutral-100"
                 onClick={handleClick}
                 disabled={isImproving || isDisabled}
                 type="button"

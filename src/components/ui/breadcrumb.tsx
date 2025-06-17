@@ -31,7 +31,7 @@ function BreadcrumbLink({
 }) {
     const Comp = asChild ? SlotPrimitive.Slot : "a";
 
-    return <Comp data-slot="breadcrumb-link" className={cn("hover:text-foreground transition-colors", className)} {...props} />;
+    return <Comp data-slot="breadcrumb-link" className={cn("hover:text-foreground", className)} {...props} />;
 }
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {

@@ -41,7 +41,7 @@ function RouteComponent() {
                                         <BreadcrumbItem className="hidden md:block" key={item.href}>
                                             <BreadcrumbLink
                                                 href={item.href}
-                                                className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm capitalize transition-colors dark:hover:text-white"
+                                                className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm capitalize dark:hover:text-white"
                                             >
                                                 {item.label}
                                                 {index < breadcrumb.length - 1 && index !== 0 && (

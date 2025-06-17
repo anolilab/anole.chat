@@ -186,7 +186,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
                         {ErrorUtils.isRetryable(error) && (
                             <button
                                 onClick={retry}
-                                className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+                                className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
                             >
                                 Try Again
                             </button>
@@ -194,14 +194,14 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
 
                         <button
                             onClick={() => window.location.reload()}
-                            className="w-full rounded-lg bg-gray-600 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-700"
+                            className="w-full rounded-lg bg-gray-600 px-4 py-2 font-medium text-white hover:bg-gray-700"
                         >
                             Reload Application
                         </button>
 
                         <button
                             onClick={() => (window.location.href = "/")}
-                            className="w-full rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                            className="w-full rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                         >
                             Go to Home
                         </button>
