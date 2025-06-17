@@ -1,20 +1,15 @@
 import { toast } from "sonner";
-import { AppError, RateLimitError, AuthenticationError, ValidationError, NetworkError, TimeoutError, ServerError, ErrorUtils } from "./errors";
-
-/**
- * Toast notification utilities
- * Provides consistent error handling and user feedback
- */
+import { RateLimitError, ErrorUtils } from "./errors";
 
 export interface ToastOptions {
     duration?: number;
     action?: {
         label: string;
-        onClick: () => void;
+        onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
     };
     cancel?: {
         label: string;
-        onClick?: () => void;
+        onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
     };
     id?: string | number;
 }

@@ -64,6 +64,8 @@
         "@polar-sh/sdk": "^0.33.2",
         "@react-email/components": "^0.1.0",
         "@react-email/render": "^1.1.2",
+        "@shikijs/langs": "^3.6.0",
+        "@shikijs/themes": "^3.6.0",
         "@t3-oss/env-core": "^0.13.8",
         "@tailwindcss/vite": "^4.1.10",
         "@tanstack/form-core": "^1.12.3",
