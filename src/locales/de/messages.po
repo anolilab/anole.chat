@@ -708,3 +708,71 @@ msgstr "Sie haben die Einladung zum Beitritt abgelehnt"
 #: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:109
 msgid "You have successfully joined the organization"
 msgstr "Sie sind der Organisation erfolgreich beigetreten"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Delete Thread"
+msgstr "Thread löschen"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation."
+msgstr "Sind Sie sicher, dass Sie diesen Thread löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden und entfernt alle Nachrichten in dieser Unterhaltung dauerhaft."
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Delete"
+msgstr "Löschen"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Deleting..."
+msgstr "Löschen..."
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Delete thread"
+msgstr "Thread löschen"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Search threads (Ctrl+F)"
+msgstr "Threads durchsuchen (Strg+F)"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Keyboard shortcuts (?)"
+msgstr "Tastenkürzel (?)"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Threads"
+msgstr "Threads"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Messages"
+msgstr "Nachrichten"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Search thread titles..."
+msgstr "Thread-Titel durchsuchen..."
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Search message content..."
+msgstr "Nachrichteninhalt durchsuchen..."
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "New Thread"
+msgstr "Neuer Thread"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Loading threads..."
+msgstr "Threads werden geladen..."
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "No threads yet"
+msgstr "Noch keine Threads"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Start a new conversation to create your first thread"
+msgstr "Starten Sie eine neue Unterhaltung, um Ihren ersten Thread zu erstellen"
+
+#: src/components/assistant-ui/thread-list.tsx
+msgid "Press ? for keyboard shortcuts"
+msgstr "Drücken Sie ? für Tastenkürzel"

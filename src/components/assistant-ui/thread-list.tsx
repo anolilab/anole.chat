@@ -29,6 +29,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { api } from "@cvx/_generated/api";
 import { ShortcutsProvider, KeyCombo, KeySymbol, Keys } from "@/components/ui/keyboard-shortcuts";
@@ -38,6 +39,7 @@ import { useThreadContext } from "@/features/chat/components/thread-context";
 import { handleDownload, type DownloadFormat } from "@/lib/download";
 import type { Doc } from "@cvx/_generated/dataModel";
 import { ValidationError } from "@/lib/errors";
+import { useLingui } from "@lingui/react/macro";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
@@ -64,6 +66,7 @@ interface ThreadGroup {
 type GroupType = "pinned" | "last7days" | "lastMonth" | "older";
 
 export const ThreadList: FC = () => {
+    const { t } = useLingui();
     const sessionData = useSession();
     const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
     const [collapsedGroups, setCollapsedGroups] = useState<Set<GroupType>>(new Set());
@@ -138,13 +141,13 @@ export const ThreadList: FC = () => {
 
     return (
         <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5 text-white">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full">
                 <ThreadListNew />
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
-                                variant="ghost"
+                                variant="icon"
                                 size="sm"
                                 className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
                                 onClick={() => setShowSearch(!showSearch)}
@@ -152,14 +155,14 @@ export const ThreadList: FC = () => {
                                 <Search className="h-4 w-4" />
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Search threads (Ctrl+F)</TooltipContent>
+                        <TooltipContent>{t`Search threads (Ctrl+F)`}</TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
-                                variant="ghost"
+                                variant="icon"
                                 size="sm"
                                 className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
                                 onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
@@ -167,7 +170,7 @@ export const ThreadList: FC = () => {
                                 <HelpCircle className="h-4 w-4" />
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Keyboard shortcuts (?)</TooltipContent>
+                        <TooltipContent>{t`Keyboard shortcuts (?)`}</TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
             </div>
@@ -180,7 +183,7 @@ export const ThreadList: FC = () => {
                             onClick={() => setSearchType("threads")}
                             className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
                         >
-                            Threads
+                            {t`Threads`}
                         </Button>
                         <Button
                             variant={searchType === "messages" ? "default" : "outline"}
@@ -188,12 +191,12 @@ export const ThreadList: FC = () => {
                             onClick={() => setSearchType("messages")}
                             className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
                         >
-                            Messages
+                            {t`Messages`}
                         </Button>
                     </div>
                     <div className="relative">
                         <Input
-                            placeholder={searchType === "threads" ? "Search thread titles..." : "Search message content..."}
+                            placeholder={searchType === "threads" ? t`Search thread titles...` : t`Search message content...`}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="border-white/20 bg-white/5 pr-8 text-white placeholder:text-white/60"
@@ -201,7 +204,7 @@ export const ThreadList: FC = () => {
                         />
                         {searchQuery && (
                             <Button
-                                variant="ghost"
+                                variant="icon"
                                 size="sm"
                                 className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 p-0"
                                 onClick={() => setSearchQuery("")}
@@ -238,14 +241,16 @@ export const ThreadList: FC = () => {
 };
 
 const ThreadListNew: FC = () => {
+    const { t } = useLingui();
+
     return (
         <ThreadListPrimitive.New asChild>
             <Button
-                className="flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start text-white hover:bg-white/10 data-[active]:bg-white/20"
-                variant="ghost"
+                className="flex grow items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start text-white hover:bg-white/10 data-[active]:bg-white/20"
+                variant="icon"
             >
                 <PlusIcon />
-                New Thread
+                {t`New Thread`}
             </Button>
         </ThreadListPrimitive.New>
     );
@@ -299,6 +304,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     threadSearchResults,
     messageSearchResults,
 }) => {
+    const { t } = useLingui();
     const { currentThreadId, createBranch, deleteBranch, threads } = useThreadContext();
     const sessionData = useSession();
     const navigate = useNavigate();
@@ -983,7 +989,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         {/* Expand/collapse button for threads with children */}
                         {hasChildren && (
                             <Button
-                                variant="ghost"
+                                variant="icon"
                                 size="sm"
                                 className="h-4 w-4 p-0"
                                 onClick={(e) => {
@@ -1011,7 +1017,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        variant="ghost"
+                                        variant="icon"
                                         size="sm"
                                         className="hover:text-primary h-6 w-6 p-0"
                                         onClick={(e) => {
@@ -1041,7 +1047,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        variant="ghost"
+                                        variant="icon"
                                         size="sm"
                                         className="hover:text-primary h-6 w-6 p-0"
                                         onClick={(e) => {
@@ -1063,7 +1069,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     <TooltipTrigger asChild>
                                         <DropdownMenuTrigger asChild>
                                             <Button
-                                                variant="ghost"
+                                                variant="icon"
                                                 size="sm"
                                                 className="hover:text-primary h-6 w-6 p-0"
                                                 onClick={(e) => e.stopPropagation()}
@@ -1086,7 +1092,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        variant="ghost"
+                                        variant="icon"
                                         size="sm"
                                         className="hover:text-primary h-6 w-6 p-0"
                                         onClick={(e) => {
@@ -1101,24 +1107,46 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             </Tooltip>
 
                             {/* Delete button */}
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="hover:text-destructive h-6 w-6 p-0"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (isDeleting) return; // Prevent multiple clicks
-                                            handleDeleteThread(node.threadId);
-                                        }}
-                                        disabled={isDeleting}
-                                    >
-                                        {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrashIcon className="h-3 w-3" />}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>{isDeleting ? "Deleting..." : "Delete thread"}</TooltipContent>
-                            </Tooltip>
+                            <AlertDialog>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <AlertDialogTrigger asChild>
+                                            <Button
+                                                variant="icon"
+                                                size="sm"
+                                                className="hover:text-destructive h-6 w-6 p-0"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                }}
+                                                disabled={isDeleting}
+                                            >
+                                                {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrashIcon className="h-3 w-3" />}
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent>{isDeleting ? t`Deleting...` : t`Delete thread`}</TooltipContent>
+                                </Tooltip>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>{t`Delete Thread`}</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            {t`Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation.`}
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>{t`Cancel`}</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() => {
+                                                if (isDeleting) return; // Prevent multiple clicks
+                                                handleDeleteThread(node.threadId);
+                                            }}
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                            {t`Delete`}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
 
                         {/* Status indicators */}
@@ -1156,7 +1184,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             <div className="flex h-full items-center justify-center">
                 <div className="text-muted-foreground flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Loading threads...</span>
+                    <span className="text-sm">{t`Loading threads...`}</span>
                 </div>
             </div>
         );
@@ -1166,9 +1194,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     if (threadsData.page.length === 0 && !searchQuery.trim()) {
         return (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-                <p className="text-muted-foreground">No threads yet</p>
-                <p className="text-muted-foreground text-xs">Start a new conversation to create your first thread</p>
-                <p className="mt-2 text-xs opacity-70">Press ? for keyboard shortcuts</p>
+                <p className="text-muted-foreground">{t`No threads yet`}</p>
+                <p className="text-muted-foreground text-xs">{t`Start a new conversation to create your first thread`}</p>
+                <p className="mt-2 text-xs opacity-70">{t`Press ? for keyboard shortcuts`}</p>
             </div>
         );
     }
@@ -1216,7 +1244,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-semibold">Keyboard Shortcuts</h3>
-                            <Button variant="ghost" size="sm" onClick={() => setShowKeyboardHelp(false)} className="h-6 w-6 p-0">
+                            <Button variant="icon" size="sm" onClick={() => setShowKeyboardHelp(false)} className="h-6 w-6 p-0">
                                 ×
                             </Button>
                         </div>
