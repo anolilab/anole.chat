@@ -684,16 +684,60 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         }),
     );
 
-    // Handle drag end - simplified for groups
+    // Handle drag end - implement thread reordering
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
 
         if (!over || active.id === over.id) return;
         if (!sessionData?.data?.session?.token) return;
 
-        // For now, we'll disable reordering across groups to keep it simple
-        // TODO: Implement cross-group reordering if needed
-        console.log("Drag and drop reordering temporarily disabled for grouped view");
+        setLoadingStates((prev) => ({ ...prev, reordering: true }));
+
+        try {
+            // Find which group the active and over items belong to
+            let activeGroup: ThreadGroup | null = null;
+            let overGroup: ThreadGroup | null = null;
+            let activeIndex = -1;
+            let overIndex = -1;
+
+            for (const group of threadGroups) {
+                const activeThreadIndex = group.threads.findIndex(t => t.threadId === active.id);
+                const overThreadIndex = group.threads.findIndex(t => t.threadId === over.id);
+
+                if (activeThreadIndex !== -1) {
+                    activeGroup = group;
+                    activeIndex = activeThreadIndex;
+                }
+                if (overThreadIndex !== -1) {
+                    overGroup = group;
+                    overIndex = overThreadIndex;
+                }
+            }
+
+            // Only allow reordering within the same group for now
+            if (!activeGroup || !overGroup || activeGroup.title !== overGroup.title) {
+                console.log("Cross-group reordering not supported yet");
+                return;
+            }
+
+            // Reorder threads within the group
+            const reorderedThreads = arrayMove(activeGroup.threads, activeIndex, overIndex);
+
+                        // Update the order in the database
+            const threadOrders = reorderedThreads.map((thread, index) => ({
+                threadId: thread.threadId,
+                order: index,
+            }));
+
+            await updateThreadOrderMutation({
+                sessionToken: sessionData.data.session.token,
+                threadOrders: threadOrders,
+            });
+        } catch (error) {
+            console.error("Failed to reorder threads:", error);
+        } finally {
+            setLoadingStates((prev) => ({ ...prev, reordering: false }));
+        }
     };
 
     // Keyboard shortcuts handlers
