@@ -19,7 +19,7 @@ function RouteComponent() {
                             "--header-height": "calc(var(--spacing) * 8.5)",
                         } as React.CSSProperties
                     }
-                    className="relative isolate flex min-h-svh w-full bg-white max-lg:flex-col lg:bg-zinc-100 dark:bg-zinc-900 dark:lg:bg-zinc-950"
+                    className="bg-accent-foreground relative isolate flex"
                     variant="inset"
                 >
                     <Outlet />

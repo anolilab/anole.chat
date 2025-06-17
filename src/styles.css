@@ -57,7 +57,6 @@ code {
         --color-muted: oklch(0.269 0 0);
         --color-muted-foreground: oklch(0.708 0 0);
         --color-accent: oklch(0.269 0 0);
-        --color-accent-foreground: oklch(0.985 0 0);
         --color-destructive: oklch(0.704 0.191 22.216);
         --color-border: oklch(1 0 0 / 10%);
         --color-input: oklch(1 0 0 / 15%);
@@ -74,7 +73,7 @@ code {
         @apply bg-background text-foreground;
     }
 
-    .thread-viewport>[data-radix-scroll-area-content] {
+    .thread-viewport > [data-radix-scroll-area-content] {
         @apply flex flex-col items-center self-stretch bg-inherit;
     }
 
@@ -103,7 +102,6 @@ code {
         --chart-3: oklch(0.398 0.07 227.392);
         --chart-4: oklch(0.828 0.189 84.429);
         --chart-5: oklch(0.769 0.188 70.08);
-        --sidebar: oklch(0.985 0 0);
         --sidebar-foreground: oklch(0.141 0.005 285.823);
         --sidebar-primary: oklch(0.723 0.219 149.579);
         --sidebar-primary-foreground: oklch(0.982 0.018 155.826);
@@ -111,8 +109,8 @@ code {
         --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
         --sidebar-border: oklch(0.92 0.004 286.32);
         --sidebar-ring: oklch(0.723 0.219 149.579);
-        --color-siite-header-adaptive: oklch(96.7% 0.001 286.375);
-        --color-siite-header-border: oklch(0.922 0 0);
+        --color-site-header-background: oklch(0.205 0 0);
+        --color-site-header-border: oklch(0.09 0.005 286.062 / 0.05);
     }
 
     .dark {
@@ -139,7 +137,6 @@ code {
         --chart-3: oklch(0.769 0.188 70.08);
         --chart-4: oklch(0.627 0.265 303.9);
         --chart-5: oklch(0.645 0.246 16.439);
-        --sidebar: oklch(0.21 0.006 285.885);
         --sidebar-foreground: oklch(0.985 0 0);
         --sidebar-primary: oklch(0.696 0.17 162.48);
         --sidebar-primary-foreground: oklch(0.393 0.095 152.535);
@@ -147,8 +144,7 @@ code {
         --sidebar-accent-foreground: oklch(0.985 0 0);
         --sidebar-border: oklch(1 0 0 / 10%);
         --sidebar-ring: oklch(0.527 0.154 150.069);
-        --color-siite-header-adaptive: oklch(14.1% 0.005 285.823);
-        --color-siite-header-border: oklch(0.922 0 0);
+        --color-site-header-border: oklch(1 0 0 / 0.1);
     }
 
     button {

@@ -236,7 +236,7 @@ const EditComposer: FC = () => {
 const AssistantMessage: FC = () => {
     return (
         <MessagePrimitive.Root className="relative grid w-full max-w-[var(--thread-max-width)] grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] py-4">
-            <div className="text-foreground dark:text-white col-span-2 col-start-2 row-start-1 my-1.5 max-w-[var(--thread-max-width)] leading-7 break-words">
+            <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 max-w-[var(--thread-max-width)] leading-7 break-words dark:text-white">
                 <MessagePrimitive.Content components={{ Text: MarkdownText }} />
                 <MessageError />
             </div>

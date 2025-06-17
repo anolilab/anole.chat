@@ -59,7 +59,7 @@ const RootDocument = () => {
             <head>
                 <HeadContent />
             </head>
-            <body suppressHydrationWarning>
+            <body suppressHydrationWarning className="isolate min-h-svh w-full overflow-hidden">
                 <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                     <Outlet />
                     <Toaster />

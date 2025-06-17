@@ -14,7 +14,7 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                     {title && <h1 className="text-lg font-bold">{title}</h1>}
                     {children}
                     <div className="flex-grow" />
-                    <ModeToggle />
+                    <ModeToggle className="text-white" />
                 </div>
                 <div
                     className="absolute -top-2 -right-2.5 z-10 h-14 w-28 max-sm:hidden"
@@ -25,7 +25,7 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                     <div
                         className="group ease-snappy pointer-events-none absolute top-1.5 z-10 -mb-8 h-32 w-full origin-top transition-all"
                         style={{
-                            boxShadow: "10px -10px 8px 2px var(--color-siite-header-adaptive)",
+                            boxShadow: "10px -10px 8px 2px var(--color-site-header-background)",
                         }}
                     >
                         <svg
@@ -37,7 +37,7 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                             xmlSpace="preserve"
                         >
                             <line
-                                stroke="hsl(var(--color-siite-header-border))"
+                                stroke="var(--color-site-header-background)"
                                 stroke-width="2px"
                                 shape-rendering="optimizeQuality"
                                 vector-effect="non-scaling-stroke"
@@ -49,13 +49,14 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
                                 y2="0"
                             ></line>
                             <path
+                                stroke="var(--color-site-header-border)"
                                 className="translate-y-[0.5px]"
-                                fill="var(--color-siite-header-adaptive)"
-                                shapeRendering="optimizeQuality"
-                                strokeWidth="1px"
-                                strokeLinecap="round"
-                                strokeMiterlimit="10"
-                                vectorEffect="non-scaling-stroke"
+                                fill="var(--color-site-header-background)"
+                                shape-rendering="optimizeQuality"
+                                stroke-width="1px"
+                                stroke-linecap="round"
+                                stroke-miterlimit="10"
+                                vector-effect="non-scaling-stroke"
                                 d="M0,0c5.9,0,10.7,4.8,10.7,10.7v10.7c0,5.9,4.8,10.7,10.7,10.7H128V0"
                             ></path>
                         </svg>

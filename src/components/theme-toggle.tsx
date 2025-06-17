@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
-export const ModeToggle = () => {
+export const ModeToggle = ({ className }: { className?: string }) => {
     const { theme, setTheme } = useTheme();
 
     const toggleTheme = () => {
@@ -12,7 +12,7 @@ export const ModeToggle = () => {
     };
 
     return (
-        <Button variant="icon" size="icon" className="relative overflow-hidden" onClick={toggleTheme}>
+        <Button variant="icon" size="icon" className={cn("relative overflow-hidden", className)} onClick={toggleTheme}>
             <Sun
                 className={cn("absolute scale-100 rotate-0 transform opacity-100 transition-all duration-200 ease-in-out", {
                     "scale-0 rotate-90 opacity-0": theme === "dark",
