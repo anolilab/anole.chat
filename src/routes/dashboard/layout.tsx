@@ -1,10 +1,10 @@
 import { AppSidebar } from "@/features/layout/components/app-sidebar";
-import { AuthProvider } from "@/features/auth/components/auth-provider";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet, useLocation, createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/features/layout/components/site-header";
+import { Authenticated } from "convex/react";
 
 export const Route = createFileRoute("/dashboard")({
     component: RouteComponent,
@@ -22,7 +22,7 @@ function RouteComponent() {
         };
     });
     return (
-        <AuthProvider>
+        <Authenticated>
             <SidebarProvider
                 style={
                     {
@@ -62,6 +62,6 @@ function RouteComponent() {
                     </SidebarInset>
                 </div>
             </SidebarProvider>
-        </AuthProvider>
+        </Authenticated>
     );
 }

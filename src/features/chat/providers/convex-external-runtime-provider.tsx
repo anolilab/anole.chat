@@ -13,12 +13,11 @@ import {
 } from "@assistant-ui/react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { api } from "@cvx/_generated/api";
 import { useThreadMessages } from "@convex-dev/agent/react";
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
-import ConvexAttachmentAdapter from "@/features/chat/components/adapter/convex-attachment-adapter";
+import ConvexAttachmentAdapter from "@/features/chat/adapter/convex-attachment-adapter";
 import { useMutation, usePaginatedQuery, useAction, useConvex } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useThreadContext } from "@/features/chat/components/thread-context";
@@ -56,6 +55,7 @@ interface ConvexExternalRuntimeProviderProps {
     children: ReactNode;
     model: AgentModel;
     threadId?: string;
+    jwtToken: string;
 }
 
 const generateId = () => Math.random().toString(36).slice(2);
@@ -100,9 +100,8 @@ const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
     };
 };
 
-export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: ConvexExternalRuntimeProviderProps) => {
+export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtToken }: ConvexExternalRuntimeProviderProps) => {
     const navigate = useNavigate();
-    const sessionData = useSession();
     const threadContext = useThreadContext();
     const convex = useConvex();
     const [isRunning, setIsRunning] = useState(false);
@@ -133,21 +132,16 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     const currentMessages = threads.get(currentThreadId) || [];
     // Currently tanstack query has no other way to check if a query is skipped
     const paginatedMessagesArgs =
-        currentThreadId !== "default" && sessionData?.data?.session?.token
+        currentThreadId !== "default"
             ? {
                   threadId: currentThreadId,
                   model: model,
-                  sessionToken: sessionData.data.session.token,
               }
             : "skip";
 
     const paginatedMessages = useThreadMessages(api.chat.functions.listMessages, paginatedMessagesArgs, { initialNumItems: 50 });
 
-    const convexThreads = usePaginatedQuery(
-        api.chat.functions.getThreads,
-        { sessionToken: sessionData?.data?.session?.token as string },
-        { initialNumItems: 10 },
-    );
+    const convexThreads = usePaginatedQuery(api.chat.functions.getThreads, {}, { initialNumItems: 10 });
     const updateThreadMutation = useAction(api.chat.functions.updateThread);
     const deleteThread = useMutation(api.chat.functions.deleteThreadWithRelationships);
     const createThreadMutation = useMutation(api.chat.functions.createThread);
@@ -166,10 +160,6 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
 
     const streamMessage = useCallback(
         async (input: string, targetThreadId?: string, fileIds?: string[]) => {
-            if (!sessionData?.data?.session?.token) {
-                throw new Error("No session token available");
-            }
-
             // Use provided thread ID or current thread ID
             const useThreadId = targetThreadId || currentThreadId;
 
@@ -195,12 +185,15 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             try {
                 const result = await fetch(`/convex-http/chat/stream`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${jwtToken}`,
+                    },
+                    credentials: "include", // Include session cookies
                     body: JSON.stringify({
                         prompt: input,
                         threadId: useThreadId,
                         model,
-                        sessionToken: sessionData.data.session.token,
                         fileIds,
                     }),
                     signal: abortController.signal,
@@ -266,20 +259,20 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 abortControllerRef.current = null;
             }
         },
-        [currentThreadId, model, sessionData, setThreads],
+        [currentThreadId, model, jwtToken, setThreads],
     );
 
     // Handler for new messages
     const handleNewMessage = useCallback(
         async (message: AppendMessage) => {
-                        // Extract text content and file IDs from attachments
+            // Extract text content and file IDs from attachments
             let textContent = "";
             const fileIds: string[] = [];
             const messageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [];
 
             // Process message content
             for (const content of message.content) {
-                if (content.type === "text") {
+                if (content.type === "text" && content.text) {
                     textContent += content.text;
                     messageContent.push({ type: "text", text: content.text });
                 } else if (content.type === "image" && content.image) {
@@ -297,7 +290,13 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             // Also check for file attachments directly
             if (message.attachments) {
                 for (const attachment of message.attachments) {
-                    if (attachment && "metadata" in attachment && attachment.metadata && (attachment.metadata as any).fileId && !fileIds.includes((attachment.metadata as any).fileId)) {
+                    if (
+                        attachment &&
+                        "metadata" in attachment &&
+                        attachment.metadata &&
+                        (attachment.metadata as any).fileId &&
+                        !fileIds.includes((attachment.metadata as any).fileId)
+                    ) {
                         fileIds.push((attachment.metadata as any).fileId);
                     }
                 }
@@ -309,12 +308,11 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             let actualThreadId = currentThreadId;
             const isLocalThread = currentThreadId === "default" || !convexThreads.results.some((t) => t._id === currentThreadId);
 
-            if (sessionData?.data?.session?.token && isLocalThread) {
+            if (isLocalThread) {
                 try {
                     // This is a local thread, create it in Convex
                     actualThreadId = await createThreadMutation({
                         model,
-                        sessionToken: sessionData.data.session.token,
                         branchName: "New Chat",
                     });
 
@@ -367,19 +365,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             // Stream the assistant response
             await streamMessage(input, actualThreadId, fileIds);
         },
-        [
-            streamMessage,
-            currentThreadId,
-            setThreads,
-            createThreadMutation,
-            model,
-            sessionData,
-            threads,
-            threadMetadata,
-            setThreadMetadata,
-            setCurrentThreadId,
-            navigate,
-        ],
+        [streamMessage, currentThreadId, setThreads, createThreadMutation, model, threads, threadMetadata, setThreadMetadata, setCurrentThreadId, navigate],
     );
 
     // Handler for message editing
@@ -472,14 +458,8 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             archivedThreads: allThreads.filter((t) => t.status === "archived") as ExternalStoreThreadData<"archived">[],
 
             onSwitchToNewThread: async () => {
-                if (!sessionData?.data?.session?.token) {
-                    console.error("No session token available for creating thread");
-                    return;
-                }
-
                 const newThreadId = await createThreadMutation({
                     model,
-                    sessionToken: sessionData.data.session.token,
                     branchName: "New Chat",
                 });
 
@@ -534,14 +514,11 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                     });
                 });
 
-                if (sessionData?.data?.session?.token) {
-                    await updateThreadMutation({
-                        threadId: renameThreadId,
-                        title: newTitle,
-                        sessionToken: sessionData.data.session.token,
-                        model,
-                    });
-                }
+                await updateThreadMutation({
+                    threadId: renameThreadId,
+                    title: newTitle,
+                    model,
+                });
             },
 
             onArchive: async (archiveThreadId) => {
@@ -561,14 +538,11 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 });
 
                 // Sync with Convex if session available
-                if (sessionData?.data?.session?.token) {
-                    await updateThreadMutation({
-                        threadId: archiveThreadId,
-                        status: "archived",
-                        sessionToken: sessionData.data.session.token,
-                        model,
-                    });
-                }
+                await updateThreadMutation({
+                    threadId: archiveThreadId,
+                    status: "archived",
+                    model,
+                });
             },
 
             onUnarchive: async (unarchiveThreadId) => {
@@ -588,14 +562,11 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 });
 
                 // Sync with Convex if session available
-                if (sessionData?.data?.session?.token) {
-                    await updateThreadMutation({
-                        threadId: unarchiveThreadId,
-                        status: "active",
-                        sessionToken: sessionData.data.session.token,
-                        model,
-                    });
-                }
+                await updateThreadMutation({
+                    threadId: unarchiveThreadId,
+                    status: "active",
+                    model,
+                });
             },
 
             onDelete: async (deleteThreadId) => {
@@ -618,12 +589,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 }
 
                 // Sync with Convex if session available
-                if (sessionData?.data?.session?.token) {
-                    await deleteThread({
-                        threadId: deleteThreadId,
-                        sessionToken: sessionData.data.session.token,
-                    });
-                }
+                await deleteThread({
+                    threadId: deleteThreadId,
+                });
             },
         };
     }, [
@@ -635,7 +603,6 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
         setThreads,
         setThreadMetadata,
         navigate,
-        sessionData,
         updateThreadMutation,
         deleteThread,
         model,
@@ -648,7 +615,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     //         await createFeedback({
     //             messageId: feedback.message.id,
     //             feedback: feedback.type,
-    //             sessionToken: sessionData?.data?.session?.token as string,
+    //             ,
     //         });
     //     },
     // };
@@ -667,9 +634,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 setThreads((prev) => new Map(prev).set(currentThreadId, messages));
             },
             adapters: {
-                attachments: new CompositeAttachmentAdapter([
-                    new ConvexAttachmentAdapter(sessionData?.data?.session?.token as string, convex),
-                ]),
+                attachments: new CompositeAttachmentAdapter([new ConvexAttachmentAdapter(convex)]),
                 threadList: threadListAdapter,
                 //feedback: feedbackAdapter,
             },
@@ -686,10 +651,8 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             handleCancel,
             currentThreadId,
             setThreads,
-            sessionData?.data?.session?.token,
             model,
             threadListAdapter,
-            convex,
         ],
     );
 

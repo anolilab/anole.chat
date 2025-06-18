@@ -3,6 +3,7 @@ import { mutation, query, internalMutation } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { ROLES, type Role } from "../lib/types";
 import { api, internal } from "../_generated/api";
+import { requireUserId } from "@cvx/auth/lib/helper";
 
 export const publicUserProfileValidator = v.object({
     _id: v.id("user"),
@@ -81,21 +82,14 @@ export const updateMyProfile = mutation({
         robloxUsername: v.optional(v.string()),
         robloxAvatarUrl: v.optional(v.string()),
         bio: v.optional(v.string()),
-        sessionToken: v.string(),
     },
     returns: v.object({ success: v.boolean() }),
     handler: async (ctx, args): Promise<{ success: boolean }> => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const userId = await requireUserId(ctx);
 
         const updates: Partial<typeof args & { name?: string; email?: string }> = { ...args };
 
-        await ctx.db.patch(sessionData.userId, updates);
+        await ctx.db.patch(userId, updates);
 
         return { success: true };
     },
@@ -104,29 +98,22 @@ export const updateMyProfile = mutation({
 export const updateSelectedModel = mutation({
     args: {
         model: v.string(),
-        sessionToken: v.string(),
     },
     returns: v.object({ success: v.boolean() }),
-    handler: async (ctx, { model, sessionToken }) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+    handler: async (ctx, { model }) => {
+        const userId = await requireUserId(ctx);
 
         // Find userSettings by userId
         const userSettings = await ctx.db
             .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", sessionData.userId))
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
             .unique();
 
         if (userSettings) {
             await ctx.db.patch(userSettings._id, { selectedAgent: model });
         } else {
             await ctx.db.insert("userSettings", {
-                userId: sessionData.userId,
+                userId,
                 selectedAgent: model,
             });
         }
@@ -136,20 +123,14 @@ export const updateSelectedModel = mutation({
 });
 
 export const getSelectedModel = query({
-    args: {
-        sessionToken: v.string(),
-    },
+    args: {},
     returns: v.union(v.string(), v.null()),
-    handler: async (ctx, { sessionToken }): Promise<string | null> => {
-        const sessionData: { userId: Id<"user"> } | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+    handler: async (ctx): Promise<string | null> => {
+        const userId = await requireUserId(ctx);
+
         const userSettings: { selectedAgent?: string } | null = await ctx.db
             .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", sessionData.userId))
+            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
             .unique();
         return userSettings?.selectedAgent ?? null;
     },
@@ -160,17 +141,10 @@ export const setUserRole = mutation({
     args: {
         userId: v.id("user"),
         role: v.union(v.literal(ROLES.USER), v.literal(ROLES.BANNED), v.literal(ROLES.ADMIN)),
-        sessionToken: v.string(),
     },
     returns: v.object({ success: v.boolean() }),
-    handler: async (ctx, { userId, role, sessionToken }): Promise<{ success: boolean }> => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+    handler: async (ctx, { userId, role }): Promise<{ success: boolean }> => {
+        const loggedInUserId = await requireUserId(ctx);
 
         const targetUser = await ctx.db.get(userId);
 
@@ -180,7 +154,7 @@ export const setUserRole = mutation({
 
         // TODO: Check if user is admin
 
-        if (targetUser._id === sessionData.userId && role !== ROLES.ADMIN) {
+        if (targetUser._id === loggedInUserId && role !== ROLES.ADMIN) {
             throw new Error("Admin cannot remove their own admin role.");
         }
 
@@ -191,20 +165,14 @@ export const setUserRole = mutation({
 });
 
 export const toggleUserBanStatus = mutation({
-    args: { userId: v.id("user"), ban: v.boolean(), sessionToken: v.string() },
+    args: { userId: v.id("user"), ban: v.boolean() },
     returns: v.object({ success: v.boolean(), message: v.string() }),
-    handler: async (ctx, { userId, ban, sessionToken }): Promise<{ success: boolean; message: string }> => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+    handler: async (ctx, { userId, ban }): Promise<{ success: boolean; message: string }> => {
+        const loggedInUserId = await requireUserId(ctx);
 
         // TODO: Check if user is admin
 
-        if (userId === sessionData.userId) {
+        if (userId === loggedInUserId) {
             throw new Error("Admins cannot ban themselves.");
         }
 

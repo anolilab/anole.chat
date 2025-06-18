@@ -86,20 +86,22 @@ export function renderSubscriptionErrorEmail(args: SubscriptionEmailOptions) {
 /**
  * Senders.
  */
-export async function sendSubscriptionSuccessEmail({ email, subscriptionId }: SubscriptionEmailOptions) {
+export async function sendSubscriptionSuccessEmail({ email, subscriptionId, ctx }: SubscriptionEmailOptions & { ctx: any }) {
     const html = await renderSubscriptionSuccessEmail({ email, subscriptionId });
 
     await sendEmail({
+        ctx,
         to: email,
         subject: "Successfully Subscribed to PRO",
         html,
     });
 }
 
-export async function sendSubscriptionErrorEmail({ email, subscriptionId }: SubscriptionEmailOptions) {
+export async function sendSubscriptionErrorEmail({ email, subscriptionId, ctx }: SubscriptionEmailOptions & { ctx: any }) {
     const html = await renderSubscriptionErrorEmail({ email, subscriptionId });
 
     await sendEmail({
+        ctx,
         to: email,
         subject: "Subscription Issue - Customer Support",
         html,

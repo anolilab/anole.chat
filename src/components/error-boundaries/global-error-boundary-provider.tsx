@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { type ReactNode, useState, useEffect, useCallback } from "react";
 import type { ErrorInfo } from "react";
 import { usePostHog } from "posthog-js/react";
 import { ErrorBoundary } from "../error-boundary";
@@ -8,15 +8,15 @@ import { showError, networkToast } from "@/lib/toast";
 import { NetworkError, ServerError, ErrorUtils } from "@/lib/errors";
 
 interface GlobalErrorBoundaryProviderProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryProviderProps) {
-    const [isOnline, setIsOnline] = React.useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+    const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
     const posthog = usePostHog();
 
     // Monitor network status
-    React.useEffect(() => {
+    useEffect(() => {
         const handleOnline = () => {
             setIsOnline(true);
             networkToast.online();
@@ -37,7 +37,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
     }, []);
 
     // Global unhandled promise rejection handler
-    React.useEffect(() => {
+    useEffect(() => {
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
             console.error("Unhandled promise rejection:", event.reason);
 
@@ -69,7 +69,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
     }, [posthog, isOnline]);
 
     // Global error handler for JavaScript errors
-    React.useEffect(() => {
+    useEffect(() => {
         const handleError = (event: ErrorEvent) => {
             console.error("Global JavaScript error:", event.error);
 
@@ -123,7 +123,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
         });
     };
 
-    const getLocalStorageSnapshot = React.useCallback(() => {
+    const getLocalStorageSnapshot = useCallback(() => {
         try {
             const snapshot: Record<string, any> = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -138,7 +138,7 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
         }
     }, []);
 
-    const getSessionStorageSnapshot = React.useCallback(() => {
+    const getSessionStorageSnapshot = useCallback(() => {
         try {
             const snapshot: Record<string, any> = {};
             for (let i = 0; i < sessionStorage.length; i++) {

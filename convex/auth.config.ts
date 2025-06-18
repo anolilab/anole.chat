@@ -1,9 +1,9 @@
-import { SITE_URL } from "./env";
+import { CONVEX_SITE_URL } from "./env";
 
 export default {
     providers: [
         {
-            domain: `${SITE_URL}/api/auth`,
+            domain: CONVEX_SITE_URL,
             applicationID: "convex",
         },
     ],

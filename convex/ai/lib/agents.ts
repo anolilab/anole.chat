@@ -22,7 +22,8 @@ export const agents = {
     // Google's latest and most powerful thinking model
     "gemini-2.5-pro": {
         chat: google.chat("gemini-2.5-pro"),
-        instructions: "You are a highly intelligent assistant with advanced reasoning capabilities. Think through complex problems step by step and provide detailed, accurate responses.",
+        instructions:
+            "You are a highly intelligent assistant with advanced reasoning capabilities. Think through complex problems step by step and provide detailed, accurate responses.",
         textEmbedding: google.textEmbeddingModel("gemini-embedding-exp-03-07"),
         maxSteps: 10,
         maxRetries: 3,
@@ -33,7 +34,8 @@ export const agents = {
     // Best price-performance ratio with thinking capabilities
     "gemini-2.5-flash": {
         chat: google.chat("gemini-2.5-flash"),
-        instructions: "You are a helpful and efficient assistant that balances speed with intelligent reasoning. Provide clear, accurate, and well-structured responses.",
+        instructions:
+            "You are a helpful and efficient assistant that balances speed with intelligent reasoning. Provide clear, accurate, and well-structured responses.",
         textEmbedding: google.textEmbeddingModel("gemini-embedding-exp-03-07"),
         maxSteps: 8,
         maxRetries: 3,
@@ -55,7 +57,8 @@ export const agents = {
     // Next-generation model with superior speed and capabilities
     "gemini-2.0-flash": {
         chat: google.chat("gemini-2.0-flash"),
-        instructions: "You are an advanced AI assistant with next-generation capabilities. Provide intelligent, contextually aware responses with superior understanding.",
+        instructions:
+            "You are an advanced AI assistant with next-generation capabilities. Provide intelligent, contextually aware responses with superior understanding.",
         textEmbedding: google.textEmbeddingModel("text-embedding-004"),
         maxSteps: 8,
         maxRetries: 3,

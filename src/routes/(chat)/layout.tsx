@@ -1,7 +1,7 @@
-import { AuthProvider } from "@/features/auth/components/auth-provider";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Authenticated } from "convex/react";
 
 export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/(chat)")({
 
 function RouteComponent() {
     return (
-        <AuthProvider>
+        <Authenticated>
             <AiModelProvider>
                 {/* TODO: check why the bg-sidebar with inset variant is not working */}
                 <SidebarProvider
@@ -23,6 +23,6 @@ function RouteComponent() {
                     <Outlet />
                 </SidebarProvider>
             </AiModelProvider>
-        </AuthProvider>
+        </Authenticated>
     );
 }

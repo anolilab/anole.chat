@@ -25,7 +25,7 @@ export const useLogin = () => {
                 rememberMe,
                 fetchOptions: {
                     onSuccess: () => {
-                        router.navigate({ to: "/dashboard" });
+                        router.navigate({ to: "/chat" });
                     },
                     onError(error: ErrorContext) {
                         console.log("loginWithCredentials onError", error);
@@ -54,7 +54,7 @@ export const useLogin = () => {
         mutationFn: async ({ provider, callbackURL }: { provider: SocialProvider; callbackURL: string }) =>
             await authClient.signIn.social({
                 provider,
-                callbackURL: callbackURL || "/dashboard",
+                callbackURL: callbackURL || "/chat",
             }),
     });
 

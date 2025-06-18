@@ -7,9 +7,8 @@ import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useLogin } from "@/features/auth/hooks/auth-hooks";
 import { useLingui } from "@lingui/react/macro";
-import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { Key, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { PasswordInput } from "./password-input";
 
@@ -116,6 +115,7 @@ export default function SignInForm() {
                                 )}
                             />
 
+                            {/*
                             <Button
                                 variant="secondary"
                                 className="gap-2"
@@ -136,7 +136,7 @@ export default function SignInForm() {
                                     onClick={() => {
                                         loginWithSocial.mutate({
                                             provider: "google",
-                                            callbackURL: "/dashboard",
+                                            callbackURL: "/chat",
                                         });
                                     }}
                                     type="button"
@@ -167,7 +167,7 @@ export default function SignInForm() {
                                     onClick={async () => {
                                         loginWithSocial.mutate({
                                             provider: "github",
-                                            callbackURL: "/dashboard",
+                                            callbackURL: "/chat",
                                         });
                                     }}
                                     type="button"
@@ -181,6 +181,7 @@ export default function SignInForm() {
                                     {t`Sign in with GitHub`}
                                 </Button>
                             </div>
+                            */}
                         </div>
                     </CardContent>
                 </form>

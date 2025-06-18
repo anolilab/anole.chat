@@ -9,12 +9,12 @@ import { ThreadProvider } from "./thread-context";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 import { useAiModelContext } from "../providers/ai-model-provider";
 
-export const Assistant = ({ threadId }: { threadId: string }) => {
+export const Assistant = ({ threadId, jwtToken }: { threadId?: string; jwtToken: string }) => {
     const { selectedModel } = useAiModelContext();
 
     return (
         <ThreadProvider model={selectedModel}>
-            <ConvexExternalRuntimeProvider model={selectedModel} threadId={threadId}>
+            <ConvexExternalRuntimeProvider model={selectedModel} threadId={threadId} jwtToken={jwtToken}>
                 <div className="flex h-dvh w-full">
                     <AppSidebar header={null} content={<ThreadList />} />
                     <SidebarInset>

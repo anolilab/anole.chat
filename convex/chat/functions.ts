@@ -3,34 +3,28 @@ import { components, internal } from "../_generated/api";
 import { internalAction, internalMutation, mutation, action, query, httpAction, internalQuery } from "../_generated/server";
 import { AgentModel, getAgent } from "../ai/lib/agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
-import { Id } from "../_generated/dataModel";
 import z from "zod";
 import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
+import { requireUserId } from "@cvx/auth/lib/helper";
 
 export const createThread = mutation({
     args: {
         model: v.string(),
-        sessionToken: v.string(),
+
         parentThreadId: v.optional(v.string()),
         branchPoint: v.optional(v.number()),
         branchName: v.optional(v.string()),
     },
     returns: v.string(),
     handler: async (ctx, args) => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const userId = await requireUserId(ctx);
 
         const agent = getAgent(args.model as AgentModel);
 
         // Create the thread using the standard agent API
         const createOptions = {
-            userId: sessionData.userId as Id<"user">,
+            userId,
             title: args.branchName || undefined,
         };
 
@@ -57,16 +51,9 @@ export const listMessages = query({
         threadId: v.string(),
         paginationOpts: paginationOptsValidator,
         model: v.string(),
-        sessionToken: v.string(),
     },
-    handler: async (ctx, { threadId, paginationOpts, model, sessionToken }): Promise<PaginationResult<MessageDoc>> => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+    handler: async (ctx, { threadId, paginationOpts, model }): Promise<PaginationResult<MessageDoc>> => {
+        const userId = await requireUserId(ctx);
 
         const agent = getAgent(model as AgentModel);
 
@@ -117,19 +104,12 @@ export const listMessages = query({
 });
 
 export const continueThread = action({
-    args: { prompt: v.string(), threadId: v.string(), model: v.string(), sessionToken: v.string() },
-    handler: async (ctx, { prompt, threadId, model, sessionToken }) => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
+    args: { prompt: v.string(), threadId: v.string(), model: v.string() },
+    handler: async (ctx, { prompt, threadId, model }) => {
+        const userId = await requireUserId(ctx);
         const agent = getAgent(model as AgentModel);
 
-        const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
+        const { thread } = await agent.continueThread(ctx, { threadId, userId });
 
         const result = await thread.streamText({ prompt });
 
@@ -138,17 +118,10 @@ export const continueThread = action({
 });
 
 export const getThreads = query({
-    args: { sessionToken: v.string(), paginationOpts: paginationOptsValidator },
-    handler: async (ctx, { sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        const results = await ctx.runQuery(components.agent.threads.listThreadsByUserId, { userId: sessionData.userId as Id<"user">, paginationOpts });
+    args: { paginationOpts: paginationOptsValidator },
+    handler: async (ctx, { paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
+        const userId = await requireUserId(ctx);
+        const results = await ctx.runQuery(components.agent.threads.listThreadsByUserId, { userId, paginationOpts });
 
         return results;
     },
@@ -162,20 +135,12 @@ export const updateThread = action({
         order: v.optional(v.number()),
         status: v.optional(v.union(v.literal("active"), v.literal("archived"))),
         model: v.string(),
-        sessionToken: v.string(),
     },
-    handler: async (ctx, { threadId, title, sessionToken, model, summary, order, status }) => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
+    handler: async (ctx, { threadId, title, model, summary, order, status }) => {
+        const userId = await requireUserId(ctx);
         const agent = getAgent(model as AgentModel);
 
-        const { thread } = await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> });
+        const { thread } = await agent.continueThread(ctx, { threadId, userId });
 
         await thread.updateMetadata({ title, summary, status });
 
@@ -184,29 +149,20 @@ export const updateThread = action({
 });
 
 export const streamHttpAction = httpAction(async (ctx, request) => {
-    const { threadId, prompt, model, sessionToken, fileIds } = (await request.json()) as {
+    const { threadId, prompt, model, fileIds } = (await request.json()) as {
         threadId?: string;
         prompt?: string;
         model: string;
-        sessionToken: string;
         fileIds?: string[];
     };
 
-    const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-        sessionToken,
-    });
-
-    if (!sessionData) {
-        throw new ConvexError("Unauthorized");
-    }
+    const userId = await requireUserId(ctx);
 
     const agent = getAgent(model as AgentModel);
 
-    const { thread } = threadId
-        ? await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> })
-        : await agent.createThread(ctx, { userId: sessionData.userId as Id<"user"> });
+    const { thread } = threadId ? await agent.continueThread(ctx, { threadId, userId }) : await agent.createThread(ctx, { userId });
 
-        // Create message content with file support
+    // Create message content with file support
     let messageContent: any[] = [];
 
     if (fileIds) {
@@ -237,22 +193,21 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
     const { messageId } = await agent.saveMessage(ctx, {
         threadId: thread.threadId,
         message: {
-          role: "user",
-          content: messageContent,
+            role: "user",
+            content: messageContent,
         },
         // This will track the usage of the file, so we can delete old ones
         metadata: fileIds && fileIds.length > 0 ? { fileIds } : undefined,
-      });
+    });
 
     await ctx.scheduler.runAfter(0, internal.chat.functions.createTitleChat, {
         threadId: thread.threadId,
-        sessionToken,
         prompt: prompt ?? " ", // TODO: add prompt based on image
     });
 
     await ctx.scheduler.runAfter(0, internal.chat.functions.createSummarizeChat, {
         threadId: thread.threadId,
-        sessionToken,
+        userId,
     });
 
     const result = await thread.streamText({ promptMessageId: messageId });
@@ -261,16 +216,8 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
 });
 
 export const createTitleChat = internalAction({
-    args: { threadId: v.string(), prompt: v.string(), sessionToken: v.string() },
+    args: { threadId: v.string(), prompt: v.string() },
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
         const agent = getAgent("gemini-1.5-flash");
 
         const { thread } = await agent.continueThread(ctx, { threadId: args.threadId });
@@ -336,16 +283,9 @@ export const getThreadRelationship = internalQuery({
 export const getChildThreads = query({
     args: {
         parentThreadId: v.string(),
-        sessionToken: v.string(),
     },
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        await requireUserId(ctx);
 
         // Get all child threads for this parent
         const relationships = await ctx.db
@@ -391,15 +331,9 @@ export const deleteThreadRelationship = internalMutation({
 
 // Update deleteThread to also clean up relationships
 export const deleteThreadWithRelationships = mutation({
-    args: { threadId: v.string(), sessionToken: v.string() },
-    handler: async (ctx, { threadId, sessionToken }) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+    args: { threadId: v.string() },
+    handler: async (ctx, { threadId }) => {
+        await requireUserId(ctx);
 
         // Delete the thread relationship
         await ctx.runMutation(internal.chat.functions.deleteThreadRelationship, {
@@ -412,16 +346,8 @@ export const deleteThreadWithRelationships = mutation({
 });
 
 export const createSummarizeChat = internalAction({
-    args: { threadId: v.string(), sessionToken: v.string() },
+    args: { threadId: v.string(), userId: v.string() },
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
         const agent = getAgent("gemini-1.5-flash");
 
         const { thread } = await agent.continueThread(ctx, { threadId: args.threadId });
@@ -429,7 +355,7 @@ export const createSummarizeChat = internalAction({
         const threadContext = await agent.fetchContextMessages(ctx, {
             threadId: thread.threadId,
             contextOptions: {},
-            userId: sessionData.userId as Id<"user">,
+            userId: args.userId,
             messages: [],
         });
 
@@ -452,17 +378,9 @@ export const createSummarizeChat = internalAction({
 });
 
 export const getAllThreadRelationships = query({
-    args: {
-        sessionToken: v.string(),
-    },
+    args: {},
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        await requireUserId(ctx);
 
         // Get all thread relationships for building the hierarchy
         const relationships = await ctx.db.query("threadRelationships").collect();
@@ -474,17 +392,8 @@ export const getAllThreadRelationships = query({
 export const validateThreadExists = query({
     args: {
         threadId: v.string(),
-        sessionToken: v.string(),
     },
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
         try {
             // Check if the thread exists using the agent API
             const thread = await ctx.runQuery(components.agent.threads.getThread, {
@@ -504,21 +413,14 @@ export const validateThreadExists = query({
 export const pinThread = mutation({
     args: {
         threadId: v.string(),
-        sessionToken: v.string(),
     },
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const userId = await requireUserId(ctx);
 
         // Check if thread is already pinned
         const existingPin = await ctx.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", sessionData.userId as Id<"user">).eq("threadId", args.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", args.threadId))
             .unique();
 
         if (existingPin) {
@@ -536,7 +438,7 @@ export const pinThread = mutation({
 
         // Pin the thread
         await ctx.db.insert("pinnedThreads", {
-            userId: sessionData.userId as Id<"user">,
+            userId,
             threadId: args.threadId,
             pinnedAt: Date.now(),
         });
@@ -548,21 +450,14 @@ export const pinThread = mutation({
 export const unpinThread = mutation({
     args: {
         threadId: v.string(),
-        sessionToken: v.string(),
     },
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const userId = await requireUserId(ctx);
 
         // Find the pinned thread record
         const pinnedThread = await ctx.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", sessionData.userId as Id<"user">).eq("threadId", args.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId).eq("threadId", args.threadId))
             .unique();
 
         if (!pinnedThread) {
@@ -577,23 +472,15 @@ export const unpinThread = mutation({
 });
 
 export const getPinnedThreads = query({
-    args: {
-        sessionToken: v.string(),
-    },
+    args: {},
     returns: v.array(v.any()),
     handler: async (ctx, args) => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const userId = await requireUserId(ctx);
 
         // Get all pinned threads for the user
         const pinnedThreads = await ctx.db
             .query("pinnedThreads")
-            .withIndex("by_user", (q) => q.eq("userId", sessionData.userId as Id<"user">))
+            .withIndex("by_user", (q) => q.eq("userId", userId))
             .collect();
 
         return pinnedThreads;
@@ -603,22 +490,15 @@ export const getPinnedThreads = query({
 export const isThreadPinned = query({
     args: {
         threadId: v.string(),
-        sessionToken: v.string(),
     },
     returns: v.boolean(),
     handler: async (ctx, args) => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const userId = await requireUserId(ctx);
 
         // Check if thread is pinned
         const pinnedThread = await ctx.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", sessionData.userId as Id<"user">).eq("threadId", args.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId).eq("threadId", args.threadId))
             .unique();
 
         return pinnedThread !== null;
@@ -635,18 +515,9 @@ export const updateThreadOrder = mutation({
                 order: v.number(),
             }),
         ),
-        sessionToken: v.string(),
     },
     handler: async (ctx, args) => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        const userId = sessionData.userId as Id<"user">;
+        const userId = await requireUserId(ctx);
         const now = Date.now();
 
         // Update or insert thread orders
@@ -679,23 +550,15 @@ export const updateThreadOrder = mutation({
 });
 
 export const getThreadOrders = query({
-    args: {
-        sessionToken: v.string(),
-    },
+    args: {},
     returns: v.array(v.any()),
     handler: async (ctx, args) => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+        const userId = await requireUserId(ctx);
 
         // Get all thread orders for the user
         const threadOrders = await ctx.db
             .query("threadOrder")
-            .withIndex("by_user", (q) => q.eq("userId", sessionData.userId as Id<"user">))
+            .withIndex("by_user", (q) => q.eq("userId", userId))
             .collect();
 
         return threadOrders;
@@ -705,19 +568,11 @@ export const getThreadOrders = query({
 export const searchThreads = query({
     args: {
         searchQuery: v.string(),
-        sessionToken: v.string(),
+
         paginationOpts: paginationOptsValidator,
     },
-    handler: async (ctx, { searchQuery, sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        const userId = sessionData.userId as Id<"user">;
+    handler: async (ctx, { searchQuery, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
+        const userId = await requireUserId(ctx);
 
         // Get all threads for the user
         const allThreads = await ctx.runQuery(components.agent.threads.listThreadsByUserId, {
@@ -770,19 +625,11 @@ export const searchThreads = query({
 export const searchMessages = query({
     args: {
         searchQuery: v.string(),
-        sessionToken: v.string(),
+
         paginationOpts: paginationOptsValidator,
     },
-    handler: async (ctx, { searchQuery, sessionToken, paginationOpts }): Promise<PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>> => {
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        const userId = sessionData.userId as Id<"user">;
+    handler: async (ctx, { searchQuery, paginationOpts }): Promise<PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>> => {
+        const userId = await requireUserId(ctx);
 
         // If no search query, return empty results
         if (!searchQuery.trim()) {
@@ -852,25 +699,18 @@ export const searchMessages = query({
 export const improvePrompt = internalAction({
     args: {
         prompt: v.string(),
-        sessionToken: v.string(),
         threadId: v.string(),
         improvementInstructions: v.optional(v.string()),
     },
-    handler: async (ctx, { prompt, sessionToken, threadId, improvementInstructions }) => {
-        // Verify session
-        const sessionData = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        const isAuthenticated = !!sessionData;
-        const userId = sessionData?.userId;
+    handler: async (ctx, { prompt, threadId, improvementInstructions }) => {
+        const userId = await requireUserId(ctx);
 
         if (!prompt.trim()) {
             throw new ConvexError("Prompt cannot be empty");
         }
 
         // Check rate limits
-        const rateLimitName = getRateLimitName("promptImprovement", isAuthenticated);
+        const rateLimitName = getRateLimitName("promptImprovement", true);
         const rateLimitResult = await checkRateLimit(ctx, rateLimitName, {
             key: userId || "anonymous",
             count: 1,
@@ -947,10 +787,10 @@ Original prompt to improve: "${prompt.trim()}"`;
 export const improvePromptHttpAction = httpAction(async (ctx, request) => {
     // Parse the request body
     const body = await request.json();
-    const { prompt, sessionToken, threadId, improvementInstructions } = body;
+    const { prompt, threadId, improvementInstructions } = body;
 
-    if (!prompt || !sessionToken) {
-        return new Response(JSON.stringify({ error: "Missing prompt or sessionToken" }), {
+    if (!prompt) {
+        return new Response(JSON.stringify({ error: "Missing prompt" }), {
             status: 400,
             headers: { "Content-Type": "application/json" },
         });
@@ -959,7 +799,7 @@ export const improvePromptHttpAction = httpAction(async (ctx, request) => {
     try {
         const result = await ctx.runAction(internal.chat.functions.improvePrompt, {
             prompt,
-            sessionToken,
+
             threadId,
             improvementInstructions,
         });
@@ -983,24 +823,18 @@ export const improvePromptHttpAction = httpAction(async (ctx, request) => {
 export const getFullThreadForExport = query({
     args: {
         threadId: v.string(),
-        sessionToken: v.string(),
         model: v.string(),
     },
-    async handler(ctx, { threadId, sessionToken, model }) {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new ConvexError("Unauthorized");
-        }
+    async handler(ctx, { threadId, model }) {
+        const userId = await requireUserId(ctx);
 
         const thread = await ctx.runQuery(components.agent.threads.getThread, { threadId });
+
         if (!thread) {
             throw new Error("Thread not found");
         }
 
-        if (thread.userId !== sessionData.userId) {
+        if (thread.userId !== userId) {
             throw new ConvexError("Unauthorized access to thread");
         }
 

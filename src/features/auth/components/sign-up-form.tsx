@@ -32,7 +32,6 @@ export function SignUpForm() {
 
     const navigate = useNavigate();
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
 
     const form = useAppForm({
         defaultValues: {
@@ -47,26 +46,18 @@ export function SignUpForm() {
             onChange: formSchema,
         },
         onSubmit: async ({ value }) => {
-            setLoading(true);
-
             await authClient.signUp.email({
                 email: value.email,
                 password: value.password,
                 name: `${value.firstName} ${value.lastName}`,
                 image: value?.image ? await convertImageToBase64(value.image) : "",
-                callbackURL: "/dashboard",
+                callbackURL: "/chat",
                 fetchOptions: {
-                    onResponse: () => {
-                        setLoading(false);
-                    },
-                    onRequest: () => {
-                        setLoading(true);
-                    },
                     onError: (ctx) => {
                         toast.error(ctx.error.message);
                     },
                     onSuccess: async () => {
-                        navigate({ to: "/dashboard" });
+                        navigate({ to: "/chat" });
                     },
                 },
             });
@@ -128,7 +119,7 @@ export function SignUpForm() {
                                     validators={{ onChange: baseFormSchema.shape.lastName }}
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>{t("LAST_NAME")}</field.FormLabel>
+                                            <field.FormLabel>{t`Last Name`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     placeholder="Robinson"
@@ -147,7 +138,7 @@ export function SignUpForm() {
                                 validators={{ onChange: baseFormSchema.shape.email }}
                                 children={(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>{t("EMAIL")}</field.FormLabel>
+                                        <field.FormLabel>{t`Email`}</field.FormLabel>
                                         <field.FormControl>
                                             <Input
                                                 type="email"
@@ -166,14 +157,14 @@ export function SignUpForm() {
                                 validators={{ onChange: baseFormSchema.shape.password }}
                                 children={(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>{t("PASSWORD")}</field.FormLabel>
+                                        <field.FormLabel>{t`Password`}</field.FormLabel>
                                         <field.FormControl>
                                             <PasswordInput
                                                 autoComplete="new-password"
-                                                placeholder={t("PASSWORD")}
+                                                placeholder={t`Password`}
                                                 value={field.state.value}
                                                 onBlur={field.handleBlur}
-                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => field.handleChange(e.target.value)}
                                             />
                                         </field.FormControl>
                                         <field.FormMessage />
@@ -185,12 +176,12 @@ export function SignUpForm() {
                                 validators={{ onChange: baseFormSchema.shape.passwordConfirmation }}
                                 children={(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>{t("CONFIRM_PASSWORD")}</field.FormLabel>
+                                        <field.FormLabel>{t`Confirm Password`}</field.FormLabel>
                                         <field.FormControl>
                                             <Input
                                                 type="password"
                                                 autoComplete="new-password"
-                                                placeholder={t("CONFIRM_PASSWORD")}
+                                                placeholder={t`Confirm Password`}
                                                 value={field.state.value}
                                                 onBlur={field.handleBlur}
                                                 onChange={(e) => field.handleChange(e.target.value)}
@@ -204,7 +195,7 @@ export function SignUpForm() {
                                 name="image"
                                 children={(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>{t("PROFILE_IMAGE")}</field.FormLabel>
+                                        <field.FormLabel>{t`Profile Image`}</field.FormLabel>
                                         <div className="flex items-end gap-4">
                                             <div className="flex w-full items-center gap-2">
                                                 <field.FormControl>
@@ -229,7 +220,7 @@ export function SignUpForm() {
                                 selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
                                     <Button type="submit" className="w-full" disabled={!canSubmit}>
-                                        {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t("CREATE_ACCOUNT")}
+                                        {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : t`Create Account`}
                                     </Button>
                                 )}
                             />
@@ -240,7 +231,7 @@ export function SignUpForm() {
             <CardFooter>
                 <div className="flex w-full justify-center border-t py-4">
                     <p className="text-center text-xs text-neutral-500">
-                        {t("SECURED_BY")} <span className="text-orange-400">better-auth.</span>
+                        {t`Secured by`} <span className="text-orange-400">better-auth.</span>
                     </p>
                 </div>
             </CardFooter>
