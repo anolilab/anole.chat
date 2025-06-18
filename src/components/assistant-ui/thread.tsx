@@ -26,6 +26,7 @@ import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { agents, type AgentModel } from "@cvx/ai/lib/agents";
 import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
+import { useSession } from "@/features/auth/hooks/auth-hooks";
 
 export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
     return (
@@ -75,37 +76,62 @@ const ThreadScrollToBottom: FC = () => {
 };
 
 const ThreadWelcome: FC = () => {
+    const { t } = useLingui();
+    const { data: session } = useSession();
+
+    const getWelcomeMessage = () => {
+        if (session?.user?.name) {
+            return t`Hello ${session.user.name}! What would you like to do today?`;
+        }
+
+        return t`How can I help you today?`;
+    };
+
     return (
         <ThreadPrimitive.Empty>
             <div className="flex w-full max-w-[var(--thread-max-width)] flex-grow flex-col">
                 <div className="flex w-full flex-grow flex-col items-center justify-center">
-                    <p className="mt-4 font-medium">How can I help you today?</p>
+                    <p className="mt-4 font-medium">{getWelcomeMessage()}</p>
                 </div>
-                <ThreadWelcomeSuggestions />
+                {/* <ThreadWelcomeSuggestions /> */}
             </div>
         </ThreadPrimitive.Empty>
     );
 };
 
 const ThreadWelcomeSuggestions: FC = () => {
+    const { t } = useLingui();
+
+    const suggestions = [
+        {
+            prompt: t`Generate creative ideas for my project`,
+            icon: "💡",
+            category: t`Creativity`
+        },
+    ];
+
     return (
-        <div className="mt-3 flex w-full items-stretch justify-center gap-4">
-            <ThreadPrimitive.Suggestion
-                className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3"
-                prompt="What is the weather in Tokyo?"
-                method="replace"
-                autoSend
-            >
-                <span className="line-clamp-2 text-sm font-semibold text-ellipsis">What is the weather in Tokyo?</span>
-            </ThreadPrimitive.Suggestion>
-            <ThreadPrimitive.Suggestion
-                className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3"
-                prompt="What is assistant-ui?"
-                method="replace"
-                autoSend
-            >
-                <span className="line-clamp-2 text-sm font-semibold text-ellipsis">What is assistant-ui?</span>
-            </ThreadPrimitive.Suggestion>
+        <div className="grid w-full grid-cols-1 gap-3 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+            {suggestions.map((suggestion, index) => (
+                <ThreadPrimitive.Suggestion
+                    key={index}
+                    className="group relative flex flex-col items-start justify-between rounded-xl border border-border/50 bg-gradient-to-br from-background/80 to-muted/30 p-4 transition-all duration-200 hover:border-border hover:shadow-md hover:shadow-primary/10 hover:scale-[1.02]"
+                    prompt={suggestion.prompt}
+                    method="replace"
+                    autoSend
+                >
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{suggestion.icon}</span>
+                        <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
+                            {suggestion.category}
+                        </span>
+                    </div>
+                    <span className="text-sm font-medium leading-relaxed text-foreground group-hover:text-primary transition-colors">
+                        {suggestion.prompt}
+                    </span>
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                </ThreadPrimitive.Suggestion>
+            ))}
         </div>
     );
 };
