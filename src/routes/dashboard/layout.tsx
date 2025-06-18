@@ -14,13 +14,19 @@ function RouteComponent() {
     const location = useLocation();
     const pathname = location.pathname;
 
-    const paths = pathname.split("/");
-    const breadcrumb = paths.map((path) => {
+    // Generate breadcrumb items from pathname, filtering out empty strings
+    const pathSegments = pathname.split("/").filter(Boolean);
+
+    const breadcrumbItems = pathSegments.map((segment, index) => {
+        // Build the href by joining all segments up to current index
+        const href = "/" + pathSegments.slice(0, index + 1).join("/");
+
         return {
-            label: path,
-            href: `/${path}`,
+            label: segment.charAt(0).toUpperCase() + segment.slice(1), // Capitalize first letter
+            href: href,
         };
     });
+
     return (
         <Authenticated>
             <SidebarProvider
@@ -32,22 +38,22 @@ function RouteComponent() {
                 }
             >
                 <div className="flex h-dvh w-full">
-                    <AppSidebar content={<div />} />
+                    <AppSidebar content={null} />
                     <SidebarInset>
                         <SiteHeader>
                             <Breadcrumb>
                                 <BreadcrumbList>
-                                    {breadcrumb.map((item, index) => (
-                                        <BreadcrumbItem className="hidden md:block" key={item.href}>
+                                    {breadcrumbItems.map((item, index) => (
+                                        <BreadcrumbItem key={item.href}>
                                             <BreadcrumbLink
                                                 href={item.href}
-                                                className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm capitalize dark:hover:text-white"
+                                                className="text-muted-foreground hover:text-foreground text-sm capitalize dark:hover:text-white"
                                             >
                                                 {item.label}
-                                                {index < breadcrumb.length - 1 && index !== 0 && (
-                                                    <BreadcrumbSeparator className="text-muted-foreground hidden md:block" />
-                                                )}
                                             </BreadcrumbLink>
+                                            {index < breadcrumbItems.length - 1 && (
+                                                <BreadcrumbSeparator className="text-muted-foreground" />
+                                            )}
                                         </BreadcrumbItem>
                                     ))}
                                 </BreadcrumbList>

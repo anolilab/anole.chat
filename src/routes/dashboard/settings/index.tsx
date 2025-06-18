@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {} from "@tanstack/react-router";
 import AdminDashboard from "./-components/admin";
@@ -7,6 +7,11 @@ import UserCard from "./-components/user-card";
 import { authClient } from "@/features/auth/lib/client";
 
 export const Route = createFileRoute("/dashboard/settings/")({
+    beforeLoad: ({ context }) => {
+        if (!context.userId) {
+            throw redirect({ to: "/login" });
+        }
+    },
     component: RouteComponent,
 });
 
@@ -24,8 +29,8 @@ function RouteComponent() {
 
     return (
         <div>
-            <OrganizationCard session={data?.session?.data} activeOrganization={data?.organization?.data} />
-            <AdminDashboard />
+            {/* <OrganizationCard session={data?.session?.data} activeOrganization={data?.organization?.data} /> */}
+            {/* <AdminDashboard /> */}
             <UserCard activeSessions={data?.sessions?.data || []} />
         </div>
     );

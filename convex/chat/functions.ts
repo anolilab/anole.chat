@@ -53,7 +53,7 @@ export const listMessages = query({
         model: v.string(),
     },
     handler: async (ctx, { threadId, paginationOpts, model }): Promise<PaginationResult<MessageDoc>> => {
-        const userId = await requireUserId(ctx);
+        await requireUserId(ctx);
 
         const agent = getAgent(model as AgentModel);
 

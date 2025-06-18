@@ -179,11 +179,11 @@ const ComposerAction: FC = () => {
 const UserMessage: FC = () => {
     return (
         <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 [&:where(>*)]:col-start-2">
-            <UserActionBar />
             <UserMessageAttachments />
             <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[var(--thread-max-width)] rounded-3xl px-5 py-2.5 break-words">
                 <MessagePrimitive.Content components={{ Text: MarkdownText }} />
             </div>
+            <UserActionBar />
 
             <BranchPicker className="col-span-full col-start-1 row-start-3 -mr-1 justify-end" />
         </MessagePrimitive.Root>
@@ -192,7 +192,7 @@ const UserMessage: FC = () => {
 
 const UserActionBar: FC = () => {
     return (
-        <ActionBarPrimitive.Root hideWhenRunning autohide="not-last" className="col-start-1 row-start-2 mt-2.5 mr-3 flex flex-col items-end">
+        <ActionBarPrimitive.Root hideWhenRunning autohide="not-last" className="mr-3 flex flex-col items-end">
             <ActionBarPrimitive.Edit asChild>
                 <TooltipIconButton tooltip="Edit">
                     <PencilIcon />

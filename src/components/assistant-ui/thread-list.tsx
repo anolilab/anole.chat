@@ -18,7 +18,7 @@ import {
     DownloadIcon,
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useQuery, useMutation, useConvex } from "convex/react";
+import { useQuery, useMutation, useConvex, useAction } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
@@ -72,7 +72,7 @@ interface ThreadGroup {
     isCollapsed?: boolean;
 }
 
-type GroupType = "pinned" | "last7days" | "lastMonth" | "older";
+type GroupType = "pinned" | "last7days" | "lastMonth" | "older" | "archived";
 
 export const ThreadList: FC = () => {
     const { t } = useLingui();
@@ -88,12 +88,14 @@ export const ThreadList: FC = () => {
         branching: Set<string>;
         reordering: boolean;
         downloading: Set<string>;
+        archiving: Set<string>;
     }>({
         pinning: new Set(),
         deleting: new Set(),
         branching: new Set(),
         reordering: false,
         downloading: new Set(),
+        archiving: new Set(),
     });
 
     // Search threads when there's a search query and search type is "threads"
@@ -279,6 +281,7 @@ interface HierarchicalThreadListProps {
         branching: Set<string>;
         reordering: boolean;
         downloading: Set<string>;
+        archiving: Set<string>;
     };
     setLoadingStates: React.Dispatch<
         React.SetStateAction<{
@@ -287,6 +290,7 @@ interface HierarchicalThreadListProps {
             branching: Set<string>;
             reordering: boolean;
             downloading: Set<string>;
+            archiving: Set<string>;
         }>
     >;
     isSearchLoading: boolean;
@@ -334,6 +338,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     // Pin/unpin mutations
     const pinThreadMutation = useMutation(api.chat.functions.pinThread);
     const unpinThreadMutation = useMutation(api.chat.functions.unpinThread);
+
+    const updateThreadAction = useAction(api.chat.functions.updateThread);
 
     // Thread order mutation
     const updateThreadOrderMutation = useMutation(api.chat.functions.updateThreadOrder);
@@ -428,7 +434,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             ];
         }
 
-        // Group threads by time periods
+        // Group threads by time periods, excluding archived threads
         const now = Date.now();
         const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
         const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
@@ -437,9 +443,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         const last7DaysThreads: BranchNode[] = [];
         const lastMonthThreads: BranchNode[] = [];
         const olderThreads: BranchNode[] = [];
+        const archivedThreads: BranchNode[] = [];
 
         allThreads.forEach((thread) => {
-            if (thread.isPinned) {
+            // Separate archived threads into their own group
+            if (thread.status === "archived") {
+                archivedThreads.push(thread);
+            } else if (thread.isPinned) {
                 pinnedThreadsList.push(thread);
             } else if (thread.createdAt >= sevenDaysAgo) {
                 last7DaysThreads.push(thread);
@@ -495,6 +505,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 title: "Older",
                 threads: sortThreads(olderThreads),
                 isCollapsed: collapsedGroups.has("older"),
+            });
+        }
+
+        // Always add archived threads as the last group
+        if (archivedThreads.length > 0) {
+            groups.push({
+                title: "Archived",
+                threads: sortThreads(archivedThreads),
+                isCollapsed: collapsedGroups.has("archived"),
             });
         }
 
@@ -665,6 +684,32 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         }
     };
 
+    const updateThread = async (threadId: string, model: string, status: "archived" | "active") => {
+        setLoadingStates((prev) => ({
+            ...prev,
+            archiving: new Set(prev.archiving).add(threadId),
+        }));
+
+        try {
+            await updateThreadAction({
+                threadId,
+                model,
+                status,
+            });
+        } catch (error) {
+            console.error(`Failed to ${status === "archived" ? "archive" : "unarchive"} thread:`, error);
+        } finally {
+            setLoadingStates((prev) => {
+                const newArchiving = new Set(prev.archiving);
+                newArchiving.delete(threadId);
+                return {
+                    ...prev,
+                    archiving: newArchiving,
+                };
+            });
+        }
+    };
+
     // Drag and drop sensors
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -778,6 +823,22 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     }
                     break;
 
+                case "a":
+                case "A":
+                    if (isCtrlOrCmd && currentThreadId) {
+                        event.preventDefault();
+                        const currentThread = flattenedThreads.find((t) => t.threadId === currentThreadId);
+                        if (currentThread) {
+                            const model = currentThread.model || "gemini-1.5-flash"; // Default model
+                            if (currentThread.status === "archived") {
+                                updateThread(currentThreadId, model, "active");
+                            } else {
+                                updateThread(currentThreadId, model, "archived");
+                            }
+                        }
+                    }
+                    break;
+
                 case "ArrowUp":
                     if (!isCtrlOrCmd) {
                         event.preventDefault();
@@ -848,6 +909,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             handlePinThread,
             handleUnpinThread,
             handleCreateBranch,
+            updateThread,
             setShowKeyboardHelp,
             setShowSearch,
         ],
@@ -885,7 +947,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
         threadGroups.forEach((group) => {
             const groupType =
-                group.title === "Pinned" ? "pinned" : group.title === "Last 7 days" ? "last7days" : group.title === "Last month" ? "lastMonth" : "older";
+                group.title === "Pinned"
+                    ? "pinned"
+                    : group.title === "Last 7 days"
+                      ? "last7days"
+                      : group.title === "Last month"
+                        ? "lastMonth"
+                        : group.title === "Archived"
+                          ? "archived"
+                          : "older";
 
             // Add group header
             items.push({ type: "group", group, groupType });
@@ -943,6 +1013,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         const isDeleting = loadingStates.deleting.has(node.threadId);
         const isBranching = loadingStates.branching.has(node.threadId);
         const isDownloading = loadingStates.downloading.has(node.threadId);
+        const isArchiving = loadingStates.archiving.has(node.threadId);
 
         return (
             <TooltipProvider>
@@ -985,7 +1056,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         {/* Thread title */}
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <span className="-mr-4 flex-1 cursor-pointer truncate text-sm text-white">{node.title}</span>
+                                <span className={cn("-mr-4 flex-1 cursor-pointer truncate text-sm text-white", node.status === "archived" && "-mr-9")}>
+                                    {node.title}
+                                </span>
                             </TooltipTrigger>
                             <TooltipContent side="right" className="max-w-xs">
                                 <p className="break-words">{node.title}</p>
@@ -994,35 +1067,37 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
                         {/* Action buttons */}
                         <div className="bg-accent-foreground/80 absolute right-0 flex items-center gap-1 rounded-l-lg opacity-0 transition-opacity group-hover/action-item:opacity-100">
-                            {/* Pin/Unpin button */}
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="icon"
-                                        size="sm"
-                                        className="hover:text-primary h-6 w-6 p-0"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (isPinning) return; // Prevent multiple clicks
-                                            if (node.isPinned) {
-                                                handleUnpinThread(node.threadId);
-                                            } else {
-                                                handlePinThread(node.threadId);
-                                            }
-                                        }}
-                                        disabled={isPinning}
-                                    >
-                                        {isPinning ? (
-                                            <Loader2 className="h-3 w-3 animate-spin" />
-                                        ) : node.isPinned ? (
-                                            <PinOff className="h-3 w-3" />
-                                        ) : (
-                                            <Pin className="h-3 w-3" />
-                                        )}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>{isPinning ? "Processing..." : node.isPinned ? "Unpin thread" : "Pin thread"}</TooltipContent>
-                            </Tooltip>
+                            {/* Pin/Unpin button - only show for non-archived threads */}
+                            {node.status !== "archived" && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="icon"
+                                            size="sm"
+                                            className="hover:text-primary h-6 w-6 p-0"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (isPinning) return; // Prevent multiple clicks
+                                                if (node.isPinned) {
+                                                    handleUnpinThread(node.threadId);
+                                                } else {
+                                                    handlePinThread(node.threadId);
+                                                }
+                                            }}
+                                            disabled={isPinning}
+                                        >
+                                            {isPinning ? (
+                                                <Loader2 className="h-3 w-3 animate-spin" />
+                                            ) : node.isPinned ? (
+                                                <PinOff className="h-3 w-3" />
+                                            ) : (
+                                                <Pin className="h-3 w-3" />
+                                            )}
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>{isPinning ? "Processing..." : node.isPinned ? "Unpin thread" : "Pin thread"}</TooltipContent>
+                                </Tooltip>
+                            )}
 
                             {/* Branch button */}
                             <Tooltip>
@@ -1069,7 +1144,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
-                            {/* Archive button (placeholder) */}
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -1078,13 +1152,22 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                         className="hover:text-primary h-6 w-6 p-0"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            // TODO: Implement archive functionality
+                                            if (isArchiving) return;
+                                            const model = node.model || "gemini-1.5-flash"; // Default model
+                                            if (node.status === "archived") {
+                                                updateThread(node.threadId, model, "active");
+                                            } else {
+                                                updateThread(node.threadId, model, "archived");
+                                            }
                                         }}
+                                        disabled={isArchiving}
                                     >
-                                        <ArchiveIcon className="h-3 w-3" />
+                                        {isArchiving ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArchiveIcon className="h-3 w-3" />}
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent>Archive thread</TooltipContent>
+                                <TooltipContent>
+                                    {isArchiving ? "Processing..." : node.status === "archived" ? "Unarchive thread" : "Archive thread"}
+                                </TooltipContent>
                             </Tooltip>
 
                             {/* Delete button */}
@@ -1211,6 +1294,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         d: { symbols: { default: "D" }, label: "D" },
         p: { symbols: { default: "P" }, label: "P" },
         b: { symbols: { default: "B" }, label: "B" },
+        a: { symbols: { default: "A" }, label: "A" },
         f: { symbols: { default: "F" }, label: "F" },
         "?": { symbols: { default: "?" }, label: "Question Mark" },
     };
@@ -1245,6 +1329,10 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Create branch</span>
                                 <KeyCombo keyNames={[Keys.Command, "b"]} />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">Archive/Unarchive thread</span>
+                                <KeyCombo keyNames={[Keys.Command, "a"]} />
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Search threads</span>
@@ -1295,7 +1383,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                               ? "last7days"
                                               : group.title === "Last month"
                                                 ? "lastMonth"
-                                                : "older";
+                                                : group.title === "Archived"
+                                                  ? "archived"
+                                                  : "older";
                                     toggleGroupCollapsed(groupType);
                                 }}
                             >
