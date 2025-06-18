@@ -1,5 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/(public)/")({
+    beforeLoad: ({ context }) => {
+        throw redirect({ to: "/chat" });
+    },
     component: LandingPage,
 });
 
