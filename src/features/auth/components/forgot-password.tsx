@@ -27,7 +27,7 @@ export default function ForgotPasswordForm() {
             email: "",
         },
         validators: {
-            onBlur: formSchema,
+            onChange: formSchema,
         },
         onSubmit: async ({ value }) => {
             setError("");

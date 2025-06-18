@@ -35,7 +35,7 @@ export default function ResetPasswordForm() {
             confirmPassword: "",
         },
         validators: {
-            onBlur: formSchema,
+            onChange: formSchema,
         },
         onSubmit: async ({ value }) => {
             setError("");

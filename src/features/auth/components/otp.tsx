@@ -38,7 +38,7 @@ export default function OtpForm() {
             otp: "",
         },
         validators: {
-            onBlur: formSchema,
+            onChange: formSchema,
         },
         onSubmit: async ({ value }) => {
             const res = await verifyOtp.mutateAsync({

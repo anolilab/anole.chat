@@ -44,7 +44,7 @@ export default function RegisterCredentialsForm() {
             confirmPassword: "",
         },
         validators: {
-            onBlur: formSchema,
+            onChange: formSchema,
         },
         onSubmit: async ({ value }) => {
             registerWithCredentials.mutate({

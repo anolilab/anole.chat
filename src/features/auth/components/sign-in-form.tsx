@@ -30,7 +30,7 @@ export default function SignInForm() {
             rememberMe: false,
         },
         validators: {
-            onBlur: formSchema,
+            onChange: formSchema,
         },
         onSubmit: ({ value }) => {
             loginWithCredentials.mutate(value);

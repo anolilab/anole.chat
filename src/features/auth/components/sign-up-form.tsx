@@ -44,7 +44,7 @@ export function SignUpForm() {
             image: undefined,
         },
         validators: {
-            onBlur: formSchema,
+            onChange: formSchema,
         },
         onSubmit: async ({ value }) => {
             setLoading(true);
