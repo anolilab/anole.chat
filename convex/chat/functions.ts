@@ -206,7 +206,7 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         ? await agent.continueThread(ctx, { threadId, userId: sessionData.userId as Id<"user"> })
         : await agent.createThread(ctx, { userId: sessionData.userId as Id<"user"> });
 
-        // Create message content with file support
+    // Create message content with file support
     let messageContent: any[] = [];
 
     if (fileIds) {
@@ -237,12 +237,12 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
     const { messageId } = await agent.saveMessage(ctx, {
         threadId: thread.threadId,
         message: {
-          role: "user",
-          content: messageContent,
+            role: "user",
+            content: messageContent,
         },
         // This will track the usage of the file, so we can delete old ones
         metadata: fileIds && fileIds.length > 0 ? { fileIds } : undefined,
-      });
+    });
 
     await ctx.scheduler.runAfter(0, internal.chat.functions.createTitleChat, {
         threadId: thread.threadId,

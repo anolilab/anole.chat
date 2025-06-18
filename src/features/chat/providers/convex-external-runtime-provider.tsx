@@ -272,7 +272,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
     // Handler for new messages
     const handleNewMessage = useCallback(
         async (message: AppendMessage) => {
-                        // Extract text content and file IDs from attachments
+            // Extract text content and file IDs from attachments
             let textContent = "";
             const fileIds: string[] = [];
             const messageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [];
@@ -297,7 +297,13 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
             // Also check for file attachments directly
             if (message.attachments) {
                 for (const attachment of message.attachments) {
-                    if (attachment && "metadata" in attachment && attachment.metadata && (attachment.metadata as any).fileId && !fileIds.includes((attachment.metadata as any).fileId)) {
+                    if (
+                        attachment &&
+                        "metadata" in attachment &&
+                        attachment.metadata &&
+                        (attachment.metadata as any).fileId &&
+                        !fileIds.includes((attachment.metadata as any).fileId)
+                    ) {
                         fileIds.push((attachment.metadata as any).fileId);
                     }
                 }
@@ -667,9 +673,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId }: Con
                 setThreads((prev) => new Map(prev).set(currentThreadId, messages));
             },
             adapters: {
-                attachments: new CompositeAttachmentAdapter([
-                    new ConvexAttachmentAdapter(sessionData?.data?.session?.token as string, convex),
-                ]),
+                attachments: new CompositeAttachmentAdapter([new ConvexAttachmentAdapter(sessionData?.data?.session?.token as string, convex)]),
                 threadList: threadListAdapter,
                 //feedback: feedbackAdapter,
             },

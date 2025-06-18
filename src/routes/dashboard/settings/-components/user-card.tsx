@@ -16,7 +16,7 @@ import { Laptop, Loader2, LogOut, PhoneIcon, QrCode, ShieldCheck, ShieldOff } fr
 import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import QRCode from "react-qr-code";
-import { toast } from "sonner";
+import { showError, showSuccess } from "@/lib/toast";
 import { UAParser } from "ua-parser-js";
 import { AddPasskey } from "./add-passkey";
 import { ChangePassword } from "./change-password";
@@ -78,11 +78,12 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                     setEmailVerificationPending(true);
                                                 },
                                                 onError(context) {
-                                                    toast.error(context.error.message);
+                                                    showError(context.error.message);
                                                     setEmailVerificationPending(false);
                                                 },
                                                 onSuccess() {
-                                                    toast.success("Verification email sent successfully");
+                                                    showSuccess("Verification email sent successfully");
+
                                                     setEmailVerificationPending(false);
                                                 },
                                             },
@@ -115,9 +116,9 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                     });
 
                                                     if (res.error) {
-                                                        toast.error(res.error.message);
+                                                        showError(res.error.message);
                                                     } else {
-                                                        toast.success("Session terminated successfully");
+                                                        showSuccess("Session terminated successfully");
                                                     }
                                                     if (item.id === session?.session?.id) {
                                                         await authClient.signOut({
@@ -193,7 +194,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                     <Button
                                                         onClick={async () => {
                                                             if (twoFaPassword.length < 8) {
-                                                                toast.error("Password must be at least 8 characters");
+                                                                showError("Password must be at least 8 characters");
                                                                 return;
                                                             }
                                                             await authClient.twoFactor.getTotpUri(
@@ -257,7 +258,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                 disabled={isPendingTwoFa}
                                                 onClick={async () => {
                                                     if (twoFaPassword.length < 8 && !twoFactorVerifyURI) {
-                                                        toast.error("Password must be at least 8 characters");
+                                                        showError("Password must be at least 8 characters");
                                                         return;
                                                     }
                                                     setIsPendingTwoFa(true);
@@ -267,10 +268,11 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                             password: twoFaPassword,
                                                             fetchOptions: {
                                                                 onError(context) {
-                                                                    toast.error(context.error.message);
+                                                                    showError(context.error.message);
                                                                 },
                                                                 onSuccess() {
-                                                                    toast("2FA disabled successfully");
+                                                                    showSuccess("2FA disabled successfully");
+
                                                                     setTwoFactorDialog(false);
                                                                 },
                                                             },
@@ -283,7 +285,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                                     onError(context) {
                                                                         setIsPendingTwoFa(false);
                                                                         setTwoFaPassword("");
-                                                                        toast.error(context.error.message);
+                                                                        showError(context.error.message);
                                                                     },
                                                                     onSuccess() {
                                                                         toast("2FA enabled successfully");
@@ -300,7 +302,7 @@ export default function UserCard(props: { activeSessions: AuthClient["$Infer"]["
                                                             password: twoFaPassword,
                                                             fetchOptions: {
                                                                 onError(context) {
-                                                                    toast.error(context.error.message);
+                                                                    showError(context.error.message);
                                                                 },
                                                                 onSuccess(ctx) {
                                                                     setTwoFactorVerifyURI(ctx.data.totpURI);

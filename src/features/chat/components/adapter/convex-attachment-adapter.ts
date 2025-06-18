@@ -44,12 +44,13 @@ class ConvexAttachmentAdapter implements AttachmentAdapter {
 
         // Validate file type
         const isImage = state.file.type.startsWith("image/");
-        const isText = state.file.type.startsWith("text/") ||
-                      state.file.type === "application/json" ||
-                      state.file.type === "application/xml" ||
-                      state.file.name.endsWith(".md") ||
-                      state.file.name.endsWith(".txt") ||
-                      state.file.name.endsWith(".csv");
+        const isText =
+            state.file.type.startsWith("text/") ||
+            state.file.type === "application/json" ||
+            state.file.type === "application/xml" ||
+            state.file.name.endsWith(".md") ||
+            state.file.name.endsWith(".txt") ||
+            state.file.name.endsWith(".csv");
         const isPdf = state.file.type === "application/pdf";
 
         if (!isImage && !isText && !isPdf) {
@@ -69,12 +70,13 @@ class ConvexAttachmentAdapter implements AttachmentAdapter {
     public async send(attachment: PendingAttachment): Promise<CompleteAttachment> {
         try {
             const isImage = attachment.contentType?.startsWith("image/");
-            const isText = attachment.contentType?.startsWith("text/") ||
-                          attachment.contentType === "application/json" ||
-                          attachment.contentType === "application/xml" ||
-                          attachment.name.endsWith(".md") ||
-                          attachment.name.endsWith(".txt") ||
-                          attachment.name.endsWith(".csv");
+            const isText =
+                attachment.contentType?.startsWith("text/") ||
+                attachment.contentType === "application/json" ||
+                attachment.contentType === "application/xml" ||
+                attachment.name.endsWith(".md") ||
+                attachment.name.endsWith(".txt") ||
+                attachment.name.endsWith(".csv");
 
             // For images, we can provide both the base64 data URL for immediate display
             // and upload to Convex for backend processing
@@ -151,7 +153,6 @@ class ConvexAttachmentAdapter implements AttachmentAdapter {
                 ],
                 metadata: { fileId: uploadResult.fileId },
             } as CompleteAttachment;
-
         } catch (error) {
             console.error("Failed to upload file:", error);
 

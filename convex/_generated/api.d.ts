@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as ai_functions from "../ai/functions.js";
 import type * as ai_lib_agents from "../ai/lib/agents.js";
 import type * as betterAuth from "../betterAuth.js";
 import type * as chat_functions from "../chat/functions.js";
@@ -22,6 +23,7 @@ import type * as lib_rateLimiter from "../lib/rateLimiter.js";
 import type * as lib_systemFields from "../lib/systemFields.js";
 import type * as lib_types from "../lib/types.js";
 import type * as user_functions from "../user/functions.js";
+import type * as user_lib_authenticateUser from "../user/lib/authenticateUser.js";
 
 import type {
   ApiFromModules,
@@ -38,6 +40,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "ai/functions": typeof ai_functions;
   "ai/lib/agents": typeof ai_lib_agents;
   betterAuth: typeof betterAuth;
   "chat/functions": typeof chat_functions;
@@ -52,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   "lib/systemFields": typeof lib_systemFields;
   "lib/types": typeof lib_types;
   "user/functions": typeof user_functions;
+  "user/lib/authenticateUser": typeof user_lib_authenticateUser;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
