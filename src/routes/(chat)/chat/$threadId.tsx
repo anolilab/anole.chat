@@ -1,13 +1,13 @@
-import { redirect, createFileRoute } from "@tanstack/react-router";
+import { redirect, createFileRoute, useRouteContext } from "@tanstack/react-router";
 import { api } from "@cvx/_generated/api";
-import { getServerSession } from "@/features/auth/lib/client";
 import { DEFAULT_MODEL } from "@cvx/ai/lib/agents";
 import { Assistant } from "@/features/chat/components/assistant";
 
 const ChatPage = () => {
+    const context = useRouteContext({ from: "/(chat)/chat/$threadId" });
     const { threadId } = Route.useParams();
 
-    return <Assistant threadId={threadId} />;
+    return <Assistant threadId={threadId} jwtToken={context.token as string} />;
 };
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({
@@ -17,12 +17,13 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
         };
     },
     beforeLoad: async ({ context, params }) => {
-        const session = await getServerSession();
+        if (!context.userId) {
+            throw redirect({ to: "/login" });
+        }
 
         if (params.threadId === "new") {
-            const newThreadId = await context.convex.mutation(api.chat.functions.createThread, {
+            const newThreadId = await context.convexClient.mutation(api.chat.functions.createThread, {
                 model: DEFAULT_MODEL,
-                sessionToken: session?.session?.token as string,
             });
 
             throw redirect({
@@ -33,36 +34,14 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
             });
         }
 
-        // Validate that the threadId exists in the database
-        if (session?.session?.token) {
-            try {
-                const threadExists = await context.convex.query(api.chat.functions.validateThreadExists, {
-                    threadId: params.threadId,
-                    sessionToken: session.session.token,
-                });
+        const threadExists = await context.convexClient.query(api.chat.functions.validateThreadExists, {
+            threadId: params.threadId,
+        });
 
-                if (!threadExists) {
-                    throw redirect({
-                        to: "/chat",
-                        search: { redirectReason: "thread-not-found" },
-                        replace: true,
-                    });
-                }
-            } catch (error) {
-                // If validation fails (e.g., network error), redirect to /chat
-                console.error("Failed to validate thread:", error);
-
-                throw redirect({
-                    to: "/chat",
-                    search: { redirectReason: "validation-error" },
-                    replace: true,
-                });
-            }
-        } else {
-            // If no session, redirect to /chat
+        if (!threadExists) {
             throw redirect({
                 to: "/chat",
-                search: { redirectReason: "no-session" },
+                search: { redirectReason: "thread-not-found" },
                 replace: true,
             });
         }

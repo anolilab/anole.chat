@@ -26,7 +26,6 @@ import { Route as authTwoFactorIndexRouteImport } from './routes/(auth)/two-fact
 import { Route as chatChatThreadIdRouteImport } from './routes/(chat)/chat/$threadId'
 import { Route as authTwoFactorOtpRouteImport } from './routes/(auth)/two-factor/otp'
 import { Route as authAcceptInvitationInvitationIdIndexRouteImport } from './routes/(auth)/accept-invitation/$invitationId/index'
-import { ServerRoute as DotwellKnownOauthAuthorizationServerServerRouteImport } from './routes/[.]well-known.oauth-authorization-server'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 import { ServerRoute as ApiAiMcpTransportServerRouteImport } from './routes/api/ai/mcp/$transport'
 
@@ -105,12 +104,6 @@ const authAcceptInvitationInvitationIdIndexRoute =
     id: '/accept-invitation/$invitationId/',
     path: '/accept-invitation/$invitationId/',
     getParentRoute: () => authLayoutRoute,
-  } as any)
-const DotwellKnownOauthAuthorizationServerServerRoute =
-  DotwellKnownOauthAuthorizationServerServerRouteImport.update({
-    id: '/.well-known/oauth-authorization-server',
-    path: '/.well-known/oauth-authorization-server',
-    getParentRoute: () => rootServerRouteImport,
   } as any)
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: '/api/auth/$',
@@ -226,41 +219,27 @@ export interface RootRouteChildren {
   publicIndexRoute: typeof publicIndexRoute
 }
 export interface FileServerRoutesByFullPath {
-  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRoutesByTo {
-  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
-  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths:
-    | '/.well-known/oauth-authorization-server'
-    | '/api/auth/$'
-    | '/api/ai/mcp/$transport'
+  fullPaths: '/api/auth/$' | '/api/ai/mcp/$transport'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to:
-    | '/.well-known/oauth-authorization-server'
-    | '/api/auth/$'
-    | '/api/ai/mcp/$transport'
-  id:
-    | '__root__'
-    | '/.well-known/oauth-authorization-server'
-    | '/api/auth/$'
-    | '/api/ai/mcp/$transport'
+  to: '/api/auth/$' | '/api/ai/mcp/$transport'
+  id: '__root__' | '/api/auth/$' | '/api/ai/mcp/$transport'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
-  DotwellKnownOauthAuthorizationServerServerRoute: typeof DotwellKnownOauthAuthorizationServerServerRoute
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
   ApiAiMcpTransportServerRoute: typeof ApiAiMcpTransportServerRoute
 }
@@ -376,13 +355,6 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
-    '/.well-known/oauth-authorization-server': {
-      id: '/.well-known/oauth-authorization-server'
-      path: '/.well-known/oauth-authorization-server'
-      fullPath: '/.well-known/oauth-authorization-server'
-      preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -463,8 +435,6 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
-  DotwellKnownOauthAuthorizationServerServerRoute:
-    DotwellKnownOauthAuthorizationServerServerRoute,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
   ApiAiMcpTransportServerRoute: ApiAiMcpTransportServerRoute,
 }

@@ -14,6 +14,7 @@ const generateEncryptionKey = () => {
     const envHelper = new EnvHelper();
 
     await envHelper.ensureKey("ENCRYPTION_KEY", generateEncryptionKey, "AES-256-GCM encryption key for secure data encryption");
+    await envHelper.ensureKey("BETTER_AUTH_SECRET", generateEncryptionKey, "Better Auth secret key for secure authentication");
 
     envHelper.displaySecurityWarning("encryption key");
 

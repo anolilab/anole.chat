@@ -1,14 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { createContext, useCallback, useEffect, useMemo, useState, type DependencyList, type ReactNode } from "react";
 import { usePostHog } from "posthog-js/react";
 import { ErrorBoundary, useErrorHandler } from "../error-boundary";
 import { ErrorUtils } from "@/lib/errors";
 
 interface AsyncErrorBoundaryProps {
-    children: React.ReactNode;
+    children: ReactNode;
     onError?: (error: Error) => void;
-    fallback?: (error: Error, retry: () => void) => React.ReactNode;
+    fallback?: (error: Error, retry: () => void) => ReactNode;
 }
 
 /**
@@ -20,7 +20,7 @@ export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBo
     const posthog = usePostHog();
 
     // Create a context to provide error handling to child components
-    const errorContext = React.useMemo(
+    const errorContext = useMemo(
         () => ({
             handleAsyncError: (error: Error) => {
                 onError?.(error);
@@ -73,7 +73,7 @@ export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBo
 /**
  * Context for async error handling
  */
-const AsyncErrorContext = React.createContext<{
+const AsyncErrorContext = createContext(defaultValue)<{
     handleAsyncError: (error: Error) => void;
 } | null>(null);
 
@@ -81,7 +81,7 @@ const AsyncErrorContext = React.createContext<{
  * Hook to handle async errors within an AsyncErrorBoundary
  */
 export function useAsyncErrorHandler() {
-    const context = React.useContext(AsyncErrorContext);
+    const context = useContext(AsyncErrorContext);
 
     if (!context) {
         throw new Error("useAsyncErrorHandler must be used within an AsyncErrorBoundary");
@@ -108,8 +108,8 @@ export function withAsyncErrorHandling<T extends (...args: any[]) => Promise<any
 /**
  * Hook for safe async operations with automatic error boundary integration
  */
-export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: React.DependencyList = []) {
-    const [state, setState] = React.useState<{
+export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList = []) {
+    const [state, setState] = useState<{
         data: T | null;
         error: Error | null;
         loading: boolean;
@@ -121,7 +121,7 @@ export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: React.Dependenc
 
     const handleAsyncError = useAsyncErrorHandler();
 
-    const execute = React.useCallback(async () => {
+    const execute = useCallback(async () => {
         setState((prev) => ({ ...prev, loading: true, error: null }));
 
         try {
@@ -141,7 +141,7 @@ export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: React.Dependenc
         }
     }, deps);
 
-    React.useEffect(() => {
+    useEffect(() => {
         execute().catch(() => {
             // Error is already handled in execute
         });
@@ -158,7 +158,7 @@ export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: React.Dependenc
  * Component wrapper for async operations
  */
 interface AsyncComponentProps {
-    children: (props: { handleAsyncError: (error: Error) => void }) => React.ReactNode;
+    children: (props: { handleAsyncError: (error: Error) => void }) => ReactNode;
 }
 
 export function AsyncComponent({ children }: AsyncComponentProps) {

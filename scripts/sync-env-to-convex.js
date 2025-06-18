@@ -9,6 +9,7 @@ const whitelist = {
     RESEND_FROM_EMAIL: "RESEND_FROM_EMAIL",
     VITE_SITE_URL: "SITE_URL",
     ENCRYPTION_KEY: "ENCRYPTION_KEY",
+    BETTER_AUTH_SECRET: "BETTER_AUTH_SECRET",
 };
 
 const parseEnvFile = (filePath) => {

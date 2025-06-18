@@ -11,6 +11,15 @@ export default defineConfig(({ mode }) => {
         optimizeDeps: {
             exclude: ["scripts/*"],
         },
+        resolve: {
+            alias: {
+                // Fix for @convex-dev/resend missing .js extension
+                "@convex-dev/resend/dist/esm/component/shared": "@convex-dev/resend/dist/esm/component/shared.js",
+            },
+        },
+        ssr: {
+            noExternal: ["@convex-dev/resend"],
+        },
         server: {
             routeRules: {
                 "/pr/posthog/**": { proxy: { to: "https://eu.i.posthog.com/**" } },
@@ -44,7 +53,6 @@ export default defineConfig(({ mode }) => {
             tanstackStart({
                 tsr: {
                     routeToken: "layout",
-                    enableCodeSplitting: true,
                 },
                 react: {
                     babel: {

@@ -4,9 +4,8 @@ import { createContext, useContext, useState, useMemo, type ReactNode } from "re
 import type { ThreadMessageLike } from "@assistant-ui/react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@cvx/_generated/api";
-import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { useNavigate } from "@tanstack/react-router";
-import type { AgentModel } from "convex/agents";
+import type { AgentModel } from "@cvx/ai/lib/agents";
 import type { Doc } from "@cvx/_generated/dataModel";
 
 type ThreadDoc = Doc<"threads">;
@@ -71,15 +70,11 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
     const navigate = useNavigate({ from: "/chat/$threadId" });
 
     // Convex hooks
-    const sessionData = useSession();
     const createThreadMutation = useMutation(api.chat.functions.createThread);
     const deleteThreadMutation = useMutation(api.chat.functions.deleteThreadWithRelationships);
 
     // Query to get all threads for building the hierarchy
-    const allThreads = useQuery(
-        api.chat.functions.getThreads,
-        sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token, paginationOpts: { numItems: 100, cursor: null } } : "skip",
-    );
+    const allThreads = useQuery(api.chat.functions.getThreads, { paginationOpts: { numItems: 100, cursor: null } });
 
     // Create a new branch from a specific message in a thread
     const createBranch = async (fromThreadId: string, fromMessageIndex: number, branchName?: string): Promise<string> => {
@@ -94,15 +89,9 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
             throw new Error(`Invalid message index ${fromMessageIndex}`);
         }
 
-        // Require session for branch creation - no local fallback
-        if (!sessionData?.data?.session?.token) {
-            throw new Error("Authentication required to create branches");
-        }
-
         // Create the branch in Convex and wait for the real thread ID
         const branchId = await createThreadMutation({
             model,
-            sessionToken: sessionData.data.session.token,
             parentThreadId: fromThreadId,
             branchPoint: fromMessageIndex,
             branchName,
@@ -144,16 +133,13 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
         }
 
         // Delete from backend if session available
-        if (sessionData?.data?.session?.token) {
-            try {
-                await deleteThreadMutation({
-                    threadId,
-                    sessionToken: sessionData.data.session.token,
-                });
-            } catch (error) {
-                console.error("Failed to delete thread from backend:", error);
-                // Continue with local deletion even if backend fails
-            }
+        try {
+            await deleteThreadMutation({
+                threadId,
+            });
+        } catch (error) {
+            console.error("Failed to delete thread from backend:", error);
+            // Continue with local deletion even if backend fails
         }
 
         // Delete the branch from local state

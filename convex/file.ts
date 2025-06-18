@@ -2,6 +2,7 @@ import { storeFile } from "@convex-dev/agent";
 import { components, internal } from "./_generated/api";
 import { action } from "./_generated/server";
 import { v } from "convex/values";
+import { requireUserId } from "./auth/lib/helper";
 
 export const uploadFile = action({
     args: {
@@ -9,16 +10,9 @@ export const uploadFile = action({
         mimeType: v.string(),
         bytes: v.bytes(),
         sha256: v.optional(v.string()),
-        sessionToken: v.string(),
     },
     handler: async (ctx, args) => {
-        const sessionData: any | null = await ctx.runQuery(internal.betterAuth.getSession, {
-            sessionToken: args.sessionToken,
-        });
-
-        if (!sessionData) {
-            throw new Error("Unauthorized");
-        }
+        await requireUserId(ctx);
 
         const {
             file: { fileId, url },

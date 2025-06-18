@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, type FC, useRef } from "react";
 import { Sparkles, Loader2, AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { ThreadPrimitive, useComposer, useComposerRuntime } from "@assistant-ui/react";
-import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,7 +14,6 @@ import { PromptImprovementErrorBoundary } from "@/components/error-boundaries/pr
 const usePromptImprovement = (threadId: string) => {
     const [isImproving, setIsImproving] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
-    const sessionData = useSession();
 
     const improvePrompt = useCallback(
         async (prompt: string, improvementInstructions?: string): Promise<string> => {
@@ -26,10 +24,6 @@ const usePromptImprovement = (threadId: string) => {
 
             if (prompt.trim().length > 10000) {
                 throw new ContentError("Prompt is too long. Please keep it under 10,000 characters.", "prompt");
-            }
-
-            if (!sessionData?.data?.session?.token) {
-                throw new ValidationError("Please sign in to improve prompts", "authentication");
             }
 
             setIsImproving(true);
@@ -47,7 +41,6 @@ const usePromptImprovement = (threadId: string) => {
                     },
                     body: JSON.stringify({
                         prompt: prompt.trim(),
-                        sessionToken: sessionData.data.session.token,
                         threadId,
                         improvementInstructions: improvementInstructions?.trim() || undefined,
                     }),
@@ -104,7 +97,7 @@ const usePromptImprovement = (threadId: string) => {
                 setIsImproving(false);
             }
         },
-        [sessionData, threadId],
+        [threadId],
     );
 
     const improvePromptWithRetry = useCallback(

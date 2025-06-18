@@ -44,7 +44,6 @@ import { cn } from "@/lib/utils";
 import { api } from "@cvx/_generated/api";
 import { ShortcutsProvider, KeyCombo, KeySymbol, Keys } from "@/components/ui/keyboard-shortcuts";
 import { Input } from "@/components/ui/input";
-import { useSession } from "@/features/auth/hooks/auth-hooks";
 import { useThreadContext } from "@/features/chat/components/thread-context";
 import { handleDownload, type DownloadFormat } from "@/lib/download";
 import type { Doc } from "@cvx/_generated/dataModel";
@@ -77,7 +76,6 @@ type GroupType = "pinned" | "last7days" | "lastMonth" | "older";
 
 export const ThreadList: FC = () => {
     const { t } = useLingui();
-    const sessionData = useSession();
     const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
     const [collapsedGroups, setCollapsedGroups] = useState<Set<GroupType>>(new Set());
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
@@ -101,10 +99,9 @@ export const ThreadList: FC = () => {
     // Search threads when there's a search query and search type is "threads"
     const threadSearchResults = useQuery(
         api.chat.functions.searchThreads,
-        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "threads"
+        searchType === "threads"
             ? {
                   searchQuery: searchQuery.trim(),
-                  sessionToken: sessionData.data.session.token,
                   paginationOpts: { numItems: 100, cursor: null },
               }
             : "skip",
@@ -113,10 +110,9 @@ export const ThreadList: FC = () => {
     // Search messages when there's a search query and search type is "messages"
     const messageSearchResults = useQuery(
         api.chat.functions.searchMessages,
-        sessionData?.data?.session?.token && searchQuery.trim() && searchType === "messages"
+        searchType === "messages"
             ? {
                   searchQuery: searchQuery.trim(),
-                  sessionToken: sessionData.data.session.token,
                   paginationOpts: { numItems: 100, cursor: null },
               }
             : "skip",
@@ -316,7 +312,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 }) => {
     const { t } = useLingui();
     const { currentThreadId, createBranch, deleteBranch, threads } = useThreadContext();
-    const sessionData = useSession();
     const navigate = useNavigate();
     const convex = useConvex();
 
@@ -325,28 +320,16 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     const [isKeyboardNavigating, setIsKeyboardNavigating] = useState(false);
 
     // Get all threads to build the hierarchy
-    const threadsData = useQuery(
-        api.chat.functions.getThreads,
-        sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token, paginationOpts: { numItems: 100, cursor: null } } : "skip",
-    );
+    const threadsData = useQuery(api.chat.functions.getThreads, { paginationOpts: { numItems: 100, cursor: null } });
 
     // Get thread relationships to build hierarchy
-    const threadRelationships = useQuery(
-        api.chat.functions.getAllThreadRelationships,
-        sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip",
-    );
+    const threadRelationships = useQuery(api.chat.functions.getAllThreadRelationships);
 
     // Get pinned threads
-    const pinnedThreads = useQuery(
-        api.chat.functions.getPinnedThreads,
-        sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip",
-    );
+    const pinnedThreads = useQuery(api.chat.functions.getPinnedThreads);
 
     // Get thread orders
-    const threadOrders = useQuery(
-        api.chat.functions.getThreadOrders,
-        sessionData?.data?.session?.token ? { sessionToken: sessionData.data.session.token } : "skip",
-    );
+    const threadOrders = useQuery(api.chat.functions.getThreadOrders);
 
     // Pin/unpin mutations
     const pinThreadMutation = useMutation(api.chat.functions.pinThread);
@@ -550,10 +533,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
     const handleDownloadThread = useCallback(
         async (node: BranchNode, format: DownloadFormat) => {
-            if (!sessionData?.data?.session?.token) {
-                return;
-            }
-
             if (!node.model) {
                 throw new ValidationError("Cannot download thread: Model information is missing", "model", ["required"], {
                     context: {
@@ -571,7 +550,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             try {
                 const data = await convex.query(api.chat.functions.getFullThreadForExport, {
                     threadId: node.threadId,
-                    sessionToken: sessionData.data.session.token,
+
                     model: node.model,
                 });
 
@@ -588,7 +567,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 });
             }
         },
-        [convex, setLoadingStates, sessionData],
+        [convex, setLoadingStates],
     );
 
     const handleCreateBranch = async (threadId: string) => {
@@ -639,8 +618,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     const handlePinThread = async (threadId: string) => {
-        if (!sessionData?.data?.session?.token) return;
-
         setLoadingStates((prev) => ({
             ...prev,
             pinning: new Set(prev.pinning).add(threadId),
@@ -649,7 +626,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         try {
             await pinThreadMutation({
                 threadId,
-                sessionToken: sessionData.data.session.token,
             });
         } catch (error) {
             console.error("Failed to pin thread:", error);
@@ -666,8 +642,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     const handleUnpinThread = async (threadId: string) => {
-        if (!sessionData?.data?.session?.token) return;
-
         setLoadingStates((prev) => ({
             ...prev,
             pinning: new Set(prev.pinning).add(threadId),
@@ -676,7 +650,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         try {
             await unpinThreadMutation({
                 threadId,
-                sessionToken: sessionData.data.session.token,
             });
         } catch (error) {
             console.error("Failed to unpin thread:", error);
@@ -705,7 +678,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         const { active, over } = event;
 
         if (!over || active.id === over.id) return;
-        if (!sessionData?.data?.session?.token) return;
 
         setLoadingStates((prev) => ({ ...prev, reordering: true }));
 
@@ -746,7 +718,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             }));
 
             await updateThreadOrderMutation({
-                sessionToken: sessionData.data.session.token,
                 threadOrders: threadOrders,
             });
         } catch (error) {

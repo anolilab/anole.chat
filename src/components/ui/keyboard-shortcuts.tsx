@@ -1,8 +1,8 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HTMLProps, ReactNode, createContext, useContext } from "react";
+import { type HTMLProps, type ReactNode, createContext, useContext } from "react";
 import { cn } from "@/lib/utils";
 
-/* 
+/*
 Example Usage:
 
 <ShortcutsProvider os="mac">
@@ -19,7 +19,7 @@ Example Usage:
     <p>Clear Selection</p>
     <KeySymbol keyName={Keys.Escape} />
   </div>
-</ShortcutsProvider>; 
+</ShortcutsProvider>;
 */
 
 interface KeyData {

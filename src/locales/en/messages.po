@@ -13,78 +13,86 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:129
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:132
 msgid "Accept Invitation"
 msgstr "Accept Invitation"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:275
+#: src/routes/dashboard/settings/-components/admin.tsx:277
 msgid "Actions"
 msgstr "Actions"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:100
+#: src/routes/dashboard/settings/-components/user-card.tsx:99
 msgid "Active Sessions"
 msgstr "Active Sessions"
 
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:42
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:47
+#: src/routes/dashboard/settings/-components/add-passkey.tsx:43
+#: src/routes/dashboard/settings/-components/add-passkey.tsx:48
 msgid "Add New Passkey"
 msgstr "Add New Passkey"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:130
-#: src/routes/dashboard/settings/-components/organization-card.tsx:184
-#: src/routes/dashboard/settings/-components/organization-card.tsx:378
-#: src/routes/dashboard/settings/-components/admin.tsx:197
+#: src/routes/dashboard/settings/-components/organization-card.tsx:132
+#: src/routes/dashboard/settings/-components/organization-card.tsx:186
+#: src/routes/dashboard/settings/-components/organization-card.tsx:385
+#: src/routes/dashboard/settings/-components/admin.tsx:199
 msgid "Admin"
 msgstr "Admin"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:154
+#: src/routes/dashboard/settings/-components/admin.tsx:156
 msgid "Admin Dashboard"
 msgstr "Admin Dashboard"
 
-#: src/routes/(auth)/register.tsx:14
+#: src/routes/(auth)/register.tsx:15
 msgid "Already have an account?"
 msgstr "Already have an account?"
 
-#: src/features/auth/components/forgot-password.tsx:62
+#: src/components/assistant-ui/thread-list.tsx:1143
+msgid "Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation."
+msgstr "Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation."
+
+#: src/features/auth/components/forgot-password.tsx:58
 msgid "Back to Reset"
 msgstr "Back to Reset"
 
-#: src/features/auth/components/forgot-password.tsx:128
+#: src/features/auth/components/forgot-password.tsx:124
 msgid "Back to Sign In"
 msgstr "Back to Sign In"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:370
+#: src/routes/dashboard/settings/-components/admin.tsx:372
 msgid "Ban"
 msgstr "Ban"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:218
-#: src/routes/dashboard/settings/-components/admin.tsx:255
+#: src/routes/dashboard/settings/-components/admin.tsx:220
+#: src/routes/dashboard/settings/-components/admin.tsx:257
 msgid "Ban User"
 msgstr "Ban User"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:274
+#: src/routes/dashboard/settings/-components/admin.tsx:276
 msgid "Banned"
 msgstr "Banned"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:252
+#: src/routes/dashboard/settings/-components/admin.tsx:254
 msgid "Banning"
 msgstr "Banning"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:227
+#: src/components/assistant-ui/thread-list.tsx:1147
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/routes/dashboard/settings/-components/organization-card.tsx:230
 msgid "Cannot invite members to personal workspace"
 msgstr "Cannot invite members to personal workspace"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:33
-#: src/routes/dashboard/settings/-components/change-password.tsx:38
-#: src/routes/dashboard/settings/-components/change-password.tsx:98
+#: src/routes/dashboard/settings/-components/change-password.tsx:34
+#: src/routes/dashboard/settings/-components/change-password.tsx:39
+#: src/routes/dashboard/settings/-components/change-password.tsx:99
 msgid "Change Password"
 msgstr "Change Password"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:39
+#: src/routes/dashboard/settings/-components/change-password.tsx:40
 msgid "Change your password"
 msgstr "Change your password"
 
-#: src/features/auth/components/forgot-password.tsx:51
+#: src/features/auth/components/forgot-password.tsx:47
 msgid "Check Email"
 msgstr "Check Email"
 
@@ -92,11 +100,11 @@ msgstr "Check Email"
 msgid "Check your email for the OTP sent to"
 msgstr "Check your email for the OTP sent to"
 
-#: src/features/auth/components/forgot-password.tsx:57
+#: src/features/auth/components/forgot-password.tsx:53
 msgid "Check your spam folder if you don't see the email"
 msgstr "Check your spam folder if you don't see the email"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:120
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:123
 msgid "Close"
 msgstr "Close"
 
@@ -104,62 +112,81 @@ msgstr "Close"
 msgid "Confirm New Password"
 msgstr "Confirm New Password"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:57
-#: src/routes/dashboard/settings/-components/change-password.tsx:62
-#: src/features/auth/components/register-form.tsx:126
+#: src/routes/dashboard/settings/-components/change-password.tsx:58
+#: src/routes/dashboard/settings/-components/change-password.tsx:63
+#: src/features/auth/components/sign-up-form.tsx:179
+#: src/features/auth/components/sign-up-form.tsx:184
+#: src/features/auth/components/register-form.tsx:128
 msgid "Confirm Password"
 msgstr "Confirm Password"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:183
+#: src/routes/dashboard/settings/-components/user-card.tsx:182
 msgid "Copy URI"
 msgstr "Copy URI"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:343
+#: src/routes/dashboard/settings/-components/organization-card.tsx:348
 msgid "Create"
 msgstr "Create"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:288
+#: src/routes/dashboard/settings/-components/organization-card.tsx:293
 msgid "Create a new organization to collaborate with your team"
 msgstr "Create a new organization to collaborate with your team"
 
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:48
+#: src/routes/dashboard/settings/-components/add-passkey.tsx:49
 msgid "Create a new passkey to securely access your account without a password."
 msgstr "Create a new passkey to securely access your account without a password."
 
-#: src/features/auth/components/register-form.tsx:158
+#: src/features/auth/components/sign-up-form.tsx:223
+#: src/features/auth/components/register-form.tsx:160
 msgid "Create Account"
 msgstr "Create Account"
 
-#: src/features/auth/components/sign-up-form.tsx:93
+#: src/features/auth/components/sign-up-form.tsx:86
 msgid "Create an account to get started"
 msgstr "Create an account to get started"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:113
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:61
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:116
+#: src/routes/dashboard/settings/-components/add-passkey.tsx:62
 msgid "Create Passkey"
 msgstr "Create Passkey"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:158
-#: src/routes/dashboard/settings/-components/admin.tsx:163
-#: src/routes/dashboard/settings/-components/admin.tsx:209
+#: src/routes/dashboard/settings/-components/admin.tsx:160
+#: src/routes/dashboard/settings/-components/admin.tsx:165
+#: src/routes/dashboard/settings/-components/admin.tsx:211
 msgid "Create User"
 msgstr "Create User"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:206
+#: src/routes/dashboard/settings/-components/admin.tsx:208
 msgid "Creating"
 msgstr "Creating"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:42
+#: src/routes/dashboard/settings/-components/change-password.tsx:43
 msgid "Current Password"
 msgstr "Current Password"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:127
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:130
 msgid "Decline"
 msgstr "Decline"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:224
-#: src/routes/dashboard/settings/-components/user-card.tsx:229
-#: src/routes/dashboard/settings/-components/user-card.tsx:317
+#: src/components/assistant-ui/thread-list.tsx:1155
+msgid "Delete"
+msgstr "Delete"
+
+#: src/components/assistant-ui/thread-list.tsx:1137
+msgid "Delete thread"
+msgstr "Delete thread"
+
+#: src/components/assistant-ui/thread-list.tsx:1141
+msgid "Delete Thread"
+msgstr "Delete Thread"
+
+#: src/components/assistant-ui/thread-list.tsx:1137
+msgid "Deleting..."
+msgstr "Deleting..."
+
+#: src/routes/dashboard/settings/-components/user-card.tsx:223
+#: src/routes/dashboard/settings/-components/user-card.tsx:228
+#: src/routes/dashboard/settings/-components/user-card.tsx:318
 msgid "Disable 2FA"
 msgstr "Disable 2FA"
 
@@ -167,64 +194,61 @@ msgstr "Disable 2FA"
 msgid "Disable two-factor authentication for your account"
 msgstr "Disable two-factor authentication for your account"
 
-#: src/routes/(auth)/reset-password.tsx:15
-#: src/routes/(auth)/login.tsx:14
-#: src/routes/(auth)/forgot-password.tsx:15
-#: src/routes/(auth)/two-factor/otp.tsx:16
-#: src/routes/(auth)/two-factor/index.tsx:16
+#: src/routes/(auth)/reset-password.tsx:16
+#: src/routes/(auth)/login.tsx:16
+#: src/routes/(auth)/forgot-password.tsx:17
+#: src/routes/(auth)/two-factor/otp.tsx:17
+#: src/routes/(auth)/two-factor/index.tsx:18
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:41
-#: src/routes/dashboard/settings/-components/change-user.tsx:46
+#: src/routes/dashboard/settings/-components/change-user.tsx:42
+#: src/routes/dashboard/settings/-components/change-user.tsx:47
 msgid "Edit User"
 msgstr "Edit User"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:370
-#: src/routes/dashboard/settings/-components/organization-card.tsx:371
-#: src/routes/dashboard/settings/-components/admin.tsx:271
-#: src/features/auth/components/sign-in-form.tsx:59
-#: src/features/auth/components/register-form.tsx:82
-#: src/features/auth/components/forgot-password.tsx:91
+#: src/routes/dashboard/settings/-components/organization-card.tsx:377
+#: src/routes/dashboard/settings/-components/organization-card.tsx:378
+#: src/routes/dashboard/settings/-components/admin.tsx:273
+#: src/features/auth/components/sign-up-form.tsx:141
+#: src/features/auth/components/sign-in-form.tsx:60
+#: src/features/auth/components/register-form.tsx:84
+#: src/features/auth/components/forgot-password.tsx:87
 msgid "Email"
 msgstr "Email"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:224
-#: src/routes/dashboard/settings/-components/user-card.tsx:229
-#: src/routes/dashboard/settings/-components/user-card.tsx:319
+#: src/routes/dashboard/settings/-components/user-card.tsx:223
+#: src/routes/dashboard/settings/-components/user-card.tsx:228
+#: src/routes/dashboard/settings/-components/user-card.tsx:320
 msgid "Enable 2FA"
 msgstr "Enable 2FA"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:231
+#: src/routes/dashboard/settings/-components/user-card.tsx:232
 msgid "Enable two-factor authentication for enhanced security"
 msgstr "Enable two-factor authentication for enhanced security"
 
-#: src/routes/dashboard/settings/-components/language-switch.tsx:34
-msgid "English"
-msgstr "English"
-
-#: src/features/auth/components/two-factor.tsx:72
+#: src/features/auth/components/two-factor.tsx:74
 #: src/features/auth/components/otp.tsx:91
 msgid "Enter 6-digit code"
 msgstr "Enter 6-digit code"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:241
+#: src/routes/dashboard/settings/-components/user-card.tsx:242
 msgid "Enter OTP"
 msgstr "Enter OTP"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:192
+#: src/routes/dashboard/settings/-components/user-card.tsx:191
 msgid "Enter Password"
 msgstr "Enter Password"
 
-#: src/features/auth/components/forgot-password.tsx:95
+#: src/features/auth/components/forgot-password.tsx:91
 msgid "Enter your email"
 msgstr "Enter your email"
 
-#: src/features/auth/components/sign-in-form.tsx:43
+#: src/features/auth/components/sign-in-form.tsx:44
 msgid "Enter your email below to login to your account"
 msgstr "Enter your email below to login to your account"
 
-#: src/features/auth/components/forgot-password.tsx:75
+#: src/features/auth/components/forgot-password.tsx:71
 msgid "Enter your email to receive a password reset link"
 msgstr "Enter your email to receive a password reset link"
 
@@ -232,289 +256,312 @@ msgstr "Enter your email to receive a password reset link"
 msgid "Enter your new password below"
 msgstr "Enter your new password below"
 
-#: src/features/auth/components/two-factor.tsx:50
+#: src/features/auth/components/two-factor.tsx:52
 msgid "Enter your TOTP code from your authenticator app"
 msgstr "Enter your TOTP code from your authenticator app"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:226
+#: src/routes/dashboard/settings/-components/admin.tsx:228
 msgid "Expiration Date"
 msgstr "Expiration Date"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:130
+#: src/routes/dashboard/settings/-components/admin.tsx:132
 msgid "Expiration date is required"
 msgstr "Expiration date is required"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:143
+#: src/routes/dashboard/settings/-components/admin.tsx:145
 msgid "Failed to ban user"
 msgstr "Failed to ban user"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:79
+#: src/routes/dashboard/settings/-components/admin.tsx:81
 msgid "Failed to create user"
 msgstr "Failed to create user"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:94
+#: src/routes/dashboard/settings/-components/admin.tsx:96
 msgid "Failed to delete user"
 msgstr "Failed to delete user"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:119
+#: src/routes/dashboard/settings/-components/admin.tsx:121
 msgid "Failed to impersonate user"
 msgstr "Failed to impersonate user"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:106
+#: src/routes/dashboard/settings/-components/admin.tsx:108
 msgid "Failed to revoke sessions"
 msgstr "Failed to revoke sessions"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:345
+#: src/routes/dashboard/settings/-components/admin.tsx:347
 msgid "Failed to unban user"
 msgstr "Failed to unban user"
 
-#: src/features/auth/components/sign-up-form.tsx:111
+#: src/features/auth/components/sign-up-form.tsx:104
 msgid "First Name"
 msgstr "First Name"
 
-#: src/features/auth/components/forgot-password.tsx:74
+#: src/features/auth/components/forgot-password.tsx:70
 msgid "Forgot Password"
 msgstr "Forgot Password"
 
-#: src/features/auth/components/sign-in-form.tsx:81
+#: src/features/auth/components/sign-in-form.tsx:82
 msgid "Forgot your password?"
 msgstr "Forgot your password?"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:50
+#: src/routes/dashboard/settings/-components/change-user.tsx:51
 msgid "Full Name"
 msgstr "Full Name"
 
-#: src/routes/dashboard/settings/-components/language-switch.tsx:38
-msgid "German"
-msgstr "German"
-
-#: src/features/auth/components/invitation-error.tsx:23
+#: src/features/auth/components/invitation-error.tsx:24
 msgid "Go Home"
 msgstr "Go Home"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:324
+#: src/routes/dashboard/settings/-components/admin.tsx:326
 msgid "Impersonate"
 msgstr "Impersonate"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:116
+#: src/routes/dashboard/settings/-components/admin.tsx:118
 msgid "Impersonated user"
 msgstr "Impersonated user"
 
-#: src/features/auth/components/two-factor.tsx:39
+#: src/features/auth/components/two-factor.tsx:41
 #: src/features/auth/components/otp.tsx:54
 msgid "Invalid OTP"
 msgstr "Invalid OTP"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:117
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:120
 msgid "Invitation Declined"
 msgstr "Invitation Declined"
 
-#: src/features/auth/components/invitation-error.tsx:13
+#: src/features/auth/components/invitation-error.tsx:14
 msgid "Invitation Error"
 msgstr "Invitation Error"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:97
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:100
 msgid "Invitation sent to"
 msgstr "Invitation sent to"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:405
+#: src/routes/dashboard/settings/-components/organization-card.tsx:412
 msgid "Invite"
 msgstr "Invite"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:367
+#: src/routes/dashboard/settings/-components/organization-card.tsx:374
 msgid "Invite a new member to join your organization"
 msgstr "Invite a new member to join your organization"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:361
-#: src/routes/dashboard/settings/-components/organization-card.tsx:366
+#: src/routes/dashboard/settings/-components/organization-card.tsx:368
+#: src/routes/dashboard/settings/-components/organization-card.tsx:373
 msgid "Invite Member"
 msgstr "Invite Member"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:94
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:97
 msgid "invited you to join"
 msgstr "invited you to join"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:166
+#: src/routes/dashboard/settings/-components/organization-card.tsx:168
 msgid "Invites"
 msgstr "Invites"
 
-#: src/routes/dashboard/settings/-components/language-switch.tsx:26
-msgid "Language"
-msgstr "Language"
+#: src/components/assistant-ui/thread-list.tsx:183
+msgid "Keyboard shortcuts (?)"
+msgstr "Keyboard shortcuts (?)"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:144
+#: src/features/auth/components/sign-up-form.tsx:122
+msgid "Last Name"
+msgstr "Last Name"
+
+#: src/routes/dashboard/settings/-components/organization-card.tsx:146
 msgid "Leave"
 msgstr "Leave"
 
-#: src/routes/(auth)/register.tsx:16
+#: src/components/assistant-ui/thread-list.tsx:1197
+msgid "Loading threads..."
+msgstr "Loading threads..."
+
+#: src/routes/(auth)/register.tsx:17
 msgid "Log in"
 msgstr "Log in"
 
-#: src/features/auth/components/sign-in-form.tsx:113
+#: src/features/auth/components/sign-in-form.tsx:114
 msgid "Log In"
 msgstr "Log In"
 
-#: src/routes/(auth)/reset-password.tsx:17
-#: src/routes/(auth)/forgot-password.tsx:17
-#: src/routes/(auth)/two-factor/otp.tsx:18
-#: src/routes/(auth)/two-factor/index.tsx:18
+#: src/routes/(auth)/reset-password.tsx:18
+#: src/routes/(auth)/forgot-password.tsx:19
+#: src/routes/(auth)/two-factor/otp.tsx:19
+#: src/routes/(auth)/two-factor/index.tsx:20
 msgid "Login"
 msgstr "Login"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:307
+#: src/routes/dashboard/settings/-components/organization-card.tsx:312
 msgid "Logo"
 msgstr "Logo"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:51
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:54
 msgid "Manage your passkeys for secure authentication"
 msgstr "Manage your passkeys for secure authentication"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:130
-#: src/routes/dashboard/settings/-components/organization-card.tsx:184
-#: src/routes/dashboard/settings/-components/organization-card.tsx:379
+#: src/routes/dashboard/settings/-components/organization-card.tsx:132
+#: src/routes/dashboard/settings/-components/organization-card.tsx:186
+#: src/routes/dashboard/settings/-components/organization-card.tsx:386
 msgid "Member"
 msgstr "Member"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:110
-#: src/routes/dashboard/settings/-components/organization-card.tsx:118
+#: src/routes/dashboard/settings/-components/organization-card.tsx:112
+#: src/routes/dashboard/settings/-components/organization-card.tsx:120
 msgid "Members"
 msgstr "Members"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:293
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:57
-#: src/routes/dashboard/settings/-components/admin.tsx:187
-#: src/routes/dashboard/settings/-components/admin.tsx:272
-#: src/features/auth/components/register-form.tsx:70
+#: src/components/assistant-ui/thread-list.tsx:204
+msgid "Messages"
+msgstr "Messages"
+
+#: src/routes/dashboard/settings/-components/organization-card.tsx:298
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:60
+#: src/routes/dashboard/settings/-components/admin.tsx:189
+#: src/routes/dashboard/settings/-components/admin.tsx:274
+#: src/features/auth/components/register-form.tsx:72
 msgid "Name"
 msgstr "Name"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:282
 #: src/routes/dashboard/settings/-components/organization-card.tsx:287
+#: src/routes/dashboard/settings/-components/organization-card.tsx:292
 msgid "New Organization"
 msgstr "New Organization"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:63
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:103
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:105
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:66
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:106
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:108
 msgid "New Passkey"
 msgstr "New Passkey"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:50
-#: src/routes/dashboard/settings/-components/change-password.tsx:55
+#: src/routes/dashboard/settings/-components/change-password.tsx:51
+#: src/routes/dashboard/settings/-components/change-password.tsx:56
 #: src/features/auth/components/reset-password.tsx:75
 msgid "New Password"
 msgstr "New Password"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:285
+#: src/components/assistant-ui/thread-list.tsx:263
+msgid "New Thread"
+msgstr "New Thread"
+
+#: src/routes/dashboard/settings/-components/admin.tsx:287
 msgid "No"
 msgstr "No"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:224
+#: src/routes/dashboard/settings/-components/organization-card.tsx:226
 msgid "No active invitations"
 msgstr "No active invitations"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:97
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:100
 msgid "No passkeys found"
 msgstr "No passkeys found"
+
+#: src/components/assistant-ui/thread-list.tsx:1207
+msgid "No threads yet"
+msgstr "No threads yet"
 
 #: src/features/auth/components/otp.tsx:85
 msgid "One-Time Password"
 msgstr "One-Time Password"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:44
+#: src/routes/dashboard/settings/-components/organization-card.tsx:46
 msgid "Organization"
 msgstr "Organization"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:87
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:90
 msgid "Organization Invitation"
 msgstr "Organization Invitation"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:292
+#: src/routes/dashboard/settings/-components/organization-card.tsx:297
 msgid "Organization Name"
 msgstr "Organization Name"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:296
+#: src/routes/dashboard/settings/-components/organization-card.tsx:301
 msgid "Organization Slug"
 msgstr "Organization Slug"
 
-#: src/features/auth/components/otp.tsx:30
+#: src/features/auth/components/otp.tsx:31
 msgid "OTP sent to your email"
 msgstr "OTP sent to your email"
 
-#: src/features/auth/components/otp.tsx:48
+#: src/features/auth/components/otp.tsx:49
 msgid "OTP validated successfully"
 msgstr "OTP validated successfully"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:130
-#: src/routes/dashboard/settings/-components/organization-card.tsx:158
-#: src/routes/dashboard/settings/-components/organization-card.tsx:184
+#: src/routes/dashboard/settings/-components/organization-card.tsx:132
+#: src/routes/dashboard/settings/-components/organization-card.tsx:160
+#: src/routes/dashboard/settings/-components/organization-card.tsx:186
 msgid "Owner"
 msgstr "Owner"
 
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:51
+#: src/routes/dashboard/settings/-components/add-passkey.tsx:52
 msgid "Passkey Name"
 msgstr "Passkey Name"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:154
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:44
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:50
+#: src/routes/dashboard/settings/-components/user-card.tsx:153
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:47
+#: src/routes/dashboard/settings/-components/list-passkeys.tsx:53
 msgid "Passkeys"
 msgstr "Passkeys"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:245
-#: src/routes/dashboard/settings/-components/user-card.tsx:248
-#: src/routes/dashboard/settings/-components/change-password.tsx:48
-#: src/routes/dashboard/settings/-components/admin.tsx:177
-#: src/features/auth/components/sign-in-form.tsx:79
+#: src/routes/dashboard/settings/-components/user-card.tsx:246
+#: src/routes/dashboard/settings/-components/user-card.tsx:249
+#: src/routes/dashboard/settings/-components/change-password.tsx:49
+#: src/routes/dashboard/settings/-components/admin.tsx:179
+#: src/features/auth/components/sign-up-form.tsx:160
+#: src/features/auth/components/sign-up-form.tsx:164
+#: src/features/auth/components/sign-in-form.tsx:80
 #: src/features/auth/components/reset-password.tsx:79
 #: src/features/auth/components/reset-password.tsx:97
-#: src/features/auth/components/register-form.tsx:94
+#: src/features/auth/components/register-form.tsx:96
 msgid "Password"
 msgstr "Password"
 
-#: src/features/auth/components/forgot-password.tsx:52
+#: src/features/auth/components/forgot-password.tsx:48
 msgid "Password reset link sent"
 msgstr "Password reset link sent"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:50
-#: src/routes/dashboard/settings/-components/organization-card.tsx:68
-#: src/routes/dashboard/settings/-components/organization-card.tsx:108
+#: src/routes/dashboard/settings/-components/organization-card.tsx:52
+#: src/routes/dashboard/settings/-components/organization-card.tsx:70
+#: src/routes/dashboard/settings/-components/organization-card.tsx:110
 msgid "Personal"
 msgstr "Personal"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:235
+#: src/routes/dashboard/settings/-components/admin.tsx:237
 msgid "Pick a date"
 msgstr "Pick a date"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:67
+#: src/routes/dashboard/settings/-components/user-card.tsx:66
 msgid "Please verify your email address to access all features"
 msgstr "Please verify your email address to access all features"
 
-#: src/features/auth/components/sign-in-form.tsx:190
+#: src/features/auth/components/sign-in-form.tsx:193
 msgid "Powered by"
 msgstr "Powered by"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:61
+#: src/components/assistant-ui/thread-list.tsx:1209
+msgid "Press ? for keyboard shortcuts"
+msgstr "Press ? for keyboard shortcuts"
+
+#: src/routes/dashboard/settings/-components/change-user.tsx:62
+#: src/features/auth/components/sign-up-form.tsx:198
 msgid "Profile Image"
 msgstr "Profile Image"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:222
+#: src/routes/dashboard/settings/-components/admin.tsx:224
 msgid "Reason"
 msgstr "Reason"
 
-#: src/routes/(auth)/login.tsx:16
+#: src/routes/(auth)/login.tsx:18
 msgid "Register"
 msgstr "Register"
 
-#: src/features/auth/components/sign-in-form.tsx:104
+#: src/features/auth/components/sign-in-form.tsx:105
 msgid "Remember me"
 msgstr "Remember me"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:144
+#: src/routes/dashboard/settings/-components/organization-card.tsx:146
 msgid "Remove"
 msgstr "Remove"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:93
+#: src/routes/dashboard/settings/-components/user-card.tsx:92
 msgid "Resend Verification"
 msgstr "Resend Verification"
 
@@ -527,27 +574,43 @@ msgstr "Reset Password"
 msgid "Resetting..."
 msgstr "Resetting..."
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:213
+#: src/routes/dashboard/settings/-components/organization-card.tsx:215
 msgid "Revoke"
 msgstr "Revoke"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:372
-#: src/routes/dashboard/settings/-components/admin.tsx:191
-#: src/routes/dashboard/settings/-components/admin.tsx:273
+#: src/routes/dashboard/settings/-components/organization-card.tsx:379
+#: src/routes/dashboard/settings/-components/admin.tsx:193
+#: src/routes/dashboard/settings/-components/admin.tsx:275
 msgid "Role"
 msgstr "Role"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:168
-#: src/routes/dashboard/settings/-components/user-card.tsx:173
+#: src/routes/dashboard/settings/-components/user-card.tsx:167
+#: src/routes/dashboard/settings/-components/user-card.tsx:172
 msgid "Scan QR Code"
 msgstr "Scan QR Code"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:174
-#: src/routes/dashboard/settings/-components/user-card.tsx:240
+#: src/routes/dashboard/settings/-components/user-card.tsx:173
+#: src/routes/dashboard/settings/-components/user-card.tsx:241
 msgid "Scan this QR code with your authenticator app"
 msgstr "Scan this QR code with your authenticator app"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:375
+#: src/components/assistant-ui/thread-list.tsx:209
+msgid "Search message content..."
+msgstr "Search message content..."
+
+#: src/components/assistant-ui/thread-list.tsx:209
+msgid "Search thread titles..."
+msgstr "Search thread titles..."
+
+#: src/components/assistant-ui/thread-list.tsx:168
+msgid "Search threads (Ctrl+F)"
+msgstr "Search threads (Ctrl+F)"
+
+#: src/features/auth/components/sign-up-form.tsx:234
+msgid "Secured by"
+msgstr "Secured by"
+
+#: src/routes/dashboard/settings/-components/organization-card.tsx:382
 msgid "Select User"
 msgstr "Select User"
 
@@ -555,76 +618,72 @@ msgstr "Select User"
 msgid "Send OTP to Email"
 msgstr "Send OTP to Email"
 
-#: src/features/auth/components/forgot-password.tsx:118
+#: src/features/auth/components/forgot-password.tsx:114
 msgid "Send Reset Link"
 msgstr "Send Reset Link"
 
-#: src/features/auth/components/forgot-password.tsx:118
+#: src/features/auth/components/forgot-password.tsx:114
 msgid "Sending..."
 msgstr "Sending..."
 
-#: src/routes/dashboard/settings/-components/admin.tsx:104
+#: src/routes/dashboard/settings/-components/admin.tsx:106
 msgid "Sessions revoked successfully"
 msgstr "Sessions revoked successfully"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:213
+#: src/routes/dashboard/settings/-components/user-card.tsx:212
 msgid "Show QR Code"
 msgstr "Show QR Code"
 
-#: src/features/auth/components/sign-in-form.tsx:42
+#: src/features/auth/components/sign-in-form.tsx:43
 msgid "Sign In"
 msgstr "Sign In"
 
-#: src/features/auth/components/sign-in-form.tsx:180
-msgid "Sign in with GitHub"
-msgstr "Sign in with GitHub"
-
-#: src/features/auth/components/sign-in-form.tsx:161
-msgid "Sign in with Google"
-msgstr "Sign in with Google"
-
-#: src/features/auth/components/sign-in-form.tsx:127
-msgid "Sign in with Passkey"
-msgstr "Sign in with Passkey"
-
-#: src/routes/dashboard/settings/-components/user-card.tsx:142
-#: src/routes/dashboard/settings/-components/user-card.tsx:354
+#: src/routes/dashboard/settings/-components/user-card.tsx:141
+#: src/routes/dashboard/settings/-components/user-card.tsx:355
 msgid "Sign Out"
 msgstr "Sign Out"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:66
+#: src/routes/dashboard/settings/-components/change-password.tsx:67
 msgid "Sign out from other devices"
 msgstr "Sign out from other devices"
 
-#: src/features/auth/components/sign-up-form.tsx:92
+#: src/features/auth/components/sign-up-form.tsx:85
 msgid "Sign Up"
 msgstr "Sign Up"
 
-#: src/features/auth/components/two-factor.tsx:108
+#: src/components/assistant-ui/thread-list.tsx:1208
+msgid "Start a new conversation to create your first thread"
+msgstr "Start a new conversation to create your first thread"
+
+#: src/features/auth/components/two-factor.tsx:110
 msgid "Switch to Email Verification"
 msgstr "Switch to Email Verification"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:144
+#: src/routes/dashboard/settings/-components/user-card.tsx:143
 msgid "Terminate"
 msgstr "Terminate"
 
-#: src/features/auth/components/invitation-error.tsx:18
+#: src/features/auth/components/invitation-error.tsx:19
 msgid "The invitation link may be invalid or expired. Please contact the person who invited you."
 msgstr "The invitation link may be invalid or expired. Please contact the person who invited you."
 
-#: src/features/auth/components/invitation-error.tsx:15
+#: src/features/auth/components/invitation-error.tsx:16
 msgid "There was an error with your invitation"
 msgstr "There was an error with your invitation"
 
-#: src/features/auth/components/two-factor.tsx:66
+#: src/components/assistant-ui/thread-list.tsx:196
+msgid "Threads"
+msgstr "Threads"
+
+#: src/features/auth/components/two-factor.tsx:68
 msgid "TOTP Code"
 msgstr "TOTP Code"
 
-#: src/features/auth/components/two-factor.tsx:49
+#: src/features/auth/components/two-factor.tsx:51
 msgid "TOTP Verification"
 msgstr "TOTP Verification"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:161
+#: src/routes/dashboard/settings/-components/user-card.tsx:160
 msgid "Two Factor"
 msgstr "Two Factor"
 
@@ -632,40 +691,40 @@ msgstr "Two Factor"
 msgid "Two-Factor Authentication"
 msgstr "Two-Factor Authentication"
 
-#: src/components/assistant-ui/thread.tsx:134
+#: src/components/assistant-ui/thread.tsx:130
 msgid "Type your message here..."
 msgstr "Type your message here..."
 
-#: src/routes/dashboard/settings/-components/admin.tsx:368
+#: src/routes/dashboard/settings/-components/admin.tsx:370
 msgid "Unban"
 msgstr "Unban"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:108
+#: src/routes/dashboard/settings/-components/change-user.tsx:109
 msgid "Update"
 msgstr "Update"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:47
+#: src/routes/dashboard/settings/-components/change-user.tsx:48
 msgid "Update your profile information"
 msgstr "Update your profile information"
 
 #: src/routes/dashboard/settings/-components/user-card.tsx:45
-#: src/routes/dashboard/settings/-components/admin.tsx:198
+#: src/routes/dashboard/settings/-components/admin.tsx:200
 msgid "User"
 msgstr "User"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:137
+#: src/routes/dashboard/settings/-components/admin.tsx:139
 msgid "User banned successfully"
 msgstr "User banned successfully"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:72
+#: src/routes/dashboard/settings/-components/admin.tsx:74
 msgid "User created successfully"
 msgstr "User created successfully"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:89
+#: src/routes/dashboard/settings/-components/admin.tsx:91
 msgid "User deleted successfully"
 msgstr "User deleted successfully"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:352
+#: src/routes/dashboard/settings/-components/admin.tsx:354
 msgid "User unbanned successfully"
 msgstr "User unbanned successfully"
 
@@ -673,15 +732,15 @@ msgstr "User unbanned successfully"
 msgid "Validate OTP"
 msgstr "Validate OTP"
 
-#: src/features/auth/components/two-factor.tsx:101
+#: src/features/auth/components/two-factor.tsx:103
 msgid "Verification Successful"
 msgstr "Verification Successful"
 
-#: src/features/auth/components/two-factor.tsx:92
+#: src/features/auth/components/two-factor.tsx:94
 msgid "Verify"
 msgstr "Verify"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:66
+#: src/routes/dashboard/settings/-components/user-card.tsx:65
 msgid "Verify Email"
 msgstr "Verify Email"
 
@@ -689,90 +748,22 @@ msgstr "Verify Email"
 msgid "Verify your identity with a one-time password"
 msgstr "Verify your identity with a one-time password"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:107
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:110
 msgid "Welcome to"
 msgstr "Welcome to"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:285
+#: src/routes/dashboard/settings/-components/admin.tsx:287
 msgid "Yes"
 msgstr "Yes"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:88
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:91
 msgid "You have been invited to join an organization"
 msgstr "You have been invited to join an organization"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:119
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:122
 msgid "You have declined the invitation to join"
 msgstr "You have declined the invitation to join"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:109
+#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:112
 msgid "You have successfully joined the organization"
 msgstr "You have successfully joined the organization"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Delete Thread"
-msgstr "Delete Thread"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation."
-msgstr "Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation."
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Cancel"
-msgstr "Cancel"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Delete"
-msgstr "Delete"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Deleting..."
-msgstr "Deleting..."
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Delete thread"
-msgstr "Delete thread"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Search threads (Ctrl+F)"
-msgstr "Search threads (Ctrl+F)"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Keyboard shortcuts (?)"
-msgstr "Keyboard shortcuts (?)"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Threads"
-msgstr "Threads"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Messages"
-msgstr "Messages"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Search thread titles..."
-msgstr "Search thread titles..."
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Search message content..."
-msgstr "Search message content..."
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "New Thread"
-msgstr "New Thread"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Loading threads..."
-msgstr "Loading threads..."
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "No threads yet"
-msgstr "No threads yet"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Start a new conversation to create your first thread"
-msgstr "Start a new conversation to create your first thread"
-
-#: src/components/assistant-ui/thread-list.tsx
-msgid "Press ? for keyboard shortcuts"
-msgstr "Press ? for keyboard shortcuts"
