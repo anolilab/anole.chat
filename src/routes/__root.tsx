@@ -105,7 +105,7 @@ const RootDocument = () => {
                         <Scripts />
                     </ThemeProvider>
                 </ConvexBetterAuthProvider>
-                {import.meta.env.DEBUG && (
+                {import.meta.env.VITE_DEBUG && (
                     <>
                         <TanStackRouterDevtools position="top-right" />
                         <ReactScan />

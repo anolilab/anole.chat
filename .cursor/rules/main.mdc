@@ -3,5 +3,95 @@
 Use the latest version of Shadcn to install new components, like this command to add a button component:
 
 ```bash
+# shadcn instructions
+
+Use the latest version of Shadcn to install new components, like this command to add a button component:
+
+```bash
 pnpx shadcn@latest add button
 ```
+
+# AI Chat Project Intelligence
+
+## Core Project Patterns
+
+### Shadcn UI Integration
+- Always use Shadcn UI components when possible for UI elements
+- Add new components with: `pnpx shadcn@latest add [component-name]`
+- Components are located in `src/components/ui/` and built on Radix UI primitives
+
+### Build & Development
+- Project uses Vite as build tool - manual compilation not needed
+- User prefers not to build project every time when running commands
+- Development server: `pnpm dev` (runs both Convex and Vite concurrently)
+- Convex functions run locally with `pnpm dev:convex`
+
+### Architecture Patterns
+- **Convex-First**: All backend logic in Convex functions (queries, mutations, actions)
+- **Real-time by Default**: Use reactive queries for automatic UI updates
+- **Type-Safe**: Full TypeScript integration from frontend to backend
+- **Feature-Based Organization**: Group related components, hooks, and logic by domain
+
+### AI Integration Patterns
+- Use Vercel AI SDK with multiple providers (Anthropic, Google, OpenAI, OpenRouter)
+- Streaming responses with `@convex-dev/persistent-text-streaming`
+- Agent system with `@convex-dev/agent` for conversational patterns
+- Rate limiting with `@convex-dev/rate-limiter` for AI endpoints
+
+### Component Organization
+- UI components in `src/components/ui/` (Shadcn/Radix)
+- Feature components in `src/features/[domain]/components/`
+- Shared components in `src/components/`
+- Assistant UI components in `src/components/assistant-ui/`
+
+### State Management Strategy
+- **Server State**: Convex reactive queries (automatically synced)
+- **Client State**: Zustand for UI state and preferences
+- **Form State**: TanStack Form for complex forms
+- **URL State**: TanStack Router for navigation state
+
+### Authentication Patterns
+- Better Auth integration with Convex
+- Multi-method auth: email/password, passkeys, magic links, 2FA
+- Session management with JWT and secure cookies
+- React Email templates for all authentication flows
+
+### Performance Optimizations
+- Virtual scrolling for large lists (>100 items) with TanStack Virtual
+- Memoization for expensive operations (thread tree calculations)
+- React 19 with React Compiler for automatic optimizations
+- Code splitting and lazy loading for routes
+
+### Error Handling
+- Custom error classes for different scenarios
+- React error boundaries with recovery mechanisms
+- Sonner toast notifications for user feedback
+- Rate limiting and retry mechanisms with exponential backoff
+
+### Development Preferences
+- Use `pnpm` as package manager
+- Prefer parallel tool calls over sequential when possible
+- Focus on user experience and production-ready features
+- Comprehensive keyboard navigation and accessibility support
+
+## Critical Integration Challenges
+
+### Model Display Issue
+- Current challenge: `@convex-dev/agent` + `@assistant-ui/react` don't expose original message metadata
+- Goal: Display which AI model generated each message
+- Potential solution: Fork `@convex-dev/agent` or modify message conversion
+
+### Message Feedback Optimization
+- Current issue: One database query per message for feedback state
+- Goal: Bulk load feedback data with messages
+- Likely solution: Fork `@convex-dev/agent` to modify `listMessages` function
+
+## Key Dependencies to Remember
+- React 19 with React Compiler
+- Convex for serverless backend
+- TanStack Router for routing
+- Shadcn UI + Radix UI for components
+- Tailwind CSS v4 for styling
+- Better Auth for authentication
+- Vercel AI SDK for AI integration
+- Lingui for internationalization

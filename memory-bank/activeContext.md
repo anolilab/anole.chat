@@ -2,27 +2,39 @@
 
 ## Current Work Focus
 
-The immediate focus is on improving the robustness and user experience of the chat functionality. Based on the `TODO.md`, the high-priority items are:
+The primary focus has shifted from feature implementation to architectural refinement and documentation. The latest cycle involved a significant refactoring of the chat feature's streaming provider to improve stability, maintainability, and debugging capabilities.
 
-1.  **Model Display in Messages**: Finding a way to display which AI model generated each message. The current integration between `@convex-dev/agent` and `@assistant-ui/react` makes this difficult.
-2.  **Efficient Message Feedback System**: Refactoring the message feedback system to load feedback data more efficiently, likely by forking and modifying `@convex-dev/agent`.
+With the refactoring complete, the immediate focus is on ensuring all documentation in the Memory Bank is up-to-date.
 
-## Recent Changes
+## Recent Major Completions
 
-The most recently completed features are a comprehensive set of "Thread Management Optimizations" and an "AI-Powered Prompt Improvement" feature. This includes:
+### Chat Provider Refactoring
 
-- Pinning, reordering, and virtual scrolling for threads.
-- Advanced keyboard shortcuts.
-- Thread and message search functionality.
-- A robust error handling and rate-limiting system using `sonner` for toasts.
+The entire frontend chat provider system has been refactored into a more robust, hook-based architecture.
+
+-   **Separation of Concerns**: The logic is now cleanly separated into distinct, testable hooks:
+    -   `useStreamManager`: Manages the low-level streaming connection, including an adaptive throttle and cancellation.
+    -   `useMessageHandlers`: Handles user-facing actions like sending, editing, and reloading messages, and orchestrates optimistic UI updates.
+    -   `useConvexThreadSyncer`: Manages keeping the local state synchronized with the Convex database, preventing race conditions with optimistic updates.
+-   **Improved Stability**: The new architecture resolved a critical race condition that caused UI crashes by protecting optimistic updates from being overwritten by stale database state.
+-   **Enhanced Logging**: Comprehensive, contextual logging has been added throughout the provider and hooks, making it significantly easier to trace the message lifecycle and debug issues.
+
+### Convex Agent Component Integration (Completed)
+
+- **Multi-Model Agent System**: Comprehensive configuration for Gemini 2.5 Pro/Flash/Lite, Gemini 2.0 Flash
+- **HTTP Streaming Implementation**: Direct streaming via `streamHttpAction` with `toDataStreamResponse()`
+- **Advanced File Processing**: Support for images and documents via `getFile()` function
+- **Thread Branching System**: Custom parent-child relationships with branch point tracking and context merging
+- **Automatic Enhancement**: Scheduled title and summary generation for conversations
 
 ## Next Steps
 
-1.  **Resolve High-Priority Issues**: Address the "Model Display" and "Message Feedback" issues. This may involve contributing to or forking open-source dependencies.
-2.  **Progressive Message Loading**: Implement progressive/infinite loading for messages within a thread to improve performance, as noted in the medium-priority tasks.
-3.  **UI/UX Polish**: Continue to improve the UI, such as fixing the per-node expansion in the branch tree.
+1.  **Finalize Documentation**: Complete the updates to all Memory Bank files (`systemPatterns.md`, `techContext.md`, `progress.md`, etc.) to reflect the new architecture.
+2.  **Code Cleanup**: Remove any lingering artifacts from the old architecture and ensure all `README.md` files within the codebase are accurate.
+3.  **Plan Next Feature Cycle**: With the architecture stabilized, the next phase of work can be planned. Potential areas include progressive message loading or further UI polish.
 
 ## Active Decisions and Considerations
 
-- **Dependency Management**: A key decision is whether to fork `@convex-dev/agent` to implement the desired message feedback feature or to find a workaround. Forking offers more control but adds a maintenance burden.
-- **User Experience vs. Features**: The current focus is heavily on improving the core user experience and robustness rather than adding new bonus features like chat sharing or web search.
+-   **Architectural Stability**: The new hook-based chat architecture is considered the stable path forward. Future development should build upon this pattern.
+-   **Documentation is Key**: Maintaining an accurate Memory Bank is critical for project continuity, as demonstrated by this update cycle.
+-   **Focus Shift**: The project has matured from rapid feature addition to a focus on long-term stability and maintainability.

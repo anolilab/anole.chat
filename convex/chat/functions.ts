@@ -156,6 +156,15 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
         fileIds?: string[];
     };
 
+    try {
+        console.log("Attempting to authenticate user for streaming...");
+        const userId = await requireUserId(ctx);
+        console.log("Successfully authenticated user:", userId);
+    } catch (error) {
+        console.error("Authentication failed in streamHttpAction:", error);
+        throw error;
+    }
+
     const userId = await requireUserId(ctx);
 
     const agent = getAgent(model as AgentModel);

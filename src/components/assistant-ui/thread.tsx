@@ -106,30 +106,26 @@ const ThreadWelcomeSuggestions: FC = () => {
         {
             prompt: t`Generate creative ideas for my project`,
             icon: "💡",
-            category: t`Creativity`
+            category: t`Creativity`,
         },
     ];
 
     return (
-        <div className="grid w-full grid-cols-1 gap-3 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {suggestions.map((suggestion, index) => (
                 <ThreadPrimitive.Suggestion
                     key={index}
-                    className="group relative flex flex-col items-start justify-between rounded-xl border border-border/50 bg-gradient-to-br from-background/80 to-muted/30 p-4 transition-all duration-200 hover:border-border hover:shadow-md hover:shadow-primary/10 hover:scale-[1.02]"
+                    className="group border-border/50 from-background/80 to-muted/30 hover:border-border hover:shadow-primary/10 relative flex flex-col items-start justify-between rounded-xl border bg-gradient-to-br p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
                     prompt={suggestion.prompt}
                     method="replace"
                     autoSend
                 >
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="mb-2 flex items-center gap-2">
                         <span className="text-lg">{suggestion.icon}</span>
-                        <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                            {suggestion.category}
-                        </span>
+                        <span className="text-muted-foreground bg-muted/50 rounded-full px-2 py-1 text-xs font-medium">{suggestion.category}</span>
                     </div>
-                    <span className="text-sm font-medium leading-relaxed text-foreground group-hover:text-primary transition-colors">
-                        {suggestion.prompt}
-                    </span>
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    <span className="text-foreground group-hover:text-primary text-sm leading-relaxed font-medium transition-colors">{suggestion.prompt}</span>
+                    <div className="from-primary/5 to-secondary/5 absolute inset-0 rounded-xl bg-gradient-to-r opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                 </ThreadPrimitive.Suggestion>
             ))}
         </div>

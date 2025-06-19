@@ -87,6 +87,7 @@
         "@tanstack/router-plugin": "^1.121.22",
         "@tanstack/store": "^0.7.1",
         "@vercel/mcp-adapter": "^0.11.1",
+        "@visulima/pail": "^2.1.25",
         "ai": "^4.3.16",
         "assistant-stream": "^0.2.17",
         "better-auth": "1.2.9",

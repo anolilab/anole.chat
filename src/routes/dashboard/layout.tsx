@@ -51,9 +51,7 @@ function RouteComponent() {
                                             >
                                                 {item.label}
                                             </BreadcrumbLink>
-                                            {index < breadcrumbItems.length - 1 && (
-                                                <BreadcrumbSeparator className="text-muted-foreground" />
-                                            )}
+                                            {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground" />}
                                         </BreadcrumbItem>
                                     ))}
                                 </BreadcrumbList>
