@@ -1,6 +1,6 @@
 "use client";
 
-import { useThreadMessages } from "@convex-dev/agent/react";
+import { useThreadMessages } from "@anolilab/convex-ai-agent/react";
 import { usePaginatedQuery } from "convex/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@cvx/_generated/api";

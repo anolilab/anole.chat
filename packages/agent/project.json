@@ -1,0 +1,8 @@
+{
+    "name": "ai-agent",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "packages/ai-agent/src",
+    "projectType": "library",
+    "tags": ["type:package", "ai-agent"],
+    "implicitDependencies": []
+}

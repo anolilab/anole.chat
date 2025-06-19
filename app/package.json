@@ -43,7 +43,7 @@
         "@assistant-ui/react": "^0.10.24",
         "@assistant-ui/react-ai-sdk": "^0.10.14",
         "@assistant-ui/react-markdown": "^0.10.5",
-        "@convex-dev/agent": "0.1.9",
+        "@anolilab/convex-ai-agent": "workspace:*",
         "@convex-dev/better-auth": "^0.6.1",
         "@convex-dev/migrations": "^0.2.9",
         "@convex-dev/persistent-text-streaming": "^0.2.3",

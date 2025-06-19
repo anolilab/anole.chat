@@ -1,4 +1,4 @@
-import { storeFile } from "@convex-dev/agent";
+import { storeFile } from "@anolilab/convex-ai-agent";
 import { components, internal } from "./_generated/api";
 import { action } from "./_generated/server";
 import { v } from "convex/values";
