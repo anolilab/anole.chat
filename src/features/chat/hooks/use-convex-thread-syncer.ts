@@ -2,7 +2,7 @@
 
 import { useThreadMessages } from "@convex-dev/agent/react";
 import { usePaginatedQuery } from "convex/react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@cvx/_generated/api";
 import type { ThreadMessageLike } from "@assistant-ui/react";
 import { logThreadLoad, logThreadUpdate, providerLogger } from "@/lib/logger";
@@ -17,6 +17,29 @@ interface UseConvexThreadSyncerProps {
 
 export const useConvexThreadSyncer = ({ model, isRunning }: UseConvexThreadSyncerProps) => {
   const { currentThreadId, setThreads } = useThreadContext();
+  const [isSyncPaused, setSyncPaused] = useState(false);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isRunning) {
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+      if (!isSyncPaused) {
+        providerLogger.debug("[Syncer] Pausing sync due to running stream.");
+        setSyncPaused(true);
+      }
+    } else if (isSyncPaused) {
+      providerLogger.debug("[Syncer] Queueing sync resume after delay.");
+      pauseTimeoutRef.current = setTimeout(() => {
+        providerLogger.debug("[Syncer] Sync resumed.");
+        setSyncPaused(false);
+        pauseTimeoutRef.current = null;
+      }, 2000);
+    }
+
+    return () => {
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    };
+  }, [isRunning, isSyncPaused]);
 
   const paginatedMessagesArgs = useMemo(() => {
     return currentThreadId !== "default"
@@ -85,7 +108,11 @@ export const useConvexThreadSyncer = ({ model, isRunning }: UseConvexThreadSynce
   );
 
   useEffect(() => {
-    providerLogger.debug("[Syncer] useEffect triggered", { messagesAreLoading, hasConvexMessages: !!convexMessages, currentThreadId, isRunning });
+    providerLogger.debug("[Syncer] Main useEffect triggered", { messagesAreLoading, hasConvexMessages: !!convexMessages, currentThreadId, isRunning, isSyncPaused });
+    if (isSyncPaused) {
+        providerLogger.debug("[Syncer] Sync is paused, skipping update.");
+        return;
+    }
     if (
       !messagesAreLoading &&
       convexMessages &&
@@ -111,7 +138,7 @@ export const useConvexThreadSyncer = ({ model, isRunning }: UseConvexThreadSynce
           providerLogger.debug("[Syncer] Checking for update", { currentCount: current.length, newCount: convertedMessages.length });
 
           if (current.length > convertedMessages.length) {
-            providerLogger.debug("[Syncer] Skipping update: local state has optimistic messages.");
+            providerLogger.debug("[Syncer] Skipping update: local state has optimistic messages (length check).");
             return prev;
           }
 
@@ -144,6 +171,7 @@ export const useConvexThreadSyncer = ({ model, isRunning }: UseConvexThreadSynce
     setThreads,
     shouldUpdateMessages,
     isRunning,
+    isSyncPaused,
   ]);
 
   return { convexThreads, messagesAreLoading };
