@@ -36,16 +36,18 @@ providers/
 ### `ConvexExternalRuntimeProvider`
 
 This is the main provider component that serves as the central hub for the chat feature. Its primary responsibilities are:
--   **State Management**: It initializes and provides the `ThreadContext`, making message state available to the entire component tree.
--   **Database Synchronization**: It uses the `useThreadMessages` hook from Convex to listen for real-time updates from the database.
--   **Orchestration**: It instantiates and connects the `useMessageHandlers` hook, passing it the necessary context and action dispatchers.
+
+- **State Management**: It initializes and provides the `ThreadContext`, making message state available to the entire component tree.
+- **Database Synchronization**: It uses the `useThreadMessages` hook from Convex to listen for real-time updates from the database.
+- **Orchestration**: It instantiates and connects the `useMessageHandlers` hook, passing it the necessary context and action dispatchers.
 
 ### `useMessageHandlers`
 
 This hook encapsulates all the complex logic related to creating, sending, and streaming messages.
--   **Message Creation**: Handles user-initiated message sending.
--   **Optimistic Updates**: Immediately adds user messages and assistant placeholders to the local state for a fast UI response.
--   **Streaming Logic**: Manages the entire lifecycle of fetching and processing the AI response stream, including throttling and retries.
+
+- **Message Creation**: Handles user-initiated message sending.
+- **Optimistic Updates**: Immediately adds user messages and assistant placeholders to the local state for a fast UI response.
+- **Streaming Logic**: Manages the entire lifecycle of fetching and processing the AI response stream, including throttling and retries.
 
 ## Usage Example
 
@@ -68,9 +70,10 @@ function ChatInterface({ model, threadId, jwtToken }) {
 ## Debug Information
 
 The provider logs key events to the console to aid in debugging:
--   Loading and updating messages from the database.
--   Initiation and completion of AI streams.
--   State synchronization events, including when the optimistic update guard is triggered.
+
+- Loading and updating messages from the database.
+- Initiation and completion of AI streams.
+- State synchronization events, including when the optimistic update guard is triggered.
 
 ## Contributing
 

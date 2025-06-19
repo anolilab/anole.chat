@@ -43,6 +43,7 @@ The AI integration is built on the Convex Agent component (`@convex-dev/agent`),
 ### Multi-Model Agent System
 
 **Agent Configuration Pattern** (`convex/ai/lib/agents.ts`):
+
 ```typescript
 export const agents = {
     "gemini-2.5-flash": {
@@ -51,13 +52,14 @@ export const agents = {
         textEmbedding: google.textEmbeddingModel("gemini-embedding-exp-03-07"),
         maxSteps: 8,
         maxRetries: 3,
-        contextOptions: { recentMessages: 15 }
-    }
+        contextOptions: { recentMessages: 15 },
+    },
     // ... other models
 };
 ```
 
 **Dynamic Model Selection**:
+
 - **Runtime Model Switching**: `getAgent(model)` function for dynamic agent creation
 - **Model-Specific Optimization**: Tailored `maxSteps`, `maxRetries`, and context options
 - **Provider Diversity**: Google Gemini (primary), OpenAI, Anthropic, OpenRouter support
@@ -65,11 +67,13 @@ export const agents = {
 ### Advanced Streaming Architecture
 
 **HTTP Streaming Pattern** (`convex/http.ts` → `convex/chat/functions.ts`):
+
 ```
 Frontend Request → CORS Router → streamHttpAction → Agent Processing → DataStreamResponse → Frontend Rendering
 ```
 
 **Streaming Implementation**:
+
 1. **Message Preprocessing**: File attachment processing and content preparation
 2. **Agent Interaction**: Thread creation/continuation with user message saving
 3. **Streaming Response**: Direct streaming via `thread.streamText({ promptMessageId })`
@@ -80,12 +84,14 @@ Frontend Request → CORS Router → streamHttpAction → Agent Processing → D
 The frontend chat experience is powered by a modular, hook-based architecture designed for performance and maintainability. It ensures a responsive UI through optimistic updates while reliably synchronizing state with the Convex backend.
 
 **Core Hooks & Provider:**
--   **`ConvexExternalRuntimeProvider`**: The central provider that orchestrates all chat functionality. It manages the overall state and integrates the various hooks.
--   **`useConvexThreadSyncer`**: This hook is responsible for keeping the local message state synchronized with the Convex database. It fetches the message history and includes a crucial guard to prevent optimistic updates from being overwritten by stale database state during a stream.
+
+- **`ConvexExternalRuntimeProvider`**: The central provider that orchestrates all chat functionality. It manages the overall state and integrates the various hooks.
+- **`useConvexThreadSyncer`**: This hook is responsible for keeping the local message state synchronized with the Convex database. It fetches the message history and includes a crucial guard to prevent optimistic updates from being overwritten by stale database state during a stream.
 - **`useMessageHandlers`**: Handles all user-initiated actions, such as sending a new message, editing, or reloading. It is responsible for creating optimistic local updates to make the UI feel instantaneous.
--   **`useStreamManager`**: Manages the entire lifecycle of the AI response stream. It handles establishing the connection, processing incoming data chunks with an adaptive throttle, and managing retries and cancellation.
+- **`useStreamManager`**: Manages the entire lifecycle of the AI response stream. It handles establishing the connection, processing incoming data chunks with an adaptive throttle, and managing retries and cancellation.
 
 **Architectural Diagram:**
+
 ```mermaid
 graph TD
     subgraph UI Layer
@@ -116,12 +122,14 @@ graph TD
 ### Thread Management with Branching
 
 **Custom Thread Relationship System**:
+
 - **Parent-Child Relationships**: `threadRelationships` table with branch point tracking
 - **Message History Merging**: Intelligent merging of parent and child thread messages
 - **Branch Point Management**: Precise control over conversation branching
 - **Context Preservation**: Maintains conversation context across branches
 
 **Branching Pattern**:
+
 ```typescript
 // Create branch from existing thread
 const { threadId } = await agent.createThread(ctx, { userId });
@@ -129,7 +137,7 @@ await createThreadRelationship({
     threadId,
     parentThreadId,
     branchPoint,
-    branchType: "branch"
+    branchType: "branch",
 });
 
 // Merge messages for display
@@ -140,12 +148,14 @@ const mergedMessages = [...parentMessagesUpToBranch, ...currentMessages];
 ### File Processing Integration
 
 **Multi-Format Support**:
+
 - **Image Processing**: Direct image analysis with AI models
 - **Document Processing**: PDF parsing and content extraction
 - **Metadata Tracking**: File usage tracking for cleanup and optimization
 - **Error Handling**: Graceful fallbacks for unsupported formats
 
 **File Processing Flow**:
+
 ```typescript
 // Process uploaded files
 for (const fileId of fileIds) {
@@ -162,6 +172,7 @@ User Input → Frontend Optimization → HTTP Stream → Agent Processing → Mo
 ```
 
 **Enhanced Flow with Agent Component**:
+
 1. **Message Preparation**: File processing and content formatting
 2. **Agent Selection**: Dynamic model-based agent creation
 3. **Thread Management**: Creation/continuation with relationship tracking
@@ -172,6 +183,7 @@ User Input → Frontend Optimization → HTTP Stream → Agent Processing → Mo
 ### Context Management Strategy
 
 **Intelligent Context Handling**:
+
 - **Recent Message Limits**: Model-specific context window optimization
 - **Branch-Aware Context**: Merges parent and child thread contexts
 - **File Context Integration**: Includes file content in conversation context
@@ -180,6 +192,7 @@ User Input → Frontend Optimization → HTTP Stream → Agent Processing → Mo
 ### Error Handling & Resilience
 
 **Multi-Layer Error Handling**:
+
 - **File Processing Errors**: Graceful fallbacks for unsupported files
 - **Model Failures**: Automatic retry with exponential backoff
 - **Stream Interruption**: Proper cleanup and user feedback
@@ -302,6 +315,7 @@ This architecture provides a robust, high-performance foundation for AI chat wit
 ### Structured Logging with Pail
 
 **Custom Logger Types**: Specialized loggers for different application domains
+
 - **Stream Logging**: 🚀 Stream operations with performance metrics
 - **Performance Logging**: ⚡ Performance metrics and timing data
 - **Update Logging**: 📝 Message and thread update operations
@@ -312,6 +326,7 @@ This architecture provides a robust, high-performance foundation for AI chat wit
 - **Abort Logging**: ⏹️ Operation cancellations and interruptions
 
 **Scoped Loggers**: Hierarchical logging organization
+
 - **streaming**: Ultra-fast streaming operations and optimizations
 - **provider**: React provider lifecycle and state management
 - **handlers**: Message handling and processing logic
@@ -319,6 +334,7 @@ This architecture provides a robust, high-performance foundation for AI chat wit
 - **performance**: Performance monitoring and metrics collection
 
 **Environment-Aware Configuration**:
+
 - **Development**: Full debug logging with visual indicators and detailed metrics
 - **Production**: Info/warning/error only, debug loggers disabled for performance
 - **String Interpolation**: Printf-style formatting for performance and readability
@@ -326,12 +342,14 @@ This architecture provides a robust, high-performance foundation for AI chat wit
 ### Performance Monitoring Integration
 
 **Real-Time Metrics Collection**:
+
 - Stream completion times and character throughput
 - Update frequency and rendering performance
 - Connection retry attempts and success rates
 - Thread loading and update operation timing
 
 **Logging Patterns**:
+
 ```typescript
 // Stream performance logging
 logStreamStart(threadId);
@@ -340,7 +358,7 @@ logStreamComplete(threadId, {
     updates: 12,
     avgUpdateInterval: 8.2,
     charsPerSecond: 526,
-    finalTextLength: 1250
+    finalTextLength: 1250,
 });
 
 // Connection resilience logging

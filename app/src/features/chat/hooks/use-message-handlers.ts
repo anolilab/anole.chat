@@ -17,14 +17,7 @@ interface UseMessageHandlersProps {
 export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps) => {
     const navigate = useNavigate();
     const threadContext = useThreadContext();
-    const {
-        currentThreadId,
-        setCurrentThreadId,
-        threads,
-        setThreads,
-        threadMetadata,
-        setThreadMetadata,
-    } = threadContext;
+    const { currentThreadId, setCurrentThreadId, threads, setThreads, threadMetadata, setThreadMetadata } = threadContext;
     const createThreadMutation = useMutation(api.chat.functions.createThread);
 
     const onStreamStart = useCallback(
@@ -110,9 +103,7 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
         async (message: AppendMessage, convexThreads: { results: any[] }) => {
             let textContent = "";
             const fileIds: string[] = [];
-            const messageContent: Array<
-                { type: "text"; text: string } | { type: "image"; image: string }
-            > = [];
+            const messageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [];
 
             for (const content of message.content) {
                 if (content.type === "text" && content.text) {
@@ -141,10 +132,7 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             });
 
             let actualThreadId = currentThreadId;
-            if (
-                currentThreadId === "default" ||
-                !convexThreads.results.some((t: any) => t._id === currentThreadId)
-            ) {
+            if (currentThreadId === "default" || !convexThreads.results.some((t: any) => t._id === currentThreadId)) {
                 try {
                     providerLogger.info("[Handlers] No active thread found or current is 'default'. Creating new thread.");
                     actualThreadId = await createThreadMutation({
@@ -190,9 +178,7 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             const userMessage: ThreadMessageLike = {
                 role: "user",
                 id: generateId(),
-                content: messageContent.length
-                    ? messageContent
-                    : [{ type: "text", text: textContent }],
+                content: messageContent.length ? messageContent : [{ type: "text", text: textContent }],
                 createdAt: new Date(),
                 attachments: message.attachments,
             };
@@ -205,26 +191,12 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             providerLogger.debug("[Handlers] Adding user message", { actualThreadId, userMessage });
             setThreads((prev) => {
                 const currentThreadMessages = prev.get(actualThreadId) || [];
-                return new Map(prev).set(actualThreadId, [
-                    ...currentThreadMessages,
-                    userMessage,
-                ]);
+                return new Map(prev).set(actualThreadId, [...currentThreadMessages, userMessage]);
             });
 
             await streamMessage(textContent, actualThreadId, fileIds);
         },
-        [
-            streamMessage,
-            currentThreadId,
-            setThreads,
-            createThreadMutation,
-            model,
-            threads,
-            threadMetadata,
-            setThreadMetadata,
-            setCurrentThreadId,
-            navigate,
-        ],
+        [streamMessage, currentThreadId, setThreads, createThreadMutation, model, threads, threadMetadata, setThreadMetadata, setCurrentThreadId, navigate],
     );
 
     const handleEditMessage = useCallback(
@@ -236,8 +208,7 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             providerLogger.debug("[Handlers] handleEditMessage called", { parentId: message.parentId });
 
             const currentThreadMessages = threads.get(currentThreadId) || [];
-            const index =
-                currentThreadMessages.findIndex((m) => m.id === message.parentId) + 1;
+            const index = currentThreadMessages.findIndex((m) => m.id === message.parentId) + 1;
             const newMessages = [...currentThreadMessages.slice(0, index)];
 
             const editedMessage: ThreadMessageLike = {
@@ -267,9 +238,7 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             if (!parentId) {
                 const currentThreadMessages = threads.get(currentThreadId);
                 if (!currentThreadMessages || currentThreadMessages.length === 0) return;
-                const lastUserMessage = [...currentThreadMessages]
-                    .reverse()
-                    .find((m) => m.role === "user");
+                const lastUserMessage = [...currentThreadMessages].reverse().find((m) => m.role === "user");
                 if (!lastUserMessage) return;
 
                 const newMessages = [...currentThreadMessages.slice(0, currentThreadMessages.indexOf(lastUserMessage) + 1)];
@@ -307,4 +276,3 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
         isRunning,
     };
 };
-

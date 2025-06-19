@@ -121,6 +121,7 @@ pnpm install
 Copy the example environment file:
 
 ```bash
+cd app
 cp .env-example .env
 ```
 

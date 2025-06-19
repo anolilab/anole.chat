@@ -56,6 +56,7 @@ The frontend streaming is managed by a collection of custom React hooks designed
 ### Convex Agent Component Architecture
 
 **Agent Configuration** (`convex/ai/lib/agents.ts`):
+
 - **Primary Models**:
     - `gemini-2.5-pro` - Most powerful thinking model with advanced reasoning
     - `gemini-2.5-flash` - Best price-performance ratio (default model)
@@ -65,12 +66,14 @@ The frontend streaming is managed by a collection of custom React hooks designed
 - **Model-Specific Configurations**: Optimized `maxSteps`, `maxRetries`, and `contextOptions` per model
 
 **HTTP Streaming Implementation** (`convex/chat/functions.ts`):
+
 - **Direct HTTP Streaming**: `streamHttpAction` with `toDataStreamResponse()`
 - **File Upload Support**: Handles images and documents via `getFile()` function
 - **Message Persistence**: Automatic message saving with metadata tracking
 - **Async Processing**: Scheduled title and summary generation
 
 **Advanced Features**:
+
 - **Thread Branching**: Custom parent-child thread relationships with branch point tracking
 - **Context Merging**: Intelligent message history merging for branched conversations
 - **File Processing**: Support for PDF analysis and image understanding

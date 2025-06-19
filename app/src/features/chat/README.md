@@ -45,9 +45,9 @@ graph TD
 
 ## Directory Structure
 
--   `components/`: Contains all React components responsible for rendering the chat UI. The main component is `Assistant.tsx`, which brings together the message list, input bar, and other UI elements.
--   `providers/`: This is the brain of the feature. It contains the main provider, the `useMessageHandlers` hook that manages all the core logic, and the type definitions.
--   `adapter/`: Contains adapters that allow the chat feature to interact with other parts of the application, such as the `ConvexAttachmentAdapter` for handling file uploads.
+- `components/`: Contains all React components responsible for rendering the chat UI. The main component is `Assistant.tsx`, which brings together the message list, input bar, and other UI elements.
+- `providers/`: This is the brain of the feature. It contains the main provider, the `useMessageHandlers` hook that manages all the core logic, and the type definitions.
+- `adapter/`: Contains adapters that allow the chat feature to interact with other parts of the application, such as the `ConvexAttachmentAdapter` for handling file uploads.
 
 ## How It Works: The Lifecycle of a Message
 

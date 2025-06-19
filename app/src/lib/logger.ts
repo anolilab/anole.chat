@@ -84,7 +84,7 @@ export const configureLogging = (isDevelopment: boolean) => {
 };
 
 // Initialize logging based on environment
-const isDevelopment = import.meta.env?.DEV || process.env.NODE_ENV === 'development';
+const isDevelopment = import.meta.env?.DEV || process.env.NODE_ENV === "development";
 configureLogging(isDevelopment);
 
 // Helper functions for common logging patterns
@@ -92,13 +92,16 @@ export const logStreamStart = (threadId: string) => {
     streamLogger.stream("Starting ultra-optimized stream for thread: %s", threadId);
 };
 
-export const logStreamComplete = (threadId: string, stats: {
-    duration: number;
-    updates: number;
-    avgUpdateInterval: number;
-    charsPerSecond: number;
-    finalTextLength: number;
-}) => {
+export const logStreamComplete = (
+    threadId: string,
+    stats: {
+        duration: number;
+        updates: number;
+        avgUpdateInterval: number;
+        charsPerSecond: number;
+        finalTextLength: number;
+    },
+) => {
     streamLogger.performance(`Ultra-fast stream completed: ${threadId}
         📊 Duration: ${stats.duration.toFixed(1)}ms
         🔄 Updates: ${stats.updates}

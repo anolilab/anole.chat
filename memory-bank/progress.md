@@ -119,43 +119,50 @@ Remaining work focuses on UX improvements and new bonus features.
 The chat provider has been refactored into a robust, hook-based architecture, significantly improving stability, maintainability, and debugging.
 
 **Architectural Components:**
--   **`ConvexExternalRuntimeProvider`**: The central provider orchestrating the chat feature.
--   **`useStreamManager`**: Manages the low-level streaming connection, including an adaptive throttle, cancellation, and retries.
--   **`useMessageHandlers`**: Handles all user actions (send, edit, reload) and performs optimistic UI updates for a snappy user experience.
--   **`useConvexThreadSyncer`**: Keeps the local state synchronized with the Convex database, with a critical guard to prevent race conditions and protect optimistic updates.
+
+- **`ConvexExternalRuntimeProvider`**: The central provider orchestrating the chat feature.
+- **`useStreamManager`**: Manages the low-level streaming connection, including an adaptive throttle, cancellation, and retries.
+- **`useMessageHandlers`**: Handles all user actions (send, edit, reload) and performs optimistic UI updates for a snappy user experience.
+- **`useConvexThreadSyncer`**: Keeps the local state synchronized with the Convex database, with a critical guard to prevent race conditions and protect optimistic updates.
 
 **Key Improvements:**
--   **Stability**: Eliminated a critical race condition that previously caused UI crashes.
--   **Maintainability**: Logic is now separated into focused, testable hooks.
--   **Debuggability**: Added comprehensive, contextual logging throughout the entire message lifecycle, making it easy to trace data flow and diagnose issues.
+
+- **Stability**: Eliminated a critical race condition that previously caused UI crashes.
+- **Maintainability**: Logic is now separated into focused, testable hooks.
+- **Debuggability**: Added comprehensive, contextual logging throughout the entire message lifecycle, making it easy to trace data flow and diagnose issues.
 
 ### ✅ Comprehensive Convex Agent Integration
 
 **Multi-Model Agent System:**
+
 - **Primary Models**: Gemini 2.5 Pro (thinking), Flash (balanced), Flash Lite (cost-effective), 2.0 Flash (next-gen)
 - **Legacy Support**: GPT-4o-mini, Claude-3-5-sonnet for comparison
 - **Model-Specific Optimization**: Tailored `maxSteps`, `maxRetries`, and context options per model
 - **Dynamic Agent Creation**: Runtime model switching via `getAgent(model)` function
 
 **HTTP Streaming Implementation:**
+
 - **Direct Streaming**: `streamHttpAction` with `toDataStreamResponse()` for optimal performance
 - **File Processing**: Seamless image and document handling via `getFile()` function
 - **Message Persistence**: Automatic saving with metadata and file tracking
 - **Async Enhancement**: Scheduled title and summary generation
 
 **Advanced Thread Management:**
+
 - **Custom Branching**: Parent-child thread relationships with branch point tracking
 - **Context Merging**: Intelligent message history merging for branched conversations
 - **Thread Relationships**: `threadRelationships` table with precise branching control
 - **Context Preservation**: Maintains conversation context across branches
 
 **Workflow Integration**: Long-running processes with the Workflow component
+
 - **Multi-Step Conversations**: Complex conversational flows with state management
 - **Background Processing**: Async operations that survive server restarts
 
 ## Current Status
 
 **Production Readiness**: 98% complete
+
 - All core features implemented and working
 - Chat architecture is now stable and robust
 - Next steps are focused on new features and minor UX polish.

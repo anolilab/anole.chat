@@ -22,21 +22,11 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
     const threadContext = useThreadContext();
     const convex = useConvex();
 
-    const {
-        currentThreadId,
-        setCurrentThreadId,
-        threads,
-        setThreads,
-        setThreadMetadata,
-    } = threadContext;
+    const { currentThreadId, setCurrentThreadId, threads, setThreads, setThreadMetadata } = threadContext;
 
     useEffect(() => {
         if (threadId && threadId !== currentThreadId) {
-            providerLogger.info(
-                "[Provider] Thread ID changed. Old: %s, New: %s",
-                currentThreadId,
-                threadId,
-            );
+            providerLogger.info("[Provider] Thread ID changed. Old: %s, New: %s", currentThreadId, threadId);
             setCurrentThreadId(threadId);
 
             if (!threads.has(threadId)) {
@@ -53,14 +43,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
                 );
             }
         }
-    }, [
-        threadId,
-        currentThreadId,
-        setCurrentThreadId,
-        threads,
-        setThreads,
-        setThreadMetadata,
-    ]);
+    }, [threadId, currentThreadId, setCurrentThreadId, threads, setThreads, setThreadMetadata]);
 
     const {
         handleNewMessage,
@@ -104,10 +87,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
 
     const wrappedHandleNewMessage = useCallback(
         (message: any) => {
-            providerLogger.debug(
-                "[Provider] 'onNew' triggered. Passing to handleNewMessage.",
-                { content: message.content?.[0]?.text || "unknown" },
-            );
+            providerLogger.debug("[Provider] 'onNew' triggered. Passing to handleNewMessage.", { content: message.content?.[0]?.text || "unknown" });
             return handleNewMessage(message, {
                 results: convexThreadsRef.current,
             });
@@ -118,12 +98,9 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
     const setMessages = useCallback(
         (messages: ThreadMessageLike[]) => {
             const currentCount = threads.get(currentThreadId)?.length ?? 0;
-            providerLogger.debug(
-                "[Provider] setMessages called. Current count: %d, New count: %d",
-                currentCount,
-                messages.length,
-                { threadId: currentThreadId },
-            );
+            providerLogger.debug("[Provider] setMessages called. Current count: %d, New count: %d", currentCount, messages.length, {
+                threadId: currentThreadId,
+            });
 
             const validMessages = messages.filter((message) => {
                 if (!isValidThreadMessage(message)) {
@@ -164,26 +141,14 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
             },
             setMessages,
             adapters: {
-                attachments: new CompositeAttachmentAdapter([
-                    new ConvexAttachmentAdapter(convex),
-                ]),
+                attachments: new CompositeAttachmentAdapter([new ConvexAttachmentAdapter(convex)]),
                 threadList: threadListAdapter,
             },
             unstable_capabilities: {
                 copy: true,
             },
         }),
-        [
-            currentMessages,
-            isRunning,
-            wrappedHandleNewMessage,
-            handleEditMessage,
-            handleReloadMessage,
-            handleCancel,
-            setMessages,
-            threadListAdapter,
-            convex,
-        ],
+        [currentMessages, isRunning, wrappedHandleNewMessage, handleEditMessage, handleReloadMessage, handleCancel, setMessages, threadListAdapter, convex],
     );
 
     const runtime = useExternalStoreRuntime(adapter);

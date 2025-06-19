@@ -1,10 +1,9 @@
+import config from "@anolilab/prettier-config";
+
 //  @ts-check
 
 /** @type {import('prettier').Config} */
-const config = {
-    semi: true,
-    singleQuote: true,
-    trailingComma: "all",
+export default {
+    ...config,
+    plugins: ["prettier-plugin-tailwindcss"],
 };
-
-export default config;

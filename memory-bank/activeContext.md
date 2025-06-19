@@ -12,12 +12,12 @@ With the refactoring complete, the immediate focus is on ensuring all documentat
 
 The entire frontend chat provider system has been refactored into a more robust, hook-based architecture.
 
--   **Separation of Concerns**: The logic is now cleanly separated into distinct, testable hooks:
-    -   `useStreamManager`: Manages the low-level streaming connection, including an adaptive throttle and cancellation.
-    -   `useMessageHandlers`: Handles user-facing actions like sending, editing, and reloading messages, and orchestrates optimistic UI updates.
-    -   `useConvexThreadSyncer`: Manages keeping the local state synchronized with the Convex database, preventing race conditions with optimistic updates.
--   **Improved Stability**: The new architecture resolved a critical race condition that caused UI crashes by protecting optimistic updates from being overwritten by stale database state.
--   **Enhanced Logging**: Comprehensive, contextual logging has been added throughout the provider and hooks, making it significantly easier to trace the message lifecycle and debug issues.
+- **Separation of Concerns**: The logic is now cleanly separated into distinct, testable hooks:
+    - `useStreamManager`: Manages the low-level streaming connection, including an adaptive throttle and cancellation.
+    - `useMessageHandlers`: Handles user-facing actions like sending, editing, and reloading messages, and orchestrates optimistic UI updates.
+    - `useConvexThreadSyncer`: Manages keeping the local state synchronized with the Convex database, preventing race conditions with optimistic updates.
+- **Improved Stability**: The new architecture resolved a critical race condition that caused UI crashes by protecting optimistic updates from being overwritten by stale database state.
+- **Enhanced Logging**: Comprehensive, contextual logging has been added throughout the provider and hooks, making it significantly easier to trace the message lifecycle and debug issues.
 
 ### Convex Agent Component Integration (Completed)
 
@@ -35,6 +35,6 @@ The entire frontend chat provider system has been refactored into a more robust,
 
 ## Active Decisions and Considerations
 
--   **Architectural Stability**: The new hook-based chat architecture is considered the stable path forward. Future development should build upon this pattern.
--   **Documentation is Key**: Maintaining an accurate Memory Bank is critical for project continuity, as demonstrated by this update cycle.
--   **Focus Shift**: The project has matured from rapid feature addition to a focus on long-term stability and maintainability.
+- **Architectural Stability**: The new hook-based chat architecture is considered the stable path forward. Future development should build upon this pattern.
+- **Documentation is Key**: Maintaining an accurate Memory Bank is critical for project continuity, as demonstrated by this update cycle.
+- **Focus Shift**: The project has matured from rapid feature addition to a focus on long-term stability and maintainability.

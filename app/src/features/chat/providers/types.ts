@@ -144,7 +144,7 @@ export const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike 
         return {
             id: message?._id || `error-${Date.now()}`,
             role: "assistant" as const,
-            content: [{ type: "text" as const, text: `Conversion error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+            content: [{ type: "text" as const, text: `Conversion error: ${error instanceof Error ? error.message : "Unknown error"}` }],
             createdAt: new Date(message?._creationTime || Date.now()),
         };
     }

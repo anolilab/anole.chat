@@ -5,13 +5,16 @@
 
 // Performance monitoring for streaming operations
 export class StreamingPerformanceMonitor {
-    private metrics: Map<string, {
-        startTime: number;
-        updates: number;
-        totalChars: number;
-        avgUpdateInterval: number;
-        lastUpdateTime: number;
-    }> = new Map();
+    private metrics: Map<
+        string,
+        {
+            startTime: number;
+            updates: number;
+            totalChars: number;
+            avgUpdateInterval: number;
+            lastUpdateTime: number;
+        }
+    > = new Map();
 
     startSession(sessionId: string): void {
         this.metrics.set(sessionId, {
@@ -33,7 +36,7 @@ export class StreamingPerformanceMonitor {
 
         if (session.updates > 1) {
             const interval = now - session.lastUpdateTime;
-            session.avgUpdateInterval = ((session.avgUpdateInterval * (session.updates - 2)) + interval) / (session.updates - 1);
+            session.avgUpdateInterval = (session.avgUpdateInterval * (session.updates - 2) + interval) / (session.updates - 1);
         }
 
         session.lastUpdateTime = now;
@@ -69,11 +72,7 @@ export class ConnectionRecoveryManager {
     private maxRetries = 3;
     private baseDelay = 1000; // 1 second
 
-    async withRetry<T>(
-        operation: () => Promise<T>,
-        operationId: string,
-        onRetry?: (attempt: number, error: Error) => void
-    ): Promise<T> {
+    async withRetry<T>(operation: () => Promise<T>, operationId: string, onRetry?: (attempt: number, error: Error) => void): Promise<T> {
         let lastError: Error;
         const currentAttempts = this.retryAttempts.get(operationId) || 0;
 
@@ -86,11 +85,11 @@ export class ConnectionRecoveryManager {
                 lastError = error as Error;
                 this.retryAttempts.set(operationId, attempt + 1);
 
-                                if (attempt < this.maxRetries - 1) {
+                if (attempt < this.maxRetries - 1) {
                     const delay = this.baseDelay * Math.pow(2, attempt);
                     // Note: onRetry callback handles the logging via Pail
                     onRetry?.(attempt + 1, lastError);
-                    await new Promise(resolve => setTimeout(resolve, delay));
+                    await new Promise((resolve) => setTimeout(resolve, delay));
                 } else {
                     // Final failure will be logged by the caller
                 }
@@ -116,7 +115,7 @@ export class ProgressiveTextLoader {
 
     addChunk(messageId: string, text: string): boolean {
         const chunks = this.loadedChunks.get(messageId) || [];
-        const newChunk = text.slice(chunks.join('').length);
+        const newChunk = text.slice(chunks.join("").length);
 
         if (newChunk.length === 0) return false; // No new content
 
@@ -138,7 +137,7 @@ export class ProgressiveTextLoader {
     getProgressiveText(messageId: string, maxChunks?: number): string {
         const chunks = this.loadedChunks.get(messageId) || [];
         const chunksToShow = maxChunks ? chunks.slice(0, maxChunks) : chunks;
-        return chunksToShow.join('');
+        return chunksToShow.join("");
     }
 
     getTotalChunks(messageId: string): number {
@@ -157,7 +156,10 @@ export class AdaptiveThrottle {
     private performanceHistory: number[] = [];
     private maxHistoryLength = 10;
 
-    constructor(private minInterval = 4, private maxInterval = 50) {}
+    constructor(
+        private minInterval = 4,
+        private maxInterval = 50,
+    ) {}
 
     execute<T extends any[]>(func: (...args: T) => void, ...args: T): void {
         const now = performance.now();
@@ -208,12 +210,15 @@ export class AdaptiveThrottle {
 
 // Memory-efficient message buffer
 export class MessageBuffer {
-    private buffers: Map<string, {
-        content: string;
-        lastUpdate: number;
-        isDirty: boolean;
-        metadata: any;
-    }> = new Map();
+    private buffers: Map<
+        string,
+        {
+            content: string;
+            lastUpdate: number;
+            isDirty: boolean;
+            metadata: any;
+        }
+    > = new Map();
 
     private maxBufferSize = 50; // Maximum number of buffered messages
     private cleanupInterval = 30000; // 30 seconds
