@@ -70,8 +70,8 @@
     "./convex.config": {
       "import": {
         "@convex-dev/component-source": "./src/component/convex.config.ts",
-        "types": "./dist/component/convex.config.d.ts",
-        "default": "./dist/component/convex.config.js"
+        "types": "./dist/component/convex.config.d.mts",
+        "default": "./dist/component/convex.config.mjs"
       }
     }
   },

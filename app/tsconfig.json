@@ -6,7 +6,6 @@
 
         /* Bundler mode */
         "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
 
         "baseUrl": ".",
         "paths": {
