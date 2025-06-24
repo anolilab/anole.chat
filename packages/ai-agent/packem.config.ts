@@ -15,4 +15,17 @@ export default defineConfig({
     },
     transformer,
     sourcemap: true,
+    validation: {
+        packageJson: {
+            extraConditions: ["@convex-dev/component-source"]
+        },
+        dependencies: {
+            unused: {
+                exclude: []
+            }
+        }
+    },
+    outputExtensionMap: {
+        esm: "js",
+    }
 }) as BuildConfig;

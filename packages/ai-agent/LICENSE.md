@@ -206,7 +206,7 @@ limitations under the License.
 <!-- TYPE_DEPENDENCIES -->
 
 # Licenses of bundled types
-The published @anolilab/convex-agent artifact additionally contains code with the following licenses:
+The published @anolilab/convex-ai-agent artifact additionally contains code with the following licenses:
 Apache-2.0, MIT
 
 # Bundled types:

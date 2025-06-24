@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { seo } from "@/lib/seo";
 
 import { ThemeProvider } from "next-themes";
-import React from "react";
+import { Suspense, lazy } from "react";
 import type { ConvexReactClient } from "convex/react";
 import { createAuth } from "@cvx/auth";
 import { getCookie, getWebRequest } from "@tanstack/react-start/server";
@@ -18,6 +18,12 @@ import { createServerFn } from "@tanstack/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { authClient } from "@/features/auth/lib/client";
+import { DEFAULT_LOCALE } from "@/lib/intl/client";
+import { i18n } from "@lingui/core";
+import ScreenSizeDebug from "@/components/screen-size-debug";
+
+const ReactQueryDevtools = lazy(() => import("@tanstack/react-query-devtools").then((m) => ({ default: m.ReactQueryDevtools })));
+const TanStackRouterDevtools = lazy(() => import("@tanstack/react-router-devtools").then((m) => ({ default: m.TanStackRouterDevtools })));
 
 interface MyRouterContext {
     queryClient: QueryClient;
@@ -36,14 +42,6 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
         token,
     };
 });
-
-const TanStackRouterDevtools = import.meta.env.PROD
-    ? () => null
-    : React.lazy(() =>
-          import("@tanstack/react-router-devtools").then((res) => ({
-              default: res.TanStackRouterDevtools,
-          })),
-      );
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
     head: () => ({
@@ -93,23 +91,25 @@ const RootDocument = () => {
     const context = useRouteContext({ from: Route.id });
 
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang={i18n.locale ?? DEFAULT_LOCALE} suppressHydrationWarning>
             <head>
                 <HeadContent />
             </head>
             <body suppressHydrationWarning className="isolate min-h-svh w-full overflow-hidden">
                 <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                        <ScreenSizeDebug />
                         <Outlet />
                         <Toaster />
                         <Scripts />
                     </ThemeProvider>
                 </ConvexBetterAuthProvider>
                 {import.meta.env.VITE_DEBUG && (
-                    <>
-                        <TanStackRouterDevtools position="top-right" />
+                    <Suspense fallback={null}>
+                        <TanStackRouterDevtools position="bottom-right" />
+                        <ReactQueryDevtools buttonPosition="bottom-left" />
                         <ReactScan />
-                    </>
+                    </Suspense>
                 )}
             </body>
         </html>

@@ -15,16 +15,17 @@
     ],
     "type": "module",
     "workspaces": [
-        "packages/*",
-        "app"
+        "app",
+        "packages/*"
     ],
     "scripts": {
         "audit": "audit-ci --config ./audit-ci.jsonc",
         "build:affected:packages": "nx affected --target=build --nxBail",
         "build:affected:prod:packages": "nx affected --target=build:prod --nxBail",
         "build:chat": "nx run chat:build",
-        "build:packages": "nx run-many --target=build --all",
-        "dev:chat": "nx run chat:dev",
+        "build:packages": "nx run-many --target=build --parallel --projects=tag:type:package",
+        "build:packages:prod": "nx run-many --target=build:prod --parallel --projects=tag:type:package",
+        "dev:chat": "pnpm run build:packages && nx run chat:dev",
         "preinstall": "node -e \"if(process.env.CI == 'true') {console.info('Skipping preinstall...')} else {process.exit(1)}\" || (node verify-node-version.js && npm -y exec only-allow pnpm)",
         "lint": "pnpm run lint:prettier && pnpm run lint:eslint && lint:dedupe --check",
         "lint:dedupe": "pnpm dedupe --check",
@@ -45,7 +46,7 @@
         "@commitlint/cli": "^19.8.1",
         "@commitlint/config-conventional": "^19.8.1",
         "@nx/workspace": "21.2.1",
-        "@secretlint/secretlint-rule-preset-recommend": "^10.1.0",
+        "@secretlint/secretlint-rule-preset-recommend": "^10.1.1",
         "audit-ci": "^7.1.0",
         "commitizen": "^4.3.1",
         "dotenv": "16.5.0",
@@ -53,11 +54,11 @@
         "is-ci": "^4.1.0",
         "lint-staged": "^16.1.2",
         "nx": "21.2.1",
-        "prettier": "^3.5.3",
+        "prettier": "^3.6.0",
         "prettier-plugin-tailwindcss": "0.6.13",
-        "secretlint": "10.1.0",
-        "sort-package-json": "^3.2.1",
+        "secretlint": "10.1.1",
+        "sort-package-json": "^3.3.0",
         "typescript": "^5.8.3"
     },
-    "packageManager": "pnpm@10.12.1"
+    "packageManager": "pnpm@10.12.3"
 }

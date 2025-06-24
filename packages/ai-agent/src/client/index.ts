@@ -18,6 +18,7 @@ import {
   internalMutationGeneric,
   type PaginationOptions,
   type PaginationResult,
+  type RegisteredAction,
   type WithoutSystemFields,
 } from "convex/server";
 import { v } from "convex/values";
@@ -1198,13 +1199,16 @@ export class Agent<AgentTools extends ToolSet> {
     });
     if (textEmbeddings.embeddings.length > 0) {
       const dimension = textEmbeddings.embeddings[0].length;
+
       validateVectorDimension(dimension);
+      
       embeddings = {
         vectors: embeddingsOrNull,
         dimension,
         model: this.options.textEmbedding.modelId,
       };
     }
+    
     return embeddings;
   }
 
@@ -1765,8 +1769,9 @@ export class Agent<AgentTools extends ToolSet> {
      * defaults if you pass true.
      */
     stream?: boolean | StreamingOptions;
-  }) {
+  }): RegisteredAction<"internal", any, any> {
     const maxSteps = spec?.maxSteps ?? this.options.maxSteps;
+    
     return internalActionGeneric({
       args: vTextArgs,
       handler: async (ctx, args) => {
