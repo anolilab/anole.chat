@@ -4,7 +4,7 @@ import { internalAction, internalMutation, mutation, action, query, httpAction, 
 import { AgentModel, getAgent } from "../ai/lib/agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import z from "zod";
-import { getFile, type MessageDoc, type ThreadDoc } from "@anolilab/convex-ai-agent";
+import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
 import { requireUserId } from "@cvx/auth/lib/helper";
 
@@ -29,7 +29,7 @@ export const createThread = mutation({
         };
 
         const { threadId }: { threadId: string } = await agent.createThread(ctx, createOptions);
-        // TODO: Fix upstream - @anolilab/convex-ai-agent createThread doesn't support parentThreadIds
+        // TODO: Fix upstream - @convex-dev/agent createThread doesn't support parentThreadIds
         // The agent's createThread function signature doesn't include parentThreadIds parameter
         // Once this is added upstream, we can pass parentThreadIds directly in createOptions above
         // Create thread relationship if this is a branch

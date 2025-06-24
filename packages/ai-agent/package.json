@@ -33,52 +33,28 @@
     "exports": {
         "./package.json": "./package.json",
         ".": {
-            "import": {
-                "@convex-dev/component-source": "./src/client/index.ts",
-                "types": "./dist/client/index.d.mts",
-                "default": "./dist/client/index.js"
-            },
-            "require": {
-                "@convex-dev/component-source": "./src/client/index.ts",
-                "types": "./dist/client/index.d.cts",
-                "default": "./dist/client/index.cjs"
-            }
+            "@convex-dev/component-source": "./src/client/index.ts",
+            "types": "./dist/client/index.d.mts",
+            "default": "./dist/client/index.js"
         },
         "./validators": {
-            "import": {
-                "@convex-dev/component-source": "./src/validators.ts",
-                "types": "./dist/validators.d.mts",
-                "default": "./dist/validators.js"
-            },
-            "require": {
-                "@convex-dev/component-source": "./src/validators.ts",
-                "types": "./dist/validators.d.cts",
-                "default": "./dist/validators.cjs"
-            }
+            "@convex-dev/component-source": "./src/validators.ts",
+            "types": "./dist/validators.d.mts",
+            "default": "./dist/validators.js"
         },
         "./react": {
-            "import": {
-                "@convex-dev/component-source": "./src/react/index.ts",
-                "types": "./dist/react/index.d.mts",
-                "default": "./dist/react/index.js"
-            },
-            "require": {
-                "@convex-dev/component-source": "./src/react/index.ts",
-                "types": "./dist/react/index.d.cts",
-                "default": "./dist/react/index.cjs"
-            }
+            "@convex-dev/component-source": "./src/react/index.ts",
+            "types": "./dist/react/index.d.mts",
+            "default": "./dist/react/index.js"
         },
         "./convex.config": {
-            "import": {
-                "@convex-dev/component-source": "./src/component/convex.config.ts",
-                "types": "./dist/component/convex.config.d.mts",
-                "default": "./dist/component/convex.config.js"
-            }
+            "@convex-dev/component-source": "./src/component/convex.config.ts",
+            "types": "./dist/component/convex.config.d.mts",
+            "default": "./dist/component/convex.config.js"
         }
     },
-    "main": "./dist/client/index.cjs",
+    "main": "./dist/client/index.js",
     "module": "./dist/client/index.js",
-    "types": "./dist/client/index.d.ts",
     "typesVersions": {
         ">=5.0": {
             ".": [

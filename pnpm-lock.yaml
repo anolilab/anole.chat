@@ -101,6 +101,9 @@ importers:
       '@assistant-ui/react-markdown':
         specifier: ^0.10.5
         version: 0.10.5(@assistant-ui/react@0.10.24(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0)))(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@convex-dev/agent':
+        specifier: 0.1.9
+        version: 0.1.9(ai@4.3.16(react@19.1.0)(zod@3.25.67))(convex-helpers@0.1.95(@standard-schema/spec@1.0.0)(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.67))(convex@1.24.8(react@19.1.0))(react@19.1.0)
       '@convex-dev/better-auth':
         specifier: ^0.6.1
         version: 0.6.1(@standard-schema/spec@1.0.0)(better-auth@1.2.10)(convex@1.24.8(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
@@ -1134,6 +1137,17 @@ packages:
   '@commitlint/types@19.8.1':
     resolution: {integrity: sha512-/yCrWGCoA1SVKOks25EGadP9Pnj0oAIHGpl2wH2M2Y46dPM2ueb8wyCVOD7O3WCTkaJ0IkKvzhl1JY7+uCT2Dw==}
     engines: {node: '>=v18'}
+
+  '@convex-dev/agent@0.1.9':
+    resolution: {integrity: sha512-m1O0STQRf9CUjnqNWJiNEHWB1j0raY6zrNXl5PexPg25GFonEpphAH8h8zNrFIYrWZ8ybMfmL3pOS6KqVwhXWA==}
+    peerDependencies:
+      ai: ^4.3.16
+      convex: ^1.23.0
+      convex-helpers: ^0.1.94
+      react: ^18.3.1 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@convex-dev/auth@0.0.83':
     resolution: {integrity: sha512-KJPI9x3U1KcHNE/7pA7B92sVsHWpAfg6vWuO005OWNF359eRJ3ZP3W+iNfuMajZLqywudR2+oVoGDnBIFrM63A==}
@@ -13284,6 +13298,14 @@ snapshots:
     dependencies:
       '@types/conventional-commits-parser': 5.0.1
       chalk: 5.4.1
+
+  '@convex-dev/agent@0.1.9(ai@4.3.16(react@19.1.0)(zod@3.25.67))(convex-helpers@0.1.95(@standard-schema/spec@1.0.0)(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.67))(convex@1.24.8(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      ai: 4.3.16(react@19.1.0)(zod@3.25.67)
+      convex: 1.24.8(react@19.1.0)
+      convex-helpers: 0.1.95(@standard-schema/spec@1.0.0)(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.67)
+    optionalDependencies:
+      react: 19.1.0
 
   '@convex-dev/auth@0.0.83(@auth/core@0.37.4)(convex@1.24.8(react@19.1.0))(react@19.1.0)':
     dependencies:

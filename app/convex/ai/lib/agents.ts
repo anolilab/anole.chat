@@ -1,4 +1,4 @@
-import { Agent, ContextOptions, StorageOptions, UsageHandler } from "@anolilab/convex-ai-agent";
+import { Agent, ContextOptions, StorageOptions, UsageHandler } from "@convex-dev/agent";
 import type { EmbeddingModelV1, LanguageModelV1 } from "@ai-sdk/provider";
 import type { LanguageModelRequestMetadata, LanguageModelResponseMetadata, ToolSet } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -133,7 +133,7 @@ export const agents = {
          * Tools that the agent can call out to and get responses from.
          * They can be AI SDK tools (import {tool} from "ai")
          * or tools that have Convex context
-         * (import { createTool } from "@anolilab/convex-ai-agent")
+         * (import { createTool } from "@convex-dev/agent")
          */
         tools?: ToolSet;
         /**

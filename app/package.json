@@ -41,6 +41,7 @@
         "@ai-sdk/react": "^1.2.12",
         "@ai-sdk/ui-utils": "^1.2.11",
         "@anolilab/convex-ai-agent": "workspace:*",
+        "@convex-dev/agent": "0.1.9",
         "@assistant-ui/react": "^0.10.24",
         "@assistant-ui/react-ai-sdk": "^0.10.14",
         "@assistant-ui/react-markdown": "^0.10.5",
