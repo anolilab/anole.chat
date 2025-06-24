@@ -9,7 +9,7 @@ A modern, feature-rich AI chat application built with React, Convex, and the Ver
 - **Multiple AI Models**: Chat with various LLMs including GPT-4, Claude, Gemini, and more via OpenAI, Anthropic, Google, and OpenRouter
 - **Real-time Sync**: Conversations sync instantly across all your devices
 - **User Authentication**: Secure authentication with session management
-  - Soon with passkeys, and 2FA support
+    - Soon with passkeys, and 2FA support
 - **File Attachments**: Upload and chat about images and PDFs with intelligent parsing
 - **Syntax Highlighting**: Beautiful code formatting with Shiki and dual-theme support
 
@@ -121,6 +121,7 @@ pnpm install
 Copy the example environment file:
 
 ```bash
+cd app
 cp .env-example .env
 ```
 

@@ -1,8 +1,16 @@
+packages:
+  - app
+  - packages/*
+
 onlyBuiltDependencies:
-    - "@parcel/watcher"
-    - "@tailwindcss/oxide"
-    - core-js
-    - esbuild
-    - protobufjs
-    - sharp
-    - unrs-resolver
+  - '@parcel/watcher'
+  - '@tailwindcss/oxide'
+  - core-js
+  - esbuild
+  - nx
+  - protobufjs
+  - sharp
+  - unrs-resolver
+
+overrides:
+  semver@>=7.0.0 <7.5.2: '>=7.5.2'

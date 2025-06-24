@@ -10,3 +10,4 @@ dist-ssr
 .tanstack-start
 .nitro
 .history
+.nx

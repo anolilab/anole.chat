@@ -1,0 +1,133 @@
+{
+    "name": "@anolilab/convex-ai-agent",
+    "version": "0.0.0",
+    "description": "A ai agent component for Convex.",
+    "keywords": [
+        "convex",
+        "ai",
+        "agent",
+        "component"
+    ],
+    "homepage": "https://github.com/anolilab/anole.chat",
+    "bugs": {
+        "url": "https://github.com/anolilab/anole.chat/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anolilab/anole.chat.git",
+        "directory": "packages/agent"
+    },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/prisis"
+        },
+        {
+            "type": "consulting",
+            "url": "https://anolilab.com/support"
+        }
+    ],
+    "license": "Apache-2.0",
+    "sideEffects": false,
+    "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "@convex-dev/component-source": "./src/client/index.ts",
+            "types": "./dist/client/index.d.mts",
+            "default": "./dist/client/index.js"
+        },
+        "./validators": {
+            "@convex-dev/component-source": "./src/validators.ts",
+            "types": "./dist/validators.d.mts",
+            "default": "./dist/validators.js"
+        },
+        "./react": {
+            "@convex-dev/component-source": "./src/react/index.ts",
+            "types": "./dist/react/index.d.mts",
+            "default": "./dist/react/index.js"
+        },
+        "./convex.config": {
+            "@convex-dev/component-source": "./src/component/convex.config.ts",
+            "types": "./dist/component/convex.config.d.mts",
+            "default": "./dist/component/convex.config.js"
+        }
+    },
+    "main": "./dist/client/index.js",
+    "module": "./dist/client/index.js",
+    "typesVersions": {
+        ">=5.0": {
+            ".": [
+                "./dist/client/index.d.ts"
+            ],
+            "validators": [
+                "./dist/validators.d.ts"
+            ],
+            "react": [
+                "./dist/react/index.d.ts"
+            ],
+            "convex.config": [
+                "./dist/component/convex.config.d.ts"
+            ]
+        }
+    },
+    "files": [
+        "dist",
+        "src"
+    ],
+    "scripts": {
+        "build": "packem build --development",
+        "build:prod": "packem build --production",
+        "clean": "rimraf node_modules dist .eslintcache",
+        "lint:attw": "attw --pack",
+        "lint:eslint": "eslint .",
+        "lint:eslint:fix": "eslint . --fix",
+        "lint:types": "tsc --noEmit",
+        "test": "vitest run --typecheck --config",
+        "test:coverage": "vitest run --coverage --coverage.reporter=text"
+    },
+    "devDependencies": {
+        "@ai-sdk/provider": "1.1.3",
+        "@ai-sdk/ui-utils": "1.2.11",
+        "@anolilab/eslint-config": "^16.2.13",
+        "@anolilab/semantic-release-pnpm": "2.0.0",
+        "@anolilab/semantic-release-preset": "^11.0.0",
+        "@arethetypeswrong/cli": "^0.18.2",
+        "@edge-runtime/vm": "^5.0.0",
+        "@total-typescript/ts-reset": "^0.6.1",
+        "@types/node": "^24.0.3",
+        "@types/react": "^19.1.8",
+        "@visulima/packem": "^1.28.2",
+        "convex": "^1.24.8",
+        "convex-helpers": "^0.1.95",
+        "convex-test": "^0.0.37",
+        "esbuild": "^0.25.5",
+        "eslint": "^9.29.0",
+        "globals": "^16.2.0",
+        "prettier": "3.6.0",
+        "semantic-release": "^24.2.5",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.35.0",
+        "vitest": "^3.2.4",
+        "zod": "^3.25.67"
+    },
+    "peerDependencies": {
+        "ai": "^4.3.16",
+        "convex": "^1.23.0",
+        "convex-helpers": "^0.1.94",
+        "react": "^18.3.1 || ^19.0.0",
+        "zod": "^3.25.67"
+    },
+    "peerDependenciesMeta": {
+        "react": {
+            "optional": true
+        }
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
+    }
+}
