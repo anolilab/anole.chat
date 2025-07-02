@@ -8,10 +8,6 @@ export default defineConfig({
         license: {
             path: "./LICENSE.md",
         },
-        node10Compatibility: {
-            typeScriptVersion: ">=5.0",
-            writeToPackageJson: true,
-        },
     },
     transformer,
     sourcemap: true,
@@ -24,8 +20,5 @@ export default defineConfig({
                 exclude: []
             }
         }
-    },
-    outputExtensionMap: {
-        esm: "js",
     }
 }) as BuildConfig;

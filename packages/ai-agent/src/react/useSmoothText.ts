@@ -37,8 +37,9 @@ export function useSmoothText(
 
   useEffect(() => {
     if (!isStreaming) {
-      return;
+      return () => {};
     }
+
     const latestCharsPerMs =
       (text.length - smoothState.current.initialLength) /
       (Date.now() - smoothState.current.start);
@@ -71,8 +72,11 @@ export function useSmoothText(
       smoothState.current.tick = now;
       setVisibleText(text.slice(0, smoothState.current.cursor));
     }
+
     update();
+
     const interval = setInterval(update, MS_PER_FRAME);
+
     return () => clearInterval(interval);
   }, [text, isStreaming, charsPerSec]);
 

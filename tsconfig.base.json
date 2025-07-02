@@ -13,11 +13,11 @@
 
         "strict": true,
         "alwaysStrict": true,
-        "strictNullChecks": true,
+        "strictNullChecks": false,
         "strictBindCallApply": true,
         "strictFunctionTypes": true,
         "stripInternal": true,
-        "strictPropertyInitialization": true,
+        "strictPropertyInitialization": false,
         "noImplicitAny": true,
         "noImplicitThis": true,
 

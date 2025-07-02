@@ -34,43 +34,26 @@
         "./package.json": "./package.json",
         ".": {
             "@convex-dev/component-source": "./src/client/index.ts",
-            "types": "./dist/client/index.d.mts",
+            "types": "./dist/client/index.d.ts",
             "default": "./dist/client/index.js"
         },
         "./validators": {
             "@convex-dev/component-source": "./src/validators.ts",
-            "types": "./dist/validators.d.mts",
+            "types": "./dist/validators.d.ts",
             "default": "./dist/validators.js"
         },
         "./react": {
             "@convex-dev/component-source": "./src/react/index.ts",
-            "types": "./dist/react/index.d.mts",
+            "types": "./dist/react/index.d.ts",
             "default": "./dist/react/index.js"
         },
         "./convex.config": {
             "@convex-dev/component-source": "./src/component/convex.config.ts",
-            "types": "./dist/component/convex.config.d.mts",
+            "types": "./dist/component/convex.config.d.ts",
             "default": "./dist/component/convex.config.js"
         }
     },
     "main": "./dist/client/index.js",
-    "module": "./dist/client/index.js",
-    "typesVersions": {
-        ">=5.0": {
-            ".": [
-                "./dist/client/index.d.ts"
-            ],
-            "validators": [
-                "./dist/validators.d.ts"
-            ],
-            "react": [
-                "./dist/react/index.d.ts"
-            ],
-            "convex.config": [
-                "./dist/component/convex.config.d.ts"
-            ]
-        }
-    },
     "files": [
         "dist",
         "src"
@@ -89,25 +72,25 @@
     "devDependencies": {
         "@ai-sdk/provider": "1.1.3",
         "@ai-sdk/ui-utils": "1.2.11",
-        "@anolilab/eslint-config": "^16.2.13",
-        "@anolilab/semantic-release-pnpm": "2.0.0",
-        "@anolilab/semantic-release-preset": "^11.0.0",
+        "@anolilab/eslint-config": "^16.2.15",
+        "@anolilab/semantic-release-pnpm": "2.0.2",
+        "@anolilab/semantic-release-preset": "^11.0.2",
         "@arethetypeswrong/cli": "^0.18.2",
         "@edge-runtime/vm": "^5.0.0",
         "@total-typescript/ts-reset": "^0.6.1",
-        "@types/node": "^24.0.3",
+        "@types/node": "^24.0.10",
         "@types/react": "^19.1.8",
-        "@visulima/packem": "^1.28.2",
-        "convex": "^1.24.8",
+        "@visulima/packem": "2.0.0-alpha.2",
+        "convex": "^1.25.2",
         "convex-helpers": "^0.1.95",
         "convex-test": "^0.0.37",
         "esbuild": "^0.25.5",
-        "eslint": "^9.29.0",
-        "globals": "^16.2.0",
-        "prettier": "3.6.0",
-        "semantic-release": "^24.2.5",
+        "eslint": "^9.30.1",
+        "globals": "^16.3.0",
+        "prettier": "3.6.2",
+        "semantic-release": "^24.2.6",
         "typescript": "^5.8.3",
-        "typescript-eslint": "^8.35.0",
+        "typescript-eslint": "^8.35.1",
         "vitest": "^3.2.4",
         "zod": "^3.25.67"
     },

@@ -1198,17 +1198,17 @@ export class Agent<AgentTools extends ToolSet> {
       embeddingsOrNull[i] = textEmbeddings.embeddings[j];
     });
     if (textEmbeddings.embeddings.length > 0) {
-      const dimension = textEmbeddings.embeddings[0].length;
+      const dimension = (textEmbeddings.embeddings[0] as number[]).length;
 
       validateVectorDimension(dimension);
-      
+
       embeddings = {
         vectors: embeddingsOrNull,
         dimension,
         model: this.options.textEmbedding.modelId,
       };
     }
-    
+
     return embeddings;
   }
 
@@ -1242,7 +1242,7 @@ export class Agent<AgentTools extends ToolSet> {
       throw new Error(
         "Some messages don't have a message: " +
           args.messageIds
-            .map((id, i) => (!messages[i].message ? id : undefined))
+            .map((id, i) => (!messages[i]?.message ? id : undefined))
             .filter((id): id is string => id !== undefined)
             .join(", ")
       );
@@ -1771,7 +1771,7 @@ export class Agent<AgentTools extends ToolSet> {
     stream?: boolean | StreamingOptions;
   }): RegisteredAction<"internal", any, any> {
     const maxSteps = spec?.maxSteps ?? this.options.maxSteps;
-    
+
     return internalActionGeneric({
       args: vTextArgs,
       handler: async (ctx, args) => {

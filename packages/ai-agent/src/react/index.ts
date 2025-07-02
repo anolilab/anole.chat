@@ -124,8 +124,8 @@ export function useThreadMessages<
         .filter(
           (m, i, arr) =>
             !arr[i - 1] ||
-            m.order !== arr[i - 1].order ||
-            m.stepOrder !== arr[i - 1].stepOrder
+            m.order !== arr[i - 1]?.order ||
+            m.stepOrder !== arr[i - 1]?.stepOrder
         ),
     };
   }, [paginated, streamMessages]);

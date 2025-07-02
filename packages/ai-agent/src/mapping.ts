@@ -220,7 +220,7 @@ export function deserializeContent(content: SerializedContent): Content {
 export function guessMimeType(buf: ArrayBuffer | string): string {
   if (typeof buf === "string") {
     if (buf.match(/^data:\w+\/\w+;base64/)) {
-      return buf.split(";")[0].split(":")[1]!;
+      return (buf.split(";")[0] as string).split(":")[1]!;
     }
     return "text/plain";
   }
