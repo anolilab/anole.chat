@@ -3,28 +3,68 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { HonoWithConvex, HttpRouterWithHono } from "convex-helpers/server/hono";
 import { streamHttpAction, improvePromptHttpAction } from "./chat/functions";
-import { betterAuthComponent, createAuth } from "./auth";
-import { httpAction } from "./_generated/server";
+import { createAuth } from "./auth";
+import { requestId } from 'hono/request-id'
 import { resend } from "./email/functions";
 import type { ActionCtx } from "./_generated/server";
+import { CONVEX_SITE_URL } from "./env";
 
-// Create Hono app with Convex context
 const app: HonoWithConvex<ActionCtx> = new Hono();
 
 // Add logging middleware for better debugging
 app.use("*", logger((message) => {
     console.log(message);
 }));
-
-// Add CORS middleware - should be called before routes
+app.use('*', requestId())
 app.use("*", cors({
     origin: "*",
     credentials: true,
-    allowHeaders: ["Authorization", "Content-Type"],
+    allowHeaders: ["Authorization", "Content-Type", "Better-Auth-Cookie"],
     allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
-    exposeHeaders: ["Content-Length"],
+    exposeHeaders: ["Content-Length", "Set-Better-Auth-Cookie"],
     maxAge: 600,
 }));
+
+
+const authRequestHandler = async (c: any) => {
+    const auth = createAuth(c.env);
+    const response = await auth.handler(c.req.raw);
+    return response;
+};
+
+// Better Auth routes implemented in Hono
+const authPath = "/api/auth";
+
+// OpenID configuration redirect  
+app.get("/.well-known/openid-configuration", async (c) => {
+    // Since we're in an HTTP action context, we can access environment variables
+    const url = `${CONVEX_SITE_URL}/api/auth/convex/.well-known/openid-configuration`;
+    return Response.redirect(url);
+});
+
+// OpenID configuration
+app.get(`${authPath}/convex/.well-known/openid-configuration`, authRequestHandler);
+
+// JWKS endpoint
+app.get(`${authPath}/convex/jwks`, authRequestHandler);
+
+// Callback routes (OAuth providers)
+app.get(`${authPath}/callback/*`, authRequestHandler);
+
+// Magic link verification
+app.get(`${authPath}/magic-link/verify`, authRequestHandler);
+
+// Email verification
+app.get(`${authPath}/verify-email`, authRequestHandler);
+
+// Password reset routes
+app.get(`${authPath}/reset-password/*`, authRequestHandler);
+
+// General auth routes (GET)
+app.get(`${authPath}/*`, authRequestHandler);
+
+// General auth routes (POST)
+app.post(`${authPath}/*`, authRequestHandler);
 
 // Chat streaming endpoint
 app.post("/chat/stream", async (c) => {
@@ -38,10 +78,7 @@ app.post("/chat/improve-prompt", async (c) => {
 
 // Email webhook endpoint
 app.post("/email/resend/webhook", async (c) => {
-    const handler = httpAction(async (ctx, req) => {
-        return await resend.handleResendEventWebhook(ctx, req);
-    });
-    return handler(c.env, c.req.raw);
+    return await resend.handleResendEventWebhook(c.env, c.req.raw);
 });
 
 // Example API endpoint demonstrating Hono's health check
@@ -53,20 +90,6 @@ app.get("/api/health", async (c) => {
     });
 });
 
-// Example endpoint with path parameters
-app.get("/api/user/:userId", async (c) => {
-    const userId = c.req.param("userId");
-
-    // You could call a Convex query here
-    // const user = await c.env.runQuery(api.users.get, { userId });
-
-    return c.json({
-        userId,
-        message: `User ${userId} endpoint accessed via Hono routing`
-    });
-});
-
-// Custom 404 response
 app.notFound((c) => {
     return c.json({
         error: "Endpoint not found",
@@ -84,10 +107,4 @@ app.onError((error, c) => {
     }, 500);
 });
 
-// Create the HTTP router with Hono integration
-const http = new HttpRouterWithHono(app);
-
-// Register Better Auth routes
-betterAuthComponent.registerRoutes(http, createAuth);
-
-export default http;
+export default new HttpRouterWithHono(app);

@@ -148,7 +148,7 @@ export const updateThread = action({
     },
 });
 
-export const streamHttpAction = httpAction(async (ctx, request) => {
+export const streamHttpAction = async (ctx, request) => {
     const { threadId, prompt, model, fileIds } = (await request.json()) as {
         threadId?: string;
         prompt?: string;
@@ -222,7 +222,7 @@ export const streamHttpAction = httpAction(async (ctx, request) => {
     const result = await thread.streamText({ promptMessageId: messageId });
 
     return result.toDataStreamResponse();
-});
+};
 
 export const createTitleChat = internalAction({
     args: { threadId: v.string(), prompt: v.string() },
@@ -793,7 +793,7 @@ Original prompt to improve: "${prompt.trim()}"`;
 });
 
 // HTTP action for prompt improvement (wrapper around the action)
-export const improvePromptHttpAction = httpAction(async (ctx, request) => {
+export const improvePromptHttpAction = async (ctx, request) => {
     // Parse the request body
     const body = await request.json();
     const { prompt, threadId, improvementInstructions } = body;
@@ -827,7 +827,7 @@ export const improvePromptHttpAction = httpAction(async (ctx, request) => {
             headers: { "Content-Type": "application/json" },
         });
     }
-});
+};
 
 export const getFullThreadForExport = query({
     args: {
