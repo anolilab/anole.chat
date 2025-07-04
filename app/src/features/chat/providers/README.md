@@ -8,7 +8,7 @@ The provider is composed of a primary provider component and a dedicated hook fo
 
 ```
 providers/
-├── convex-external-runtime-provider.tsx  # Main orchestrating provider
+├── convex-external-runtime-provider.tsx     # Main orchestrating provider
 ├── message-handlers.ts                      # Message streaming and processing logic
 ├── thread-list-adapter.ts                   # Thread management operations
 ├── types.ts                                 # Type definitions and utilities
