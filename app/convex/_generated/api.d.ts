@@ -123,7 +123,7 @@ export declare const components: {
         "mutation",
         "internal",
         { fileIds: Array<string>; force?: boolean },
-        null
+        Array<string>
       >;
       get: FunctionReference<
         "query",
@@ -1915,6 +1915,36 @@ export declare const components: {
           splitCursor?: string | null;
         }
       >;
+      searchThreadTitles: FunctionReference<
+        "query",
+        "internal",
+        {
+          paginationOpts?: {
+            cursor: string | null;
+            endCursor?: string | null;
+            id?: number;
+            maximumBytesRead?: number;
+            maximumRowsRead?: number;
+            numItems: number;
+          };
+          query: string;
+          userId?: string | null;
+        },
+        {
+          continueCursor: string;
+          isDone: boolean;
+          page: Array<{
+            _creationTime: number;
+            _id: string;
+            status: "active" | "archived";
+            summary?: string;
+            title?: string;
+            userId?: string;
+          }>;
+          pageStatus?: "SplitRecommended" | "SplitRequired" | null;
+          splitCursor?: string | null;
+        }
+      >;
       updateThread: FunctionReference<
         "mutation",
         "internal",
@@ -1923,6 +1953,7 @@ export declare const components: {
             status?: "active" | "archived";
             summary?: string;
             title?: string;
+            userId?: string;
           };
           threadId: string;
         },
@@ -2333,6 +2364,17 @@ export declare const components: {
     };
   };
   betterAuth: {
+    adapterTest: {
+      count: FunctionReference<"query", "internal", any, any>;
+      create: FunctionReference<"mutation", "internal", any, any>;
+      delete: FunctionReference<"mutation", "internal", any, any>;
+      deleteMany: FunctionReference<"mutation", "internal", any, any>;
+      findMany: FunctionReference<"query", "internal", any, any>;
+      findOne: FunctionReference<"query", "internal", any, any>;
+      isAuthenticated: FunctionReference<"query", "internal", {}, any>;
+      update: FunctionReference<"mutation", "internal", any, any>;
+      updateMany: FunctionReference<"mutation", "internal", any, any>;
+    };
     lib: {
       create: FunctionReference<
         "mutation",

@@ -21,6 +21,46 @@ The application uses Convex as its comprehensive serverless backend platform, pr
 - **HTTP Actions**: Public API endpoints (e.g., `/convex-http/chat/improve-prompt`)
 - **Cron Jobs**: Scheduled tasks for maintenance and cleanup operations
 
+### Advanced HTTP Router with Hono
+
+The project integrates Hono for enhanced HTTP endpoint capabilities:
+
+**Hono Integration Pattern** (`convex/http.ts`):
+
+```typescript
+// Create Hono app with Convex context
+const app: HonoWithConvex<ActionCtx> = new Hono();
+
+// Add middleware
+app.use("*", logger());
+app.use("*", cors({ /* options */ }));
+
+// Define routes
+app.post("/chat/stream", async (c) => {
+    return await streamHttpAction(c.env, c.req.raw);
+});
+
+// Create HTTP router with Better Auth integration
+const http = new HttpRouterWithHono(app);
+betterAuthComponent.registerRoutes(http, createAuth);
+```
+
+**Enhanced Features**:
+
+- **Dynamic Routing**: Path parameters and complex route patterns
+- **Middleware Stack**: Logging, CORS, custom authentication middleware
+- **Input Validation**: Built-in request validation capabilities
+- **Error Handling**: Structured error responses and custom 404 pages
+- **Response Helpers**: JSON formatting, pretty printing, custom headers
+- **Dashboard Integration**: Full integration with Convex dashboard for metrics and logging
+
+**Routing Advantages**:
+
+- **Slug Routes**: Support for patterns like `/api/user/:userId`
+- **Middleware Composition**: Chainable middleware for cross-cutting concerns
+- **Type Safety**: Full TypeScript support with Convex context
+- **Better Debugging**: Enhanced logging and error reporting in Convex dashboard
+
 ### Authentication Integration
 
 - **Better Auth Integration**: Full-featured authentication via `@convex-dev/better-auth`

@@ -27,6 +27,30 @@ This document outlines the technologies and dependencies used in the AI Chat App
 - **Functions**: Convex Functions (Queries, Mutations, Actions, HTTP endpoints)
 - **Rate Limiting**: `@convex-dev/rate-limiter` for API protection
 - **Migrations**: `@convex-dev/migrations` for schema changes
+- **HTTP Framework**: Hono v4.8+ with Convex integration (`convex-helpers/server/hono`)
+
+### Advanced HTTP Endpoints with Hono
+
+The project uses Hono for advanced HTTP endpoint features:
+
+- **Dynamic Routing**: Support for path parameters (e.g., `/api/user/:userId`)
+- **Middleware System**: CORS, logging, and custom middleware
+- **Input Validation**: Request body and query parameter validation
+- **Error Handling**: Structured error responses and custom 404 pages
+- **Response Helpers**: JSON formatting with pretty printing
+
+**Current HTTP Endpoints:**
+- `POST /chat/stream` - AI chat streaming endpoint
+- `POST /chat/improve-prompt` - Prompt improvement endpoint  
+- `POST /email/resend/webhook` - Email service webhook
+- `GET /api/health` - Health check endpoint
+- `GET /api/user/:userId` - Example parameterized endpoint
+
+**Features Enabled:**
+- CORS support for all origins with credential handling
+- Request/response logging for debugging
+- Custom 404 and 500 error responses
+- Integration with existing Better Auth routes
 
 ## AI & LLM Integration
 
