@@ -18,7 +18,7 @@ async function downloadModels() {
     try {
         const response = await fetch(MODELS_API_URL, {
             headers: {
-                'User-Agent': '@visulima/models-database (using SST models.dev data)',
+                'User-Agent': '@anolilab/models-database (using SST models.dev data)',
                 'Accept': 'application/json',
             },
         });

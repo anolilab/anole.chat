@@ -1,6 +1,6 @@
 # Examples
 
-This folder contains comprehensive examples demonstrating all features of the `@visulima/models-database` package.
+This folder contains comprehensive examples demonstrating all features of the `@anolilab/models-database` package.
 
 **Data Source**: All examples use data from [SST's models.dev project](https://github.com/sst/models.dev/tree/dev).
 

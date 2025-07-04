@@ -1,4 +1,4 @@
-# @visulima/models-database
+# @anolilab/models-database
 
 A TypeScript package for accessing and searching AI model information from [models.dev](https://models.dev).
 
@@ -16,27 +16,21 @@ A TypeScript package for accessing and searching AI model information from [mode
 
 ## Installation
 
-```bash
-pnpm add @visulima/models-database
+```sh
+npm install --save-dev @anolilab/models-database
+```
+
+```sh
+yarn add -D @anolilab/models-database
+```
+
+```sh
+pnpm add -D @anolilab/models-database
 ```
 
 ## Quick Start
 
-### 1. Download Model Data
-
-First, download the latest model data from models.dev:
-
-```bash
-# Using the download script
-node scripts/download.js
-
-# Or using npm/pnpm scripts
-pnpm run download
-```
-
-This downloads the model data to `src/models.json`.
-
-### 2. Search and Query Models
+### 1. Search and Query Models
 
 ```typescript
 import { 
@@ -44,7 +38,7 @@ import {
     getModel, 
     getModelsByProvider,
     getStats 
-} from '@visulima/models-database';
+} from '@anolilab/models-database';
 
 // Get database statistics
 const stats = getStats();

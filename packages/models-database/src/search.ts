@@ -1,5 +1,5 @@
 /**
- * @visulima/models-database
+ * @anolilab/models-database
  * 
  * AI models database search and query functionality.
  * 
