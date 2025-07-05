@@ -68,6 +68,99 @@ betterAuthComponent.registerRoutes(http, createAuth);
 - **Multi-Factor Authentication**: TOTP, passkeys, and magic link support
 - **Authorization Patterns**: Role-based access control and user-scoped data access
 
+### Last Chat ID Redirect Pattern
+
+**User Experience Continuity**: Seamless return to last active conversation after login
+
+**Database Schema Pattern**:
+
+```typescript
+// userSettings table enhancement
+userSettings: defineTable({
+    userId: v.id("user"),
+    lastChatId: v.optional(v.string()),
+    // ... other settings
+}).index("by_userId", ["userId"])
+```
+
+**Backend Functions Pattern**:
+
+```typescript
+// Get user's last chat ID
+export const getLastChatId = query({
+    args: {},
+    returns: v.union(v.string(), v.null()),
+    handler: async (ctx): Promise<string | null> => {
+        const userId = await requireUserId(ctx);
+        const userSettings = await ctx.db
+            .query("userSettings")
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .unique();
+        return userSettings?.lastChatId ?? null;
+    },
+});
+
+// Save current chat ID
+export const updateLastChatId = mutation({
+    args: { chatId: v.string() },
+    handler: async (ctx, { chatId }) => {
+        const userId = await requireUserId(ctx);
+        await updateOrCreateUserSettings(ctx, userId, { lastChatId: chatId });
+    },
+});
+```
+
+**Route Integration Pattern**:
+
+```typescript
+// Chat route automatically saves visited chat ID
+beforeLoad: async ({ context, params }) => {
+    // ... validation logic ...
+    
+    // Save last chat ID after validation
+    try {
+        await context.convexClient.mutation(api.user.functions.updateLastChatId, {
+            chatId: params.threadId,
+        });
+    } catch (error) {
+        console.warn("Failed to save last chat ID:", error);
+        // Continue loading - non-critical operation
+    }
+},
+```
+
+**Redirect Utility Pattern**:
+
+```typescript
+// Reusable redirect logic
+export const getAuthRedirectUrl = async (convex: ConvexReactClient): Promise<string> => {
+    try {
+        const lastChatId = await convex.query(api.user.functions.getLastChatId);
+        
+        if (lastChatId) {
+            const threadExists = await convex.query(api.chat.functions.validateThreadExists, {
+                threadId: lastChatId,
+            });
+            
+            if (threadExists) {
+                return `/chat/${lastChatId}`;
+            }
+        }
+    } catch (error) {
+        console.warn("Failed to get last chat ID:", error);
+    }
+    
+    return "/chat"; // Default fallback
+};
+```
+
+**Multi-Flow Integration**:
+
+- **Email Login**: Uses redirect utility in success callback
+- **Social Login**: Pre-populates callback URL with redirect logic
+- **Public Routes**: Redirects authenticated users to last chat
+- **Error Resilience**: Graceful fallbacks ensure system reliability
+
 ## AI Integration Architecture
 
 ### Convex Agent Component Integration

@@ -4,6 +4,8 @@ import { useRouter } from "@tanstack/react-router";
 import type { ErrorContext } from "better-auth/react";
 import type { SocialProvider } from "better-auth/social-providers";
 import { toast } from "sonner";
+import { useConvex } from "convex/react";
+import { getAuthRedirectUrl } from "@/lib/utils";
 
 const authQueryKeys = {
     session: ["session"],
@@ -17,6 +19,8 @@ export const useSession = () => {
 
 export const useLogin = () => {
     const router = useRouter();
+    const convex = useConvex();
+
     const loginWithCredentials = useMutation({
         mutationFn: async ({ email, password, rememberMe }: { email: string; password: string; rememberMe: boolean }) => {
             return await authClient.signIn.email({
@@ -24,8 +28,9 @@ export const useLogin = () => {
                 password,
                 rememberMe,
                 fetchOptions: {
-                    onSuccess: () => {
-                        router.navigate({ to: "/chat" });
+                    onSuccess: async () => {
+                        const redirectUrl = await getAuthRedirectUrl(convex);
+                        router.navigate({ to: redirectUrl });
                     },
                     onError(error: ErrorContext) {
                         console.log("loginWithCredentials onError", error);
@@ -51,11 +56,24 @@ export const useLogin = () => {
     });
 
     const loginWithSocial = useMutation({
-        mutationFn: async ({ provider, callbackURL }: { provider: SocialProvider; callbackURL: string }) =>
-            await authClient.signIn.social({
+        mutationFn: async ({ provider, callbackURL }: { provider: SocialProvider; callbackURL?: string }) => {
+            // If no callback URL provided, use the redirect logic to determine where to go
+            let finalCallbackURL = callbackURL;
+
+            if (!finalCallbackURL) {
+                try {
+                    finalCallbackURL = await getAuthRedirectUrl(convex);
+                } catch (error) {
+                    console.warn("Failed to get redirect URL for social login:", error);
+                    finalCallbackURL = "/chat";
+                }
+            }
+
+            return await authClient.signIn.social({
                 provider,
-                callbackURL: callbackURL || "/chat",
-            }),
+                callbackURL: finalCallbackURL,
+            });
+        },
     });
 
     return {

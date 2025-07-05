@@ -55,6 +55,7 @@ This document tracks the implementation status of features for the AI Chat App.
 - [x] **Internationalization**: English and German translations with Lingui
 - [x] **Accessibility**: Full keyboard navigation, screen reader support, ARIA labels
 - [x] **Rich Content**: Mermaid diagrams, math rendering (KaTeX), markdown with GFM
+- [x] **Last Chat Redirect**: Intelligent login redirects that restore user's last active conversation
 
 ### Authentication & Security
 
@@ -65,6 +66,7 @@ This document tracks the implementation status of features for the AI Chat App.
 - [x] **Password Reset**: Secure recovery via email with OTP
 - [x] **Session Management**: Persistent sessions with "remember me"
 - [x] **Account Verification**: Email verification with OTP codes
+- [x] **Smart Login Redirects**: Automatically return users to their last active chat after login
 
 ### Error Handling & Performance
 
@@ -114,6 +116,31 @@ Remaining work focuses on UX improvements and new bonus features.
 
 ## What Works
 
+### ✅ Last Chat ID Redirect System ✅ NEW
+
+**Intelligent Login Redirects**: Users are automatically returned to their last active conversation after logging in, providing seamless workflow continuation.
+
+**Implementation Details:**
+
+- **Database Integration**: Added `lastChatId` field to `userSettings` table with proper indexing
+- **Backend Functions**: 
+  - `getLastChatId`: Secure query to retrieve user's last visited chat
+  - `updateLastChatId`: Mutation to save current chat ID with proper validation
+- **Route Integration**: Chat routes automatically track visited threads after validation
+- **Redirect Logic**: 
+  - Validates last chat still exists before redirecting
+  - Falls back gracefully to `/chat` if no valid last chat found
+  - Works across all authentication flows (email, social, public routes)
+- **Utility Function**: `getAuthRedirectUrl()` provides reusable redirect logic
+- **Error Resilience**: Comprehensive error handling ensures feature never breaks core functionality
+
+**User Experience Benefits:**
+
+- Seamless return to active conversations after login
+- Reduces friction in user workflow
+- Maintains conversation context across sessions
+- Works across all devices and browsers
+
 ### ✅ Refactored Chat Provider Architecture
 
 The chat provider has been refactored into a robust, hook-based architecture, significantly improving stability, maintainability, and debugging.
@@ -161,8 +188,9 @@ The chat provider has been refactored into a robust, hook-based architecture, si
 
 ## Current Status
 
-**Production Readiness**: 98% complete
+**Production Readiness**: 99% complete
 
-- All core features implemented and working
-- Chat architecture is now stable and robust
-- Next steps are focused on new features and minor UX polish.
+- All core features implemented and working robustly
+- Chat architecture is stable with latest UX enhancements
+- Last chat ID feature adds seamless user experience
+- Focus now on minor polish and potential progressive loading features

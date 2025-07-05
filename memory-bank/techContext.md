@@ -157,6 +157,14 @@ The frontend streaming is managed by a collection of custom React hooks designed
 - **Environment**: `@t3-oss/env-core` for environment variable validation
 - **Fake Data**: Faker.js for development and testing
 
+### Utility Functions
+
+- **`getAuthRedirectUrl()`**: Intelligent login redirect utility that returns users to their last active chat
+  - Validates last chat ID exists and is still accessible
+  - Provides graceful fallbacks to `/chat` for reliability
+  - Integrates with all authentication flows (email, social, public routes)
+  - Uses ConvexReactClient for real-time data validation
+
 ## Performance & Monitoring
 
 - **Analytics**: PostHog integration for user analytics and error tracking

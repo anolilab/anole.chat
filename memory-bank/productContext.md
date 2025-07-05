@@ -18,9 +18,10 @@ The application should feel fast, responsive, and intuitive.
 - **Seamless AI Integration**: Interacting with the AI should be seamless. The app should provide helpful features like prompt improvement and handle streaming responses gracefully.
 - **User-centric Design**: The user should have powerful tools to organize and navigate their conversations. Features like keyboard shortcuts, drag-and-drop reordering, and virtual scrolling for long lists are crucial for a good power-user experience.
 - **Reliability**: The application should be robust, with clear error handling and rate limiting to ensure a stable experience.
+- **Conversation Continuity**: Users should be able to seamlessly return to their active conversations across sessions, maintaining their workflow without friction.
 
 ## User Experience Goals
 
 - **Fun and Engaging**: The app should be enjoyable to use. The look and feel can be creative and unique.
-- **Productive**: For users who rely on AI chat for their work, the app should provide features that make them more efficient.
+- **Productive**: For users who rely on AI chat for their work, the app should provide features that make them more efficient. Features like automatic return to last conversation after login reduce cognitive load and maintain workflow momentum.
 - **Easy to Start**: While packed with features, the initial experience should be simple enough for a new user to start a conversation with an AI immediately.
