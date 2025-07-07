@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react"
 import {
     AuthUIProvider,
     type AuthUIProviderProps
-} from "../../lib/auth-ui-provider"
+} from "../auth-ui-provider"
 import { useTanstackOptions } from "./use-tanstack-options"
 
 export function AuthUIProviderTanstack({
