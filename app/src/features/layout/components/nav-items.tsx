@@ -1,51 +1,53 @@
-import { Folder, Forward, type LucideIcon, Trash2 } from "lucide-react";
-
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { type LucideIcon } from "lucide-react";
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
+
+const colorModeClasses = {
+    light: {
+        group: "group-data-[collapsible=icon]:hidden",
+        label: "text-gray-700 dark:text-gray-300",
+        button: "text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800",
+        icon: "text-gray-600 dark:text-gray-400",
+    },
+    dark: {
+        group: "group-data-[collapsible=icon]:hidden",
+        label: "text-white/90",
+        button: "text-white/80 hover:text-white hover:bg-white/10 data-[state=open]:bg-white/10 data-[active=true]:bg-white/10",
+        icon: "text-white/70",
+    },
+};
+
+export type NavItem = {
+    name: string;
+    url: string;
+    icon: LucideIcon;
+};
+
+export type ColorMode = "light" | "dark";
 
 export function NavItems({
     items,
     label,
+    colorMode = "light",
 }: {
-    items: {
-        name: string;
-        url: string;
-        icon: LucideIcon;
-    }[];
+    items: NavItem[];
     label: string;
+    colorMode?: ColorMode;
 }) {
-    const { isMobile } = useSidebar();
+    const classes = colorModeClasses[colorMode];
 
     return (
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-            <SidebarGroupLabel>{label}</SidebarGroupLabel>
+        <SidebarGroup className={classes.group}>
+            <SidebarGroupLabel className={classes.label}>{label}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
                     <SidebarMenuItem key={item.name}>
-                        <SidebarMenuButton asChild>
+                        <SidebarMenuButton asChild className={classes.button}>
                             <Link to={item.url}>
-                                <item.icon />
+                                <item.icon className={classes.icon} />
                                 <span>{item.name}</span>
                             </Link>
                         </SidebarMenuButton>
-                        <DropdownMenu>
-                            <DropdownMenuContent className="w-48 rounded-lg" side={isMobile ? "bottom" : "right"} align={isMobile ? "end" : "start"}>
-                                <DropdownMenuItem>
-                                    <Folder className="text-muted-foreground" />
-                                    <span>View Project</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <Forward className="text-muted-foreground" />
-                                    <span>Share Project</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <Trash2 className="text-muted-foreground" />
-                                    <span>Delete Project</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                     </SidebarMenuItem>
                 ))}
             </SidebarMenu>
