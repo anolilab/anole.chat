@@ -17,7 +17,7 @@ import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start
 import { createServerFn } from "@tanstack/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
-import { authClient } from "@/features/auth/lib/client";
+import { authClient } from "@/lib/auth/client";
 import { DEFAULT_LOCALE } from "@/lib/intl/client";
 import { i18n } from "@lingui/core";
 import ScreenSizeDebug from "@/components/screen-size-debug";

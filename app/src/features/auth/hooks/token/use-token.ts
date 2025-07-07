@@ -4,8 +4,8 @@ import { useCallback, useContext, useEffect, useMemo } from "react"
 import { AuthQueryContext } from "../../lib/auth-query-provider"
 
 import type { AnyAuthClient } from "../../types/auth-core-types"
-import { useSession } from "../session/use-session"
 import { useAuthQuery } from "../shared/use-auth-query"
+import { useSession } from "../session-user-management"
 
 export const decodeJwt = (token: string) => {
     const decode = (data: string) => {

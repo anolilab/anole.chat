@@ -18,7 +18,7 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2, Plus, RefreshCw, Trash, UserCircle } from "lucide-react";
 import { useState } from "react";
 import { Toaster, toast } from "sonner";
-import { authClient } from "@/features/auth/lib/client";
+import { authClient } from "@/lib/auth/client";
 
 export default function AdminDashboard() {
     const { t } = useLingui();

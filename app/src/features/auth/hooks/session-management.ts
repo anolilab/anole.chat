@@ -5,7 +5,7 @@ import { AuthQueryContext, type AuthQueryOptions } from "../lib/auth-query-provi
 import type { AnyAuthClient } from "../types/auth-core-types"
 import { useAuthQuery } from "./shared/use-auth-query"
 import { useAuthMutation } from "./shared/use-auth-mutation"
-import { useSession } from "./session/use-session"
+import { useSession } from "./session-user-management"
 
 // Session Listing Hook
 export function useListSessions<TAuthClient extends AnyAuthClient>(

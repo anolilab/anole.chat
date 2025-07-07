@@ -1,9 +1,7 @@
-import type { ReactNode } from "react"
 import type { SocialProvider } from "better-auth/social-providers"
-import type { CaptchaProvider } from "./captcha-provider"
-import type { PasswordValidation } from "./password-validation"
 import type { Provider } from "../lib/social-providers"
 import type { AuthClient } from "./auth-core-types"
+import type { CaptchaProvider, PasswordValidation } from "./form-validation-types"
 
 // Avatar Configuration Types (from avatar-options.ts)
 export type AvatarOptions = {

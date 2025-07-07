@@ -16,8 +16,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useLingui } from "@lingui/react/macro";
-import { authClient } from "@/features/auth/lib/client";
-import type { AuthClient } from "@/features/auth/lib/client";
+import { authClient } from "@/lib/auth/client";
+import type { AuthClient } from "@/lib/auth/client";
 
 type ActiveOrganization = Awaited<ReturnType<typeof authClient.organization.getFullOrganization>>;
 

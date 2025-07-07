@@ -11,7 +11,6 @@ import {
 } from "react"
 import { toast } from "sonner"
 
-import { RecaptchaV3 } from "../components/captcha/recaptcha-v3"
 import { useAuthData } from "../hooks/use-auth-data"
 import {
     type AuthLocalization,
@@ -828,11 +827,7 @@ export const AuthUIProvider = ({
                     authClient.useListOrganizations) && (
                     <OrganizationRefetcher />
                 )}
-            {captcha?.provider === "google-recaptcha-v3" ? (
-                <RecaptchaV3>{children}</RecaptchaV3>
-            ) : (
-                children
-            )}
+            {children}
         </AuthUIContext.Provider>
     )
 }

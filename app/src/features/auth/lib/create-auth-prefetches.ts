@@ -1,6 +1,6 @@
 import type { AnyUseQueryOptions, QueryClient } from "@tanstack/react-query"
 
-import type { AnyAuthClient } from "../types/any-auth-client"
+import type { AnyAuthClient } from "../types/auth-core-types"
 import { type AuthQueryOptions, defaultAuthQueryOptions } from "./auth-query-provider"
 import { prefetchSession } from "./prefetch-session"
 

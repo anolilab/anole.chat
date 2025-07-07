@@ -3,7 +3,7 @@ import { useContext } from "react"
 
 import { AuthQueryContext } from "../../lib/auth-query-provider"
 
-import type { AuthClient } from "../../types/auth-client"
+import type { AuthClient } from "../../types/auth-core-types"
 import { useAuthQuery } from "../shared/use-auth-query"
 
 export function useListApiKeys<TAuthClient extends AuthClient>(

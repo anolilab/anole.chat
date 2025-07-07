@@ -18,6 +18,13 @@ import { I18nProvider } from "@lingui/react";
 import { env } from "@/lib/env";
 import type { ReactNode } from "react";
 
+// Auth providers
+import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
+import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
+import { authClient } from "@/lib/auth/client";
+import { Link } from "@tanstack/react-router";
+import type { AnyAuthClient } from "./features/auth/types/auth-core-types";
+
 export const createRouter = ({ i18n }: { i18n: I18n }) => {
     const convex = new ConvexReactClient(env.VITE_CONVEX_URL, {
         unsavedChangesWarning: false,
@@ -58,7 +65,35 @@ export const createRouter = ({ i18n }: { i18n: I18n }) => {
                         <GlobalErrorBoundaryProvider>
                             <AnalyticsProvider>
                                 <ConvexProvider client={convexQueryClient.convexClient}>
-                                    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+                                    <QueryClientProvider client={queryClient}>
+                                        <AuthQueryProvider>
+                                            <AuthUIProviderTanstack
+                                                authClient={authClient as unknown as AnyAuthClient}
+                                                navigate={(href) => {
+                                                    // Use router navigate if available, fallback to window.location
+                                                    const router = (window as any).__tanstack_router__;
+                                                    if (router) {
+                                                        router.navigate({ to: href });
+                                                    } else {
+                                                        window.location.href = href;
+                                                    }
+                                                }}
+                                                replace={(href) => {
+                                                    const router = (window as any).__tanstack_router__;
+                                                    if (router) {
+                                                        router.navigate({ to: href, replace: true });
+                                                    } else {
+                                                        window.location.replace(href);
+                                                    }
+                                                }}
+                                                onSessionChange={() => queryClient.invalidateQueries()}
+                                                persistClient={false}
+                                                Link={({ href, ...props }) => <Link to={href} {...props} />}
+                                            >
+                                                {props.children}
+                                            </AuthUIProviderTanstack>
+                                        </AuthQueryProvider>
+                                    </QueryClientProvider>
                                 </ConvexProvider>
                             </AnalyticsProvider>
                         </GlobalErrorBoundaryProvider>

@@ -5,8 +5,6 @@ import { type RefObject, useContext } from "react"
 import { useTheme } from "next-themes"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import type { AuthLocalization } from "../../localization/auth-localization"
-import { RecaptchaBadge } from "./recaptcha-badge"
-import { RecaptchaV2 } from "./recaptcha-v2"
 
 // Default captcha endpoints
 const DEFAULT_CAPTCHA_ENDPOINTS = [
@@ -22,7 +20,7 @@ interface CaptchaProps {
     action?: string // Optional action to check if it's in the endpoints list
 }
 
-export function Captcha({ ref, localization, action }: CaptchaProps) {
+export function Captcha({ ref, action }: CaptchaProps) {
     const { captcha } = useContext(AuthUIContext)
     if (!captcha) return null
 
@@ -37,24 +35,12 @@ export function Captcha({ ref, localization, action }: CaptchaProps) {
     const { resolvedTheme } = useTheme()
     const theme = resolvedTheme === "dark" ? "dark" : "light"
 
-    const showRecaptchaV2 =
-        captcha.provider === "google-recaptcha-v2-checkbox" ||
-        captcha.provider === "google-recaptcha-v2-invisible"
-
-    const showRecaptchaBadge =
-        captcha.provider === "google-recaptcha-v3" ||
-        captcha.provider === "google-recaptcha-v2-invisible"
-
     const showTurnstile = captcha.provider === "cloudflare-turnstile"
 
     const showHCaptcha = captcha.provider === "hcaptcha"
 
     return (
         <>
-            {showRecaptchaV2 && <RecaptchaV2 ref={ref} />}
-            {showRecaptchaBadge && (
-                <RecaptchaBadge localization={localization} />
-            )}
             {showTurnstile && (
                 <Turnstile
                     className="mx-auto"

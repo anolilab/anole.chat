@@ -58,4 +58,12 @@ export type AnyAuthClient = Omit<
 >
 
 // Better Auth Type (from better-auth.ts)
-export type BetterAuth = ReturnType<typeof betterAuth> 
+export type BetterAuth = ReturnType<typeof betterAuth>
+
+// Result Types for auth mutations
+export type NonThrowableResult<T> = {
+    data: T | null
+    error: Error | null
+}
+
+export type ThrowableResult<T> = T 

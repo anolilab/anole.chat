@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InvitationError } from "@/features/auth/components/invitation-error";
-import { authClient } from "@/features/auth/lib/client";
+import { authClient } from "@/lib/auth/client";
 import { useLingui } from "@lingui/react/macro";
 import { useRouter, createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, XIcon } from "lucide-react";

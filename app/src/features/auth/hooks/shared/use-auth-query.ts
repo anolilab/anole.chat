@@ -5,7 +5,7 @@ import { useContext } from "react"
 
 import { AuthQueryContext } from "../../lib/auth-query-provider"
 import type { AnyAuthClient } from "../../types/auth-core-types"
-import { useSession } from "../session/use-session"
+import { useSession } from "../session-user-management"
 
 export type BetterFetchRequest<TData> = ({
     fetchOptions

@@ -1,7 +1,7 @@
 "use client"
 
-import type { BetterFetchError } from "@better-fetch/fetch"
-import type { CheckedState } from "@radix-ui/react-checkbox"
+import type { BetterFetchError } from "better-auth/react"
+import type { Checkbox as CheckboxPrimitive } from "radix-ui"
 import { Loader2, QrCodeIcon, SendIcon } from "lucide-react"
 import { useContext, useEffect, useRef, useState } from "react"
 import QRCode from "react-qr-code"
@@ -274,7 +274,7 @@ export function TwoFactorForm({
                                     <field.FormControl>
                                         <Checkbox
                                             checked={field.state.value}
-                                            onCheckedChange={(checked: CheckedState) => {
+                                            onCheckedChange={(checked: CheckboxPrimitive.CheckedState) => {
                                                 field.handleChange(checked === true)
                                             }}
                                             disabled={isSubmitting}

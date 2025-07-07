@@ -1,7 +1,8 @@
 import { type QueryKey, useMutation, useQueryClient } from "@tanstack/react-query"
 import type { BetterFetchOption } from "better-auth/react"
 import { useContext } from "react"
-import type { AuthQueryOptions, NonThrowableResult, ThrowableResult } from "../.."
+import type { AuthQueryOptions } from "../../lib/auth-query-provider"
+import type { NonThrowableResult, ThrowableResult } from "../../types/auth-core-types"
 import { AuthQueryContext } from "../../lib/auth-query-provider"
 import { useOnMutateError } from "./use-mutate-error"
 
