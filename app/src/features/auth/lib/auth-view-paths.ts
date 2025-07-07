@@ -32,8 +32,8 @@ export const authViewPaths = {
     /** @default "sign-up" */
     SIGN_UP: "sign-up",
     /** @default "two-factor" */
-    TWO_FACTOR: "two-factor"
-}
+    TWO_FACTOR: "two-factor",
+};
 
-export type AuthViewPaths = typeof authViewPaths
-export type AuthView = keyof AuthViewPaths
+export type AuthViewPaths = typeof authViewPaths;
+export type AuthView = keyof AuthViewPaths;

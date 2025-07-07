@@ -11,7 +11,7 @@ export const SendMagicLinkEmail = ({ username, url, token }: { username: string;
                 Sign In
             </Button>
             <Text className="mt-4 text-gray-600">Or copy and paste this link in your browser:</Text>
-            <Text className="font-medium break-all text-blue-600">{url}</Text>
+            <Text className="break-all font-medium text-blue-600">{url}</Text>
             <Text className="mt-6 text-sm text-gray-500">If you didn't request this magic link, you can safely ignore this email.</Text>
         </EmailLayout>
     );

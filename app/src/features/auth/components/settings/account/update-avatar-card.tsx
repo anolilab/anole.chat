@@ -1,121 +1,99 @@
-"use client"
+"use client";
 
-import { Trash2Icon, UploadCloudIcon } from "lucide-react"
-import { type ComponentProps, useContext, useRef, useState } from "react"
+import { Trash2Icon, UploadCloudIcon } from "lucide-react";
+import { type ComponentProps, useContext, useRef, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils"
-import { cn } from "@/lib/utils"
-import { getLocalizedError } from "../../../lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
-import { UserAvatar } from "../../user-avatar"
-import type { SettingsCardClassNames } from "../shared/settings-card"
-import { SettingsCardFooter } from "../shared/settings-card-footer"
-import { SettingsCardHeader } from "../shared/settings-card-header"
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
+import { cn } from "@/lib/utils";
+import { getLocalizedError } from "../../../lib/utils";
+import type { AuthLocalization } from "../../../localization/auth-localization";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { UserAvatar } from "../../user-avatar";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { SettingsCardFooter } from "../shared/settings-card-footer";
+import { SettingsCardHeader } from "../shared/settings-card-header";
 
 export interface UpdateAvatarCardProps extends ComponentProps<typeof Card> {
-    className?: string
-    classNames?: SettingsCardClassNames
-    localization?: AuthLocalization
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    localization?: AuthLocalization;
 }
 
-export function UpdateAvatarCard({
-    className,
-    classNames,
-    localization,
-    ...props
-}: UpdateAvatarCardProps) {
+export function UpdateAvatarCard({ className, classNames, localization, ...props }: UpdateAvatarCardProps) {
     const {
         hooks: { useSession },
         mutators: { updateUser },
         localization: authLocalization,
         optimistic,
         avatar,
-        toast
-    } = useContext(AuthUIContext)
+        toast,
+    } = useContext(AuthUIContext);
 
-    localization = { ...authLocalization, ...localization }
+    localization = { ...authLocalization, ...localization };
 
-    const { data: sessionData, isPending, refetch } = useSession()
-    const fileInputRef = useRef<HTMLInputElement | null>(null)
-    const [loading, setLoading] = useState(false)
+    const { data: sessionData, isPending, refetch } = useSession();
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [loading, setLoading] = useState(false);
 
     const handleAvatarChange = async (file: File) => {
-        if (!sessionData || !avatar) return
+        if (!sessionData || !avatar) return;
 
-        setLoading(true)
-        const resizedFile = await resizeAndCropImage(
-            file,
-            crypto.randomUUID(),
-            avatar.size,
-            avatar.extension
-        )
+        setLoading(true);
+        const resizedFile = await resizeAndCropImage(file, crypto.randomUUID(), avatar.size, avatar.extension);
 
-        let image: string | undefined | null
+        let image: string | undefined | null;
 
         if (avatar.upload) {
-            image = await avatar.upload(resizedFile)
+            image = await avatar.upload(resizedFile);
         } else {
-            image = await fileToBase64(resizedFile)
+            image = await fileToBase64(resizedFile);
         }
 
         if (!image) {
-            setLoading(false)
-            return
+            setLoading(false);
+            return;
         }
 
-        if (optimistic && !avatar.upload) setLoading(false)
+        if (optimistic && !avatar.upload) setLoading(false);
 
         try {
-            await updateUser({ image })
-            await refetch?.()
+            await updateUser({ image });
+            await refetch?.();
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+                message: getLocalizedError({ error, localization }),
+            });
         }
 
-        setLoading(false)
-    }
+        setLoading(false);
+    };
 
     const handleDeleteAvatar = async () => {
-        if (!sessionData) return
+        if (!sessionData) return;
 
-        setLoading(true)
+        setLoading(true);
 
         try {
-            await updateUser({ image: null })
-            await refetch?.()
+            await updateUser({ image: null });
+            await refetch?.();
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+                message: getLocalizedError({ error, localization }),
+            });
         }
 
-        setLoading(false)
-    }
+        setLoading(false);
+    };
 
-    const openFileDialog = () => fileInputRef.current?.click()
+    const openFileDialog = () => fileInputRef.current?.click();
 
     return (
-        <Card
-            className={cn(
-                "w-full pb-0 text-start",
-                className,
-                classNames?.base
-            )}
-            {...props}
-        >
+        <Card className={cn("w-full pb-0 text-start", className, classNames?.base)} {...props}>
             <input
                 ref={fileInputRef}
                 accept="image/*"
@@ -123,10 +101,10 @@ export function UpdateAvatarCard({
                 hidden
                 type="file"
                 onChange={(e) => {
-                    const file = e.target.files?.item(0)
-                    if (file) handleAvatarChange(file)
+                    const file = e.target.files?.item(0);
+                    if (file) handleAvatarChange(file);
 
-                    e.target.value = ""
+                    e.target.value = "";
                 }}
             />
 
@@ -141,11 +119,7 @@ export function UpdateAvatarCard({
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button
-                            className="me-6 size-fit rounded-full"
-                            size="icon"
-                            variant="ghost"
-                        >
+                        <Button className="me-6 size-fit rounded-full" size="icon" variant="ghost">
                             <UserAvatar
                                 isPending={isPending || loading}
                                 key={sessionData?.user.image}
@@ -157,23 +131,13 @@ export function UpdateAvatarCard({
                         </Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent
-                        align="end"
-                        onCloseAutoFocus={(e) => e.preventDefault()}
-                    >
-                        <DropdownMenuItem
-                            onClick={openFileDialog}
-                            disabled={loading}
-                        >
+                    <DropdownMenuContent align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
+                        <DropdownMenuItem onClick={openFileDialog} disabled={loading}>
                             <UploadCloudIcon />
                             {localization.UPLOAD_AVATAR}
                         </DropdownMenuItem>
                         {sessionData?.user.image && (
-                            <DropdownMenuItem
-                                onClick={handleDeleteAvatar}
-                                disabled={loading}
-                                variant="destructive"
-                            >
+                            <DropdownMenuItem onClick={handleDeleteAvatar} disabled={loading} variant="destructive">
                                 <Trash2Icon />
                                 {localization.DELETE_AVATAR}
                             </DropdownMenuItem>
@@ -190,5 +154,5 @@ export function UpdateAvatarCard({
                 isSubmitting={loading}
             />
         </Card>
-    )
+    );
 }

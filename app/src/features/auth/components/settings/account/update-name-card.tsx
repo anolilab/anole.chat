@@ -1,25 +1,20 @@
-"use client"
+"use client";
 
-import { useContext } from "react"
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import type { SettingsCardProps } from "../shared/settings-card"
-import { UpdateFieldCard } from "./update-field-card"
+import { useContext } from "react";
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import type { SettingsCardProps } from "../shared/settings-card";
+import { UpdateFieldCard } from "./update-field-card";
 
-export function UpdateNameCard({
-    className,
-    classNames,
-    localization,
-    ...props
-}: SettingsCardProps) {
+export function UpdateNameCard({ className, classNames, localization, ...props }: SettingsCardProps) {
     const {
         hooks: { useSession },
         localization: contextLocalization,
-        nameRequired
-    } = useContext(AuthUIContext)
+        nameRequired,
+    } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization }
+    localization = { ...contextLocalization, ...localization };
 
-    const { data: sessionData } = useSession()
+    const { data: sessionData } = useSession();
 
     return (
         <UpdateFieldCard
@@ -35,5 +30,5 @@ export function UpdateNameCard({
             required={nameRequired}
             {...props}
         />
-    )
+    );
 }

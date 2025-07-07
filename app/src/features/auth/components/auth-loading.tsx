@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { type ReactNode, useContext } from "react"
-import { AuthUIContext } from "../lib/auth-ui-provider"
+import { type ReactNode, useContext } from "react";
+import { AuthUIContext } from "../lib/auth-ui-provider";
 
 /**
  * Conditionally renders content during authentication loading state
@@ -13,9 +13,9 @@ import { AuthUIContext } from "../lib/auth-ui-provider"
  */
 export function AuthLoading({ children }: { children: ReactNode }) {
     const {
-        hooks: { useSession }
-    } = useContext(AuthUIContext)
-    const { isPending } = useSession()
+        hooks: { useSession },
+    } = useContext(AuthUIContext);
+    const { isPending } = useSession();
 
-    return isPending ? children : null
+    return isPending ? children : null;
 }

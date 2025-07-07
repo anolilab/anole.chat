@@ -5,7 +5,7 @@ A comprehensive, feature-rich authentication system built as a local feature for
 ## ✨ Features
 
 - 🔐 **Complete Authentication Flow** - Sign in, sign up, password reset, email verification
-- 👥 **Multi-Account Support** - Link multiple providers, switch between accounts  
+- 👥 **Multi-Account Support** - Link multiple providers, switch between accounts
 - 🏢 **Organization Management** - Teams, roles, permissions, invitations
 - 🔑 **Advanced Security** - Two-factor auth, passkeys, session management
 - 🎨 **Beautiful UI Components** - Pre-built, customizable components with Tailwind CSS
@@ -30,12 +30,12 @@ npm install @tanstack/react-router @tanstack/react-query better-auth
 
 ```typescript
 // app/lib/auth-client.ts
-import { createClient } from "better-auth/client"
+import { createClient } from "better-auth/client";
 
 export const authClient = createClient({
-  baseURL: process.env.BETTER_AUTH_URL!,
-  // Additional configuration...
-})
+    baseURL: process.env.BETTER_AUTH_URL!,
+    // Additional configuration...
+});
 ```
 
 2. **Set up Providers** (TanStack Start)
@@ -57,7 +57,7 @@ const queryClient = new QueryClient({
 
 export function Providers({ children }: { children: ReactNode }) {
     const router = useRouter()
-    
+
     return (
         <QueryClientProvider client={queryClient}>
             <AuthQueryProvider>
@@ -78,14 +78,16 @@ export function Providers({ children }: { children: ReactNode }) {
 ```
 
 **Key Props:**
+
 - `persistClient`: Set to `false` for TanStack Router (only needed for offline auth with persist query client)
 - `navigate`: Router navigation function
-- `replace`: Router replace function  
+- `replace`: Router replace function
 - `onSessionChange`: Invalidate router cache on session changes
 - `Link`: Custom Link component for navigation
 
 **TanStack Query Integration:**
 The `AuthUIProviderTanstack` component is a **wrapper around `AuthUIProvider`** that adds TanStack Query integration:
+
 - Automatically handles query invalidation on session changes
 - Optimistic updates for better UX
 - Query cache management during authentication flows
@@ -93,6 +95,7 @@ The `AuthUIProviderTanstack` component is a **wrapper around `AuthUIProvider`** 
 - **Architecture**: `AuthUIProviderTanstack` → `AuthUIProvider` (core)
 
 **When to Use Which Provider:**
+
 - **Use `AuthUIProviderTanstack`**: When using TanStack Query for state management (recommended)
 - **Use `AuthUIProvider`**: Only if you're not using TanStack Query (rare cases)
 
@@ -176,6 +179,7 @@ features/auth/
 ```
 
 **Key Benefits:**
+
 - ✅ **75% file reduction** through intelligent consolidation
 - ✅ **Feature-based grouping** for easier navigation
 - ✅ **No barrel files** for optimal tree-shaking
@@ -221,42 +225,31 @@ import { UserButton } from "@/features/auth/components/user-button"
 ### Account Management
 
 ```typescript
-import { 
-    useListAccounts, 
-    useUnlinkAccount 
-} from "@/features/auth/hooks/account-management"
+import { useListAccounts, useUnlinkAccount } from "@/features/auth/hooks/account-management";
 
-const { data: accounts } = useListAccounts(authClient)
-const { mutate: unlinkAccount } = useUnlinkAccount(authClient)
+const { data: accounts } = useListAccounts(authClient);
+const { mutate: unlinkAccount } = useUnlinkAccount(authClient);
 ```
 
 ### Session Management
 
 ```typescript
-import { 
-    useSession,
-    useListSessions,
-    useRevokeSession
-} from "@/features/auth/hooks/session-management"
+import { useSession, useListSessions, useRevokeSession } from "@/features/auth/hooks/session-management";
 
-const { data: session } = useSession(authClient)
-const { data: sessions } = useListSessions(authClient)
-const { mutate: revokeSession } = useRevokeSession(authClient)
+const { data: session } = useSession(authClient);
+const { data: sessions } = useListSessions(authClient);
+const { mutate: revokeSession } = useRevokeSession(authClient);
 ```
 
 ### Organization Management
 
 ```typescript
-import { 
-    useActiveOrganization,
-    useListOrganizations,
-    useHasPermission
-} from "@/features/auth/hooks/organization-management"
+import { useActiveOrganization, useListOrganizations, useHasPermission } from "@/features/auth/hooks/organization-management";
 
-const { data: organization } = useActiveOrganization(authClient)
+const { data: organization } = useActiveOrganization(authClient);
 const { data: hasPermission } = useHasPermission(authClient, {
-    permissions: { organization: ["update"] }
-})
+    permissions: { organization: ["update"] },
+});
 ```
 
 ## ⚙️ Configuration
@@ -343,7 +336,7 @@ import { authLocalization } from "@/features/auth/localization/auth-localization
 All components support custom CSS classes through the `classNames` prop:
 
 ```typescript
-<AuthCard 
+<AuthCard
     pathname="sign-in"
     classNames={{
         base: "custom-card-styles",
@@ -359,7 +352,7 @@ All components support custom CSS classes through the `classNames` prop:
 Components are built with Tailwind CSS and support all utility classes:
 
 ```typescript
-<UserButton 
+<UserButton
     className="fixed top-4 right-4"
     classNames={{
         avatar: "ring-2 ring-blue-500",
@@ -373,27 +366,27 @@ Components are built with Tailwind CSS and support all utility classes:
 ### Custom Authentication Flow
 
 ```typescript
-import { useAuthMutation } from "@/features/auth/hooks/shared/use-auth-mutation"
+import { useAuthMutation } from "@/features/auth/hooks/shared/use-auth-mutation";
 
 const signIn = useAuthMutation({
     mutationFn: authClient.signIn.email,
     onSuccess: (data) => {
         // Handle successful sign in
-        router.navigate({ to: "/dashboard" })
+        router.navigate({ to: "/dashboard" });
     },
     onError: (error) => {
         // Handle error
-        toast.error(error.message)
-    }
-})
+        toast.error(error.message);
+    },
+});
 
 // Use in component
 const handleSignIn = () => {
     signIn.mutate({
         email: "user@example.com",
-        password: "password"
-    })
-}
+        password: "password",
+    });
+};
 ```
 
 ### Organization Permissions
@@ -421,41 +414,36 @@ const ProtectedComponent = () => {
 
 ### Providers
 
-| Provider | Description | Usage |
-|----------|-------------|-------|
+| Provider                 | Description                          | Usage                                |
+| ------------------------ | ------------------------------------ | ------------------------------------ |
 | `AuthUIProviderTanstack` | TanStack Query wrapper (recommended) | Use with TanStack Query applications |
-| `AuthUIProvider` | Core authentication provider | Direct use (without TanStack Query) |
-| `AuthQueryProvider` | TanStack Query configuration | Configure query options and caching |
+| `AuthUIProvider`         | Core authentication provider         | Direct use (without TanStack Query)  |
+| `AuthQueryProvider`      | TanStack Query configuration         | Configure query options and caching  |
 
 ### Components
 
-| Component | Description | Props |
-|-----------|-------------|-------|
-| `AuthCard` | Main authentication interface | `pathname`, `classNames`, `localization` |
-| `UserButton` | User profile dropdown | `className`, `classNames`, `localization` |
-| `SettingsCards` | Account/security settings | `view`, `classNames`, `localization` |
-| `OrganizationSettingsCards` | Organization management | `classNames`, `localization` |
+| Component                   | Description                   | Props                                     |
+| --------------------------- | ----------------------------- | ----------------------------------------- |
+| `AuthCard`                  | Main authentication interface | `pathname`, `classNames`, `localization`  |
+| `UserButton`                | User profile dropdown         | `className`, `classNames`, `localization` |
+| `SettingsCards`             | Account/security settings     | `view`, `classNames`, `localization`      |
+| `OrganizationSettingsCards` | Organization management       | `classNames`, `localization`              |
 
 ### Hooks
 
-| Hook | Purpose | Parameters |
-|------|---------|------------|
-| `useSession` | Get current session | `authClient`, `options` |
-| `useListAccounts` | List linked accounts | `authClient`, `options` |
-| `useActiveOrganization` | Get active organization | `authClient`, `options` |
-| `useHasPermission` | Check permissions | `authClient`, `permissions` |
+| Hook                    | Purpose                 | Parameters                  |
+| ----------------------- | ----------------------- | --------------------------- |
+| `useSession`            | Get current session     | `authClient`, `options`     |
+| `useListAccounts`       | List linked accounts    | `authClient`, `options`     |
+| `useActiveOrganization` | Get active organization | `authClient`, `options`     |
+| `useHasPermission`      | Check permissions       | `authClient`, `permissions` |
 
 ### Types
 
 All types are available with full TypeScript support:
 
 ```typescript
-import type {
-    AuthClient,
-    SessionData,
-    Organization,
-    AuthLocalization
-} from "@/features/auth/types"
+import type { AuthClient, SessionData, Organization, AuthLocalization } from "@/features/auth/types";
 ```
 
 ## 🚀 Performance

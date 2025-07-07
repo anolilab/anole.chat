@@ -1,43 +1,36 @@
-"use client"
+"use client";
 
-import { useContext, useState } from "react"
+import { useContext, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import { SettingsCard } from "../shared/settings-card"
-import type { SettingsCardClassNames } from "../shared/settings-card"
-import { DeleteAccountDialog } from "./delete-account-dialog"
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import type { AuthLocalization } from "../../../localization/auth-localization";
+import { SettingsCard } from "../shared/settings-card";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { DeleteAccountDialog } from "./delete-account-dialog";
 
 export interface DeleteAccountCardProps {
-    className?: string
-    classNames?: SettingsCardClassNames
-    accounts?: { provider: string }[] | null
-    isPending?: boolean
-    localization?: AuthLocalization
-    skipHook?: boolean
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    accounts?: { provider: string }[] | null;
+    isPending?: boolean;
+    localization?: AuthLocalization;
+    skipHook?: boolean;
 }
 
-export function DeleteAccountCard({
-    className,
-    classNames,
-    accounts,
-    isPending,
-    localization,
-    skipHook
-}: DeleteAccountCardProps) {
+export function DeleteAccountCard({ className, classNames, accounts, isPending, localization, skipHook }: DeleteAccountCardProps) {
     const {
         hooks: { useListAccounts },
-        localization: contextLocalization
-    } = useContext(AuthUIContext)
+        localization: contextLocalization,
+    } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization }
+    localization = { ...contextLocalization, ...localization };
 
-    const [showDialog, setShowDialog] = useState(false)
+    const [showDialog, setShowDialog] = useState(false);
 
     if (!skipHook) {
-        const result = useListAccounts()
-        accounts = result.data
-        isPending = result.isPending
+        const result = useListAccounts();
+        accounts = result.data;
+        isPending = result.isPending;
     }
 
     return (
@@ -53,13 +46,7 @@ export function DeleteAccountCard({
                 action={() => setShowDialog(true)}
             />
 
-            <DeleteAccountDialog
-                classNames={classNames}
-                accounts={accounts}
-                localization={localization}
-                open={showDialog}
-                onOpenChange={setShowDialog}
-            />
+            <DeleteAccountDialog classNames={classNames} accounts={accounts} localization={localization} open={showDialog} onOpenChange={setShowDialog} />
         </div>
-    )
+    );
 }

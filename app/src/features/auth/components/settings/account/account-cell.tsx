@@ -1,40 +1,29 @@
-"use client"
+"use client";
 
-import type { Session, User } from "better-auth"
-import { EllipsisIcon, Loader2, LogOutIcon, RepeatIcon } from "lucide-react"
-import { useContext, useState } from "react"
+import type { Session, User } from "better-auth";
+import { EllipsisIcon, Loader2, LogOutIcon, RepeatIcon } from "lucide-react";
+import { useContext, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { getLocalizedError } from "../../../lib/utils"
-import { cn } from "@/lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { Refetch } from "../../../types/hook-integration-types"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
-import { UserView } from "../../user-view"
-import type { SettingsCardClassNames } from "../shared/settings-card"
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import { getLocalizedError } from "../../../lib/utils";
+import { cn } from "@/lib/utils";
+import type { AuthLocalization } from "../../../localization/auth-localization";
+import type { Refetch } from "../../../types/hook-integration-types";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { UserView } from "../../user-view";
+import type { SettingsCardClassNames } from "../shared/settings-card";
 
 export interface AccountCellProps {
-    className?: string
-    classNames?: SettingsCardClassNames
-    deviceSession: { user: User; session: Session }
-    localization?: Partial<AuthLocalization>
-    refetch?: Refetch
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    deviceSession: { user: User; session: Session };
+    localization?: Partial<AuthLocalization>;
+    refetch?: Refetch;
 }
 
-export function AccountCell({
-    className,
-    classNames,
-    deviceSession,
-    localization,
-    refetch
-}: AccountCellProps) {
+export function AccountCell({ className, classNames, deviceSession, localization, refetch }: AccountCellProps) {
     const {
         basePath,
         localization: contextLocalization,
@@ -42,52 +31,51 @@ export function AccountCell({
         mutators: { revokeDeviceSession, setActiveSession },
         toast,
         viewPaths,
-        navigate
-    } = useContext(AuthUIContext)
+        navigate,
+    } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization }
+    localization = { ...contextLocalization, ...localization };
 
-    const { data: sessionData } = useSession()
-    const [isLoading, setIsLoading] = useState(false)
+    const { data: sessionData } = useSession();
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleRevoke = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
 
         try {
             await revokeDeviceSession({
-                sessionToken: deviceSession.session.token
-            })
-            refetch?.()
+                sessionToken: deviceSession.session.token,
+            });
+            refetch?.();
         } catch (error) {
-            setIsLoading(false)
+            setIsLoading(false);
 
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+                message: getLocalizedError({ error, localization }),
+            });
         }
-    }
+    };
 
     const handleSetActiveSession = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
 
         try {
             await setActiveSession({
-                sessionToken: deviceSession.session.token
-            })
-            refetch?.()
+                sessionToken: deviceSession.session.token,
+            });
+            refetch?.();
         } catch (error) {
-            setIsLoading(false)
+            setIsLoading(false);
 
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+                message: getLocalizedError({ error, localization }),
+            });
         }
-    }
+    };
 
-    const isCurrentSession =
-        deviceSession.session.id === sessionData?.session.id
+    const isCurrentSession = deviceSession.session.id === sessionData?.session.id;
 
     return (
         <Card className={cn("flex-row p-4", className, classNames?.cell)}>
@@ -96,21 +84,13 @@ export function AccountCell({
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
-                        className={cn(
-                            "relative ms-auto",
-                            classNames?.button,
-                            classNames?.outlineButton
-                        )}
+                        className={cn("relative ms-auto", classNames?.button, classNames?.outlineButton)}
                         disabled={isLoading}
                         size="icon"
                         type="button"
                         variant="outline"
                     >
-                        {isLoading ? (
-                            <Loader2 className="animate-spin" />
-                        ) : (
-                            <EllipsisIcon className={classNames?.icon} />
-                        )}
+                        {isLoading ? <Loader2 className="animate-spin" /> : <EllipsisIcon className={classNames?.icon} />}
                     </Button>
                 </DropdownMenuTrigger>
 
@@ -126,21 +106,19 @@ export function AccountCell({
                     <DropdownMenuItem
                         onClick={() => {
                             if (isCurrentSession) {
-                                navigate(`${basePath}/${viewPaths.SIGN_OUT}`)
-                                return
+                                navigate(`${basePath}/${viewPaths.SIGN_OUT}`);
+                                return;
                             }
 
-                            handleRevoke()
+                            handleRevoke();
                         }}
                     >
                         <LogOutIcon className={classNames?.icon} />
 
-                        {isCurrentSession
-                            ? localization.SIGN_OUT
-                            : localization.REVOKE}
+                        {isCurrentSession ? localization.SIGN_OUT : localization.REVOKE}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </Card>
-    )
+    );
 }

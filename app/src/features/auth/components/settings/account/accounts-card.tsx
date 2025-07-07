@@ -1,36 +1,32 @@
-"use client"
-import { useContext } from "react"
+"use client";
+import { useContext } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import { CardContent } from "@/components/ui/card"
-import { SettingsCard } from "../shared/settings-card"
-import type { SettingsCardClassNames } from "../shared/settings-card"
-import { AccountCell } from "./account-cell"
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import type { AuthLocalization } from "../../../localization/auth-localization";
+import { CardContent } from "@/components/ui/card";
+import { SettingsCard } from "../shared/settings-card";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { AccountCell } from "./account-cell";
 
 export interface AccountsCardProps {
-    className?: string
-    classNames?: SettingsCardClassNames
-    localization?: Partial<AuthLocalization>
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    localization?: Partial<AuthLocalization>;
 }
 
-export function AccountsCard({
-    className,
-    classNames,
-    localization
-}: AccountsCardProps) {
+export function AccountsCard({ className, classNames, localization }: AccountsCardProps) {
     const {
         basePath,
         hooks: { useListDeviceSessions },
         localization: contextLocalization,
         viewPaths,
-        navigate
-    } = useContext(AuthUIContext)
+        navigate,
+    } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization }
+    localization = { ...contextLocalization, ...localization };
 
-    const { data: deviceSessions, isPending, refetch } = useListDeviceSessions()
+    const { data: deviceSessions, isPending, refetch } = useListDeviceSessions();
 
     return (
         <SettingsCard
@@ -57,5 +53,5 @@ export function AccountsCard({
                 </CardContent>
             )}
         </SettingsCard>
-    )
+    );
 }

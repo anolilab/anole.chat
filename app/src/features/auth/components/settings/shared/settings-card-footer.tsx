@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils"
-import { CardDescription, CardFooter } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { SettingsActionButton } from "./settings-action-button"
-import type { SettingsCardClassNames } from "./settings-card"
+import { cn } from "@/lib/utils";
+import { CardDescription, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SettingsActionButton } from "./settings-action-button";
+import type { SettingsCardClassNames } from "./settings-card";
 
 export interface SettingsCardFooterProps {
-    className?: string
-    classNames?: SettingsCardClassNames
-    actionLabel?: ReactNode
-    disabled?: boolean
-    instructions?: ReactNode
-    isPending?: boolean
-    isSubmitting?: boolean
-    optimistic?: boolean
-    variant?: "default" | "destructive"
-    action?: () => Promise<unknown> | unknown
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    actionLabel?: ReactNode;
+    disabled?: boolean;
+    instructions?: ReactNode;
+    isPending?: boolean;
+    isSubmitting?: boolean;
+    optimistic?: boolean;
+    variant?: "default" | "destructive";
+    action?: () => Promise<unknown> | unknown;
 }
 
 export function SettingsCardFooter({
@@ -30,49 +30,28 @@ export function SettingsCardFooter({
     isPending,
     isSubmitting,
     variant,
-    action
+    action,
 }: SettingsCardFooterProps) {
     return (
         <CardFooter
             className={cn(
                 "flex flex-col justify-between gap-4 rounded-b-xl md:flex-row",
-                (actionLabel || instructions) && "!py-4 border-t",
-                variant === "destructive"
-                    ? "border-destructive/30 bg-destructive/15"
-                    : "bg-sidebar",
+                (actionLabel || instructions) && "border-t !py-4",
+                variant === "destructive" ? "border-destructive/30 bg-destructive/15" : "bg-sidebar",
                 className,
-                classNames?.footer
+                classNames?.footer,
             )}
         >
             {isPending ? (
                 <>
-                    {instructions && (
-                        <Skeleton
-                            className={cn(
-                                "my-0.5 h-3 w-48 max-w-full md:h-4 md:w-56",
-                                classNames?.skeleton
-                            )}
-                        />
-                    )}
+                    {instructions && <Skeleton className={cn("my-0.5 h-3 w-48 max-w-full md:h-4 md:w-56", classNames?.skeleton)} />}
 
-                    {actionLabel && (
-                        <Skeleton
-                            className={cn(
-                                "h-8 w-14 md:ms-auto",
-                                classNames?.skeleton
-                            )}
-                        />
-                    )}
+                    {actionLabel && <Skeleton className={cn("h-8 w-14 md:ms-auto", classNames?.skeleton)} />}
                 </>
             ) : (
                 <>
                     {instructions && (
-                        <CardDescription
-                            className={cn(
-                                "text-center text-muted-foreground text-xs md:text-start md:text-sm",
-                                classNames?.instructions
-                            )}
-                        >
+                        <CardDescription className={cn("text-muted-foreground text-center text-xs md:text-start md:text-sm", classNames?.instructions)}>
                             {instructions}
                         </CardDescription>
                     )}
@@ -90,5 +69,5 @@ export function SettingsCardFooter({
                 </>
             )}
         </CardFooter>
-    )
+    );
 }

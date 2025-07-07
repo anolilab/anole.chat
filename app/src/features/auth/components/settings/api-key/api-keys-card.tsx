@@ -1,38 +1,33 @@
-"use client"
+"use client";
 
-import { useContext, useState } from "react"
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import { CardContent } from "@/components/ui/card"
-import { SettingsCard } from "../shared/settings-card"
-import type { SettingsCardProps } from "../shared/settings-card"
-import { APIKeyCell } from "./api-key-cell"
-import { APIKeyDisplayDialog } from "./api-key-display-dialog"
-import { CreateAPIKeyDialog } from "./create-api-key-dialog"
+import { useContext, useState } from "react";
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import { CardContent } from "@/components/ui/card";
+import { SettingsCard } from "../shared/settings-card";
+import type { SettingsCardProps } from "../shared/settings-card";
+import { APIKeyCell } from "./api-key-cell";
+import { APIKeyDisplayDialog } from "./api-key-display-dialog";
+import { CreateAPIKeyDialog } from "./create-api-key-dialog";
 
-export function APIKeysCard({
-    className,
-    classNames,
-    localization,
-    ...props
-}: SettingsCardProps) {
+export function APIKeysCard({ className, classNames, localization, ...props }: SettingsCardProps) {
     const {
         hooks: { useListApiKeys },
-        localization: contextLocalization
-    } = useContext(AuthUIContext)
+        localization: contextLocalization,
+    } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization }
+    localization = { ...contextLocalization, ...localization };
 
-    const { data: apiKeys, isPending, refetch } = useListApiKeys()
+    const { data: apiKeys, isPending, refetch } = useListApiKeys();
 
-    const [createDialogOpen, setCreateDialogOpen] = useState(false)
-    const [displayDialogOpen, setDisplayDialogOpen] = useState(false)
-    const [createdApiKey, setCreatedApiKey] = useState("")
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    const [displayDialogOpen, setDisplayDialogOpen] = useState(false);
+    const [createdApiKey, setCreatedApiKey] = useState("");
 
     const handleCreateApiKey = (apiKey: string) => {
-        setCreatedApiKey(apiKey)
-        setDisplayDialogOpen(true)
-    }
+        setCreatedApiKey(apiKey);
+        setDisplayDialogOpen(true);
+    };
 
     return (
         <>
@@ -48,17 +43,9 @@ export function APIKeysCard({
                 {...props}
             >
                 {apiKeys && apiKeys.length > 0 && (
-                    <CardContent
-                        className={cn("grid gap-4", classNames?.content)}
-                    >
+                    <CardContent className={cn("grid gap-4", classNames?.content)}>
                         {apiKeys?.map((apiKey) => (
-                            <APIKeyCell
-                                key={apiKey.id}
-                                classNames={classNames}
-                                apiKey={apiKey}
-                                localization={localization}
-                                refetch={refetch}
-                            />
+                            <APIKeyCell key={apiKey.id} classNames={classNames} apiKey={apiKey} localization={localization} refetch={refetch} />
                         ))}
                     </CardContent>
                 )}
@@ -81,5 +68,5 @@ export function APIKeysCard({
                 onOpenChange={setDisplayDialogOpen}
             />
         </>
-    )
+    );
 }

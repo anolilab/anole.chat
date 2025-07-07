@@ -278,24 +278,20 @@ export function featureUtility(input: string): string {
 ### Common Issues:
 
 1. **Import Path Errors**
-
     - Check relative paths from feature directories
     - Ensure `../` prefix for accessing root-level generated files
     - Remember agents.ts is now in `ai/lib/agents.ts`
 
 2. **API Reference Errors**
-
     - Update frontend calls to use `api.{feature}.functions.{functionName}`
     - Use `internal.betterAuth.getSession` for session validation (root level)
     - Update backend calls to use `internal.{feature}.functions.{functionName}`
 
 3. **Schema Not Found**
-
     - Ensure feature schema is exported as `{feature}Tables`
     - Verify main schema imports and spreads the feature tables
 
 4. **Function Not Found**
-
     - Check function is exported from correct `functions.ts` file
     - Verify API reference uses correct path structure
     - Note: Auth functions are in root `betterAuth.ts`, not `auth/functions.ts`

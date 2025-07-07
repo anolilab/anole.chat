@@ -1,71 +1,42 @@
-"use client"
+"use client";
 
-import { CheckIcon, CopyIcon } from "lucide-react"
-import { type ComponentProps, useContext, useState } from "react"
+import { CheckIcon, CopyIcon } from "lucide-react";
+import { type ComponentProps, useContext, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
-} from "@/components/ui/dialog"
-import type { SettingsCardClassNames } from "../shared/settings-card"
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { SettingsCardClassNames } from "../shared/settings-card";
 
 interface BackupCodesDialogProps extends ComponentProps<typeof Dialog> {
-    classNames?: SettingsCardClassNames
-    backupCodes: string[]
+    classNames?: SettingsCardClassNames;
+    backupCodes: string[];
 }
 
-export function BackupCodesDialog({
-    classNames,
-    backupCodes,
-    onOpenChange,
-    ...props
-}: BackupCodesDialogProps) {
-    const { localization } = useContext(AuthUIContext)
-    const [copied, setCopied] = useState(false)
+export function BackupCodesDialog({ classNames, backupCodes, onOpenChange, ...props }: BackupCodesDialogProps) {
+    const { localization } = useContext(AuthUIContext);
+    const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
-        const codeText = backupCodes.join("\n")
-        navigator.clipboard.writeText(codeText)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-    }
+        const codeText = backupCodes.join("\n");
+        navigator.clipboard.writeText(codeText);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     return (
         <Dialog onOpenChange={onOpenChange} {...props}>
-            <DialogContent
-                onOpenAutoFocus={(e) => e.preventDefault()}
-                className={classNames?.dialog?.content}
-            >
+            <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle
-                        className={cn("text-lg md:text-xl", classNames?.title)}
-                    >
-                        {localization.BACKUP_CODES}
-                    </DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.BACKUP_CODES}</DialogTitle>
 
-                    <DialogDescription
-                        className={cn(
-                            "text-xs md:text-sm",
-                            classNames?.description
-                        )}
-                    >
-                        {localization.BACKUP_CODES_DESCRIPTION}
-                    </DialogDescription>
+                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>{localization.BACKUP_CODES_DESCRIPTION}</DialogDescription>
                 </DialogHeader>
 
                 <div className="grid grid-cols-2 gap-2">
                     {backupCodes.map((code, index) => (
-                        <div
-                            key={index}
-                            className="rounded-md bg-muted p-2 text-center font-mono text-sm"
-                        >
+                        <div key={index} className="bg-muted rounded-md p-2 text-center font-mono text-sm">
                             {code}
                         </div>
                     ))}
@@ -77,10 +48,7 @@ export function BackupCodesDialog({
                         variant="outline"
                         onClick={handleCopy}
                         disabled={copied}
-                        className={cn(
-                            classNames?.button,
-                            classNames?.outlineButton
-                        )}
+                        className={cn(classNames?.button, classNames?.outlineButton)}
                     >
                         {copied ? (
                             <>
@@ -95,19 +63,11 @@ export function BackupCodesDialog({
                         )}
                     </Button>
 
-                    <Button
-                        type="button"
-                        variant="default"
-                        onClick={() => onOpenChange?.(false)}
-                        className={cn(
-                            classNames?.button,
-                            classNames?.primaryButton
-                        )}
-                    >
+                    <Button type="button" variant="default" onClick={() => onOpenChange?.(false)} className={cn(classNames?.button, classNames?.primaryButton)}>
                         {localization.CONTINUE}
                     </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    )
+    );
 }

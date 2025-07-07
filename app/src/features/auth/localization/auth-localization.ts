@@ -1,26 +1,13 @@
-import {
-    ADMIN_ERROR_CODES,
-    ANONYMOUS_ERROR_CODES,
-    BASE_ERROR_CODES
-} from "./auth-core-errors"
-import {
-    EMAIL_OTP_ERROR_CODES,
-    PASSKEY_ERROR_CODES,
-    TWO_FACTOR_ERROR_CODES,
-    PHONE_NUMBER_ERROR_CODES,
-    USERNAME_ERROR_CODES
-} from "./auth-method-errors"
+import { ADMIN_ERROR_CODES, ANONYMOUS_ERROR_CODES, BASE_ERROR_CODES } from "./auth-core-errors";
+import { EMAIL_OTP_ERROR_CODES, PASSKEY_ERROR_CODES, TWO_FACTOR_ERROR_CODES, PHONE_NUMBER_ERROR_CODES, USERNAME_ERROR_CODES } from "./auth-method-errors";
 import {
     CAPTCHA_ERROR_CODES,
     GENERIC_OAUTH_ERROR_CODES,
     HAVEIBEENPWNED_ERROR_CODES,
     MULTI_SESSION_ERROR_CODES,
-    STRIPE_ERROR_CODES
-} from "./auth-integration-errors"
-import {
-    API_KEY_ERROR_CODES,
-    ORGANIZATION_ERROR_CODES
-} from "./auth-feature-errors"
+    STRIPE_ERROR_CODES,
+} from "./auth-integration-errors";
+import { API_KEY_ERROR_CODES, ORGANIZATION_ERROR_CODES } from "./auth-feature-errors";
 
 export const authLocalization = {
     /** @default "Account" */
@@ -48,8 +35,7 @@ export const authLocalization = {
     AVATAR: "Avatar",
 
     /** @default "Click on the avatar to upload a custom one from your files." */
-    AVATAR_DESCRIPTION:
-        "Click on the avatar to upload a custom one from your files.",
+    AVATAR_DESCRIPTION: "Click on the avatar to upload a custom one from your files.",
 
     /** @default "An avatar is optional but strongly recommended." */
     AVATAR_INSTRUCTIONS: "An avatar is optional but strongly recommended.",
@@ -77,8 +63,7 @@ export const authLocalization = {
     CHANGE_PASSWORD: "Change Password",
 
     /** @default "Enter your current password and a new password." */
-    CHANGE_PASSWORD_DESCRIPTION:
-        "Enter your current password and a new password.",
+    CHANGE_PASSWORD_DESCRIPTION: "Enter your current password and a new password.",
 
     /** @default "Please use 8 characters at minimum." */
     CHANGE_PASSWORD_INSTRUCTIONS: "Please use 8 characters at minimum.",
@@ -129,16 +114,13 @@ export const authLocalization = {
     DELETE_ACCOUNT: "Delete Account",
 
     /** @default "Permanently remove your account and all of its contents. This action is not reversible, so please continue with caution." */
-    DELETE_ACCOUNT_DESCRIPTION:
-        "Permanently remove your account and all of its contents. This action is not reversible, so please continue with caution.",
+    DELETE_ACCOUNT_DESCRIPTION: "Permanently remove your account and all of its contents. This action is not reversible, so please continue with caution.",
 
     /** @default "Please confirm the deletion of your account. This action is not reversible, so please continue with caution." */
-    DELETE_ACCOUNT_INSTRUCTIONS:
-        "Please confirm the deletion of your account. This action is not reversible, so please continue with caution.",
+    DELETE_ACCOUNT_INSTRUCTIONS: "Please confirm the deletion of your account. This action is not reversible, so please continue with caution.",
 
     /** @default "Please check your email to verify the deletion of your account." */
-    DELETE_ACCOUNT_VERIFY:
-        "Please check your email to verify the deletion of your account.",
+    DELETE_ACCOUNT_VERIFY: "Please check your email to verify the deletion of your account.",
 
     /** @default "Your account has been deleted." */
     DELETE_ACCOUNT_SUCCESS: "Your account has been deleted.",
@@ -147,8 +129,7 @@ export const authLocalization = {
     DISABLE_TWO_FACTOR: "Disable Two-Factor",
 
     /** @default "Choose a provider to login to your account" */
-    DISABLED_CREDENTIALS_DESCRIPTION:
-        "Choose a provider to login to your account",
+    DISABLED_CREDENTIALS_DESCRIPTION: "Choose a provider to login to your account",
 
     /** @default "Don't have an account?" */
     DONT_HAVE_AN_ACCOUNT: "Don't have an account?",
@@ -238,8 +219,7 @@ export const authLocalization = {
     EMAIL_OTP_DESCRIPTION: "Enter your email to receive a code",
 
     /** @default "Please check your email for the verification code." */
-    EMAIL_OTP_VERIFICATION_SENT:
-        "Please check your email for the verification code.",
+    EMAIL_OTP_VERIFICATION_SENT: "Please check your email for the verification code.",
 
     /** @default "Name" */
     NAME: "Name",
@@ -290,15 +270,13 @@ export const authLocalization = {
     API_KEYS_DESCRIPTION: "Manage your API keys for secure access.",
 
     /** @default "Generate API keys to access your account programmatically." */
-    API_KEYS_INSTRUCTIONS:
-        "Generate API keys to access your account programmatically.",
+    API_KEYS_INSTRUCTIONS: "Generate API keys to access your account programmatically.",
 
     /** @default "Create API Key" */
     CREATE_API_KEY: "Create API Key",
 
     /** @default "Enter a unique name for your API key to differentiate it from other keys." */
-    CREATE_API_KEY_DESCRIPTION:
-        "Enter a unique name for your API key to differentiate it from other keys.",
+    CREATE_API_KEY_DESCRIPTION: "Enter a unique name for your API key to differentiate it from other keys.",
 
     /** @default "New API Key" */
     API_KEY_NAME_PLACEHOLDER: "New API Key",
@@ -307,8 +285,7 @@ export const authLocalization = {
     API_KEY_CREATED: "API Key Created",
 
     /** @default "Please copy your API key and store it in a safe place. For security reasons we cannot show it again." */
-    CREATE_API_KEY_SUCCESS:
-        "Please copy your API key and store it in a safe place. For security reasons we cannot show it again.",
+    CREATE_API_KEY_SUCCESS: "Please copy your API key and store it in a safe place. For security reasons we cannot show it again.",
 
     /** @default "Never Expires" */
     NEVER_EXPIRES: "Never Expires",
@@ -377,8 +354,7 @@ export const authLocalization = {
     RECOVER_ACCOUNT_ACTION: "Recover account",
 
     /** @default "Please enter a backup code to access your account" */
-    RECOVER_ACCOUNT_DESCRIPTION:
-        "Please enter a backup code to access your account",
+    RECOVER_ACCOUNT_DESCRIPTION: "Please enter a backup code to access your account",
 
     /** @default "Remember me" */
     REMEMBER_ME: "Remember me",
@@ -426,8 +402,7 @@ export const authLocalization = {
     SIGN_IN_DESCRIPTION: "Enter your email below to login to your account",
 
     /** @default "Enter your username or email below to login to your account" */
-    SIGN_IN_USERNAME_DESCRIPTION:
-        "Enter your username or email to login to your account",
+    SIGN_IN_USERNAME_DESCRIPTION: "Enter your username or email to login to your account",
 
     /** @default "Sign in with" */
     SIGN_IN_WITH: "Sign in with",
@@ -457,8 +432,7 @@ export const authLocalization = {
     SET_PASSWORD: "Set Password",
 
     /** @default "Click the button below to receive an email to set up a password for your account." */
-    SET_PASSWORD_DESCRIPTION:
-        "Click the button below to receive an email to set up a password for your account.",
+    SET_PASSWORD_DESCRIPTION: "Click the button below to receive an email to set up a password for your account.",
 
     /** @default "Settings" */
     SETTINGS: "Settings",
@@ -485,12 +459,10 @@ export const authLocalization = {
     TWO_FACTOR_DESCRIPTION: "Please enter your one-time password to continue",
 
     /** @default "Add an extra layer of security to your account." */
-    TWO_FACTOR_CARD_DESCRIPTION:
-        "Add an extra layer of security to your account.",
+    TWO_FACTOR_CARD_DESCRIPTION: "Add an extra layer of security to your account.",
 
     /** @default "Please enter your password to disable 2FA." */
-    TWO_FACTOR_DISABLE_INSTRUCTIONS:
-        "Please enter your password to disable 2FA.",
+    TWO_FACTOR_DISABLE_INSTRUCTIONS: "Please enter your password to disable 2FA.",
 
     /** @default "Please enter your password to enable 2FA" */
     TWO_FACTOR_ENABLE_INSTRUCTIONS: "Please enter your password to enable 2FA.",
@@ -551,8 +523,7 @@ export const authLocalization = {
     LOGO: "Logo",
 
     /** @default "Click on the logo to upload a custom one from your files." */
-    LOGO_DESCRIPTION:
-        "Click on the logo to upload a custom one from your files.",
+    LOGO_DESCRIPTION: "Click on the logo to upload a custom one from your files.",
 
     /** @default "A logo is optional but strongly recommended." */
     LOGO_INSTRUCTIONS: "A logo is optional but strongly recommended.",
@@ -588,15 +559,13 @@ export const authLocalization = {
     ORGANIZATIONS_DESCRIPTION: "Manage your organizations and memberships.",
 
     /** @default "Create an organization to collaborate with other users." */
-    ORGANIZATIONS_INSTRUCTIONS:
-        "Create an organization to collaborate with other users.",
+    ORGANIZATIONS_INSTRUCTIONS: "Create an organization to collaborate with other users.",
 
     /** @default "Leave Organization" */
     LEAVE_ORGANIZATION: "Leave Organization",
 
     /** @default "Are you sure you want to leave this organization?" */
-    LEAVE_ORGANIZATION_CONFIRM:
-        "Are you sure you want to leave this organization?",
+    LEAVE_ORGANIZATION_CONFIRM: "Are you sure you want to leave this organization?",
 
     /** @default "You have successfully left the organization." */
     LEAVE_ORGANIZATION_SUCCESS: "You have successfully left the organization.",
@@ -608,8 +577,7 @@ export const authLocalization = {
     REMOVE_MEMBER: "Remove Member",
 
     /** @default "Are you sure you want to remove this member from the organization?" */
-    REMOVE_MEMBER_CONFIRM:
-        "Are you sure you want to remove this member from the organization?",
+    REMOVE_MEMBER_CONFIRM: "Are you sure you want to remove this member from the organization?",
 
     /** @default "Member removed successfully" */
     REMOVE_MEMBER_SUCCESS: "Member removed successfully",
@@ -627,8 +595,7 @@ export const authLocalization = {
     MEMBERS_INSTRUCTIONS: "Invite new members to your organization.",
 
     /** @default "Send an invitation to add a new member to your organization." */
-    INVITE_MEMBER_DESCRIPTION:
-        "Send an invitation to add a new member to your organization.",
+    INVITE_MEMBER_DESCRIPTION: "Send an invitation to add a new member to your organization.",
 
     /** @default "Role" */
     ROLE: "Role",
@@ -667,8 +634,7 @@ export const authLocalization = {
     PENDING_INVITATIONS: "Pending Invitations",
 
     /** @default "Manage pending invitations to your organization." */
-    PENDING_INVITATIONS_DESCRIPTION:
-        "Manage pending invitations to your organization.",
+    PENDING_INVITATIONS_DESCRIPTION: "Manage pending invitations to your organization.",
 
     /** @default "Cancel Invitation" */
     CANCEL_INVITATION: "Cancel Invitation",
@@ -680,8 +646,7 @@ export const authLocalization = {
     ACCEPT_INVITATION: "Accept Invitation",
 
     /** @default "You have been invited to join an organization." */
-    ACCEPT_INVITATION_DESCRIPTION:
-        "You have been invited to join an organization.",
+    ACCEPT_INVITATION_DESCRIPTION: "You have been invited to join an organization.",
 
     /** @default "Invitation accepted successfully" */
     INVITATION_ACCEPTED: "Invitation accepted successfully",
@@ -709,8 +674,7 @@ export const authLocalization = {
     DELETE_ORGANIZATION_SUCCESS: "Organization deleted successfully",
 
     /** @default "Enter the organization slug to continue:" */
-    DELETE_ORGANIZATION_INSTRUCTIONS:
-        "Enter the organization slug to continue:",
+    DELETE_ORGANIZATION_INSTRUCTIONS: "Enter the organization slug to continue:",
 
     /** @default "Organization slug is required" */
     SLUG_REQUIRED: "Organization slug is required",
@@ -731,7 +695,7 @@ export const authLocalization = {
     ...PHONE_NUMBER_ERROR_CODES,
     ...STRIPE_ERROR_CODES,
     ...TWO_FACTOR_ERROR_CODES,
-    ...USERNAME_ERROR_CODES
-}
+    ...USERNAME_ERROR_CODES,
+};
 
-export type AuthLocalization = Partial<typeof authLocalization>
+export type AuthLocalization = Partial<typeof authLocalization>;

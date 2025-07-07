@@ -1,52 +1,40 @@
-"use client"
+"use client";
 
-import { useContext, useState } from "react"
-import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { User } from "../../../types/auth-core-types"
-import { SettingsCard } from "../shared/settings-card"
-import type { SettingsCardClassNames } from "../shared/settings-card"
-import { TwoFactorPasswordDialog } from "./two-factor-password-dialog"
+import { useContext, useState } from "react";
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import type { AuthLocalization } from "../../../localization/auth-localization";
+import type { User } from "../../../types/auth-core-types";
+import { SettingsCard } from "../shared/settings-card";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { TwoFactorPasswordDialog } from "./two-factor-password-dialog";
 
 export interface TwoFactorCardProps {
-    className?: string
-    classNames?: SettingsCardClassNames
-    localization?: AuthLocalization
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    localization?: AuthLocalization;
 }
 
-export function TwoFactorCard({
-    className,
-    classNames,
-    localization
-}: TwoFactorCardProps) {
+export function TwoFactorCard({ className, classNames, localization }: TwoFactorCardProps) {
     const {
         localization: contextLocalization,
-        hooks: { useSession }
-    } = useContext(AuthUIContext)
+        hooks: { useSession },
+    } = useContext(AuthUIContext);
 
-    const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+    const [showPasswordDialog, setShowPasswordDialog] = useState(false);
 
-    localization = { ...contextLocalization, ...localization }
+    localization = { ...contextLocalization, ...localization };
 
-    const { data: sessionData, isPending } = useSession()
-    const isTwoFactorEnabled = (sessionData?.user as User)?.twoFactorEnabled
+    const { data: sessionData, isPending } = useSession();
+    const isTwoFactorEnabled = (sessionData?.user as User)?.twoFactorEnabled;
 
     return (
         <div>
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                actionLabel={
-                    isTwoFactorEnabled
-                        ? localization.DISABLE_TWO_FACTOR
-                        : localization.ENABLE_TWO_FACTOR
-                }
+                actionLabel={isTwoFactorEnabled ? localization.DISABLE_TWO_FACTOR : localization.ENABLE_TWO_FACTOR}
                 description={localization.TWO_FACTOR_CARD_DESCRIPTION}
-                instructions={
-                    isTwoFactorEnabled
-                        ? localization.TWO_FACTOR_DISABLE_INSTRUCTIONS
-                        : localization.TWO_FACTOR_ENABLE_INSTRUCTIONS
-                }
+                instructions={isTwoFactorEnabled ? localization.TWO_FACTOR_DISABLE_INSTRUCTIONS : localization.TWO_FACTOR_ENABLE_INSTRUCTIONS}
                 isPending={isPending}
                 title={localization.TWO_FACTOR}
                 action={() => setShowPasswordDialog(true)}
@@ -59,5 +47,5 @@ export function TwoFactorCard({
                 isTwoFactorEnabled={!!isTwoFactorEnabled}
             />
         </div>
-    )
+    );
 }

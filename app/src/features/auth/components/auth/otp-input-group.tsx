@@ -1,12 +1,8 @@
-"use client"
+"use client";
 
-import { InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp"
+import { InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
 
-export function OTPInputGroup({
-    otpSeparators = 0
-}: {
-    otpSeparators?: 0 | 1 | 2
-}) {
+export function OTPInputGroup({ otpSeparators = 0 }: { otpSeparators?: 0 | 1 | 2 }) {
     if (otpSeparators === 0) {
         return (
             <InputOTPGroup>
@@ -17,7 +13,7 @@ export function OTPInputGroup({
                 <InputOTPSlot index={4} />
                 <InputOTPSlot index={5} />
             </InputOTPGroup>
-        )
+        );
     }
 
     if (otpSeparators === 1) {
@@ -37,7 +33,7 @@ export function OTPInputGroup({
                     <InputOTPSlot index={5} />
                 </InputOTPGroup>
             </>
-        )
+        );
     }
 
     return (
@@ -61,5 +57,5 @@ export function OTPInputGroup({
                 <InputOTPSlot index={5} />
             </InputOTPGroup>
         </>
-    )
+    );
 }

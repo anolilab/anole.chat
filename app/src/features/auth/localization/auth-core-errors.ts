@@ -26,36 +26,29 @@ export const BASE_ERROR_CODES = {
     SESSION_EXPIRED: "Session expired. Re-authenticate to perform this action.",
     FAILED_TO_UNLINK_LAST_ACCOUNT: "You can't unlink your last account",
     ACCOUNT_NOT_FOUND: "Account not found",
-    USER_ALREADY_HAS_PASSWORD:
-        "User already has a password. Provide that to delete the account."
-}
+    USER_ALREADY_HAS_PASSWORD: "User already has a password. Provide that to delete the account.",
+};
 
 // Admin permission and management errors
 export const ADMIN_ERROR_CODES = {
     FAILED_TO_CREATE_USER: "Failed to create user",
     USER_ALREADY_EXISTS: "User already exists",
     YOU_CANNOT_BAN_YOURSELF: "You cannot ban yourself",
-    YOU_ARE_NOT_ALLOWED_TO_CHANGE_USERS_ROLE:
-        "You are not allowed to change users role",
+    YOU_ARE_NOT_ALLOWED_TO_CHANGE_USERS_ROLE: "You are not allowed to change users role",
     YOU_ARE_NOT_ALLOWED_TO_CREATE_USERS: "You are not allowed to create users",
     YOU_ARE_NOT_ALLOWED_TO_LIST_USERS: "You are not allowed to list users",
-    YOU_ARE_NOT_ALLOWED_TO_LIST_USERS_SESSIONS:
-        "You are not allowed to list users sessions",
+    YOU_ARE_NOT_ALLOWED_TO_LIST_USERS_SESSIONS: "You are not allowed to list users sessions",
     YOU_ARE_NOT_ALLOWED_TO_BAN_USERS: "You are not allowed to ban users",
-    YOU_ARE_NOT_ALLOWED_TO_IMPERSONATE_USERS:
-        "You are not allowed to impersonate users",
-    YOU_ARE_NOT_ALLOWED_TO_REVOKE_USERS_SESSIONS:
-        "You are not allowed to revoke users sessions",
+    YOU_ARE_NOT_ALLOWED_TO_IMPERSONATE_USERS: "You are not allowed to impersonate users",
+    YOU_ARE_NOT_ALLOWED_TO_REVOKE_USERS_SESSIONS: "You are not allowed to revoke users sessions",
     YOU_ARE_NOT_ALLOWED_TO_DELETE_USERS: "You are not allowed to delete users",
-    YOU_ARE_NOT_ALLOWED_TO_SET_USERS_PASSWORD:
-        "You are not allowed to set users password",
-    BANNED_USER: "You have been banned from this application"
-}
+    YOU_ARE_NOT_ALLOWED_TO_SET_USERS_PASSWORD: "You are not allowed to set users password",
+    BANNED_USER: "You have been banned from this application",
+};
 
 // Anonymous user authentication errors
 export const ANONYMOUS_ERROR_CODES = {
     FAILED_TO_CREATE_USER: "Failed to create user",
     COULD_NOT_CREATE_SESSION: "Could not create session",
-    ANONYMOUS_USERS_CANNOT_SIGN_IN_AGAIN_ANONYMOUSLY:
-        "Anonymous users cannot sign in again anonymously"
-} 
+    ANONYMOUS_USERS_CANNOT_SIGN_IN_AGAIN_ANONYMOUSLY: "Anonymous users cannot sign in again anonymously",
+};

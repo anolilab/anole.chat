@@ -1,37 +1,30 @@
-"use client"
+"use client";
 
-import { useContext } from "react"
+import { useContext } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import { SettingsCard } from "../settings/shared/settings-card"
-import type { SettingsCardProps } from "../settings/shared/settings-card"
-import { CardContent } from "@/components/ui/card"
-import { InvitationCell } from "./invitation-cell"
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import { SettingsCard } from "../settings/shared/settings-card";
+import type { SettingsCardProps } from "../settings/shared/settings-card";
+import { CardContent } from "@/components/ui/card";
+import { InvitationCell } from "./invitation-cell";
 
-export function OrganizationInvitationsCard({
-    className,
-    classNames,
-    localization: localizationProp,
-    ...props
-}: SettingsCardProps) {
+export function OrganizationInvitationsCard({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
     const {
         hooks: { useActiveOrganization },
-        localization: contextLocalization
-    } = useContext(AuthUIContext)
+        localization: contextLocalization,
+    } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...localizationProp }
+    const localization = { ...contextLocalization, ...localizationProp };
 
-    const { data: activeOrganization } = useActiveOrganization()
-    const invitations = activeOrganization?.invitations
+    const { data: activeOrganization } = useActiveOrganization();
+    const invitations = activeOrganization?.invitations;
 
-    const pendingInvitations = invitations?.filter(
-        (invitation) => invitation.status === "pending"
-    )
+    const pendingInvitations = invitations?.filter((invitation) => invitation.status === "pending");
 
-    const isPending = !activeOrganization
+    const isPending = !activeOrganization;
 
-    if (!pendingInvitations?.length) return null
+    if (!pendingInvitations?.length) return null;
 
     return (
         <SettingsCard
@@ -44,14 +37,9 @@ export function OrganizationInvitationsCard({
         >
             <CardContent className={cn("grid gap-4", classNames?.content)}>
                 {pendingInvitations.map((invitation) => (
-                    <InvitationCell
-                        key={invitation.id}
-                        classNames={classNames}
-                        invitation={invitation}
-                        localization={localization}
-                    />
+                    <InvitationCell key={invitation.id} classNames={classNames} invitation={invitation} localization={localization} />
                 ))}
             </CardContent>
         </SettingsCard>
-    )
+    );
 }

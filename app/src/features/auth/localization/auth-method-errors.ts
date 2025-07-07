@@ -7,20 +7,19 @@ export const EMAIL_OTP_ERROR_CODES = {
     INVALID_OTP: "Invalid OTP",
     INVALID_EMAIL: "Invalid email",
     USER_NOT_FOUND: "User not found",
-    TOO_MANY_ATTEMPTS: "Too many attempts"
-}
+    TOO_MANY_ATTEMPTS: "Too many attempts",
+};
 
 // Passkey authentication errors
 export const PASSKEY_ERROR_CODES = {
     CHALLENGE_NOT_FOUND: "Challenge not found",
-    YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY:
-        "You are not allowed to register this passkey",
+    YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY: "You are not allowed to register this passkey",
     FAILED_TO_VERIFY_REGISTRATION: "Failed to verify registration",
     PASSKEY_NOT_FOUND: "Passkey not found",
     AUTHENTICATION_FAILED: "Authentication failed",
     UNABLE_TO_CREATE_SESSION: "Unable to create session",
-    FAILED_TO_UPDATE_PASSKEY: "Failed to update passkey"
-}
+    FAILED_TO_UPDATE_PASSKEY: "Failed to update passkey",
+};
 
 // Two-factor authentication errors
 export const TWO_FACTOR_ERROR_CODES = {
@@ -31,10 +30,9 @@ export const TWO_FACTOR_ERROR_CODES = {
     BACKUP_CODES_NOT_ENABLED: "Backup codes aren't enabled",
     INVALID_BACKUP_CODE: "Invalid backup code",
     INVALID_CODE: "Invalid code",
-    TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE:
-        "Too many attempts. Please request a new code.",
-    INVALID_TWO_FACTOR_COOKIE: "Invalid two factor cookie"
-}
+    TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE: "Too many attempts. Please request a new code.",
+    INVALID_TWO_FACTOR_COOKIE: "Invalid two factor cookie",
+};
 
 // Phone number authentication errors
 export const PHONE_NUMBER_ERROR_CODES = {
@@ -45,8 +43,8 @@ export const PHONE_NUMBER_ERROR_CODES = {
     OTP_NOT_FOUND: "OTP not found",
     OTP_EXPIRED: "OTP expired",
     INVALID_OTP: "Invalid OTP",
-    PHONE_NUMBER_NOT_VERIFIED: "Phone number not verified"
-}
+    PHONE_NUMBER_NOT_VERIFIED: "Phone number not verified",
+};
 
 // Username authentication errors
 export const USERNAME_ERROR_CODES = {
@@ -56,5 +54,5 @@ export const USERNAME_ERROR_CODES = {
     USERNAME_IS_ALREADY_TAKEN: "username is already taken. please try another.",
     USERNAME_TOO_SHORT: "username is too short",
     USERNAME_TOO_LONG: "username is too long",
-    INVALID_USERNAME: "username is invalid"
-} 
+    INVALID_USERNAME: "username is invalid",
+};

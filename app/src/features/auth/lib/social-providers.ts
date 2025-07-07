@@ -17,104 +17,104 @@ import {
     TwitchIcon,
     VKIcon,
     XIcon,
-    ZoomIcon
-} from "../components/provider-icons"
+    ZoomIcon,
+} from "../components/provider-icons";
 
 export const socialProviders = [
     {
         provider: "apple",
         name: "Apple",
-        icon: AppleIcon
+        icon: AppleIcon,
     },
     {
         provider: "discord",
         name: "Discord",
-        icon: DiscordIcon
+        icon: DiscordIcon,
     },
     {
         provider: "dropbox",
         name: "Dropbox",
-        icon: DropboxIcon
+        icon: DropboxIcon,
     },
     {
         provider: "facebook",
         name: "Facebook",
-        icon: FacebookIcon
+        icon: FacebookIcon,
     },
     {
         provider: "github",
         name: "GitHub",
-        icon: GitHubIcon
+        icon: GitHubIcon,
     },
     {
         provider: "gitlab",
         name: "GitLab",
-        icon: GitLabIcon
+        icon: GitLabIcon,
     },
     {
         provider: "google",
         name: "Google",
-        icon: GoogleIcon
+        icon: GoogleIcon,
     },
     {
         provider: "kick",
         name: "Kick",
-        icon: KickIcon
+        icon: KickIcon,
     },
     {
         provider: "linkedin",
         name: "LinkedIn",
-        icon: LinkedInIcon
+        icon: LinkedInIcon,
     },
     {
         provider: "microsoft",
         name: "Microsoft",
-        icon: MicrosoftIcon
+        icon: MicrosoftIcon,
     },
     {
         provider: "reddit",
         name: "Reddit",
-        icon: RedditIcon
+        icon: RedditIcon,
     },
     {
         provider: "roblox",
         name: "Roblox",
-        icon: RobloxIcon
+        icon: RobloxIcon,
     },
     {
         provider: "spotify",
         name: "Spotify",
-        icon: SpotifyIcon
+        icon: SpotifyIcon,
     },
     {
         provider: "tiktok",
         name: "TikTok",
-        icon: TikTokIcon
+        icon: TikTokIcon,
     },
     {
         provider: "twitch",
         name: "Twitch",
-        icon: TwitchIcon
+        icon: TwitchIcon,
     },
     {
         provider: "vk",
         name: "VK",
-        icon: VKIcon
+        icon: VKIcon,
     },
     {
         provider: "twitter",
         name: "X",
-        icon: XIcon
+        icon: XIcon,
     },
     {
         provider: "zoom",
         name: "Zoom",
-        icon: ZoomIcon
-    }
-] as const
+        icon: ZoomIcon,
+    },
+] as const;
 
 export type Provider = {
-    provider: string
-    name: string
-    icon?: ProviderIcon
-}
+    provider: string;
+    name: string;
+    icon?: ProviderIcon;
+};

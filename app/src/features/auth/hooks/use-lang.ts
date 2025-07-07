@@ -1,32 +1,32 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
 export function useLang() {
-    const [lang, setLang] = useState<string>()
+    const [lang, setLang] = useState<string>();
 
     useEffect(() => {
         const checkLang = () => {
-            const currentLang = document.documentElement.getAttribute("lang")
-            setLang(currentLang ?? undefined)
-        }
+            const currentLang = document.documentElement.getAttribute("lang");
+            setLang(currentLang ?? undefined);
+        };
 
         // Initial check
-        checkLang()
+        checkLang();
 
         // Listen for changes to lang attribute on html tag
         const observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.attributeName === "lang") {
-                    checkLang()
+                    checkLang();
                 }
             }
-        })
+        });
 
-        observer.observe(document.documentElement, { attributes: true })
+        observer.observe(document.documentElement, { attributes: true });
 
         return () => {
-            observer.disconnect()
-        }
-    }, [])
+            observer.disconnect();
+        };
+    }, []);
 
-    return { lang }
+    return { lang };
 }

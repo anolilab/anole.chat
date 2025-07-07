@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { type ReactNode, useContext } from "react"
-import { AuthUIContext } from "../lib/auth-ui-provider"
+import { type ReactNode, useContext } from "react";
+import { AuthUIContext } from "../lib/auth-ui-provider";
 
 /**
  * Conditionally renders content for unauthenticated users only
@@ -12,9 +12,9 @@ import { AuthUIContext } from "../lib/auth-ui-provider"
  */
 export function SignedOut({ children }: { children: ReactNode }) {
     const {
-        hooks: { useSession }
-    } = useContext(AuthUIContext)
-    const { data, isPending } = useSession()
+        hooks: { useSession },
+    } = useContext(AuthUIContext);
+    const { data, isPending } = useSession();
 
-    return !data && !isPending ? children : null
+    return !data && !isPending ? children : null;
 }

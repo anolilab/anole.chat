@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import { UserRoundIcon } from "lucide-react"
-import type { ComponentProps } from "react"
-import { useContext } from "react"
+import { UserRoundIcon } from "lucide-react";
+import type { ComponentProps } from "react";
+import { useContext } from "react";
 
-import { AuthUIContext } from "../lib/auth-ui-provider"
-import { getGravatarUrl } from "../lib/gravatar-utils"
-import { cn } from "@/lib/utils"
-import type { AuthLocalization } from "../localization/auth-localization"
-import type { Profile } from "../types/data-structure-types"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
+import { AuthUIContext } from "../lib/auth-ui-provider";
+import { getGravatarUrl } from "../lib/gravatar-utils";
+import { cn } from "@/lib/utils";
+import type { AuthLocalization } from "../localization/auth-localization";
+import type { Profile } from "../types/data-structure-types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface UserAvatarClassNames {
-    base?: string
-    image?: string
-    fallback?: string
-    fallbackIcon?: string
-    skeleton?: string
+    base?: string;
+    image?: string;
+    fallback?: string;
+    fallbackIcon?: string;
+    skeleton?: string;
 }
 
 export interface UserAvatarProps {
-    classNames?: UserAvatarClassNames
-    isPending?: boolean
-    size?: "sm" | "default" | "lg" | "xl" | null
-    user?: Profile | null
+    classNames?: UserAvatarClassNames;
+    isPending?: boolean;
+    size?: "sm" | "default" | "lg" | "xl" | null;
+    user?: Profile | null;
     /**
      * @default authLocalization
      * @remarks `AuthLocalization`
      */
-    localization?: Partial<AuthLocalization>
+    localization?: Partial<AuthLocalization>;
 }
 
 /**
@@ -49,89 +49,44 @@ export function UserAvatar({
     localization: propLocalization,
     ...props
 }: UserAvatarProps & ComponentProps<typeof Avatar>) {
-    const { localization: contextLocalization, gravatar } =
-        useContext(AuthUIContext)
+    const { localization: contextLocalization, gravatar } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...propLocalization }
+    const localization = { ...contextLocalization, ...propLocalization };
 
-    const name =
-        user?.displayUsername ||
-        user?.username ||
-        user?.displayName ||
-        user?.firstName ||
-        user?.name ||
-        user?.fullName ||
-        user?.email
-    const userImage = user?.image || user?.avatar || user?.avatarUrl
+    const name = user?.displayUsername || user?.username || user?.displayName || user?.firstName || user?.name || user?.fullName || user?.email;
+    const userImage = user?.image || user?.avatar || user?.avatarUrl;
 
     // Calculate gravatar URL synchronously
-    const gravatarUrl =
-        gravatar && user?.email
-            ? getGravatarUrl(
-                user.email,
-                gravatar === true ? undefined : gravatar
-            )
-            : null
+    const gravatarUrl = gravatar && user?.email ? getGravatarUrl(user.email, gravatar === true ? undefined : gravatar) : null;
 
-    const src = gravatar ? gravatarUrl : userImage
+    const src = gravatar ? gravatarUrl : userImage;
 
     if (isPending) {
         return (
             <Skeleton
                 className={cn(
                     "shrink-0 rounded-full",
-                    size === "sm"
-                        ? "size-6"
-                        : size === "lg"
-                            ? "size-10"
-                            : size === "xl"
-                                ? "size-12"
-                                : "size-8",
+                    size === "sm" ? "size-6" : size === "lg" ? "size-10" : size === "xl" ? "size-12" : "size-8",
                     className,
                     classNames?.base,
-                    classNames?.skeleton
+                    classNames?.skeleton,
                 )}
             />
-        )
+        );
     }
 
     return (
         <Avatar
-            className={cn(
-                "bg-muted",
-                size === "sm"
-                    ? "size-6"
-                    : size === "lg"
-                        ? "size-10"
-                        : size === "xl"
-                            ? "size-12"
-                            : "size-8",
-                className,
-                classNames?.base
-            )}
+            className={cn("bg-muted", size === "sm" ? "size-6" : size === "lg" ? "size-10" : size === "xl" ? "size-12" : "size-8", className, classNames?.base)}
             {...props}
         >
-            <AvatarImage
-                alt={name || localization?.USER}
-                className={classNames?.image}
-                src={src || undefined}
-            />
+            <AvatarImage alt={name || localization?.USER} className={classNames?.image} src={src || undefined} />
 
-            <AvatarFallback
-                className={cn(
-                    "text-foreground uppercase",
-                    classNames?.fallback
-                )}
-                delayMs={src ? 600 : undefined}
-            >
-                {firstTwoCharacters(name) || (
-                    <UserRoundIcon
-                        className={cn("size-[50%]", classNames?.fallbackIcon)}
-                    />
-                )}
+            <AvatarFallback className={cn("text-foreground uppercase", classNames?.fallback)} delayMs={src ? 600 : undefined}>
+                {firstTwoCharacters(name) || <UserRoundIcon className={cn("size-[50%]", classNames?.fallbackIcon)} />}
             </AvatarFallback>
         </Avatar>
-    )
+    );
 }
 
-const firstTwoCharacters = (name?: string | null) => name?.slice(0, 2)
+const firstTwoCharacters = (name?: string | null) => name?.slice(0, 2);

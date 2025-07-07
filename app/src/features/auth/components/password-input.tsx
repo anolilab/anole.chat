@@ -1,20 +1,15 @@
-"use client"
+"use client";
 
-import { EyeIcon, EyeOffIcon } from "lucide-react"
-import { type ComponentProps, useState } from "react"
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { type ComponentProps, useState } from "react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-export function PasswordInput({
-    className,
-    enableToggle,
-    onChange,
-    ...props
-}: ComponentProps<typeof Input> & { enableToggle?: boolean }) {
-    const [disabled, setDisabled] = useState(true)
-    const [isVisible, setIsVisible] = useState(false)
+export function PasswordInput({ className, enableToggle, onChange, ...props }: ComponentProps<typeof Input> & { enableToggle?: boolean }) {
+    const [disabled, setDisabled] = useState(true);
+    const [isVisible, setIsVisible] = useState(false);
 
     return (
         <div className="relative">
@@ -23,15 +18,15 @@ export function PasswordInput({
                 {...props}
                 type={isVisible && enableToggle ? "text" : "password"}
                 onChange={(event) => {
-                    setDisabled(!event.target.value)
-                    onChange?.(event)
+                    setDisabled(!event.target.value);
+                    onChange?.(event);
                 }}
             />
 
             {enableToggle && (
                 <>
                     <Button
-                        className="!bg-transparent absolute top-0 right-0"
+                        className="absolute right-0 top-0 !bg-transparent"
                         disabled={disabled}
                         size="icon"
                         type="button"
@@ -52,5 +47,5 @@ export function PasswordInput({
                 </>
             )}
         </div>
-    )
+    );
 }

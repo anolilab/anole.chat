@@ -1,33 +1,25 @@
-"use client"
+"use client";
 
-import { useContext } from "react"
-import * as z from "zod"
+import { useContext } from "react";
+import * as z from "zod";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import { getLocalizedError } from "../../lib/utils"
-import {
-    SettingsCard,
-    type SettingsCardProps
-} from "../settings/shared/settings-card"
-import { CardContent } from "@/components/ui/card"
-import { useAppForm } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Skeleton } from "@/components/ui/skeleton"
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import { getLocalizedError } from "../../lib/utils";
+import { SettingsCard, type SettingsCardProps } from "../settings/shared/settings-card";
+import { CardContent } from "@/components/ui/card";
+import { useAppForm } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function OrganizationSlugCard({
-    className,
-    classNames,
-    localization: localizationProp,
-    ...props
-}: SettingsCardProps) {
+export function OrganizationSlugCard({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
     const {
         hooks: { useActiveOrganization },
-        localization: contextLocalization
-    } = useContext(AuthUIContext)
+        localization: contextLocalization,
+    } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...localizationProp }
-    const { data: activeOrganization } = useActiveOrganization()
+    const localization = { ...contextLocalization, ...localizationProp };
+    const { data: activeOrganization } = useActiveOrganization();
 
     if (!activeOrganization) {
         return (
@@ -43,117 +35,98 @@ export function OrganizationSlugCard({
                 {...props}
             >
                 <CardContent className={classNames?.content}>
-                    <Skeleton
-                        className={cn("h-9 w-full", classNames?.skeleton)}
-                    />
+                    <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
                 </CardContent>
             </SettingsCard>
-        )
+        );
     }
 
-    return (
-        <OrganizationSlugForm
-            className={className}
-            classNames={classNames}
-            localization={localization}
-            {...props}
-        />
-    )
+    return <OrganizationSlugForm className={className} classNames={classNames} localization={localization} {...props} />;
 }
 
 const formSchema = z.object({
     slug: z
         .string()
         .min(1, { message: "Organization slug is required" })
-        .regex(/^[a-z0-9-]+$/, { message: "Organization slug contains invalid characters" })
-})
+        .regex(/^[a-z0-9-]+$/, { message: "Organization slug contains invalid characters" }),
+});
 
-function OrganizationSlugForm({
-    className,
-    classNames,
-    localization: localizationProp,
-    ...props
-}: SettingsCardProps) {
+function OrganizationSlugForm({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
     const {
         authClient,
         localization: contextLocalization,
-        hooks: {
-            useActiveOrganization,
-            useListOrganizations,
-            useHasPermission
-        },
+        hooks: { useActiveOrganization, useListOrganizations, useHasPermission },
         optimistic,
-        toast
-    } = useContext(AuthUIContext)
+        toast,
+    } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...localizationProp }
+    const localization = { ...contextLocalization, ...localizationProp };
 
-    const { data: activeOrganization, refetch: refetchActiveOrganization } =
-        useActiveOrganization()
-    const { refetch: refetchOrganizations } = useListOrganizations()
+    const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
+    const { refetch: refetchOrganizations } = useListOrganizations();
     const { data: hasPermission, isPending } = useHasPermission({
         permissions: {
-            organization: ["update"]
-        }
-    })
+            organization: ["update"],
+        },
+    });
 
     const form = useAppForm({
         defaultValues: {
-            slug: activeOrganization?.slug || ""
+            slug: activeOrganization?.slug || "",
         },
         validators: {
             onChange: ({ value }) => {
-                const result = formSchema.safeParse(value)
+                const result = formSchema.safeParse(value);
                 if (!result.success) {
-                    return result.error.issues[0]?.message
+                    return result.error.issues[0]?.message;
                 }
-                return undefined
-            }
+                return undefined;
+            },
         },
         onSubmit: async ({ value }) => {
-            if (!activeOrganization) return
+            if (!activeOrganization) return;
 
             if (activeOrganization.slug === value.slug) {
                 toast({
                     variant: "error",
-                    message: `${localization.ORGANIZATION_SLUG} ${localization.IS_THE_SAME}`
-                })
-                return
+                    message: `${localization.ORGANIZATION_SLUG} ${localization.IS_THE_SAME}`,
+                });
+                return;
             }
 
             try {
                 await authClient.organization.update({
                     data: { slug: value.slug },
                     fetchOptions: {
-                        throw: true
-                    }
-                })
+                        throw: true,
+                    },
+                });
 
-                await refetchActiveOrganization?.()
-                await refetchOrganizations?.()
+                await refetchActiveOrganization?.();
+                await refetchOrganizations?.();
 
                 toast({
                     variant: "success",
-                    message: `${localization.ORGANIZATION_SLUG} ${localization.UPDATED_SUCCESSFULLY}`
-                })
+                    message: `${localization.ORGANIZATION_SLUG} ${localization.UPDATED_SUCCESSFULLY}`,
+                });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization })
-                })
+                    message: getLocalizedError({ error, localization }),
+                });
             }
-        }
-    })
+        },
+    });
 
-    const isSubmitting = form.state.isSubmitting
+    const isSubmitting = form.state.isSubmitting;
 
     return (
         <form.AppForm>
             <form
                 onSubmit={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    form.handleSubmit()
+                    e.preventDefault();
+                    e.stopPropagation();
+                    form.handleSubmit();
                 }}
             >
                 <SettingsCard
@@ -170,12 +143,7 @@ function OrganizationSlugForm({
                 >
                     <CardContent className={classNames?.content}>
                         {isPending ? (
-                            <Skeleton
-                                className={cn(
-                                    "h-9 w-full",
-                                    classNames?.skeleton
-                                )}
-                            />
+                            <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
                         ) : (
                             <form.AppField
                                 name="slug"
@@ -184,22 +152,15 @@ function OrganizationSlugForm({
                                         <field.FormControl>
                                             <Input
                                                 className={classNames?.input}
-                                                placeholder={
-                                                    localization.ORGANIZATION_SLUG_PLACEHOLDER
-                                                }
-                                                disabled={
-                                                    isSubmitting ||
-                                                    !hasPermission?.success
-                                                }
+                                                placeholder={localization.ORGANIZATION_SLUG_PLACEHOLDER}
+                                                disabled={isSubmitting || !hasPermission?.success}
                                                 value={field.state.value}
                                                 onBlur={field.handleBlur}
                                                 onChange={(e) => field.handleChange(e.target.value)}
                                             />
                                         </field.FormControl>
 
-                                        <field.FormMessage
-                                            className={classNames?.error}
-                                        />
+                                        <field.FormMessage className={classNames?.error} />
                                     </field.FormItem>
                                 )}
                             />
@@ -208,5 +169,5 @@ function OrganizationSlugForm({
                 </SettingsCard>
             </form>
         </form.AppForm>
-    )
+    );
 }

@@ -1,35 +1,29 @@
-"use client"
-import { useContext, useState } from "react"
+"use client";
+import { useContext, useState } from "react";
 
-import { useIsHydrated } from "../../hooks/use-hydrated"
-import { AuthUIContext } from "../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import { SettingsCard } from "../settings/shared/settings-card"
-import type { SettingsCardProps } from "../settings/shared/settings-card"
-import { CardContent } from "@/components/ui/card"
-import { CreateOrganizationDialog } from "./create-organization-dialog"
-import { OrganizationCell } from "./organization-cell"
+import { useIsHydrated } from "../../hooks/use-hydrated";
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import { SettingsCard } from "../settings/shared/settings-card";
+import type { SettingsCardProps } from "../settings/shared/settings-card";
+import { CardContent } from "@/components/ui/card";
+import { CreateOrganizationDialog } from "./create-organization-dialog";
+import { OrganizationCell } from "./organization-cell";
 
-export function OrganizationsCard({
-    className,
-    classNames,
-    localization,
-    ...props
-}: SettingsCardProps) {
+export function OrganizationsCard({ className, classNames, localization, ...props }: SettingsCardProps) {
     const {
         hooks: { useListOrganizations },
-        localization: contextLocalization
-    } = useContext(AuthUIContext)
+        localization: contextLocalization,
+    } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization }
+    localization = { ...contextLocalization, ...localization };
 
-    const isHydrated = useIsHydrated()
-    const { data: organizations, isPending: organizationsPending } =
-        useListOrganizations()
+    const isHydrated = useIsHydrated();
+    const { data: organizations, isPending: organizationsPending } = useListOrganizations();
 
-    const isPending = !isHydrated || organizationsPending
+    const isPending = !isHydrated || organizationsPending;
 
-    const [createDialogOpen, setCreateDialogOpen] = useState(false)
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
     return (
         <>
@@ -45,27 +39,15 @@ export function OrganizationsCard({
                 {...props}
             >
                 {organizations && organizations?.length > 0 && (
-                    <CardContent
-                        className={cn("grid gap-4", classNames?.content)}
-                    >
+                    <CardContent className={cn("grid gap-4", classNames?.content)}>
                         {organizations?.map((organization) => (
-                            <OrganizationCell
-                                key={organization.id}
-                                classNames={classNames}
-                                organization={organization}
-                                localization={localization}
-                            />
+                            <OrganizationCell key={organization.id} classNames={classNames} organization={organization} localization={localization} />
                         ))}
                     </CardContent>
                 )}
             </SettingsCard>
 
-            <CreateOrganizationDialog
-                classNames={classNames}
-                localization={localization}
-                open={createDialogOpen}
-                onOpenChange={setCreateDialogOpen}
-            />
+            <CreateOrganizationDialog classNames={classNames} localization={localization} open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
         </>
-    )
+    );
 }

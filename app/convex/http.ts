@@ -4,7 +4,7 @@ import { logger } from "hono/logger";
 import { HonoWithConvex, HttpRouterWithHono } from "convex-helpers/server/hono";
 import { streamHttpAction, improvePromptHttpAction } from "./chat/functions";
 import { createAuth } from "./auth";
-import { requestId } from 'hono/request-id'
+import { requestId } from "hono/request-id";
 import { resend } from "./email/functions";
 import type { ActionCtx } from "./_generated/server";
 import { CONVEX_SITE_URL } from "./env";
@@ -12,19 +12,24 @@ import { CONVEX_SITE_URL } from "./env";
 const app: HonoWithConvex<ActionCtx> = new Hono();
 
 // Add logging middleware for better debugging
-app.use("*", logger((message) => {
-    console.log(message);
-}));
-app.use('*', requestId())
-app.use("*", cors({
-    origin: "*",
-    credentials: true,
-    allowHeaders: ["Authorization", "Content-Type", "Better-Auth-Cookie"],
-    allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
-    exposeHeaders: ["Content-Length", "Set-Better-Auth-Cookie"],
-    maxAge: 600,
-}));
-
+app.use(
+    "*",
+    logger((message) => {
+        console.log(message);
+    }),
+);
+app.use("*", requestId());
+app.use(
+    "*",
+    cors({
+        origin: "*",
+        credentials: true,
+        allowHeaders: ["Authorization", "Content-Type", "Better-Auth-Cookie"],
+        allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
+        exposeHeaders: ["Content-Length", "Set-Better-Auth-Cookie"],
+        maxAge: 600,
+    }),
+);
 
 const authRequestHandler = async (c: any) => {
     const auth = createAuth(c.env);
@@ -35,7 +40,7 @@ const authRequestHandler = async (c: any) => {
 // Better Auth routes implemented in Hono
 const authPath = "/api/auth";
 
-// OpenID configuration redirect  
+// OpenID configuration redirect
 app.get("/.well-known/openid-configuration", async (c) => {
     // Since we're in an HTTP action context, we can access environment variables
     const url = `${CONVEX_SITE_URL}/api/auth/convex/.well-known/openid-configuration`;
@@ -86,25 +91,31 @@ app.get("/api/health", async (c) => {
     return c.json({
         status: "ok",
         timestamp: new Date().toISOString(),
-        environment: "production"
+        environment: "production",
     });
 });
 
 app.notFound((c) => {
-    return c.json({
-        error: "Endpoint not found",
-        path: c.req.path,
-        method: c.req.method
-    }, 404);
+    return c.json(
+        {
+            error: "Endpoint not found",
+            path: c.req.path,
+            method: c.req.method,
+        },
+        404,
+    );
 });
 
 // Error handling
 app.onError((error, c) => {
     console.error("HTTP Error:", error);
-    return c.json({
-        error: "Internal server error",
-        message: error.message
-    }, 500);
+    return c.json(
+        {
+            error: "Internal server error",
+            message: error.message,
+        },
+        500,
+    );
 });
 
 export default new HttpRouterWithHono(app);

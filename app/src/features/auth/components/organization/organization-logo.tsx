@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import type { Organization } from "better-auth/plugins/organization"
-import { BuildingIcon } from "lucide-react"
-import type { ComponentProps } from "react"
-import { useContext } from "react"
+import type { Organization } from "better-auth/plugins/organization";
+import { BuildingIcon } from "lucide-react";
+import type { ComponentProps } from "react";
+import { useContext } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import type { AuthLocalization } from "../../localization/auth-localization"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import type { AuthLocalization } from "../../localization/auth-localization";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface OrganizationLogoClassNames {
-    base?: string
-    image?: string
-    fallback?: string
-    fallbackIcon?: string
-    skeleton?: string
+    base?: string;
+    image?: string;
+    fallback?: string;
+    fallbackIcon?: string;
+    skeleton?: string;
 }
 
 export interface OrganizationLogoProps {
-    classNames?: OrganizationLogoClassNames
-    isPending?: boolean
-    size?: "sm" | "default" | "lg" | "xl" | null
-    organization?: Partial<Organization> | null
+    classNames?: OrganizationLogoClassNames;
+    isPending?: boolean;
+    size?: "sm" | "default" | "lg" | "xl" | null;
+    organization?: Partial<Organization> | null;
     /**
      * @default authLocalization
      * @remarks `AuthLocalization`
      */
-    localization?: AuthLocalization
+    localization?: AuthLocalization;
 }
 
 /**
@@ -47,63 +47,37 @@ export function OrganizationLogo({
     localization: propLocalization,
     ...props
 }: OrganizationLogoProps & ComponentProps<typeof Avatar>) {
-    const { localization: contextLocalization } = useContext(AuthUIContext)
+    const { localization: contextLocalization } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...propLocalization }
+    const localization = { ...contextLocalization, ...propLocalization };
 
-    const name = organization?.name
-    const src = organization?.logo
+    const name = organization?.name;
+    const src = organization?.logo;
 
     if (isPending) {
         return (
             <Skeleton
                 className={cn(
                     "shrink-0 rounded-full",
-                    size === "sm"
-                        ? "size-6"
-                        : size === "lg"
-                            ? "size-10"
-                            : size === "xl"
-                                ? "size-12"
-                                : "size-8",
+                    size === "sm" ? "size-6" : size === "lg" ? "size-10" : size === "xl" ? "size-12" : "size-8",
                     className,
                     classNames?.base,
-                    classNames?.skeleton
+                    classNames?.skeleton,
                 )}
             />
-        )
+        );
     }
 
     return (
         <Avatar
-            className={cn(
-                "bg-muted",
-                size === "sm"
-                    ? "size-6"
-                    : size === "lg"
-                        ? "size-10"
-                        : size === "xl"
-                            ? "size-12"
-                            : "size-8",
-                className,
-                classNames?.base
-            )}
+            className={cn("bg-muted", size === "sm" ? "size-6" : size === "lg" ? "size-10" : size === "xl" ? "size-12" : "size-8", className, classNames?.base)}
             {...props}
         >
-            <AvatarImage
-                alt={name || localization?.ORGANIZATION}
-                className={classNames?.image}
-                src={src || undefined}
-            />
+            <AvatarImage alt={name || localization?.ORGANIZATION} className={classNames?.image} src={src || undefined} />
 
-            <AvatarFallback
-                className={cn("text-foreground", classNames?.fallback)}
-                delayMs={src ? 600 : undefined}
-            >
-                <BuildingIcon
-                    className={cn("size-[50%]", classNames?.fallbackIcon)}
-                />
+            <AvatarFallback className={cn("text-foreground", classNames?.fallback)} delayMs={src ? 600 : undefined}>
+                <BuildingIcon className={cn("size-[50%]", classNames?.fallbackIcon)} />
             </AvatarFallback>
         </Avatar>
-    )
+    );
 }

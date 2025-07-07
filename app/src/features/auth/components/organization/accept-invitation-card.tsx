@@ -1,95 +1,70 @@
-"use client"
+"use client";
 
-import { CheckIcon, Loader2, XIcon } from "lucide-react"
-import { useContext, useEffect, useMemo, useState } from "react"
+import { CheckIcon, Loader2, XIcon } from "lucide-react";
+import { useContext, useEffect, useMemo, useState } from "react";
 
-import { useAuthenticate } from "../../hooks/use-authenticate"
-import { AuthUIContext } from "../../lib/auth-ui-provider"
-import { cn } from "@/lib/utils"
-import { getLocalizedError, getSearchParam } from "../../lib/utils"
-import type { AuthLocalization } from "../../localization/auth-localization"
-import type { SettingsCardClassNames } from "../settings/shared/settings-card"
-import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle
-} from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { OrganizationView } from "./organization-view"
+import { useAuthenticate } from "../../hooks/use-authenticate";
+import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import { getLocalizedError, getSearchParam } from "../../lib/utils";
+import type { AuthLocalization } from "../../localization/auth-localization";
+import type { SettingsCardClassNames } from "../settings/shared/settings-card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { OrganizationView } from "./organization-view";
 
 export interface AcceptInvitationCardProps {
-    className?: string
-    classNames?: SettingsCardClassNames
-    localization?: Partial<AuthLocalization>
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    localization?: Partial<AuthLocalization>;
 }
 
-export function AcceptInvitationCard({
-    className,
-    classNames,
-    localization: localizationProp
-}: AcceptInvitationCardProps) {
+export function AcceptInvitationCard({ className, classNames, localization: localizationProp }: AcceptInvitationCardProps) {
     const {
         hooks: { useSession },
         localization: contextLocalization,
         toast,
         redirectTo,
-        replace
-    } = useContext(AuthUIContext)
+        replace,
+    } = useContext(AuthUIContext);
 
-    const localization = useMemo(
-        () => ({ ...contextLocalization, ...localizationProp }),
-        [contextLocalization, localizationProp]
-    )
+    const localization = useMemo(() => ({ ...contextLocalization, ...localizationProp }), [contextLocalization, localizationProp]);
 
-    const { data: sessionData } = useSession()
-    const [invitationId, setInvitationId] = useState<string | null>(null)
+    const { data: sessionData } = useSession();
+    const [invitationId, setInvitationId] = useState<string | null>(null);
 
     useEffect(() => {
-        const invitationIdParam = getSearchParam("invitationId")
+        const invitationIdParam = getSearchParam("invitationId");
 
         if (!invitationIdParam) {
             toast({
                 variant: "error",
-                message: localization.INVITATION_NOT_FOUND
-            })
+                message: localization.INVITATION_NOT_FOUND,
+            });
 
-            replace(redirectTo)
-            return
+            replace(redirectTo);
+            return;
         }
 
-        setInvitationId(invitationIdParam)
-    }, [localization.INVITATION_NOT_FOUND, toast, replace, redirectTo])
+        setInvitationId(invitationIdParam);
+    }, [localization.INVITATION_NOT_FOUND, toast, replace, redirectTo]);
 
     // If session is not loaded yet, use authenticate hook to check
-    useAuthenticate()
+    useAuthenticate();
 
     if (!sessionData || !invitationId) {
-        return (
-            <AcceptInvitationSkeleton
-                className={className}
-                classNames={classNames}
-            />
-        )
+        return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
     }
 
-    return (
-        <AcceptInvitationContent
-            className={className}
-            classNames={classNames}
-            localization={localization}
-            invitationId={invitationId}
-        />
-    )
+    return <AcceptInvitationContent className={className} classNames={classNames} localization={localization} invitationId={invitationId} />;
 }
 
 function AcceptInvitationContent({
     className,
     classNames,
     localization: localizationProp,
-    invitationId
+    invitationId,
 }: AcceptInvitationCardProps & { invitationId: string }) {
     const {
         authClient,
@@ -98,261 +73,168 @@ function AcceptInvitationContent({
         redirectTo,
         replace,
         organization,
-        hooks: { useInvitation }
-    } = useContext(AuthUIContext)
+        hooks: { useInvitation },
+    } = useContext(AuthUIContext);
 
-    const localization = useMemo(
-        () => ({ ...contextLocalization, ...localizationProp }),
-        [contextLocalization, localizationProp]
-    )
+    const localization = useMemo(() => ({ ...contextLocalization, ...localizationProp }), [contextLocalization, localizationProp]);
 
-    const [isRejecting, setIsRejecting] = useState(false)
-    const [isAccepting, setIsAccepting] = useState(false)
-    const isProcessing = isRejecting || isAccepting
+    const [isRejecting, setIsRejecting] = useState(false);
+    const [isAccepting, setIsAccepting] = useState(false);
+    const isProcessing = isRejecting || isAccepting;
 
     const { data: invitation, isPending } = useInvitation({
         query: {
-            id: invitationId
-        }
-    })
+            id: invitationId,
+        },
+    });
 
     useEffect(() => {
-        if (isPending || !invitationId) return
+        if (isPending || !invitationId) return;
 
         if (!invitation) {
             toast({
                 variant: "error",
-                message: localization.INVITATION_NOT_FOUND
-            })
+                message: localization.INVITATION_NOT_FOUND,
+            });
 
-            replace(redirectTo)
-            return
+            replace(redirectTo);
+            return;
         }
 
-        if (
-            invitation.status !== "pending" ||
-            new Date(invitation.expiresAt) < new Date()
-        ) {
+        if (invitation.status !== "pending" || new Date(invitation.expiresAt) < new Date()) {
             toast({
                 variant: "error",
-                message:
-                    new Date(invitation.expiresAt) < new Date()
-                        ? localization.INVITATION_EXPIRED
-                        : localization.INVITATION_NOT_FOUND
-            })
+                message: new Date(invitation.expiresAt) < new Date() ? localization.INVITATION_EXPIRED : localization.INVITATION_NOT_FOUND,
+            });
 
-            replace(redirectTo)
+            replace(redirectTo);
         }
-    }, [
-        invitation,
-        isPending,
-        invitationId,
-        localization,
-        toast,
-        replace,
-        redirectTo
-    ])
+    }, [invitation, isPending, invitationId, localization, toast, replace, redirectTo]);
 
     const acceptInvitation = async () => {
-        if (!invitationId) return
+        if (!invitationId) return;
 
-        setIsAccepting(true)
+        setIsAccepting(true);
 
         try {
             await authClient.organization.acceptInvitation({
                 invitationId: invitationId,
-                fetchOptions: { throw: true }
-            })
+                fetchOptions: { throw: true },
+            });
 
             toast({
                 variant: "success",
-                message:
-                    localization.INVITATION_ACCEPTED || "Invitation accepted"
-            })
+                message: localization.INVITATION_ACCEPTED || "Invitation accepted",
+            });
 
-            replace(redirectTo)
+            replace(redirectTo);
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-            setIsAccepting(false)
+                message: getLocalizedError({ error, localization }),
+            });
+            setIsAccepting(false);
         }
-    }
+    };
 
     const rejectInvitation = async () => {
-        if (!invitationId) return
+        if (!invitationId) return;
 
-        setIsRejecting(true)
+        setIsRejecting(true);
 
         try {
             await authClient.organization.rejectInvitation({
                 invitationId: invitationId,
-                fetchOptions: { throw: true }
-            })
+                fetchOptions: { throw: true },
+            });
 
             toast({
                 variant: "success",
-                message: localization.INVITATION_REJECTED
-            })
+                message: localization.INVITATION_REJECTED,
+            });
 
-            replace(redirectTo)
+            replace(redirectTo);
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+                message: getLocalizedError({ error, localization }),
+            });
 
-            setIsRejecting(false)
+            setIsRejecting(false);
         }
-    }
+    };
 
     const builtInRoles = [
         { role: "owner", label: localization.OWNER },
         { role: "admin", label: localization.ADMIN },
-        { role: "member", label: localization.MEMBER }
-    ]
+        { role: "member", label: localization.MEMBER },
+    ];
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])]
-    const roleLabel =
-        roles.find((r) => r.role === invitation?.role)?.label ||
-        invitation?.role
+    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roleLabel = roles.find((r) => r.role === invitation?.role)?.label || invitation?.role;
 
-    if (isPending)
-        return (
-            <AcceptInvitationSkeleton
-                className={className}
-                classNames={classNames}
-            />
-        )
+    if (isPending) return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
 
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
-            <CardHeader
-                className={cn(
-                    "justify-items-center text-center",
-                    classNames?.header
-                )}
-            >
-                <CardTitle
-                    className={cn("text-lg md:text-xl", classNames?.title)}
-                >
-                    {localization.ACCEPT_INVITATION}
-                </CardTitle>
+            <CardHeader className={cn("justify-items-center text-center", classNames?.header)}>
+                <CardTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.ACCEPT_INVITATION}</CardTitle>
 
-                <CardDescription
-                    className={cn(
-                        "text-xs md:text-sm",
-                        classNames?.description
-                    )}
-                >
-                    {localization.ACCEPT_INVITATION_DESCRIPTION}
-                </CardDescription>
+                <CardDescription className={cn("text-xs md:text-sm", classNames?.description)}>{localization.ACCEPT_INVITATION_DESCRIPTION}</CardDescription>
             </CardHeader>
 
-            <CardContent
-                className={cn(
-                    "flex flex-col gap-6 truncate",
-                    classNames?.content
-                )}
-            >
+            <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
                 <Card className={cn("flex-row items-center p-4")}>
                     <OrganizationView
                         organization={
                             invitation
                                 ? {
-                                    id: invitation.organizationId,
-                                    name: invitation.organizationName,
-                                    slug: invitation.organizationSlug,
-                                    logo: invitation.organizationLogo,
-                                    createdAt: new Date()
-                                }
+                                      id: invitation.organizationId,
+                                      name: invitation.organizationName,
+                                      slug: invitation.organizationSlug,
+                                      logo: invitation.organizationLogo,
+                                      createdAt: new Date(),
+                                  }
                                 : null
                         }
                         localization={localization}
                     />
 
-                    <p className="ml-auto text-muted-foreground text-sm">
-                        {roleLabel}
-                    </p>
+                    <p className="text-muted-foreground ml-auto text-sm">{roleLabel}</p>
                 </Card>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <Button
-                        variant="outline"
-                        className={cn(
-                            classNames?.button,
-                            classNames?.outlineButton
-                        )}
-                        onClick={rejectInvitation}
-                        disabled={isProcessing}
-                    >
-                        {isRejecting ? (
-                            <Loader2 className="animate-spin" />
-                        ) : (
-                            <XIcon />
-                        )}
+                    <Button variant="outline" className={cn(classNames?.button, classNames?.outlineButton)} onClick={rejectInvitation} disabled={isProcessing}>
+                        {isRejecting ? <Loader2 className="animate-spin" /> : <XIcon />}
 
                         {localization.REJECT}
                     </Button>
 
-                    <Button
-                        className={cn(
-                            classNames?.button,
-                            classNames?.primaryButton
-                        )}
-                        onClick={acceptInvitation}
-                        disabled={isProcessing}
-                    >
-                        {isAccepting ? (
-                            <Loader2 className="animate-spin" />
-                        ) : (
-                            <CheckIcon />
-                        )}
+                    <Button className={cn(classNames?.button, classNames?.primaryButton)} onClick={acceptInvitation} disabled={isProcessing}>
+                        {isAccepting ? <Loader2 className="animate-spin" /> : <CheckIcon />}
 
                         {localization.ACCEPT}
                     </Button>
                 </div>
             </CardContent>
         </Card>
-    )
+    );
 }
 
-const AcceptInvitationSkeleton = ({
-    className,
-    classNames,
-    localization
-}: AcceptInvitationCardProps) => {
+const AcceptInvitationSkeleton = ({ className, classNames, localization }: AcceptInvitationCardProps) => {
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
-            <CardHeader
-                className={cn("justify-items-center", classNames?.header)}
-            >
-                <Skeleton
-                    className={cn(
-                        "my-1 h-5 w-full max-w-32 md:h-5.5 md:w-40",
-                        classNames?.skeleton
-                    )}
-                />
+            <CardHeader className={cn("justify-items-center", classNames?.header)}>
+                <Skeleton className={cn("md:h-5.5 my-1 h-5 w-full max-w-32 md:w-40", classNames?.skeleton)} />
 
-                <Skeleton
-                    className={cn(
-                        "my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64",
-                        classNames?.skeleton
-                    )}
-                />
+                <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
             </CardHeader>
 
-            <CardContent
-                className={cn(
-                    "flex flex-col gap-6 truncate",
-                    classNames?.content
-                )}
-            >
+            <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
                 <Card className={cn("flex-row items-center p-4")}>
                     <OrganizationView isPending localization={localization} />
 
-                    <Skeleton className="mt-0.5 ml-auto h-4 w-full max-w-14 shrink-2" />
+                    <Skeleton className="shrink-2 ml-auto mt-0.5 h-4 w-full max-w-14" />
                 </Card>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -362,5 +244,5 @@ const AcceptInvitationSkeleton = ({
                 </div>
             </CardContent>
         </Card>
-    )
-}
+    );
+};
