@@ -1,24 +1,14 @@
-import { useLingui } from "@lingui/react/macro";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import SignInForm from "@/features/auth/components/sign-in-form";
+import { createFileRoute } from "@tanstack/react-router";
+import { AuthCard } from "@/features/auth/components/auth/auth-card";
 
 export const Route = createFileRoute("/(auth)/login")({
     component: RouteComponent,
 });
 
 function RouteComponent() {
-    const { t } = useLingui();
-
     return (
         <div className="flex min-h-[calc(100vh-10rem)] w-full flex-col items-center justify-center p-2 md:p-6">
-            <SignInForm />
-            <div className="mt-4 text-center">
-                {t`Don't have an account?`}{" "}
-                <Link to="/register" className="underline">
-                    {t`Register`}
-                </Link>
-                !
-            </div>
+            <AuthCard pathname="sign-in" />
         </div>
     );
 }

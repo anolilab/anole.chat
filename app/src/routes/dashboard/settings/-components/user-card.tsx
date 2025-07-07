@@ -22,7 +22,7 @@ import { AddPasskey } from "./add-passkey";
 import { ChangePassword } from "./change-password";
 import { ChangeUser } from "./change-user";
 import { ListPasskeys } from "./list-passkeys";
-import { authClient, type AuthClient } from "@/features/auth/lib/client";
+import { authClient, type AuthClient } from "@/lib/auth/client";
 import { useLogout } from "@/features/auth/hooks/auth-hooks";
 import { PasswordInput } from "@/features/auth/components/password-input";
 

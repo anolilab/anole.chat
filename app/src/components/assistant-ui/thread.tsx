@@ -26,7 +26,7 @@ import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { agents, type AgentModel } from "@cvx/ai/lib/agents";
 import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
-import { useSession } from "@/features/auth/hooks/auth-hooks";
+import { useSession } from "@/features/auth/hooks/session-user-management";
 
 export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
     return (

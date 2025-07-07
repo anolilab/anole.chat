@@ -1,6 +1,15 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { getAuthRedirectUrl } from "@/lib/utils";
+
 export const Route = createFileRoute("/(public)/")({
-    beforeLoad: ({ context }) => {
+    beforeLoad: async ({ context }) => {
+        // If user is authenticated, try to redirect to their last chat
+        if (context.userId) {
+            const redirectUrl = await getAuthRedirectUrl(context.convexClient);
+            throw redirect({ to: redirectUrl });
+        }
+
+        // Default to chat home for unauthenticated users
         throw redirect({ to: "/chat" });
     },
     component: LandingPage,

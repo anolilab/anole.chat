@@ -11,7 +11,7 @@ import { Fingerprint, Loader2, Trash } from "lucide-react";
 import { useState } from "react";
 import { useLingui } from "@lingui/react/macro";
 import { toast } from "sonner";
-import { authClient } from "@/features/auth/lib/client";
+import { authClient } from "@/lib/auth/client";
 
 export function ListPasskeys() {
     const { t } = useLingui();

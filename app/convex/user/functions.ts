@@ -136,6 +136,47 @@ export const getSelectedModel = query({
     },
 });
 
+export const updateLastChatId = mutation({
+    args: {
+        chatId: v.string(),
+    },
+    returns: v.object({ success: v.boolean() }),
+    handler: async (ctx, { chatId }) => {
+        const userId = await requireUserId(ctx);
+
+        // Find userSettings by userId
+        const userSettings = await ctx.db
+            .query("userSettings")
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .unique();
+
+        if (userSettings) {
+            await ctx.db.patch(userSettings._id, { lastChatId: chatId });
+        } else {
+            await ctx.db.insert("userSettings", {
+                userId: userId as Id<"user">,
+                lastChatId: chatId,
+            });
+        }
+
+        return { success: true };
+    },
+});
+
+export const getLastChatId = query({
+    args: {},
+    returns: v.union(v.string(), v.null()),
+    handler: async (ctx): Promise<string | null> => {
+        const userId = await requireUserId(ctx);
+
+        const userSettings: { lastChatId?: string } | null = await ctx.db
+            .query("userSettings")
+            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
+            .unique();
+        return userSettings?.lastChatId ?? null;
+    },
+});
+
 // --- Admin Functions ---
 export const setUserRole = mutation({
     args: {

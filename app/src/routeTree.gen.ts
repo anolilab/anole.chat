@@ -20,6 +20,7 @@ import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-pas
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as authCallbackRouteImport } from './routes/(auth)/callback'
 import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as chatChatIndexRouteImport } from './routes/(chat)/chat/index'
 import { Route as authTwoFactorIndexRouteImport } from './routes/(auth)/two-factor/index'
@@ -74,6 +75,11 @@ const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => authLayoutRoute,
 } as any)
+const authCallbackRoute = authCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => authLayoutRoute,
+} as any)
 const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -119,6 +125,7 @@ const ApiAiMcpTransportServerRoute = ApiAiMcpTransportServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/callback': typeof authCallbackRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
+  '/callback': typeof authCallbackRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/register': typeof authRegisterRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/(auth)': typeof authLayoutRouteWithChildren
   '/(chat)': typeof chatLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/(auth)/callback': typeof authCallbackRoute
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/register': typeof authRegisterRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/callback'
     | '/forgot-password'
     | '/login'
     | '/register'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/callback'
     | '/forgot-password'
     | '/login'
     | '/register'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/(auth)'
     | '/(chat)'
     | '/dashboard'
+    | '/(auth)/callback'
     | '/(auth)/forgot-password'
     | '/(auth)/login'
     | '/(auth)/register'
@@ -309,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof authLayoutRoute
     }
+    '/(auth)/callback': {
+      id: '/(auth)/callback'
+      path: '/callback'
+      fullPath: '/callback'
+      preLoaderRoute: typeof authCallbackRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
     '/dashboard/settings/': {
       id: '/dashboard/settings/'
       path: '/settings'
@@ -373,6 +392,7 @@ declare module '@tanstack/react-start/server' {
 }
 
 interface authLayoutRouteChildren {
+  authCallbackRoute: typeof authCallbackRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
   authLoginRoute: typeof authLoginRoute
   authRegisterRoute: typeof authRegisterRoute
@@ -383,6 +403,7 @@ interface authLayoutRouteChildren {
 }
 
 const authLayoutRouteChildren: authLayoutRouteChildren = {
+  authCallbackRoute: authCallbackRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
   authLoginRoute: authLoginRoute,
   authRegisterRoute: authRegisterRoute,

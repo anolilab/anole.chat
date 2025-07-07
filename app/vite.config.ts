@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
 
     return {
+        test: {
+            environment: "browser",
+            setupFiles: ["./vitest.setup.ts"],
+            browser: {
+                enabled: true,
+                name: "chromium", // or 'firefox', 'webkit'
+            },
+        },
         optimizeDeps: {
             exclude: ["scripts/*"],
         },

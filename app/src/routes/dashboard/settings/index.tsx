@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {} from "@tanstack/react-router";
+import { } from "@tanstack/react-router";
 import AdminDashboard from "./-components/admin";
 import { OrganizationCard } from "./-components/organization-card";
 import UserCard from "./-components/user-card";
-import { authClient } from "@/features/auth/lib/client";
+import { authClient } from "@/lib/auth/client";
 
 export const Route = createFileRoute("/dashboard/settings/")({
     beforeLoad: ({ context }) => {

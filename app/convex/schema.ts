@@ -4,7 +4,6 @@ import { chatTables } from "./chat/schema";
 import { userTables } from "./user/schema";
 import { subscriptionTables } from "./subscription/schema";
 import { emailTables } from "./email/schema";
-import { aiTables } from "./ai/schema";
 
 const schema = defineSchema({
     ...authTables,
@@ -12,7 +11,6 @@ const schema = defineSchema({
     ...userTables,
     ...subscriptionTables,
     ...emailTables,
-    ...aiTables,
 });
 
 export default schema;
