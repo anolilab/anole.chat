@@ -4,6 +4,7 @@ import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexProvider } from "convex/react";
 import { ConvexReactClient } from "convex/react";
 import { AnalyticsProvider } from "@/providers/analytics-provider";
+import { ConvexQueryCacheProvider } from "convex-helpers/react/cache";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -61,7 +62,9 @@ export const createRouter = ({ i18n }: { i18n: I18n }) => {
                         <I18nProvider i18n={i18n}>
                             <AnalyticsProvider>
                                 <ConvexProvider client={convexQueryClient.convexClient}>
-                                    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+                                    <QueryClientProvider client={queryClient}>
+                                        <ConvexQueryCacheProvider>{props.children}</ConvexQueryCacheProvider>
+                                    </QueryClientProvider>
                                 </ConvexProvider>
                             </AnalyticsProvider>
                         </I18nProvider>
