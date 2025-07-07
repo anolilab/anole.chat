@@ -1,7 +1,5 @@
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext, useRouteContext } from "@tanstack/react-router";
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext, useRouteContext, useRouter } from "@tanstack/react-router";
 import { ReactScan } from "@/components/react-scan";
-
-import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
 
@@ -13,14 +11,19 @@ import { Suspense, lazy } from "react";
 import type { ConvexReactClient } from "convex/react";
 import { createAuth } from "@cvx/auth";
 import { getCookie, getWebRequest } from "@tanstack/react-start/server";
-import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
+import { authClient, fetchSession, getCookieName } from "@/lib/auth/client";
 import { createServerFn } from "@tanstack/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
-import { authClient } from "@/lib/auth/client";
 import { DEFAULT_LOCALE } from "@/lib/intl/client";
 import { i18n } from "@lingui/core";
 import ScreenSizeDebug from "@/components/screen-size-debug";
+import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
+import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
+import { Link } from "@tanstack/react-router";
+import type { AnyAuthClient } from "@/features/auth/types/auth-core-types";
+
+import "../styles.css";
 
 const ReactQueryDevtools = lazy(() => import("@tanstack/react-query-devtools").then((m) => ({ default: m.ReactQueryDevtools })));
 const TanStackRouterDevtools = lazy(() => import("@tanstack/react-router-devtools").then((m) => ({ default: m.TanStackRouterDevtools })));
@@ -32,15 +35,15 @@ interface MyRouterContext {
 }
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-    const sessionCookieName = await getCookieName(createAuth);
-    const token = getCookie(sessionCookieName);
-    const request = getWebRequest();
-    const { session } = await fetchSession(createAuth, request);
+    const sessionCookieName = await getCookieName()
+    const token = getCookie(sessionCookieName)
+    const request = getWebRequest()
+    const { session } = await fetchSession(createAuth, request)
 
     return {
         userId: session?.user.id,
         token,
-    };
+    }
 });
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -58,12 +61,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
                 description: "",
                 keywords: "Ai Chat",
             }),
-        ],
-        links: [
-            {
-                rel: "stylesheet",
-                href: appCss,
-            },
         ],
     }),
     beforeLoad: async (ctx) => {
@@ -84,11 +81,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     },
     component: () => <RootDocument />,
     wrapInSuspense: true,
-    ssr: false,
+    ssr: true,
 });
 
 const RootDocument = () => {
     const context = useRouteContext({ from: Route.id });
+    const router = useRouter();
 
     return (
         <html lang={i18n.locale ?? DEFAULT_LOCALE} suppressHydrationWarning>
@@ -97,12 +95,29 @@ const RootDocument = () => {
             </head>
             <body suppressHydrationWarning className="isolate min-h-svh w-full overflow-hidden">
                 <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
-                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                        <ScreenSizeDebug />
-                        <Outlet />
-                        <Toaster />
-                        <Scripts />
-                    </ThemeProvider>
+                    <AuthQueryProvider>
+                        <AuthUIProviderTanstack
+                            authClient={authClient as unknown as AnyAuthClient}
+                            navigate={(href) => {
+                                router.navigate({ to: href });
+                            }}
+                            replace={(href) => {
+                                router.navigate({ to: href, replace: true });
+                            }}
+                            onSessionChange={() => {
+                                router.invalidate();
+                            }}
+                            persistClient={false}
+                            Link={({ href, ...props }) => <Link to={href} {...props} />}
+                        >
+                        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                            <ScreenSizeDebug />
+                            <Outlet />
+                            <Toaster />
+                            <Scripts />
+                        </ThemeProvider>
+                        </AuthUIProviderTanstack>
+                    </AuthQueryProvider>
                 </ConvexBetterAuthProvider>
                 {import.meta.env.VITE_DEBUG && (
                     <Suspense fallback={null}>

@@ -1,11 +1,9 @@
 import { AuthFunctions, BetterAuth, convexAdapter, PublicAuthFunctions } from "@convex-dev/better-auth";
-import { convex } from "@convex-dev/better-auth/plugins";
+import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
 import { api, components, internal } from "./_generated/api";
-import { twoFactor } from "better-auth/plugins";
-import { emailOTP } from "better-auth/plugins";
 import { sendMagicLink, sendOTPVerification } from "./email/functions";
 import { sendEmailVerification, sendResetPassword } from "./email/functions";
-import { magicLink, organization } from "better-auth/plugins";
+import { magicLink, emailOTP, twoFactor, organization } from "better-auth/plugins";
 import { betterAuth } from "better-auth";
 import { GenericCtx, query } from "./_generated/server";
 import { DataModel, Id } from "./_generated/dataModel";
@@ -92,6 +90,9 @@ export const createAuth = (ctx: GenericCtx) =>
             }),
             twoFactor(),
             convex(),
+            crossDomain({
+                siteUrl: SITE_URL,
+            }),
         ],
     });
 

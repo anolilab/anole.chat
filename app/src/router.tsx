@@ -1,4 +1,4 @@
-import { ErrorComponent, createRouter as createTanstackRouter, useRouter } from "@tanstack/react-router";
+import { ErrorComponent, createRouter as createTanstackRouter } from "@tanstack/react-router";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexProvider } from "convex/react";
@@ -17,13 +17,6 @@ import type { I18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { env } from "@/lib/env";
 import type { ReactNode } from "react";
-
-// Auth providers
-import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
-import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
-import { authClient } from "@/lib/auth/client";
-import { Link } from "@tanstack/react-router";
-import type { AnyAuthClient } from "./features/auth/types/auth-core-types";
 
 export const createRouter = ({ i18n }: { i18n: I18n }) => {
     const convex = new ConvexReactClient(env.VITE_CONVEX_URL, {
@@ -56,42 +49,21 @@ export const createRouter = ({ i18n }: { i18n: I18n }) => {
             defaultStaleTime: 0,
             defaultPreload: "intent",
             defaultViewTransition: true,
-            defaultPendingComponent: DefaultLoading,
             defaultNotFoundComponent: NotFound,
             defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
             Wrap: (props: { children: ReactNode }) => {
-                const router = useRouter();
-
                 return (
-                    <I18nProvider i18n={i18n}>
-                        <GlobalErrorBoundaryProvider>
-                            <AnalyticsProvider>
-                                <ConvexProvider client={convexQueryClient.convexClient}>
-                                    <QueryClientProvider client={queryClient}>
-                                        <AuthQueryProvider>
-                                            <AuthUIProviderTanstack
-                                                authClient={authClient as unknown as AnyAuthClient}
-                                                navigate={(href) => {
-                                                    router.navigate({ to: href });
-                                                }}
-                                                replace={(href) => {
-                                                    router.navigate({ to: href, replace: true });
-                                                }}
-                                                onSessionChange={() => {
-                                                    queryClient.invalidateQueries();
-                                                    router.invalidate();
-                                                }}
-                                                persistClient={false}
-                                                Link={({ href, ...props }) => <Link to={href} {...props} />}
-                                            >
-                                                {props.children}
-                                            </AuthUIProviderTanstack>
-                                        </AuthQueryProvider>
-                                    </QueryClientProvider>
-                                </ConvexProvider>
-                            </AnalyticsProvider>
-                        </GlobalErrorBoundaryProvider>
-                    </I18nProvider>
+                    <GlobalErrorBoundaryProvider>
+                        <I18nProvider i18n={i18n}>
+                                <AnalyticsProvider>
+                                    <ConvexProvider client={convexQueryClient.convexClient}>
+                                        <QueryClientProvider client={queryClient}>
+                                            {props.children}
+                                        </QueryClientProvider>
+                                    </ConvexProvider>
+                                </AnalyticsProvider>
+                        </I18nProvider>
+                    </GlobalErrorBoundaryProvider>
                 );
             },
         }),
