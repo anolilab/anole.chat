@@ -9,9 +9,9 @@ import { seo } from "@/lib/seo";
 import { ThemeProvider } from "next-themes";
 import { Suspense, lazy } from "react";
 import type { ConvexReactClient } from "convex/react";
-import { createAuth } from "@cvx/auth";
 import { getCookie, getWebRequest } from "@tanstack/react-start/server";
-import { authClient, fetchSession, getCookieName } from "@/lib/auth/client";
+import { authClient } from "@/lib/auth/client";
+import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
 import { createServerFn } from "@tanstack/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
@@ -22,8 +22,9 @@ import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
 import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
 import { Link } from "@tanstack/react-router";
 import type { AnyAuthClient } from "@/features/auth/types/auth-core-types";
-
-import "../styles.css";
+import appCss from "../styles.css?url";
+import { createAuth } from "convex/auth";
+import { env } from "@/lib/env";
 
 const ReactQueryDevtools = lazy(() => import("@tanstack/react-query-devtools").then((m) => ({ default: m.ReactQueryDevtools })));
 const TanStackRouterDevtools = lazy(() => import("@tanstack/react-router-devtools").then((m) => ({ default: m.TanStackRouterDevtools })));
@@ -35,15 +36,18 @@ interface MyRouterContext {
 }
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-    const sessionCookieName = await getCookieName()
-    const token = getCookie(sessionCookieName)
-    const request = getWebRequest()
-    const { session } = await fetchSession(createAuth, request)
+    const sessionCookieName = await getCookieName(createAuth);
+    const token = getCookie(sessionCookieName);
+    const request = getWebRequest();
+
+    const { session } = await fetchSession(request, {
+        convexSiteUrl: env.VITE_CONVEX_SITE_URL,
+    });
 
     return {
         userId: session?.user.id,
         token,
-    }
+    };
 });
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -62,9 +66,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
                 keywords: "Ai Chat",
             }),
         ],
+        links: [
+            { rel: "stylesheet", href: appCss },
+            { rel: "icon", href: "/favicon.ico" },
+        ],
     }),
     beforeLoad: async (ctx) => {
-        const auth = await fetchAuth();
+        const auth = await ctx.context.queryClient.fetchQuery({
+            queryKey: ["session"],
+            queryFn: ({ signal }) => fetchAuth({ signal }),
+        });
 
         const { userId, token } = auth;
 
@@ -110,12 +121,12 @@ const RootDocument = () => {
                             persistClient={false}
                             Link={({ href, ...props }) => <Link to={href} {...props} />}
                         >
-                        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                            <ScreenSizeDebug />
-                            <Outlet />
-                            <Toaster />
-                            <Scripts />
-                        </ThemeProvider>
+                            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                                <ScreenSizeDebug />
+                                <Outlet />
+                                <Toaster />
+                                <Scripts />
+                            </ThemeProvider>
                         </AuthUIProviderTanstack>
                     </AuthQueryProvider>
                 </ConvexBetterAuthProvider>

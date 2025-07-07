@@ -6,7 +6,7 @@ import { paginationOptsValidator, PaginationResult } from "convex/server";
 import z from "zod";
 import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
-import { requireUserId } from "@cvx/auth/lib/helper";
+import { requireUserId } from "@convex/auth/lib/helper";
 
 export const createThread = mutation({
     args: {

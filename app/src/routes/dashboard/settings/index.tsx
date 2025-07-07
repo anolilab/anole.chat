@@ -4,7 +4,7 @@ import { SettingsCards } from "@/features/auth/components/settings/settings-card
 export const Route = createFileRoute("/dashboard/settings/")({
     beforeLoad: ({ context }) => {
         if (!context.userId) {
-            throw redirect({ to: "/login" });
+            throw redirect({ to: "/auth/sign-in" });
         }
     },
     component: RouteComponent,
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/dashboard/settings/")({
 
 function RouteComponent() {
     return (
-        <div className="flex justify-center py-12 px-4">
+        <div className="flex justify-center px-4 py-12">
             <SettingsCards className="max-w-xl" />
         </div>
     );

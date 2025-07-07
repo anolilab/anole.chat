@@ -1,6 +1,6 @@
 import type { ThreadMessageLike } from "@assistant-ui/react";
 import type { ReactNode } from "react";
-import type { AgentModel } from "@cvx/ai/lib/agents";
+import type { AgentModel } from "@convex/ai/lib/agents";
 import { providerLogger } from "@/lib/logger";
 
 // Define our message format that matches Convex agent messages

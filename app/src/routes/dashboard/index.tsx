@@ -3,7 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/dashboard/")({
     beforeLoad: ({ context }) => {
         if (!context.userId) {
-            throw redirect({ to: "/login" });
+            throw redirect({ to: "/auth/sign-in" });
         }
 
         throw redirect({ to: "/dashboard/settings" });

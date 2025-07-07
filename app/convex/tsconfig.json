@@ -12,7 +12,7 @@
         "skipLibCheck": true,
         "paths": {
             "~/*": ["../*"],
-            "@cvx/*": ["./*"]
+            "@convex/*": ["./*"]
         },
 
         /* These compiler options are required by Convex */

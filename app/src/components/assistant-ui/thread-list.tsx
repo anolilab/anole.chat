@@ -41,12 +41,12 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { api } from "@cvx/_generated/api";
+import { api } from "@convex/_generated/api";
 import { ShortcutsProvider, KeyCombo, KeySymbol, Keys } from "@/components/ui/keyboard-shortcuts";
 import { Input } from "@/components/ui/input";
 import { useThreadContext } from "@/features/chat/components/thread-context";
 import { handleDownload, type DownloadFormat } from "@/lib/download";
-import type { Doc } from "@cvx/_generated/dataModel";
+import type { Doc } from "@convex/_generated/dataModel";
 import { ValidationError } from "@/lib/errors";
 import { useLingui } from "@lingui/react/macro";
 
@@ -214,14 +214,14 @@ export const ThreadList: FC = () => {
                             <Button
                                 variant="icon"
                                 size="sm"
-                                className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 p-0"
+                                className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0"
                                 onClick={() => setSearchQuery("")}
                             >
                                 <X className="h-3 w-3" />
                             </Button>
                         )}
                         {isSearchLoading && (
-                            <div className="absolute top-1/2 right-8 -translate-y-1/2">
+                            <div className="absolute right-8 top-1/2 -translate-y-1/2">
                                 <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />
                             </div>
                         )}
@@ -1019,7 +1019,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             <TooltipProvider>
                 <div
                     className={cn(
-                        "cursor-pointer hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none",
+                        "cursor-pointer hover:bg-white/10 focus-visible:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
                         isActive && "bg-white/20",
                         isKeyboardSelected && "bg-white/10 ring-2 ring-white/50",
                         !isRootThread && "ml-6",

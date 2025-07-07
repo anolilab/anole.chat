@@ -1,6 +1,6 @@
 import type { AttachmentAdapter, CompleteAttachment, PendingAttachment } from "@assistant-ui/react";
 import type { ConvexReactClient } from "convex/react";
-import { api } from "@cvx/_generated/api";
+import { api } from "@convex/_generated/api";
 
 const getFileText = (file: File): Promise<string> =>
     new Promise<string>((resolve, reject) => {

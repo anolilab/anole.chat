@@ -10,7 +10,7 @@ const ChatPage = () => {
 export const Route = createFileRoute("/(chat)/chat/")({
     beforeLoad: ({ context }) => {
         if (!context.userId) {
-            throw redirect({ to: "/login" });
+            throw redirect({ to: "/auth/sign-in" });
         }
     },
     component: ChatPage,

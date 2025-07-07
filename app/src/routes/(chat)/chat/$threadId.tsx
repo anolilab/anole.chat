@@ -1,6 +1,6 @@
 import { redirect, createFileRoute, useRouteContext } from "@tanstack/react-router";
-import { api } from "@cvx/_generated/api";
-import { DEFAULT_MODEL } from "@cvx/ai/lib/agents";
+import { api } from "@convex/_generated/api";
+import { DEFAULT_MODEL } from "@convex/ai/lib/agents";
 import { Assistant } from "@/features/chat/components/assistant";
 
 const ChatPage = () => {
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
     },
     beforeLoad: async ({ context, params }) => {
         if (!context.userId) {
-            throw redirect({ to: "/login" });
+            throw redirect({ to: "/auth/sign-in" });
         }
 
         if (params.threadId === "new") {

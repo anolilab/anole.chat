@@ -1,5 +1,5 @@
 import { QueryCtx } from "../../_generated/server";
-import { betterAuthComponent } from "@cvx/auth";
+import { betterAuthComponent } from "@convex/auth";
 
 /**
  * Get the current user's ID from the Better Auth context.

@@ -1,7 +1,7 @@
 import { type FC, type ReactNode, createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "@cvx/_generated/api";
-import { DEFAULT_MODEL, type AgentModel } from "@cvx/ai/lib/agents";
+import { api } from "@convex/_generated/api";
+import { DEFAULT_MODEL, type AgentModel } from "@convex/ai/lib/agents";
 
 interface AiModelContextType {
     selectedModel: AgentModel;

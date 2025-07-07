@@ -90,9 +90,11 @@ export const createAuth = (ctx: GenericCtx) =>
             }),
             twoFactor(),
             convex(),
+            /*
             crossDomain({
                 siteUrl: SITE_URL,
             }),
+            */
         ],
     });
 

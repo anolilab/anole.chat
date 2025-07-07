@@ -21,6 +21,9 @@ import type { ReactNode } from "react";
 export const createRouter = ({ i18n }: { i18n: I18n }) => {
     const convex = new ConvexReactClient(env.VITE_CONVEX_URL, {
         unsavedChangesWarning: false,
+        verbose: import.meta.env.VITE_DEBUG,
+        logger: true,
+        reportDebugInfoToConvex: import.meta.env.VITE_DEBUG,
     });
     const convexQueryClient = new ConvexQueryClient(convex);
 
@@ -49,19 +52,18 @@ export const createRouter = ({ i18n }: { i18n: I18n }) => {
             defaultStaleTime: 0,
             defaultPreload: "intent",
             defaultViewTransition: true,
+            defaultPendingComponent: DefaultLoading,
             defaultNotFoundComponent: NotFound,
             defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
             Wrap: (props: { children: ReactNode }) => {
                 return (
                     <GlobalErrorBoundaryProvider>
                         <I18nProvider i18n={i18n}>
-                                <AnalyticsProvider>
-                                    <ConvexProvider client={convexQueryClient.convexClient}>
-                                        <QueryClientProvider client={queryClient}>
-                                            {props.children}
-                                        </QueryClientProvider>
-                                    </ConvexProvider>
-                                </AnalyticsProvider>
+                            <AnalyticsProvider>
+                                <ConvexProvider client={convexQueryClient.convexClient}>
+                                    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+                                </ConvexProvider>
+                            </AnalyticsProvider>
                         </I18nProvider>
                     </GlobalErrorBoundaryProvider>
                 );

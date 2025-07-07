@@ -3,7 +3,7 @@ import { customAlphabet } from "nanoid";
 import { twMerge } from "tailwind-merge";
 import { v7 } from "uuid";
 import type { ConvexReactClient } from "convex/react";
-import { api } from "@cvx/_generated/api";
+import { api } from "@convex/_generated/api";
 
 export function cn(...inputs: Array<ClassValue>) {
     return twMerge(clsx(inputs));

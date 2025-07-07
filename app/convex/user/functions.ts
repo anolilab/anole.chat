@@ -3,7 +3,7 @@ import { mutation, query, internalMutation } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { ROLES, type Role } from "../lib/types";
 import { api, internal } from "../_generated/api";
-import { requireUserId } from "@cvx/auth/lib/helper";
+import { requireUserId } from "@convex/auth/lib/helper";
 
 export const publicUserProfileValidator = v.object({
     _id: v.id("user"),
@@ -144,10 +144,9 @@ export const updateLastChatId = mutation({
     handler: async (ctx, { chatId }) => {
         const userId = await requireUserId(ctx);
 
-        // Find userSettings by userId
         const userSettings = await ctx.db
             .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
             .unique();
 
         if (userSettings) {

@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
 import type { ThreadMessageLike } from "@assistant-ui/react";
-import type { AgentModel } from "@cvx/ai/lib/agents";
+import type { AgentModel } from "@convex/ai/lib/agents";
 import { generateId } from "../providers/types";
 import { AdaptiveThrottle } from "../providers/streaming-optimizations";
 
