@@ -21,9 +21,14 @@ import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as AuthTwoFactorIndexRouteImport } from './routes/auth/two-factor/index'
 import { Route as chatChatIndexRouteImport } from './routes/(chat)/chat/index'
+import { Route as DashboardSettingsSecurityRouteImport } from './routes/dashboard/settings/security'
+import { Route as DashboardSettingsOrganizationsRouteImport } from './routes/dashboard/settings/organizations'
+import { Route as DashboardSettingsOrganizationRouteImport } from './routes/dashboard/settings/organization'
+import { Route as DashboardSettingsMembersRouteImport } from './routes/dashboard/settings/members'
+import { Route as DashboardSettingsApiKeysRouteImport } from './routes/dashboard/settings/api-keys'
+import { Route as DashboardSettingsAccountRouteImport } from './routes/dashboard/settings/account'
 import { Route as AuthTwoFactorOtpRouteImport } from './routes/auth/two-factor/otp'
 import { Route as chatChatThreadIdRouteImport } from './routes/(chat)/chat/$threadId'
 import { Route as AuthAcceptInvitationInvitationIdIndexRouteImport } from './routes/auth/accept-invitation/$invitationId/index'
@@ -81,11 +86,6 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => AuthLayoutRoute,
 } as any)
-const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => DashboardLayoutRoute,
-} as any)
 const AuthTwoFactorIndexRoute = AuthTwoFactorIndexRouteImport.update({
   id: '/two-factor/',
   path: '/two-factor/',
@@ -96,6 +96,42 @@ const chatChatIndexRoute = chatChatIndexRouteImport.update({
   path: '/chat/',
   getParentRoute: () => chatLayoutRoute,
 } as any)
+const DashboardSettingsSecurityRoute =
+  DashboardSettingsSecurityRouteImport.update({
+    id: '/settings/security',
+    path: '/settings/security',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsOrganizationsRoute =
+  DashboardSettingsOrganizationsRouteImport.update({
+    id: '/settings/organizations',
+    path: '/settings/organizations',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsOrganizationRoute =
+  DashboardSettingsOrganizationRouteImport.update({
+    id: '/settings/organization',
+    path: '/settings/organization',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsMembersRoute =
+  DashboardSettingsMembersRouteImport.update({
+    id: '/settings/members',
+    path: '/settings/members',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsApiKeysRoute =
+  DashboardSettingsApiKeysRouteImport.update({
+    id: '/settings/api-keys',
+    path: '/settings/api-keys',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAccountRoute =
+  DashboardSettingsAccountRouteImport.update({
+    id: '/settings/account',
+    path: '/settings/account',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
 const AuthTwoFactorOtpRoute = AuthTwoFactorOtpRouteImport.update({
   id: '/two-factor/otp',
   path: '/two-factor/otp',
@@ -135,9 +171,14 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/chat/$threadId': typeof chatChatThreadIdRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
+  '/dashboard/settings/account': typeof DashboardSettingsAccountRoute
+  '/dashboard/settings/api-keys': typeof DashboardSettingsApiKeysRoute
+  '/dashboard/settings/members': typeof DashboardSettingsMembersRoute
+  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/dashboard/settings/organizations': typeof DashboardSettingsOrganizationsRoute
+  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/chat': typeof chatChatIndexRoute
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
-  '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -151,9 +192,14 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/chat/$threadId': typeof chatChatThreadIdRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
+  '/dashboard/settings/account': typeof DashboardSettingsAccountRoute
+  '/dashboard/settings/api-keys': typeof DashboardSettingsApiKeysRoute
+  '/dashboard/settings/members': typeof DashboardSettingsMembersRoute
+  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/dashboard/settings/organizations': typeof DashboardSettingsOrganizationsRoute
+  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/chat': typeof chatChatIndexRoute
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
-  '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdIndexRoute
 }
 export interface FileRoutesById {
@@ -170,9 +216,14 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/(chat)/chat/$threadId': typeof chatChatThreadIdRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
+  '/dashboard/settings/account': typeof DashboardSettingsAccountRoute
+  '/dashboard/settings/api-keys': typeof DashboardSettingsApiKeysRoute
+  '/dashboard/settings/members': typeof DashboardSettingsMembersRoute
+  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
+  '/dashboard/settings/organizations': typeof DashboardSettingsOrganizationsRoute
+  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/(chat)/chat/': typeof chatChatIndexRoute
   '/auth/two-factor/': typeof AuthTwoFactorIndexRoute
-  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/auth/accept-invitation/$invitationId/': typeof AuthAcceptInvitationInvitationIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -189,9 +240,14 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/chat/$threadId'
     | '/auth/two-factor/otp'
+    | '/dashboard/settings/account'
+    | '/dashboard/settings/api-keys'
+    | '/dashboard/settings/members'
+    | '/dashboard/settings/organization'
+    | '/dashboard/settings/organizations'
+    | '/dashboard/settings/security'
     | '/chat'
     | '/auth/two-factor'
-    | '/dashboard/settings'
     | '/auth/accept-invitation/$invitationId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -205,9 +261,14 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/chat/$threadId'
     | '/auth/two-factor/otp'
+    | '/dashboard/settings/account'
+    | '/dashboard/settings/api-keys'
+    | '/dashboard/settings/members'
+    | '/dashboard/settings/organization'
+    | '/dashboard/settings/organizations'
+    | '/dashboard/settings/security'
     | '/chat'
     | '/auth/two-factor'
-    | '/dashboard/settings'
     | '/auth/accept-invitation/$invitationId'
   id:
     | '__root__'
@@ -223,9 +284,14 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/(chat)/chat/$threadId'
     | '/auth/two-factor/otp'
+    | '/dashboard/settings/account'
+    | '/dashboard/settings/api-keys'
+    | '/dashboard/settings/members'
+    | '/dashboard/settings/organization'
+    | '/dashboard/settings/organizations'
+    | '/dashboard/settings/security'
     | '/(chat)/chat/'
     | '/auth/two-factor/'
-    | '/dashboard/settings/'
     | '/auth/accept-invitation/$invitationId/'
   fileRoutesById: FileRoutesById
 }
@@ -333,13 +399,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthLayoutRoute
     }
-    '/dashboard/settings/': {
-      id: '/dashboard/settings/'
-      path: '/settings'
-      fullPath: '/dashboard/settings'
-      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
     '/auth/two-factor/': {
       id: '/auth/two-factor/'
       path: '/two-factor'
@@ -353,6 +412,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/chat'
       preLoaderRoute: typeof chatChatIndexRouteImport
       parentRoute: typeof chatLayoutRoute
+    }
+    '/dashboard/settings/security': {
+      id: '/dashboard/settings/security'
+      path: '/settings/security'
+      fullPath: '/dashboard/settings/security'
+      preLoaderRoute: typeof DashboardSettingsSecurityRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/organizations': {
+      id: '/dashboard/settings/organizations'
+      path: '/settings/organizations'
+      fullPath: '/dashboard/settings/organizations'
+      preLoaderRoute: typeof DashboardSettingsOrganizationsRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/organization': {
+      id: '/dashboard/settings/organization'
+      path: '/settings/organization'
+      fullPath: '/dashboard/settings/organization'
+      preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/members': {
+      id: '/dashboard/settings/members'
+      path: '/settings/members'
+      fullPath: '/dashboard/settings/members'
+      preLoaderRoute: typeof DashboardSettingsMembersRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/api-keys': {
+      id: '/dashboard/settings/api-keys'
+      path: '/settings/api-keys'
+      fullPath: '/dashboard/settings/api-keys'
+      preLoaderRoute: typeof DashboardSettingsApiKeysRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/account': {
+      id: '/dashboard/settings/account'
+      path: '/settings/account'
+      fullPath: '/dashboard/settings/account'
+      preLoaderRoute: typeof DashboardSettingsAccountRouteImport
+      parentRoute: typeof DashboardLayoutRoute
     }
     '/auth/two-factor/otp': {
       id: '/auth/two-factor/otp'
@@ -439,12 +540,22 @@ const AuthLayoutRouteWithChildren = AuthLayoutRoute._addFileChildren(
 
 interface DashboardLayoutRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
+  DashboardSettingsAccountRoute: typeof DashboardSettingsAccountRoute
+  DashboardSettingsApiKeysRoute: typeof DashboardSettingsApiKeysRoute
+  DashboardSettingsMembersRoute: typeof DashboardSettingsMembersRoute
+  DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute
+  DashboardSettingsOrganizationsRoute: typeof DashboardSettingsOrganizationsRoute
+  DashboardSettingsSecurityRoute: typeof DashboardSettingsSecurityRoute
 }
 
 const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
+  DashboardSettingsAccountRoute: DashboardSettingsAccountRoute,
+  DashboardSettingsApiKeysRoute: DashboardSettingsApiKeysRoute,
+  DashboardSettingsMembersRoute: DashboardSettingsMembersRoute,
+  DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
+  DashboardSettingsOrganizationsRoute: DashboardSettingsOrganizationsRoute,
+  DashboardSettingsSecurityRoute: DashboardSettingsSecurityRoute,
 }
 
 const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(

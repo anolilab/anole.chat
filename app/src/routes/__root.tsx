@@ -45,8 +45,8 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
     });
 
     return {
-        userId: session?.user.id,
         token,
+        ...session,
     };
 });
 
@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             queryFn: ({ signal }) => fetchAuth({ signal }),
         });
 
-        const { userId, token } = auth;
+        const { user, session, token } = auth;
 
         // During SSR only (the only time serverHttpClient exists),
         // set the auth token to make HTTP queries with.
@@ -86,7 +86,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         }
 
         return {
-            userId,
+            user,
+            session,
             token,
         };
     },

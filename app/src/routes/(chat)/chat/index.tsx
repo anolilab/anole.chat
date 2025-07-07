@@ -9,7 +9,7 @@ const ChatPage = () => {
 
 export const Route = createFileRoute("/(chat)/chat/")({
     beforeLoad: ({ context }) => {
-        if (!context.userId) {
+        if (!context?.user?.id) {
             throw redirect({ to: "/auth/sign-in" });
         }
     },

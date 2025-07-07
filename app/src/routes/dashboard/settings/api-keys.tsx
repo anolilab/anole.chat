@@ -1,16 +1,15 @@
+import { APIKeysCard } from "@/features/auth/components/settings/api-key/api-keys-card";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/dashboard/")({
+export const Route = createFileRoute("/dashboard/settings/api-keys")({
     beforeLoad: ({ context }) => {
         if (!context?.user?.id) {
             throw redirect({ to: "/auth/sign-in" });
         }
-
-        throw redirect({ to: "/dashboard/settings/account" });
     },
     component: RouteComponent,
 });
 
 function RouteComponent() {
-    return <div className="flex w-full flex-col items-center justify-center"></div>;
+    return <APIKeysCard />;
 }

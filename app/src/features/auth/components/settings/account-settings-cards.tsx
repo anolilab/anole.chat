@@ -22,7 +22,7 @@ export function AccountSettingsCards({ className, classNames, localization }: Om
     } = useContext(AuthUIContext);
 
     const { data: sessionData } = useSession();
-
+    console.log(sessionData);
     return (
         <div className={cn("flex w-full flex-col gap-4 md:gap-6", className, classNames?.cards)}>
             {settings?.fields?.includes("image") && avatar && <UpdateAvatarCard classNames={classNames?.card} localization={localization} />}

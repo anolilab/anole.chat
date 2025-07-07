@@ -17,7 +17,7 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
         };
     },
     beforeLoad: async ({ context, params }) => {
-        if (!context.userId) {
+        if (!context?.user?.id) {
             throw redirect({ to: "/auth/sign-in" });
         }
 
