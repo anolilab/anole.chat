@@ -1,4 +1,4 @@
-import { ErrorComponent, createRouter as createTanstackRouter } from "@tanstack/react-router";
+import { ErrorComponent, createRouter as createTanstackRouter, useRouter } from "@tanstack/react-router";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexProvider } from "convex/react";
@@ -60,6 +60,8 @@ export const createRouter = ({ i18n }: { i18n: I18n }) => {
             defaultNotFoundComponent: NotFound,
             defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
             Wrap: (props: { children: ReactNode }) => {
+                const router = useRouter();
+
                 return (
                     <I18nProvider i18n={i18n}>
                         <GlobalErrorBoundaryProvider>
@@ -70,23 +72,15 @@ export const createRouter = ({ i18n }: { i18n: I18n }) => {
                                             <AuthUIProviderTanstack
                                                 authClient={authClient as unknown as AnyAuthClient}
                                                 navigate={(href) => {
-                                                    // Use router navigate if available, fallback to window.location
-                                                    const router = (window as any).__tanstack_router__;
-                                                    if (router) {
-                                                        router.navigate({ to: href });
-                                                    } else {
-                                                        window.location.href = href;
-                                                    }
+                                                    router.navigate({ to: href });
                                                 }}
                                                 replace={(href) => {
-                                                    const router = (window as any).__tanstack_router__;
-                                                    if (router) {
-                                                        router.navigate({ to: href, replace: true });
-                                                    } else {
-                                                        window.location.replace(href);
-                                                    }
+                                                    router.navigate({ to: href, replace: true });
                                                 }}
-                                                onSessionChange={() => queryClient.invalidateQueries()}
+                                                onSessionChange={() => {
+                                                    queryClient.invalidateQueries();
+                                                    router.invalidate();
+                                                }}
                                                 persistClient={false}
                                                 Link={({ href, ...props }) => <Link to={href} {...props} />}
                                             >

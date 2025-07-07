@@ -37,7 +37,7 @@ export const getAuthRedirectUrl = async (convex: ConvexReactClient): Promise<str
             const threadExists = await convex.query(api.chat.functions.validateThreadExists, {
                 threadId: lastChatId,
             });
-            console.log(lastChatId, threadExists)
+
             if (threadExists) {
                 return `/chat/${lastChatId}`;
             }
