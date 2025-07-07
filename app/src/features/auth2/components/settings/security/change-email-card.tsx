@@ -1,24 +1,23 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useContext, useState } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { getLocalizedError } from "../../../lib/utils"
 import { cn } from "@/lib/utils"
 import { CardContent } from "@/components/ui/card"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { SettingsCard } from "../shared/settings-card"
 import type { SettingsCardProps } from "../shared/settings-card"
+
+const formSchema = z.object({
+    email: z
+        .string()
+        .min(1, { message: "Email is required" })
+        .email({ message: "Invalid email" })
+})
 
 export function ChangeEmailCard({
     className,
@@ -39,91 +38,99 @@ export function ChangeEmailCard({
     const { data: sessionData, isPending, refetch } = useSession()
     const [resendDisabled, setResendDisabled] = useState(false)
 
-    const formSchema = z.object({
-        email: z
-            .string()
-            .min(1, { message: localization.EMAIL_REQUIRED })
-            .email({ message: localization.INVALID_EMAIL })
-    })
-
-    const form = useForm({
-        resolver: zodResolver(formSchema),
-        values: {
+    const form = useAppForm({
+        defaultValues: {
             email: sessionData?.user.email || ""
-        }
-    })
-
-    const resendForm = useForm()
-
-    const { isSubmitting } = form.formState
-
-    const changeEmail = async ({ email }: z.infer<typeof formSchema>) => {
-        if (email === sessionData?.user.email) {
-            await new Promise((resolve) => setTimeout(resolve))
-            toast({
-                variant: "error",
-                message: localization.EMAIL_IS_THE_SAME
-            })
-            return
-        }
-
-        try {
-            await authClient.changeEmail({
-                newEmail: email,
-                callbackURL: window.location.pathname,
-                fetchOptions: { throw: true }
-            })
-
-            if (sessionData?.user.emailVerified) {
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return { email: result.error.issues[0]?.message }
+                }
+                return undefined
+            }
+        },
+        onSubmit: async ({ value }) => {
+            if (value.email === sessionData?.user.email) {
+                await new Promise((resolve) => setTimeout(resolve))
                 toast({
-                    variant: "success",
-                    message: localization.EMAIL_VERIFY_CHANGE!
+                    variant: "error",
+                    message: localization.EMAIL_IS_THE_SAME
                 })
-            } else {
-                await refetch?.()
+                return
+            }
+
+            try {
+                await authClient.changeEmail({
+                    newEmail: value.email,
+                    callbackURL: window.location.pathname,
+                    fetchOptions: { throw: true }
+                })
+
+                if (sessionData?.user.emailVerified) {
+                    toast({
+                        variant: "success",
+                        message: localization.EMAIL_VERIFY_CHANGE!
+                    })
+                } else {
+                    await refetch?.()
+                    toast({
+                        variant: "success",
+                        message: `${localization.EMAIL} ${localization.UPDATED_SUCCESSFULLY}`
+                    })
+                }
+            } catch (error) {
                 toast({
-                    variant: "success",
-                    message: `${localization.EMAIL} ${localization.UPDATED_SUCCESSFULLY}`
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
                 })
             }
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
         }
-    }
+    })
 
-    const resendVerification = async () => {
-        if (!sessionData) return
-        const email = sessionData.user.email
+    const resendForm = useAppForm({
+        defaultValues: {},
+        onSubmit: async () => {
+            if (!sessionData) return
+            const email = sessionData.user.email
 
-        setResendDisabled(true)
+            setResendDisabled(true)
 
-        try {
-            await authClient.sendVerificationEmail({
-                email,
-                fetchOptions: { throw: true }
-            })
+            try {
+                await authClient.sendVerificationEmail({
+                    email,
+                    fetchOptions: { throw: true }
+                })
 
-            toast({
-                variant: "success",
-                message: localization.EMAIL_VERIFICATION!
-            })
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-            setResendDisabled(false)
-            throw error
+                toast({
+                    variant: "success",
+                    message: localization.EMAIL_VERIFICATION!
+                })
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+                setResendDisabled(false)
+                throw error
+            }
         }
-    }
+    })
+
+    const isSubmitting = form.state.isSubmitting
 
     return (
         <>
-            <Form {...form}>
-                <form noValidate onSubmit={form.handleSubmit(changeEmail)}>
+            <form.AppForm>
+                <form
+                    noValidate
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        form.handleSubmit()
+                    }}
+                >
                     <SettingsCard
                         className={className}
                         classNames={classNames}
@@ -143,12 +150,11 @@ export function ChangeEmailCard({
                                     )}
                                 />
                             ) : (
-                                <FormField
-                                    control={form.control}
+                                <form.AppField
                                     name="email"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
+                                    children={(field) => (
+                                        <field.FormItem>
+                                            <field.FormControl>
                                                 <Input
                                                     className={
                                                         classNames?.input
@@ -157,31 +163,36 @@ export function ChangeEmailCard({
                                                         localization.EMAIL_PLACEHOLDER
                                                     }
                                                     type="email"
+                                                    autoComplete="email"
                                                     disabled={isSubmitting}
-                                                    {...field}
+                                                    value={field.state.value}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
                                                 />
-                                            </FormControl>
+                                            </field.FormControl>
 
-                                            <FormMessage
+                                            <field.FormMessage
                                                 className={classNames?.error}
                                             />
-                                        </FormItem>
+                                        </field.FormItem>
                                     )}
                                 />
                             )}
                         </CardContent>
                     </SettingsCard>
                 </form>
-            </Form>
+            </form.AppForm>
 
             {emailVerification &&
                 sessionData?.user &&
                 !sessionData?.user.emailVerified && (
-                    <Form {...resendForm}>
+                    <resendForm.AppForm>
                         <form
-                            onSubmit={resendForm.handleSubmit(
-                                resendVerification
-                            )}
+                            onSubmit={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                resendForm.handleSubmit()
+                            }}
                         >
                             <SettingsCard
                                 className={className}
@@ -197,7 +208,7 @@ export function ChangeEmailCard({
                                 {...props}
                             />
                         </form>
-                    </Form>
+                    </resendForm.AppForm>
                 )}
         </>
     )

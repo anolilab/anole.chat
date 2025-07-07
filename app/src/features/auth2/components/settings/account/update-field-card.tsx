@@ -1,25 +1,16 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { type ReactNode, useContext } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { getLocalizedError } from "../../../lib/utils"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { FieldType } from "../../../types/additional-fields"
+import type { FieldType } from "../../../types/form-validation-types"
 import { CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -68,9 +59,8 @@ export function UpdateFieldCard({
 
     const { isPending, refetch } = useSession()
 
-    let fieldSchema = z.unknown() as z.ZodType<unknown>
-
     // Create the appropriate schema based on type
+    let fieldSchema = z.unknown() as z.ZodType<unknown>
     if (type === "number") {
         fieldSchema = required
             ? z.preprocess(
@@ -104,56 +94,70 @@ export function UpdateFieldCard({
             : z.string().optional()
     }
 
-    const form = useForm({
-        resolver: zodResolver(z.object({ [name]: fieldSchema })),
-        values: { [name]: value || "" }
+    const form = useAppForm({
+        defaultValues: {
+            [name]: value || ""
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = fieldSchema.safeParse(value[name])
+                if (!result.success) {
+                    return { [name]: result.error.issues[0]?.message }
+                }
+                return undefined
+            }
+        },
+        onSubmit: async ({ value: values }) => {
+            await new Promise((resolve) => setTimeout(resolve))
+            const newValue = values[name]
+
+            if (value === newValue) {
+                toast({
+                    variant: "error",
+                    message: `${label} ${localization.IS_THE_SAME}`
+                })
+                return
+            }
+
+            if (
+                validate &&
+                typeof newValue === "string" &&
+                !(await validate(newValue))
+            ) {
+                form.setErrorMap({
+                    [name]: `${label} ${localization.IS_INVALID}`
+                })
+                return
+            }
+
+            try {
+                await updateUser({ [name]: newValue })
+
+                await refetch?.()
+                toast({
+                    variant: "success",
+                    message: `${label} ${localization.UPDATED_SUCCESSFULLY}`
+                })
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
+        }
     })
 
-    const { isSubmitting } = form.formState
-
-    const updateField = async (values: Record<string, unknown>) => {
-        await new Promise((resolve) => setTimeout(resolve))
-        const newValue = values[name]
-
-        if (value === newValue) {
-            toast({
-                variant: "error",
-                message: `${label} ${localization.IS_THE_SAME}`
-            })
-            return
-        }
-
-        if (
-            validate &&
-            typeof newValue === "string" &&
-            !(await validate(newValue))
-        ) {
-            form.setError(name, {
-                message: `${label} ${localization.IS_INVALID}`
-            })
-
-            return
-        }
-
-        try {
-            await updateUser({ [name]: newValue })
-
-            await refetch?.()
-            toast({
-                variant: "success",
-                message: `${label} ${localization.UPDATED_SUCCESSFULLY}`
-            })
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-    }
+    const isSubmitting = form.state.isSubmitting
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(updateField)}>
+        <form.AppForm>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
+            >
                 <SettingsCard
                     className={className}
                     classNames={classNames}
@@ -166,30 +170,31 @@ export function UpdateFieldCard({
                 >
                     <CardContent className={classNames?.content}>
                         {type === "boolean" ? (
-                            <FormField
-                                control={form.control}
+                            <form.AppField
                                 name={name}
-                                render={({ field }) => (
-                                    <FormItem className="flex">
-                                        <FormControl>
+                                children={(field) => (
+                                    <field.FormItem className="flex">
+                                        <field.FormControl>
                                             <Checkbox
-                                                checked={field.value as boolean}
-                                                onCheckedChange={field.onChange}
+                                                checked={field.state.value as boolean}
+                                                onCheckedChange={(checked) =>
+                                                    field.handleChange(checked as boolean)
+                                                }
                                                 disabled={isSubmitting}
                                                 className={classNames?.checkbox}
                                             />
-                                        </FormControl>
+                                        </field.FormControl>
 
-                                        <FormLabel
+                                        <field.FormLabel
                                             className={classNames?.label}
                                         >
                                             {label}
-                                        </FormLabel>
+                                        </field.FormLabel>
 
-                                        <FormMessage
+                                        <field.FormMessage
                                             className={classNames?.error}
                                         />
-                                    </FormItem>
+                                    </field.FormItem>
                                 )}
                             />
                         ) : isPending ? (
@@ -200,37 +205,33 @@ export function UpdateFieldCard({
                                 )}
                             />
                         ) : (
-                            <FormField
-                                control={form.control}
+                            <form.AppField
                                 name={name}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
+                                children={(field) => (
+                                    <field.FormItem>
+                                        <field.FormControl>
                                             <Input
                                                 className={classNames?.input}
-                                                placeholder={
-                                                    placeholder ||
-                                                    (typeof label === "string"
-                                                        ? label
-                                                        : "")
-                                                }
-                                                type={type}
                                                 disabled={isSubmitting}
-                                                {...field}
-                                                value={field.value as string}
+                                                placeholder={placeholder}
+                                                type={type === "number" ? "number" : "text"}
+                                                autoComplete={name === "name" ? "name" : name === "username" ? "username" : "off"}
+                                                value={field.state.value as string}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => field.handleChange(e.target.value)}
                                             />
-                                        </FormControl>
+                                        </field.FormControl>
 
-                                        <FormMessage
+                                        <field.FormMessage
                                             className={classNames?.error}
                                         />
-                                    </FormItem>
+                                    </field.FormItem>
                                 )}
                             />
                         )}
                     </CardContent>
                 </SettingsCard>
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

@@ -1,10 +1,8 @@
 "use client"
 
-import type { BetterFetchOption } from "@better-fetch/fetch"
-import { zodResolver } from "@hookform/resolvers/zod"
+import type { BetterFetchOption } from "better-auth/react"
 import { Loader2 } from "lucide-react"
 import { useContext, useEffect } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { useCaptcha } from "../../../hooks/use-captcha"
@@ -14,19 +12,12 @@ import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { cn } from "@/lib/utils"
 import { getLocalizedError, getPasswordSchema, isValidEmail } from "../../../lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { PasswordValidation } from "../../../types/password-validation"
+import type { PasswordValidation } from "../../../types/form-validation-types"
 import { Captcha } from "../../captcha/captcha"
 import { PasswordInput } from "../../password-input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import type { AuthFormClassNames } from "../auth-form"
 
@@ -91,92 +82,101 @@ export function SignInForm({
         rememberMe: z.boolean().optional()
     })
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             email: "",
             password: "",
             rememberMe: !rememberMeEnabled
-        }
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors
+                }
+                return undefined
+            },
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                let response: Record<string, unknown> = {}
+
+                if (usernameEnabled && !isValidEmail(value.email)) {
+                    const fetchOptions: BetterFetchOption = {
+                        throw: true,
+                        headers: await getCaptchaHeaders("/sign-in/username")
+                    }
+
+                    response = await authClient.signIn.username({
+                        username: value.email,
+                        password: value.password,
+                        rememberMe: value.rememberMe,
+                        fetchOptions
+                    })
+                } else {
+                    const fetchOptions: BetterFetchOption = {
+                        throw: true,
+                        headers: await getCaptchaHeaders("/sign-in/email")
+                    }
+
+                    response = await authClient.signIn.email({
+                        email: value.email,
+                        password: value.password,
+                        rememberMe: value.rememberMe,
+                        fetchOptions
+                    })
+                }
+
+                if (response.twoFactorRedirect) {
+                    navigate(
+                        `${basePath}/${viewPaths.TWO_FACTOR}${window.location.search}`
+                    )
+                } else {
+                    await onSuccess()
+                }
+            } catch (error) {
+                form.setFieldValue("password", "")
+
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
+        },
     })
 
-    isSubmitting =
-        isSubmitting || form.formState.isSubmitting || transitionPending
-
     useEffect(() => {
-        setIsSubmitting?.(form.formState.isSubmitting || transitionPending)
-    }, [form.formState.isSubmitting, transitionPending, setIsSubmitting])
-
-    async function signIn({
-        email,
-        password,
-        rememberMe
-    }: z.infer<typeof formSchema>) {
-        try {
-            let response: Record<string, unknown> = {}
-
-            if (usernameEnabled && !isValidEmail(email)) {
-                const fetchOptions: BetterFetchOption = {
-                    throw: true,
-                    headers: await getCaptchaHeaders("/sign-in/username")
-                }
-
-                response = await authClient.signIn.username({
-                    username: email,
-                    password,
-                    rememberMe,
-                    fetchOptions
-                })
-            } else {
-                const fetchOptions: BetterFetchOption = {
-                    throw: true,
-                    headers: await getCaptchaHeaders("/sign-in/email")
-                }
-
-                response = await authClient.signIn.email({
-                    email,
-                    password,
-                    rememberMe,
-                    fetchOptions
-                })
+        form.Subscribe({
+            selector: (state) => [state.isSubmitting, transitionPending],
+            children: ([isFormSubmitting, isPending]) => {
+                setIsSubmitting?.(isFormSubmitting || isPending)
+                return null
             }
-
-            if (response.twoFactorRedirect) {
-                navigate(
-                    `${basePath}/${viewPaths.TWO_FACTOR}${window.location.search}`
-                )
-            } else {
-                await onSuccess()
-            }
-        } catch (error) {
-            form.resetField("password")
-
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-    }
+        })
+    }, [setIsSubmitting, transitionPending])
 
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(signIn)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 noValidate={isHydrated}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {usernameEnabled
                                     ? localization.USERNAME
                                     : localization.EMAIL}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <Input
                                     autoComplete={usernameEnabled ? "username" : "email"}
                                     className={classNames?.input}
@@ -186,25 +186,26 @@ export function SignInForm({
                                             ? localization.SIGN_IN_USERNAME_PLACEHOLDER
                                             : localization.EMAIL_PLACEHOLDER
                                     }
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                     disabled={isSubmitting}
-                                    {...field}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="password"
-                    render={({ field }) => (
-                        <FormItem>
+                    children={(field) => (
+                        <field.FormItem>
                             <div className="flex items-center justify-between">
-                                <FormLabel className={classNames?.label}>
+                                <field.FormLabel className={classNames?.label}>
                                     {localization.PASSWORD}
-                                </FormLabel>
+                                </field.FormLabel>
 
                                 {credentials?.forgotPassword && (
                                     <Link
@@ -219,41 +220,42 @@ export function SignInForm({
                                 )}
                             </div>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <PasswordInput
                                     autoComplete="current-password"
                                     className={classNames?.input}
                                     placeholder={
                                         localization.PASSWORD_PLACEHOLDER
                                     }
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                     disabled={isSubmitting}
-                                    {...field}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
                 {rememberMeEnabled && (
-                    <FormField
-                        control={form.control}
+                    <form.AppField
                         name="rememberMe"
-                        render={({ field }) => (
-                            <FormItem className="flex">
-                                <FormControl>
+                        children={(field) => (
+                            <field.FormItem className="flex">
+                                <field.FormControl>
                                     <Checkbox
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
+                                        checked={field.state.value}
+                                        onCheckedChange={(checked) => field.handleChange(checked === true)}
                                         disabled={isSubmitting}
                                     />
-                                </FormControl>
+                                </field.FormControl>
 
-                                <FormLabel>
+                                <field.FormLabel>
                                     {localization.REMEMBER_ME}
-                                </FormLabel>
-                            </FormItem>
+                                </field.FormLabel>
+                            </field.FormItem>
                         )}
                     />
                 )}
@@ -264,22 +266,27 @@ export function SignInForm({
                     action="/sign-in/email"
                 />
 
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={cn(
-                        "w-full",
-                        classNames?.button,
-                        classNames?.primaryButton
+                <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isFormSubmitting]) => (
+                        <Button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting}
+                            className={cn(
+                                "w-full",
+                                classNames?.button,
+                                classNames?.primaryButton
+                            )}
+                        >
+                            {(isFormSubmitting || isSubmitting) ? (
+                                <Loader2 className="animate-spin" />
+                            ) : (
+                                localization.SIGN_IN_ACTION
+                            )}
+                        </Button>
                     )}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        localization.SIGN_IN_ACTION
-                    )}
-                </Button>
+                />
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

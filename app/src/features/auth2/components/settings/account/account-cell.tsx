@@ -8,7 +8,7 @@ import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { getLocalizedError } from "../../../lib/utils"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { Refetch } from "../../../types/refetch"
+import type { Refetch } from "../../../types/hook-integration-types"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {

@@ -1,10 +1,7 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import type { BetterFetchOption } from "better-auth/react"
 import { Loader2 } from "lucide-react"
 import { useContext, useEffect } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { useCaptcha } from "../../../hooks/use-captcha"
 import { useIsHydrated } from "../../../hooks/use-hydrated"
@@ -14,16 +11,10 @@ import { getLocalizedError } from "../../../lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
 import { Captcha } from "../../captcha/captcha"
 import { Button } from "@/components/ui/button"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import type { AuthFormClassNames } from "../auth-form"
+import type { BetterFetchOption } from "better-auth/react"
 
 export interface ForgotPasswordFormProps {
     className?: string
@@ -66,76 +57,93 @@ export function ForgotPasswordForm({
             })
     })
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
-            email: ""
-        }
+            email: "",
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors
+                }
+                return undefined
+            },
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                const fetchOptions: BetterFetchOption = {
+                    throw: true,
+                    headers: await getCaptchaHeaders("/forget-password")
+                }
+
+                await authClient.requestPasswordReset({
+                    email: value.email,
+                    redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
+                    fetchOptions
+                })
+
+                toast({
+                    variant: "success",
+                    message: localization.FORGOT_PASSWORD_EMAIL
+                })
+
+                navigate(
+                    `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
+                )
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
+        },
     })
 
-    isSubmitting = isSubmitting || form.formState.isSubmitting
-
     useEffect(() => {
-        setIsSubmitting?.(form.formState.isSubmitting)
-    }, [form.formState.isSubmitting, setIsSubmitting])
-
-    async function forgotPassword({ email }: z.infer<typeof formSchema>) {
-        try {
-            const fetchOptions: BetterFetchOption = {
-                throw: true,
-                headers: await getCaptchaHeaders("/forget-password")
+        form.Subscribe({
+            selector: (state) => state.isSubmitting,
+            children: (isFormSubmitting) => {
+                setIsSubmitting?.(isFormSubmitting)
+                return null
             }
-
-            await authClient.requestPasswordReset({
-                email,
-                redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
-                fetchOptions
-            })
-
-            toast({
-                variant: "success",
-                message: localization.FORGOT_PASSWORD_EMAIL
-            })
-
-            navigate(
-                `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
-            )
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-    }
+        })
+    }, [setIsSubmitting])
 
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(forgotPassword)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 noValidate={isHydrated}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {localization.EMAIL}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
+                                    autoComplete="email"
                                     placeholder={localization.EMAIL_PLACEHOLDER}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                     disabled={isSubmitting}
-                                    {...field}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
@@ -145,22 +153,27 @@ export function ForgotPasswordForm({
                     action="/forget-password"
                 />
 
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={cn(
-                        "w-full",
-                        classNames?.button,
-                        classNames?.primaryButton
+                <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isFormSubmitting]) => (
+                        <Button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting}
+                            className={cn(
+                                "w-full",
+                                classNames?.button,
+                                classNames?.primaryButton
+                            )}
+                        >
+                            {(isFormSubmitting || isSubmitting) ? (
+                                <Loader2 className="animate-spin" />
+                            ) : (
+                                localization.FORGOT_PASSWORD_ACTION
+                            )}
+                        </Button>
                     )}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        localization.FORGOT_PASSWORD_ACTION
-                    )}
-                </Button>
+                />
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

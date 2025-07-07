@@ -1,10 +1,9 @@
 "use client"
 
 import type { BetterFetchError } from "@better-fetch/fetch"
-import { zodResolver } from "@hookform/resolvers/zod"
+import type { CheckedState } from "@radix-ui/react-checkbox"
 import { Loader2, QrCodeIcon, SendIcon } from "lucide-react"
 import { useContext, useEffect, useRef, useState } from "react"
-import { useForm } from "react-hook-form"
 import QRCode from "react-qr-code"
 import * as z from "zod"
 
@@ -14,17 +13,10 @@ import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { cn } from "@/lib/utils"
 import { getLocalizedError, getSearchParam } from "../../../lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { User } from "../../../types/auth-client"
+import type { User } from "../../../types/auth-core-types"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { InputOTP } from "@/components/ui/input-otp"
 import { Label } from "@/components/ui/label"
 import type { AuthFormClassNames } from "../auth-form"
@@ -39,6 +31,18 @@ export interface TwoFactorFormProps {
     redirectTo?: string
     setIsSubmitting?: (value: boolean) => void
 }
+
+const formSchema = z.object({
+    code: z
+        .string()
+        .min(1, {
+            message: "One-time password is required"
+        })
+        .min(6, {
+            message: "One-time password is invalid"
+        }),
+    trustDevice: z.boolean().optional()
+})
 
 export function TwoFactorForm({
     className,
@@ -80,31 +84,58 @@ export function TwoFactorForm({
     const [isSendingOtp, setIsSendingOtp] = useState(false)
     const [cooldownSeconds, setCooldownSeconds] = useState(0)
 
-    const formSchema = z.object({
-        code: z
-            .string()
-            .min(1, {
-                message: `${localization.ONE_TIME_PASSWORD} ${localization.IS_REQUIRED}`
-            })
-            .min(6, {
-                message: `${localization.ONE_TIME_PASSWORD} ${localization.IS_INVALID}`
-            }),
-        trustDevice: z.boolean().optional()
-    })
-
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
-            code: ""
+            code: "",
+            trustDevice: false
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.issues[0]?.message
+                }
+                return undefined
+            }
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                const verifyMethod =
+                    method === "totp"
+                        ? authClient.twoFactor.verifyTotp
+                        : authClient.twoFactor.verifyOtp
+
+                await verifyMethod({
+                    code: value.code,
+                    trustDevice: value.trustDevice,
+                    fetchOptions: { throw: true }
+                })
+
+                await onSuccess()
+
+                if (sessionData && !isTwoFactorEnabled) {
+                    toast({
+                        variant: "success",
+                        message: localization?.TWO_FACTOR_ENABLED
+                    })
+                }
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+
+                form.reset()
+            }
         }
     })
 
     isSubmitting =
-        isSubmitting || form.formState.isSubmitting || transitionPending
+        isSubmitting || form.state.isSubmitting || transitionPending
 
     useEffect(() => {
-        setIsSubmitting?.(form.formState.isSubmitting || transitionPending)
-    }, [form.formState.isSubmitting, transitionPending, setIsSubmitting])
+        setIsSubmitting?.(form.state.isSubmitting || transitionPending)
+    }, [form.state.isSubmitting, transitionPending, setIsSubmitting])
 
     // biome-ignore lint/correctness/useExhaustiveDependencies:
     useEffect(() => {
@@ -154,44 +185,14 @@ export function TwoFactorForm({
         setIsSendingOtp(false)
     }
 
-    async function verifyCode({
-        code,
-        trustDevice
-    }: z.infer<typeof formSchema>) {
-        try {
-            const verifyMethod =
-                method === "totp"
-                    ? authClient.twoFactor.verifyTotp
-                    : authClient.twoFactor.verifyOtp
-
-            await verifyMethod({
-                code,
-                trustDevice,
-                fetchOptions: { throw: true }
-            })
-
-            await onSuccess()
-
-            if (sessionData && !isTwoFactorEnabled) {
-                toast({
-                    variant: "success",
-                    message: localization?.TWO_FACTOR_ENABLED
-                })
-            }
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-
-            form.reset()
-        }
-    }
-
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(verifyCode)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 {twoFactor?.includes("totp") &&
@@ -214,17 +215,16 @@ export function TwoFactorForm({
 
                 {method !== null && (
                     <>
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="code"
-                            render={({ field }) => (
-                                <FormItem>
+                            children={(field) => (
+                                <field.FormItem>
                                     <div className="flex items-center justify-between">
-                                        <FormLabel
+                                        <field.FormLabel
                                             className={classNames?.label}
                                         >
                                             {localization.ONE_TIME_PASSWORD}
-                                        </FormLabel>
+                                        </field.FormLabel>
 
                                         <Link
                                             className={cn(
@@ -237,17 +237,15 @@ export function TwoFactorForm({
                                         </Link>
                                     </div>
 
-                                    <FormControl>
+                                    <field.FormControl>
                                         <InputOTP
-                                            {...field}
                                             maxLength={6}
+                                            value={field.state.value}
                                             onChange={(value) => {
-                                                field.onChange(value)
+                                                field.handleChange(value)
 
                                                 if (value.length === 6) {
-                                                    form.handleSubmit(
-                                                        verifyCode
-                                                    )()
+                                                    form.handleSubmit()
                                                 }
                                             }}
                                             containerClassName={
@@ -260,33 +258,34 @@ export function TwoFactorForm({
                                                 otpSeparators={otpSeparators}
                                             />
                                         </InputOTP>
-                                    </FormControl>
+                                    </field.FormControl>
 
-                                    <FormMessage
+                                    <field.FormMessage
                                         className={classNames?.error}
                                     />
-                                </FormItem>
+                                </field.FormItem>
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="trustDevice"
-                            render={({ field }) => (
-                                <FormItem className="flex">
-                                    <FormControl>
+                            children={(field) => (
+                                <field.FormItem className="flex">
+                                    <field.FormControl>
                                         <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
+                                            checked={field.state.value}
+                                            onCheckedChange={(checked: CheckedState) => {
+                                                field.handleChange(checked === true)
+                                            }}
                                             disabled={isSubmitting}
                                             className={classNames?.checkbox}
                                         />
-                                    </FormControl>
+                                    </field.FormControl>
 
-                                    <FormLabel className={classNames?.label}>
+                                    <field.FormLabel className={classNames?.label}>
                                         {localization.TRUST_DEVICE}
-                                    </FormLabel>
-                                </FormItem>
+                                    </field.FormLabel>
+                                </field.FormItem>
                             )}
                         />
                     </>
@@ -294,19 +293,24 @@ export function TwoFactorForm({
 
                 <div className="grid gap-4">
                     {method !== null && (
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className={cn(
-                                classNames?.button,
-                                classNames?.primaryButton
+                        <form.Subscribe
+                            selector={(state) => [state.canSubmit, state.isSubmitting]}
+                            children={([canSubmit, isSubmitting]) => (
+                                <Button
+                                    type="submit"
+                                    disabled={!canSubmit || isSubmitting}
+                                    className={cn(
+                                        classNames?.button,
+                                        classNames?.primaryButton
+                                    )}
+                                >
+                                    {isSubmitting && (
+                                        <Loader2 className="animate-spin" />
+                                    )}
+                                    {localization.TWO_FACTOR_ACTION}
+                                </Button>
                             )}
-                        >
-                            {isSubmitting && (
-                                <Loader2 className="animate-spin" />
-                            )}
-                            {localization.TWO_FACTOR_ACTION}
-                        </Button>
+                        />
                     )}
 
                     {method === "otp" && twoFactor?.includes("otp") && (
@@ -368,6 +372,6 @@ export function TwoFactorForm({
                     )}
                 </div>
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

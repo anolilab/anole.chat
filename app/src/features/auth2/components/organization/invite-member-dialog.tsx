@@ -1,9 +1,7 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { type ComponentProps, useContext } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { AuthUIContext } from "../../lib/auth-ui-provider"
@@ -20,14 +18,7 @@ import {
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {
     Select,
@@ -88,43 +79,42 @@ export function InviteMemberDialog({
         })
     })
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             email: "",
             role: "member"
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value)
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                await authClient.organization.inviteMember({
+                    email: value.email,
+                    role: value.role as (typeof builtInRoles)[number]["role"],
+                    organizationId: activeOrganization?.id,
+                    fetchOptions: { throw: true }
+                })
+
+                await refetchActiveOrganization?.()
+
+                onOpenChange?.(false)
+                form.reset()
+
+                toast({
+                    variant: "success",
+                    message:
+                        localization.SEND_INVITATION_SUCCESS ||
+                        "Invitation sent successfully"
+                })
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
     })
-
-    const isSubmitting = form.formState.isSubmitting
-
-    async function onSubmit({ email, role }: z.infer<typeof formSchema>) {
-        try {
-            await authClient.organization.inviteMember({
-                email,
-                role: role as (typeof builtInRoles)[number]["role"],
-                organizationId: activeOrganization?.id,
-                fetchOptions: { throw: true }
-            })
-
-            await refetchActiveOrganization?.()
-
-            onOpenChange?.(false)
-            form.reset()
-
-            toast({
-                variant: "success",
-                message:
-                    localization.SEND_INVITATION_SUCCESS ||
-                    "Invitation sent successfully"
-            })
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-    }
 
     return (
         <Dialog onOpenChange={onOpenChange} {...props}>
@@ -146,54 +136,57 @@ export function InviteMemberDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <Form {...form}>
+                <form.AppForm>
                     <form
-                        onSubmit={form.handleSubmit(onSubmit)}
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            form.handleSubmit()
+                        }}
                         className="space-y-6"
                     >
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className={classNames?.label}>
+                            children={(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel className={classNames?.label}>
                                         {localization.EMAIL}
-                                    </FormLabel>
+                                    </field.FormLabel>
 
-                                    <FormControl>
+                                    <field.FormControl>
                                         <Input
-                                            placeholder={
-                                                localization.EMAIL_PLACEHOLDER
-                                            }
+                                            placeholder={localization.EMAIL_PLACEHOLDER}
                                             type="email"
-                                            {...field}
+                                            autoComplete="email"
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
                                             className={classNames?.input}
                                         />
-                                    </FormControl>
+                                    </field.FormControl>
 
-                                    <FormMessage />
-                                </FormItem>
+                                    <field.FormMessage />
+                                </field.FormItem>
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="role"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className={classNames?.label}>
+                            children={(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel className={classNames?.label}>
                                         {localization.ROLE}
-                                    </FormLabel>
+                                    </field.FormLabel>
 
                                     <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
+                                        onValueChange={field.handleChange}
+                                        value={field.state.value}
                                     >
-                                        <FormControl>
+                                        <field.FormControl>
                                             <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
-                                        </FormControl>
+                                        </field.FormControl>
 
                                         <SelectContent>
                                             {availableRoles.map((role) => (
@@ -207,41 +200,30 @@ export function InviteMemberDialog({
                                         </SelectContent>
                                     </Select>
 
-                                    <FormMessage />
-                                </FormItem>
+                                    <field.FormMessage />
+                                </field.FormItem>
                             )}
                         />
 
                         <DialogFooter className={classNames?.dialog?.footer}>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => onOpenChange?.(false)}
-                                className={cn(
-                                    classNames?.button,
-                                    classNames?.outlineButton
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button
+                                        type="submit"
+                                        disabled={!canSubmit}
+                                        className={classNames?.button}
+                                    >
+                                        {isSubmitting && (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        {localization.SEND_INVITATION}
+                                    </Button>
                                 )}
-                            >
-                                {localization.CANCEL}
-                            </Button>
-
-                            <Button
-                                type="submit"
-                                className={cn(
-                                    classNames?.button,
-                                    classNames?.primaryButton
-                                )}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting && (
-                                    <Loader2 className="animate-spin" />
-                                )}
-
-                                {localization.SEND_INVITATION}
-                            </Button>
+                            />
                         </DialogFooter>
                     </form>
-                </Form>
+                </form.AppForm>
             </DialogContent>
         </Dialog>
     )

@@ -1,6 +1,6 @@
 import * as z from "zod"
 import type { AuthLocalization } from "../localization/auth-localization"
-import type { PasswordValidation } from "../types/password-validation"
+import type { PasswordValidation } from "../types/form-validation-types"
 import type { AuthView, AuthViewPaths } from "./auth-view-paths"
 
 export function isValidEmail(email: string) {

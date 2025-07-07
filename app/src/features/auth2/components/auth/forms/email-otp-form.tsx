@@ -1,9 +1,7 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { useContext, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { useIsHydrated } from "../../../hooks/use-hydrated"
@@ -13,14 +11,7 @@ import { cn } from "@/lib/utils"
 import { getLocalizedError } from "../../../lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
 import { Button } from "@/components/ui/button"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { InputOTP } from "@/components/ui/input-otp"
 import type { AuthFormClassNames } from "../auth-form"
@@ -78,89 +69,111 @@ function EmailForm({
             })
     })
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             email: ""
-        }
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors
+                }
+                return undefined
+            },
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                await authClient.emailOtp.sendVerificationOtp({
+                    email: value.email,
+                    type: "sign-in",
+                    fetchOptions: { throw: true }
+                })
+
+                toast({
+                    variant: "success",
+                    message: localization.EMAIL_OTP_VERIFICATION_SENT
+                })
+
+                setEmail(value.email)
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
+        },
     })
 
-    isSubmitting = isSubmitting || form.formState.isSubmitting
-
     useEffect(() => {
-        setIsSubmitting?.(form.formState.isSubmitting)
-    }, [form.formState.isSubmitting, setIsSubmitting])
-
-    async function sendEmailOTP({ email }: z.infer<typeof formSchema>) {
-        try {
-            await authClient.emailOtp.sendVerificationOtp({
-                email,
-                type: "sign-in",
-                fetchOptions: { throw: true }
-            })
-
-            toast({
-                variant: "success",
-                message: localization.EMAIL_OTP_VERIFICATION_SENT
-            })
-
-            setEmail(email)
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-    }
+        form.Subscribe({
+            selector: (state) => state.isSubmitting,
+            children: (isFormSubmitting) => {
+                setIsSubmitting?.(isFormSubmitting)
+                return null
+            }
+        })
+    }, [setIsSubmitting])
 
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(sendEmailOTP)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 noValidate={isHydrated}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {localization.EMAIL}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
+                                    autoComplete="email"
                                     placeholder={localization.EMAIL_PLACEHOLDER}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                     disabled={isSubmitting}
-                                    {...field}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={cn(
-                        "w-full",
-                        classNames?.button,
-                        classNames?.primaryButton
+                <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isFormSubmitting]) => (
+                        <Button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting}
+                            className={cn(
+                                "w-full",
+                                classNames?.button,
+                                classNames?.primaryButton
+                            )}
+                        >
+                            {(isFormSubmitting || isSubmitting) ? (
+                                <Loader2 className="animate-spin" />
+                            ) : (
+                                localization.EMAIL_OTP_SEND_ACTION
+                            )}
+                        </Button>
                     )}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        localization.EMAIL_OTP_SEND_ACTION
-                    )}
-                </Button>
+                />
             </form>
-        </Form>
+        </form.AppForm>
     )
 }
 
@@ -199,63 +212,76 @@ export function OTPForm({
             })
     })
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             code: ""
-        }
+        },
+        validators: {
+            onChange: ({ value }: { value: { code: string } }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors
+                }
+                return undefined
+            },
+        },
+        onSubmit: async ({ value }: { value: { code: string } }) => {
+            try {
+                await authClient.signIn.emailOtp({
+                    email,
+                    otp: value.code,
+                    fetchOptions: { throw: true }
+                })
+
+                await onSuccess()
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+
+                form.reset()
+            }
+        },
     })
 
-    isSubmitting =
-        isSubmitting || form.formState.isSubmitting || transitionPending
-
     useEffect(() => {
-        setIsSubmitting?.(form.formState.isSubmitting || transitionPending)
-    }, [form.formState.isSubmitting, transitionPending, setIsSubmitting])
-
-    async function verifyCode({ code }: z.infer<typeof formSchema>) {
-        try {
-            await authClient.signIn.emailOtp({
-                email,
-                otp: code,
-                fetchOptions: { throw: true }
-            })
-
-            await onSuccess()
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-
-            form.reset()
-        }
-    }
+        form.Subscribe({
+            selector: (state) => [state.isSubmitting, transitionPending],
+            children: ([isFormSubmitting, isPending]) => {
+                setIsSubmitting?.(isFormSubmitting || isPending)
+                return null
+            }
+        })
+    }, [setIsSubmitting, transitionPending])
 
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(verifyCode)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="code"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {localization.EMAIL_OTP}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <InputOTP
-                                    {...field}
+                                    value={field.state.value}
                                     maxLength={6}
                                     onChange={(value) => {
-                                        field.onChange(value)
+                                        field.handleChange(value)
 
                                         if (value.length === 6) {
-                                            form.handleSubmit(verifyCode)()
+                                            form.handleSubmit()
                                         }
                                     }}
                                     containerClassName={
@@ -268,27 +294,32 @@ export function OTPForm({
                                         otpSeparators={otpSeparators}
                                     />
                                 </InputOTP>
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
                 <div className="grid gap-4">
-                    <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={cn(
-                            classNames?.button,
-                            classNames?.primaryButton
+                    <form.Subscribe
+                        selector={(state) => [state.canSubmit, state.isSubmitting]}
+                        children={([canSubmit, isFormSubmitting]) => (
+                            <Button
+                                type="submit"
+                                disabled={!canSubmit || isSubmitting}
+                                className={cn(
+                                    classNames?.button,
+                                    classNames?.primaryButton
+                                )}
+                            >
+                                {(isFormSubmitting || isSubmitting) && <Loader2 className="animate-spin" />}
+                                {localization.EMAIL_OTP_VERIFY_ACTION}
+                            </Button>
                         )}
-                    >
-                        {isSubmitting && <Loader2 className="animate-spin" />}
-                        {localization.EMAIL_OTP_VERIFY_ACTION}
-                    </Button>
+                    />
                 </div>
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

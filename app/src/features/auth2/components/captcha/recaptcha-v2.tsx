@@ -1,7 +1,7 @@
 import { type RefObject, useContext, useEffect } from "react"
 import ReCAPTCHA from "react-google-recaptcha"
 import { useLang } from "../../hooks/use-lang"
-import { useTheme } from "../../hooks/use-theme"
+import { useTheme } from "next-themes"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import { cn } from "@/lib/utils"
 
@@ -11,7 +11,8 @@ export function RecaptchaV2({
     ref: RefObject<ReCAPTCHA | null>
 }) {
     const { captcha } = useContext(AuthUIContext)
-    const { theme } = useTheme()
+    const { resolvedTheme } = useTheme()
+    const theme = resolvedTheme === "dark" ? "dark" : "light"
     const { lang } = useLang()
 
     useEffect(() => {

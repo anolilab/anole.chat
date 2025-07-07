@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react"
 import { AuthUIContext } from "../lib/auth-ui-provider"
-import type { AuthView } from "../server"
-import type { AnyAuthClient } from "../types/any-auth-client"
+import type { AuthView } from "../lib/auth-view-paths"
+import type { AnyAuthClient } from "../types/auth-core-types"
 
 interface AuthenticateOptions<TAuthClient extends AnyAuthClient> {
     authClient?: TAuthClient
@@ -27,9 +27,9 @@ export function useAuthenticate<TAuthClient extends AnyAuthClient>(
     const { data, isPending, error, refetch } = useSession()
     const sessionData = data as
         | {
-              session: Session
-              user: User
-          }
+            session: Session
+            user: User
+        }
         | null
         | undefined
 

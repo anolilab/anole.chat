@@ -8,7 +8,7 @@ import { AuthUIContext } from "../lib/auth-ui-provider"
 import { getGravatarUrl } from "../lib/gravatar-utils"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../localization/auth-localization"
-import type { Profile } from "../types/profile"
+import type { Profile } from "../types/data-structure-types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 

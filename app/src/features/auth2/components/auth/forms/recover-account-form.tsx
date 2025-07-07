@@ -1,8 +1,6 @@
 "use client"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { useContext, useEffect } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition"
@@ -11,14 +9,7 @@ import { cn } from "@/lib/utils"
 import { getLocalizedError } from "../../../lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
 import { Button } from "@/components/ui/button"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import type { AuthFormClassNames } from "../auth-form"
 
@@ -30,6 +21,10 @@ export interface RecoverAccountFormProps {
     redirectTo?: string
     setIsSubmitting?: (value: boolean) => void
 }
+
+const formSchema = z.object({
+    code: z.string().min(1, { message: "Backup code is required" })
+})
 
 export function RecoverAccountForm({
     className,
@@ -51,58 +46,64 @@ export function RecoverAccountForm({
         redirectTo
     })
 
-    const formSchema = z.object({
-        code: z.string().min(1, { message: localization.BACKUP_CODE_REQUIRED })
-    })
-
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             code: ""
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.issues[0]?.message
+                }
+                return undefined
+            }
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                await authClient.twoFactor.verifyBackupCode({
+                    code: value.code,
+                    fetchOptions: { throw: true }
+                })
+
+                await onSuccess()
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+
+                form.reset()
+            }
         }
     })
 
     isSubmitting =
-        isSubmitting || form.formState.isSubmitting || transitionPending
+        isSubmitting || form.state.isSubmitting || transitionPending
 
     useEffect(() => {
-        setIsSubmitting?.(form.formState.isSubmitting || transitionPending)
-    }, [form.formState.isSubmitting, transitionPending, setIsSubmitting])
-
-    async function verifyBackupCode({ code }: z.infer<typeof formSchema>) {
-        try {
-            await authClient.twoFactor.verifyBackupCode({
-                code,
-                fetchOptions: { throw: true }
-            })
-
-            await onSuccess()
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-
-            form.reset()
-        }
-    }
+        setIsSubmitting?.(form.state.isSubmitting || transitionPending)
+    }, [form.state.isSubmitting, transitionPending, setIsSubmitting])
 
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(verifyBackupCode)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 className={cn("grid gap-6", className, classNames?.base)}
             >
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="code"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {localization.BACKUP_CODE}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <Input
                                     placeholder={
                                         localization.BACKUP_CODE_PLACEHOLDER
@@ -110,30 +111,37 @@ export function RecoverAccountForm({
                                     autoComplete="off"
                                     className={classNames?.input}
                                     disabled={isSubmitting}
-                                    {...field}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={cn(
-                        classNames?.button,
-                        classNames?.primaryButton
+                <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isSubmitting]) => (
+                        <Button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting}
+                            className={cn(
+                                classNames?.button,
+                                classNames?.primaryButton
+                            )}
+                        >
+                            {isSubmitting ? (
+                                <Loader2 className="animate-spin" />
+                            ) : (
+                                localization.RECOVER_ACCOUNT_ACTION
+                            )}
+                        </Button>
                     )}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        localization.RECOVER_ACCOUNT_ACTION
-                    )}
-                </Button>
+                />
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

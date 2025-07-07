@@ -1,30 +1,21 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useContext } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { getLocalizedError, getPasswordSchema } from "../../../lib/utils"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { PasswordValidation } from "../../../types/password-validation"
+import type { PasswordValidation } from "../../../types/form-validation-types"
 import { PasswordInput } from "../../password-input"
 import { CardContent } from "@/components/ui/card"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useAppForm } from "@/components/ui/form"
 import {
     SettingsCard,
     type SettingsCardClassNames
 } from "../shared/settings-card"
-import { InputFieldSkeleton } from "../skeletons/input-field-skeleton"
 
 export interface ChangePasswordCardProps {
     className?: string
@@ -101,67 +92,67 @@ export function ChangePasswordCard({
             }
         )
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             currentPassword: "",
             newPassword: "",
             confirmPassword: ""
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value)
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                await authClient.changePassword({
+                    currentPassword: value.currentPassword,
+                    newPassword: value.newPassword,
+                    revokeOtherSessions: true,
+                    fetchOptions: { throw: true }
+                })
+
+                toast({
+                    variant: "success",
+                    message: localization.CHANGE_PASSWORD_SUCCESS!
+                })
+
+                form.reset()
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
     })
 
-    const setPasswordForm = useForm()
+    const setPasswordForm = useAppForm({
+        defaultValues: {},
+        validators: {
+            onChange: () => ({ success: true, data: {} })
+        },
+        onSubmit: async () => {
+            if (!sessionData) return
+            const email = sessionData?.user.email
 
-    const { isSubmitting } = form.formState
+            try {
+                await authClient.requestPasswordReset({
+                    email,
+                    redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
+                    fetchOptions: { throw: true }
+                })
 
-    const setPassword = async () => {
-        if (!sessionData) return
-        const email = sessionData?.user.email
-
-        try {
-            await authClient.requestPasswordReset({
-                email,
-                redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
-                fetchOptions: { throw: true }
-            })
-
-            toast({
-                variant: "success",
-                message: localization.FORGOT_PASSWORD_EMAIL!
-            })
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+                toast({
+                    variant: "success",
+                    message: localization.FORGOT_PASSWORD_EMAIL!
+                })
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
-    }
-
-    const changePassword = async ({
-        currentPassword,
-        newPassword
-    }: z.infer<typeof formSchema>) => {
-        try {
-            await authClient.changePassword({
-                currentPassword,
-                newPassword,
-                revokeOtherSessions: true,
-                fetchOptions: { throw: true }
-            })
-
-            toast({
-                variant: "success",
-                message: localization.CHANGE_PASSWORD_SUCCESS!
-            })
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-
-        form.reset()
-    }
+    })
 
     const credentialsLinked = accounts?.some(
         (acc) => acc.provider === "credential"
@@ -169,8 +160,14 @@ export function ChangePasswordCard({
 
     if (!isPending && !credentialsLinked) {
         return (
-            <Form {...setPasswordForm}>
-                <form onSubmit={setPasswordForm.handleSubmit(setPassword)}>
+            <setPasswordForm.AppForm>
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setPasswordForm.handleSubmit()
+                    }}
+                >
                     <SettingsCard
                         title={localization.SET_PASSWORD}
                         description={localization.SET_PASSWORD_DESCRIPTION}
@@ -180,13 +177,19 @@ export function ChangePasswordCard({
                         classNames={classNames}
                     />
                 </form>
-            </Form>
+            </setPasswordForm.AppForm>
         )
     }
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(changePassword)}>
+        <form.AppForm>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
+            >
                 <SettingsCard
                     className={className}
                     classNames={classNames}
@@ -201,29 +204,35 @@ export function ChangePasswordCard({
                     >
                         {isPending || !accounts ? (
                             <>
-                                <InputFieldSkeleton classNames={classNames} />
-                                <InputFieldSkeleton classNames={classNames} />
+                                <div className="flex flex-col gap-1.5">
+                                    <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
+                                    <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
+                                    <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                                </div>
 
                                 {confirmPasswordEnabled && (
-                                    <InputFieldSkeleton
-                                        classNames={classNames}
-                                    />
+                                    <div className="flex flex-col gap-1.5">
+                                        <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
+                                        <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                                    </div>
                                 )}
                             </>
                         ) : (
                             <>
-                                <FormField
-                                    control={form.control}
+                                <form.AppField
                                     name="currentPassword"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel
+                                    children={(field) => (
+                                        <field.FormItem>
+                                            <field.FormLabel
                                                 className={classNames?.label}
                                             >
                                                 {localization.CURRENT_PASSWORD}
-                                            </FormLabel>
+                                            </field.FormLabel>
 
-                                            <FormControl>
+                                            <field.FormControl>
                                                 <PasswordInput
                                                     className={
                                                         classNames?.input
@@ -232,58 +241,58 @@ export function ChangePasswordCard({
                                                     placeholder={
                                                         localization.CURRENT_PASSWORD_PLACEHOLDER
                                                     }
-                                                    disabled={isSubmitting}
-                                                    {...field}
+                                                    value={field.state.value}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
                                                 />
-                                            </FormControl>
+                                            </field.FormControl>
 
-                                            <FormMessage
+                                            <field.FormMessage
                                                 className={classNames?.error}
                                             />
-                                        </FormItem>
+                                        </field.FormItem>
                                     )}
                                 />
 
-                                <FormField
-                                    control={form.control}
+                                <form.AppField
                                     name="newPassword"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel
+                                    children={(field) => (
+                                        <field.FormItem>
+                                            <field.FormLabel
                                                 className={classNames?.label}
                                             >
                                                 {localization.NEW_PASSWORD}
-                                            </FormLabel>
+                                            </field.FormLabel>
 
-                                            <FormControl>
+                                            <field.FormControl>
                                                 <PasswordInput
                                                     className={
                                                         classNames?.input
                                                     }
                                                     autoComplete="new-password"
-                                                    disabled={isSubmitting}
                                                     placeholder={
                                                         localization.NEW_PASSWORD_PLACEHOLDER
                                                     }
                                                     enableToggle
-                                                    {...field}
+                                                    value={field.state.value}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => field.handleChange(e.target.value)}
                                                 />
-                                            </FormControl>
+                                            </field.FormControl>
 
-                                            <FormMessage
+                                            <field.FormMessage
                                                 className={classNames?.error}
                                             />
-                                        </FormItem>
+                                        </field.FormItem>
                                     )}
                                 />
 
                                 {confirmPasswordEnabled && (
-                                    <FormField
-                                        control={form.control}
+                                    <form.AppField
                                         name="confirmPassword"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel
+                                        children={(field) => (
+                                            <field.FormItem>
+                                                <field.FormLabel
                                                     className={
                                                         classNames?.label
                                                     }
@@ -291,9 +300,9 @@ export function ChangePasswordCard({
                                                     {
                                                         localization.CONFIRM_PASSWORD
                                                     }
-                                                </FormLabel>
+                                                </field.FormLabel>
 
-                                                <FormControl>
+                                                <field.FormControl>
                                                     <PasswordInput
                                                         className={
                                                             classNames?.input
@@ -302,18 +311,19 @@ export function ChangePasswordCard({
                                                         placeholder={
                                                             localization.CONFIRM_PASSWORD_PLACEHOLDER
                                                         }
-                                                        disabled={isSubmitting}
                                                         enableToggle
-                                                        {...field}
+                                                        value={field.state.value}
+                                                        onBlur={field.handleBlur}
+                                                        onChange={(e) => field.handleChange(e.target.value)}
                                                     />
-                                                </FormControl>
+                                                </field.FormControl>
 
-                                                <FormMessage
+                                                <field.FormMessage
                                                     className={
                                                         classNames?.error
                                                     }
                                                 />
-                                            </FormItem>
+                                            </field.FormItem>
                                         )}
                                     />
                                 )}
@@ -322,6 +332,6 @@ export function ChangePasswordCard({
                     </CardContent>
                 </SettingsCard>
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

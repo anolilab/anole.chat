@@ -20,7 +20,7 @@ import { AuthUIContext } from "../../lib/auth-ui-provider"
 import { getLocalizedError } from "../../lib/utils"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../../localization/auth-localization"
-import type { User } from "../../types/auth-client"
+import type { User } from "../../types/auth-core-types"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,

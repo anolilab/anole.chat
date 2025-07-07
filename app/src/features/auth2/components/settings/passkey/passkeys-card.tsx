@@ -1,14 +1,13 @@
 "use client"
 
 import { useContext, useState } from "react"
-import { useForm } from "react-hook-form"
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { getLocalizedError } from "../../../lib/utils"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
 import { CardContent } from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { SessionFreshnessDialog } from "../shared/session-freshness-dialog"
 import { SettingsCard } from "../shared/settings-card"
 import type { SettingsCardClassNames } from "../shared/settings-card"
@@ -45,27 +44,28 @@ export function PasskeysCard({
 
     const [showFreshnessDialog, setShowFreshnessDialog] = useState(false)
 
-    const addPasskey = async () => {
-        // If session isn't fresh, show the freshness dialog
-        if (!isFresh) {
-            setShowFreshnessDialog(true)
-            return
-        }
+    const form = useAppForm({
+        defaultValues: {},
+        onSubmit: async () => {
+            // If session isn't fresh, show the freshness dialog
+            if (!isFresh) {
+                setShowFreshnessDialog(true)
+                return
+            }
 
-        try {
-            await authClient.passkey.addPasskey({
-                fetchOptions: { throw: true }
-            })
-            await refetch?.()
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+            try {
+                await authClient.passkey.addPasskey({
+                    fetchOptions: { throw: true }
+                })
+                await refetch?.()
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
-    }
-
-    const form = useForm()
+    })
 
     return (
         <>
@@ -76,8 +76,14 @@ export function PasskeysCard({
                 localization={localization}
             />
 
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(addPasskey)}>
+            <form.AppForm>
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        form.handleSubmit()
+                    }}
+                >
                     <SettingsCard
                         className={className}
                         classNames={classNames}
@@ -106,7 +112,7 @@ export function PasskeysCard({
                         )}
                     </SettingsCard>
                 </form>
-            </Form>
+            </form.AppForm>
         </>
     )
 }

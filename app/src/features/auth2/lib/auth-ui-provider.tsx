@@ -17,27 +17,24 @@ import {
     type AuthLocalization,
     authLocalization
 } from "../localization/auth-localization"
-import type { AdditionalFields } from "../types/additional-fields"
-import type { AnyAuthClient } from "../types/any-auth-client"
-import type { AuthClient } from "../types/auth-client"
-import type { AuthHooks } from "../types/auth-hooks"
-import type { AuthMutators } from "../types/auth-mutators"
-import type { AvatarOptions } from "../types/avatar-options"
-import type { CaptchaOptions } from "../types/captcha-options"
-import type { CredentialsOptions } from "../types/credentials-options"
-import type { DeleteUserOptions } from "../types/delete-user-options"
-import type { GenericOAuthOptions } from "../types/generic-oauth-options"
-import type { GravatarOptions } from "../types/gravatar-options"
-import type { Link } from "../types/link"
+import type { AnyAuthClient, AuthClient } from "../types/auth-core-types"
+import type { AdditionalFields } from "../types/form-validation-types"
+import type { AuthHooks, AuthMutators } from "../types/hook-integration-types"
+import type { AvatarOptions, CaptchaOptions } from "../types/ui-configuration-types"
+import type { Link } from "../types/data-structure-types"
+import type { PasswordValidation } from "../types/form-validation-types"
+import type { RenderToast } from "../types/hook-integration-types"
 import type {
+    CredentialsOptions,
+    DeleteUserOptions,
+    GenericOAuthOptions,
+    GravatarOptions,
     OrganizationOptions,
-    OrganizationOptionsContext
-} from "../types/organization-options"
-import type { PasswordValidation } from "../types/password-validation"
-import type { RenderToast } from "../types/render-toast"
-import type { SettingsOptions } from "../types/settings-options"
-import type { SignUpOptions } from "../types/sign-up-options"
-import type { SocialOptions } from "../types/social-options"
+    OrganizationOptionsContext,
+    SettingsOptions,
+    SignUpOptions,
+    SocialOptions
+} from "../types/ui-configuration-types"
 import { type AuthViewPaths, authViewPaths } from "./auth-view-paths"
 import type { Provider } from "./social-providers"
 import { getLocalizedError, getSearchParam } from "./utils"
@@ -74,17 +71,17 @@ export type AuthUIContextType = {
      * API Key plugin configuration
      */
     apiKey?:
-        | {
-              /**
-               * Prefix for API Keys
-               */
-              prefix?: string
-              /**
-               * Metadata for API Keys
-               */
-              metadata?: Record<string, unknown>
-          }
-        | boolean
+    | {
+        /**
+         * Prefix for API Keys
+         */
+        prefix?: string
+        /**
+         * Metadata for API Keys
+         */
+        metadata?: Record<string, unknown>
+    }
+    | boolean
     /**
      * Avatar configuration
      * @default undefined
@@ -828,7 +825,7 @@ export const AuthUIProvider = ({
                 (hooks.useActiveOrganization ===
                     authClient.useActiveOrganization ||
                     hooks.useListOrganizations ===
-                        authClient.useListOrganizations) && (
+                    authClient.useListOrganizations) && (
                     <OrganizationRefetcher />
                 )}
             {captcha?.provider === "google-recaptcha-v3" ? (

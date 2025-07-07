@@ -2,7 +2,7 @@ import HCaptcha from "@hcaptcha/react-hcaptcha"
 import { Turnstile } from "@marsidev/react-turnstile"
 import { type RefObject, useContext } from "react"
 
-import { useTheme } from "../../hooks/use-theme"
+import { useTheme } from "next-themes"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import type { AuthLocalization } from "../../localization/auth-localization"
 import { RecaptchaBadge } from "./recaptcha-badge"
@@ -34,7 +34,8 @@ export function Captcha({ ref, localization, action }: CaptchaProps) {
         }
     }
 
-    const { theme } = useTheme()
+    const { resolvedTheme } = useTheme()
+    const theme = resolvedTheme === "dark" ? "dark" : "light"
 
     const showRecaptchaV2 =
         captcha.provider === "google-recaptcha-v2-checkbox" ||

@@ -1,9 +1,7 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { type ComponentProps, useContext } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { useLang } from "../../../hooks/use-lang"
@@ -11,7 +9,7 @@ import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { getLocalizedError } from "../../../lib/utils"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { Refetch } from "../../../types/refetch"
+import type { Refetch } from "../../../types/hook-integration-types"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -21,14 +19,7 @@ import {
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {
     Select,
@@ -72,43 +63,42 @@ export function CreateAPIKeyDialog({
         expiresInDays: z.string().optional()
     })
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             name: "",
             expiresInDays: "none"
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value)
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                const expiresIn =
+                    value.expiresInDays && value.expiresInDays !== "none"
+                        ? Number.parseInt(value.expiresInDays) * 60 * 60 * 24
+                        : undefined
+
+                const result = await authClient.apiKey.create({
+                    name: value.name,
+                    expiresIn,
+                    prefix: typeof apiKey === "object" ? apiKey.prefix : undefined,
+                    metadata:
+                        typeof apiKey === "object" ? apiKey.metadata : undefined,
+                    fetchOptions: { throw: true }
+                })
+
+                await refetch?.()
+                onSuccess(result.key)
+                onOpenChange?.(false)
+                form.reset()
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
     })
-
-    const { isSubmitting } = form.formState
-
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        try {
-            const expiresIn =
-                values.expiresInDays && values.expiresInDays !== "none"
-                    ? Number.parseInt(values.expiresInDays) * 60 * 60 * 24
-                    : undefined
-
-            const result = await authClient.apiKey.create({
-                name: values.name,
-                expiresIn,
-                prefix: typeof apiKey === "object" ? apiKey.prefix : undefined,
-                metadata:
-                    typeof apiKey === "object" ? apiKey.metadata : undefined,
-                fetchOptions: { throw: true }
-            })
-
-            await refetch?.()
-            onSuccess(result.key)
-            onOpenChange?.(false)
-            form.reset()
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-    }
 
     const rtf = new Intl.RelativeTimeFormat(lang ?? "en")
 
@@ -135,57 +125,59 @@ export function CreateAPIKeyDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <Form {...form}>
+                <form.AppForm>
                     <form
-                        onSubmit={form.handleSubmit(onSubmit)}
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            form.handleSubmit()
+                        }}
                         className="space-y-6"
                     >
                         <div className="flex gap-4">
-                            <FormField
-                                control={form.control}
+                            <form.AppField
                                 name="name"
-                                render={({ field }) => (
-                                    <FormItem className="flex-1">
-                                        <FormLabel
+                                children={(field) => (
+                                    <field.FormItem className="flex-1">
+                                        <field.FormLabel
                                             className={classNames?.label}
                                         >
                                             {localization.NAME}
-                                        </FormLabel>
+                                        </field.FormLabel>
 
-                                        <FormControl>
+                                        <field.FormControl>
                                             <Input
                                                 className={classNames?.input}
                                                 placeholder={
                                                     localization.API_KEY_NAME_PLACEHOLDER
                                                 }
                                                 autoFocus
-                                                disabled={isSubmitting}
-                                                {...field}
+                                                value={field.state.value}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => field.handleChange(e.target.value)}
                                             />
-                                        </FormControl>
+                                        </field.FormControl>
 
-                                        <FormMessage />
-                                    </FormItem>
+                                        <field.FormMessage />
+                                    </field.FormItem>
                                 )}
                             />
 
-                            <FormField
-                                control={form.control}
+                            <form.AppField
                                 name="expiresInDays"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel
+                                children={(field) => (
+                                    <field.FormItem>
+                                        <field.FormLabel
                                             className={classNames?.label}
                                         >
                                             {localization.EXPIRES}
-                                        </FormLabel>
+                                        </field.FormLabel>
 
                                         <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            disabled={isSubmitting}
+                                            onValueChange={field.handleChange}
+                                            value={field.state.value}
                                         >
-                                            <FormControl>
+                                            <field.FormControl>
                                                 <SelectTrigger
                                                     className={
                                                         classNames?.input
@@ -197,72 +189,60 @@ export function CreateAPIKeyDialog({
                                                         }
                                                     />
                                                 </SelectTrigger>
-                                            </FormControl>
+                                            </field.FormControl>
 
                                             <SelectContent>
                                                 <SelectItem value="none">
                                                     {localization.NO_EXPIRATION}
                                                 </SelectItem>
 
-                                                {[
-                                                    1, 7, 30, 60, 90, 180, 365
-                                                ].map((days) => (
-                                                    <SelectItem
-                                                        key={days}
-                                                        value={days.toString()}
-                                                    >
-                                                        {days === 365
-                                                            ? rtf.format(
-                                                                1,
-                                                                "year"
-                                                            )
-                                                            : rtf.format(
-                                                                days,
-                                                                "day"
-                                                            )}
-                                                    </SelectItem>
-                                                ))}
+                                                <SelectItem value="7">
+                                                    {rtf.format(7, "day")}
+                                                </SelectItem>
+
+                                                <SelectItem value="30">
+                                                    {rtf.format(30, "day")}
+                                                </SelectItem>
+
+                                                <SelectItem value="90">
+                                                    {rtf.format(90, "day")}
+                                                </SelectItem>
+
+                                                <SelectItem value="180">
+                                                    {rtf.format(180, "day")}
+                                                </SelectItem>
+
+                                                <SelectItem value="365">
+                                                    {rtf.format(365, "day")}
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
 
-                                        <FormMessage />
-                                    </FormItem>
+                                        <field.FormMessage />
+                                    </field.FormItem>
                                 )}
                             />
                         </div>
 
                         <DialogFooter className={classNames?.dialog?.footer}>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => onOpenChange?.(false)}
-                                className={cn(
-                                    classNames?.button,
-                                    classNames?.outlineButton
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button
+                                        type="submit"
+                                        disabled={!canSubmit}
+                                        className={classNames?.button}
+                                    >
+                                        {isSubmitting && (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
+                                        {localization.CREATE_API_KEY}
+                                    </Button>
                                 )}
-                                disabled={isSubmitting}
-                            >
-                                {localization.CANCEL}
-                            </Button>
-
-                            <Button
-                                type="submit"
-                                variant="default"
-                                className={cn(
-                                    classNames?.button,
-                                    classNames?.primaryButton
-                                )}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting && (
-                                    <Loader2 className="animate-spin" />
-                                )}
-
-                                {localization.CREATE_API_KEY}
-                            </Button>
+                            />
                         </DialogFooter>
                     </form>
-                </Form>
+                </form.AppForm>
             </DialogContent>
         </Dialog>
     )

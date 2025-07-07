@@ -2,7 +2,6 @@
 
 import { Loader2 } from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
-import { useFormState } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -19,16 +18,11 @@ export function SettingsActionButton({
     classNames,
     actionLabel,
     disabled,
-    isSubmitting,
+    isSubmitting = false,
     variant,
     onClick,
     ...props
 }: SettingsActionButtonProps) {
-    if (!onClick) {
-        const formState = useFormState()
-        isSubmitting = formState.isSubmitting
-    }
-
     return (
         <Button
             className={cn(

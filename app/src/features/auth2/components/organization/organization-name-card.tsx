@@ -1,8 +1,6 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useContext } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { AuthUIContext } from "../../lib/auth-ui-provider"
@@ -13,7 +11,7 @@ import {
     type SettingsCardProps
 } from "../settings/shared/settings-card"
 import { CardContent } from "@/components/ui/card"
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -63,6 +61,10 @@ export function OrganizationNameCard({
     )
 }
 
+const formSchema = z.object({
+    name: z.string().min(1, { message: "Organization name is required" })
+})
+
 function OrganizationNameForm({
     className,
     classNames,
@@ -92,59 +94,65 @@ function OrganizationNameForm({
         }
     })
 
-    const formSchema = z.object({
-        name: z.string().min(1, {
-            message: `${localization.ORGANIZATION_NAME} ${localization.IS_REQUIRED}`
-        })
-    })
-
-    const form = useForm({
-        resolver: zodResolver(formSchema),
-        values: { name: activeOrganization?.name || "" }
-    })
-
-    const { isSubmitting } = form.formState
-
-    const updateOrganizationName = async ({
-        name
-    }: z.infer<typeof formSchema>) => {
-        if (!activeOrganization) return
-
-        if (activeOrganization.name === name) {
-            toast({
-                variant: "error",
-                message: `${localization.ORGANIZATION_NAME} ${localization.IS_THE_SAME}`
-            })
-
-            return
-        }
-
-        try {
-            await authClient.organization.update({
-                data: { name },
-                fetchOptions: {
-                    throw: true
+    const form = useAppForm({
+        defaultValues: {
+            name: activeOrganization?.name || ""
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.issues[0]?.message
                 }
-            })
+                return undefined
+            }
+        },
+        onSubmit: async ({ value }) => {
+            if (!activeOrganization) return
 
-            await refetchActiveOrganization?.()
-            await refetchOrganizations?.()
+            if (activeOrganization.name === value.name) {
+                toast({
+                    variant: "error",
+                    message: `${localization.ORGANIZATION_NAME} ${localization.IS_THE_SAME}`
+                })
+                return
+            }
 
-            toast({
-                variant: "success",
-                message: `${localization.ORGANIZATION_NAME} ${localization.UPDATED_SUCCESSFULLY}`
-            })
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
+            try {
+                await authClient.organization.update({
+                    data: { name: value.name },
+                    fetchOptions: {
+                        throw: true
+                    }
+                })
+
+                await refetchActiveOrganization?.()
+                await refetchOrganizations?.()
+
+                toast({
+                    variant: "success",
+                    message: `${localization.ORGANIZATION_NAME} ${localization.UPDATED_SUCCESSFULLY}`
+                })
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
-    }
+    })
+
+    const isSubmitting = form.state.isSubmitting
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(updateOrganizationName)}>
+        <form.AppForm>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
+            >
                 <SettingsCard
                     className={className}
                     classNames={classNames}
@@ -166,35 +174,37 @@ function OrganizationNameForm({
                                 )}
                             />
                         ) : (
-                            <FormField
-                                control={form.control}
+                            <form.AppField
                                 name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
+                                children={(field) => (
+                                    <field.FormItem>
+                                        <field.FormControl>
                                             <Input
                                                 className={classNames?.input}
                                                 placeholder={
                                                     localization.ORGANIZATION_NAME_PLACEHOLDER
                                                 }
+                                                autoComplete="organization"
                                                 disabled={
                                                     isSubmitting ||
                                                     !hasPermission?.success
                                                 }
-                                                {...field}
+                                                value={field.state.value}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => field.handleChange(e.target.value)}
                                             />
-                                        </FormControl>
+                                        </field.FormControl>
 
-                                        <FormMessage
+                                        <field.FormMessage
                                             className={classNames?.error}
                                         />
-                                    </FormItem>
+                                    </field.FormItem>
                                 )}
                             />
                         )}
                     </CardContent>
                 </SettingsCard>
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

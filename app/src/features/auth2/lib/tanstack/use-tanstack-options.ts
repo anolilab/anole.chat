@@ -1,14 +1,10 @@
-import {
-    AuthQueryContext,
-    createAuthHooks
-} from "@daveyplate/better-auth-tanstack"
+import { createAuthHooks } from "../create-auth-hooks"
 import { useIsRestoring, useQueryClient } from "@tanstack/react-query"
 import { useCallback, useContext, useMemo } from "react"
 
-import type { AnyAuthClient } from "../../types/any-auth-client"
-import type { AuthClient } from "../../types/auth-client"
-import type { AuthHooks } from "../../types/auth-hooks"
-import type { AuthMutators } from "../../types/auth-mutators"
+import type { AnyAuthClient, AuthClient } from "../../types/auth-core-types"
+import type { AuthHooks, AuthMutators } from "../../types/hook-integration-types"
+import { AuthQueryContext } from "../auth-query-provider"
 
 export function useTanstackOptions({
     authClient

@@ -1,26 +1,17 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { useContext, useEffect, useRef } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { cn } from "@/lib/utils"
 import { getLocalizedError, getPasswordSchema } from "../../../lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { PasswordValidation } from "../../../types/password-validation"
+import type { PasswordValidation } from "../../../types/form-validation-types"
 import { PasswordInput } from "../../password-input"
 import { Button } from "@/components/ui/button"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import type { AuthFormClassNames } from "../auth-form"
 
 export interface ResetPasswordFormProps {
@@ -81,15 +72,51 @@ export function ResetPasswordForm({
             }
         )
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             newPassword: "",
             confirmPassword: ""
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.issues[0]?.message
+                }
+                return undefined
+            }
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                const searchParams = new URLSearchParams(window.location.search)
+                const token = searchParams.get("token") as string
+
+                await authClient.resetPassword({
+                    newPassword: value.newPassword,
+                    token,
+                    fetchOptions: { throw: true }
+                })
+
+                toast({
+                    variant: "success",
+                    message: localization.RESET_PASSWORD_SUCCESS
+                })
+
+                navigate(
+                    `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
+                )
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+
+                form.reset()
+            }
         }
     })
 
-    const isSubmitting = form.formState.isSubmitting
+    const isSubmitting = form.state.isSubmitting
 
     useEffect(() => {
         if (tokenChecked.current) return
@@ -106,51 +133,25 @@ export function ResetPasswordForm({
         }
     }, [basePath, navigate, toast, viewPaths, localization])
 
-    async function resetPassword({ newPassword }: z.infer<typeof formSchema>) {
-        try {
-            const searchParams = new URLSearchParams(window.location.search)
-            const token = searchParams.get("token") as string
-
-            await authClient.resetPassword({
-                newPassword,
-                token,
-                fetchOptions: { throw: true }
-            })
-
-            toast({
-                variant: "success",
-                message: localization.RESET_PASSWORD_SUCCESS
-            })
-
-            navigate(
-                `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
-            )
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-
-            form.reset()
-        }
-    }
-
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(resetPassword)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="newPassword"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {localization.NEW_PASSWORD}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <PasswordInput
                                     autoComplete="new-password"
                                     className={classNames?.input}
@@ -158,26 +159,27 @@ export function ResetPasswordForm({
                                         localization.NEW_PASSWORD_PLACEHOLDER
                                     }
                                     disabled={isSubmitting}
-                                    {...field}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
                 {confirmPasswordEnabled && (
-                    <FormField
-                        control={form.control}
+                    <form.AppField
                         name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className={classNames?.label}>
+                        children={(field) => (
+                            <field.FormItem>
+                                <field.FormLabel className={classNames?.label}>
                                     {localization.CONFIRM_PASSWORD}
-                                </FormLabel>
+                                </field.FormLabel>
 
-                                <FormControl>
+                                <field.FormControl>
                                     <PasswordInput
                                         autoComplete="new-password"
                                         className={classNames?.input}
@@ -185,32 +187,38 @@ export function ResetPasswordForm({
                                             localization.CONFIRM_PASSWORD_PLACEHOLDER
                                         }
                                         disabled={isSubmitting}
-                                        {...field}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => field.handleChange(e.target.value)}
                                     />
-                                </FormControl>
+                                </field.FormControl>
 
-                                <FormMessage className={classNames?.error} />
-                            </FormItem>
+                                <field.FormMessage className={classNames?.error} />
+                            </field.FormItem>
                         )}
                     />
                 )}
 
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={cn(
-                        "w-full",
-                        classNames?.button,
-                        classNames?.primaryButton
+                <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isSubmitting]) => (
+                        <Button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting}
+                            className={cn(
+                                classNames?.button,
+                                classNames?.primaryButton
+                            )}
+                        >
+                            {isSubmitting ? (
+                                <Loader2 className="animate-spin" />
+                            ) : (
+                                localization.RESET_PASSWORD_ACTION
+                            )}
+                        </Button>
                     )}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        localization.RESET_PASSWORD_ACTION
-                    )}
-                </Button>
+                />
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

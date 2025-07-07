@@ -1,10 +1,8 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { Trash2Icon, UploadCloudIcon } from "lucide-react"
 import { type ComponentProps, useContext, useRef, useState } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { AuthUIContext } from "../../lib/auth-ui-provider"
@@ -28,14 +26,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { OrganizationLogo } from "./organization-logo"
 
@@ -87,16 +78,46 @@ export function CreateOrganizationDialog({
             })
     })
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             logo: "",
             name: "",
             slug: ""
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value)
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                const organization = await authClient.organization.create({
+                    name: value.name,
+                    slug: value.slug,
+                    logo: value.logo,
+                    fetchOptions: { throw: true }
+                })
+
+                await authClient.organization.setActive({
+                    organizationId: organization.id
+                })
+
+                await refetchActiveOrganization?.()
+                await refetchOrganizations?.()
+                onOpenChange?.(false)
+                form.reset()
+                setLogo(null)
+
+                toast({
+                    variant: "success",
+                    message: localization.CREATE_ORGANIZATION_SUCCESS
+                })
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
     })
-
-    const isSubmitting = form.formState.isSubmitting
 
     const handleLogoChange = async (file: File) => {
         if (!organization?.logo) return
@@ -120,7 +141,7 @@ export function CreateOrganizationDialog({
             }
 
             setLogo(image || null)
-            form.setValue("logo", image || "")
+            form.setFieldValue("logo", image || "")
         } catch (error) {
             toast({
                 variant: "error",
@@ -133,38 +154,7 @@ export function CreateOrganizationDialog({
 
     const deleteLogo = () => {
         setLogo(null)
-        form.setValue("logo", "")
-    }
-
-    async function onSubmit({ name, slug, logo }: z.infer<typeof formSchema>) {
-        try {
-            const organization = await authClient.organization.create({
-                name,
-                slug,
-                logo,
-                fetchOptions: { throw: true }
-            })
-
-            await authClient.organization.setActive({
-                organizationId: organization.id
-            })
-
-            await refetchActiveOrganization?.()
-            await refetchOrganizations?.()
-            onOpenChange?.(false)
-            form.reset()
-            setLogo(null)
-
-            toast({
-                variant: "success",
-                message: localization.CREATE_ORGANIZATION_SUCCESS
-            })
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
+        form.setFieldValue("logo", "")
     }
 
     return (
@@ -187,17 +177,20 @@ export function CreateOrganizationDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <Form {...form}>
+                <form.AppForm>
                     <form
-                        onSubmit={form.handleSubmit(onSubmit)}
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            form.handleSubmit()
+                        }}
                         className="space-y-6"
                     >
                         {organization?.logo && (
-                            <FormField
-                                control={form.control}
+                            <form.AppField
                                 name="logo"
-                                render={() => (
-                                    <FormItem>
+                                children={() => (
+                                    <div className="space-y-2">
                                         <input
                                             ref={fileInputRef}
                                             accept="image/*"
@@ -212,9 +205,9 @@ export function CreateOrganizationDialog({
                                             }}
                                         />
 
-                                        <FormLabel>
+                                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                             {localization.LOGO}
-                                        </FormLabel>
+                                        </label>
 
                                         <div className="flex items-center gap-4">
                                             <DropdownMenu>
@@ -225,24 +218,27 @@ export function CreateOrganizationDialog({
                                                         type="button"
                                                         variant="ghost"
                                                     >
-                                                        <OrganizationLogo
-                                                            className="size-16"
-                                                            isPending={
-                                                                uploadingLogo
-                                                            }
-                                                            localization={
-                                                                localization
-                                                            }
-                                                            organization={
-                                                                logo
-                                                                    ? {
-                                                                        name: form.watch(
-                                                                            "name"
-                                                                        ),
-                                                                        logo
+                                                        <form.Subscribe
+                                                            selector={(state) => state.values.name}
+                                                            children={(name) => (
+                                                                <OrganizationLogo
+                                                                    className="size-16"
+                                                                    isPending={
+                                                                        uploadingLogo
                                                                     }
-                                                                    : null
-                                                            }
+                                                                    localization={
+                                                                        localization
+                                                                    }
+                                                                    organization={
+                                                                        logo
+                                                                            ? {
+                                                                                name: name,
+                                                                                logo
+                                                                            }
+                                                                            : null
+                                                                    }
+                                                                />
+                                                            )}
                                                         />
                                                     </Button>
                                                 </DropdownMenuTrigger>
@@ -293,56 +289,56 @@ export function CreateOrganizationDialog({
                                                 {localization.UPLOAD}
                                             </Button>
                                         </div>
-
-                                        <FormMessage />
-                                    </FormItem>
+                                    </div>
                                 )}
                             />
                         )}
 
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
+                            children={(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel>
                                         {localization.ORGANIZATION_NAME}
-                                    </FormLabel>
+                                    </field.FormLabel>
 
-                                    <FormControl>
+                                    <field.FormControl>
                                         <Input
                                             placeholder={
                                                 localization.ORGANIZATION_NAME_PLACEHOLDER
                                             }
-                                            {...field}
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
                                         />
-                                    </FormControl>
+                                    </field.FormControl>
 
-                                    <FormMessage />
-                                </FormItem>
+                                    <field.FormMessage />
+                                </field.FormItem>
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="slug"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
+                            children={(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel>
                                         {localization.ORGANIZATION_SLUG}
-                                    </FormLabel>
+                                    </field.FormLabel>
 
-                                    <FormControl>
+                                    <field.FormControl>
                                         <Input
                                             placeholder={
                                                 localization.ORGANIZATION_SLUG_PLACEHOLDER
                                             }
-                                            {...field}
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
                                         />
-                                    </FormControl>
+                                    </field.FormControl>
 
-                                    <FormMessage />
-                                </FormItem>
+                                    <field.FormMessage />
+                                </field.FormItem>
                             )}
                         />
 
@@ -359,23 +355,28 @@ export function CreateOrganizationDialog({
                                 {localization.CANCEL}
                             </Button>
 
-                            <Button
-                                type="submit"
-                                className={cn(
-                                    classNames?.button,
-                                    classNames?.primaryButton
-                                )}
-                                disabled={isSubmitting}
-                            >
-                                {isSubmitting && (
-                                    <Loader2 className="animate-spin" />
-                                )}
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button
+                                        type="submit"
+                                        className={cn(
+                                            classNames?.button,
+                                            classNames?.primaryButton
+                                        )}
+                                        disabled={!canSubmit}
+                                    >
+                                        {isSubmitting && (
+                                            <Loader2 className="animate-spin" />
+                                        )}
 
-                                {localization.CREATE_ORGANIZATION}
-                            </Button>
+                                        {localization.CREATE_ORGANIZATION}
+                                    </Button>
+                                )}
+                            />
                         </DialogFooter>
                     </form>
-                </Form>
+                </form.AppForm>
             </DialogContent>
         </Dialog>
     )

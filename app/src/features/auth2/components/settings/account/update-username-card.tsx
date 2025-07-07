@@ -2,7 +2,7 @@
 
 import { useContext } from "react"
 import { AuthUIContext } from "../../../lib/auth-ui-provider"
-import type { User } from "../../../types/auth-client"
+import type { User } from "../../../types/auth-core-types"
 import type { SettingsCardProps } from "../shared/settings-card"
 import { UpdateFieldCard } from "./update-field-card"
 

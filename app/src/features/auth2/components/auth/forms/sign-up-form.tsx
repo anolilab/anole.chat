@@ -1,11 +1,9 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import type { BetterFetchOption } from "better-auth/react"
 import { Loader2 } from "lucide-react"
 import { Trash2Icon, UploadCloudIcon } from "lucide-react"
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { useCaptcha } from "../../../hooks/use-captcha"
@@ -20,7 +18,7 @@ import {
     getSearchParam
 } from "../../../lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { PasswordValidation } from "../../../types/password-validation"
+import type { PasswordValidation } from "../../../types/form-validation-types"
 import { Captcha } from "../../captcha/captcha"
 import { PasswordInput } from "../../password-input"
 import { Button } from "@/components/ui/button"
@@ -31,14 +29,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { UserAvatar } from "../../user-avatar"
 import type { AuthFormClassNames } from "../auth-form"
@@ -211,12 +202,9 @@ export function SignUpForm({
                         .optional()
             } else {
                 fieldSchema = additionalField.required
-                    ? z
-                        .string()
-                        .min(
-                            1,
-                            `${additionalField.label} ${localization.IS_REQUIRED}`
-                        )
+                    ? z.string().min(1, {
+                        message: `${additionalField.label} ${localization.IS_REQUIRED}`
+                    })
                     : z.string().optional()
             }
 
@@ -224,55 +212,128 @@ export function SignUpForm({
         }
     }
 
-    const formSchema = z.object(schemaFields).refine(
-        (data) => {
-            // Skip validation if confirmPassword is not enabled
-            if (!confirmPasswordEnabled) return true
-            return data.password === data.confirmPassword
-        },
-        {
-            message: localization.PASSWORDS_DO_NOT_MATCH!,
-            path: ["confirmPassword"]
-        }
-    )
+    // Create the final schema
+    const formSchema = z
+        .object(schemaFields)
+        .refine(
+            (data) =>
+                !confirmPasswordEnabled ||
+                data.password === data.confirmPassword,
+            {
+                message: localization.PASSWORDS_DO_NOT_MATCH,
+                path: ["confirmPassword"]
+            }
+        )
 
-    // Create default values for the form
-    const defaultValues: Record<string, unknown> = {
+    // Create default values
+    const defaultValues: Record<string, any> = {
         email: "",
         password: "",
         ...(confirmPasswordEnabled && { confirmPassword: "" }),
-        ...(signUpFields?.includes("name") ? { name: "" } : {}),
-        ...(usernameEnabled ? { username: "" } : {}),
-        ...(signUpFields?.includes("image") && avatar ? { image: "" } : {})
+        ...(signUpFields?.includes("name") && { name: "" }),
+        ...(usernameEnabled && { username: "" }),
+        ...(signUpFields?.includes("image") && avatar && { image: "" })
     }
 
     // Add default values for additional fields
     if (signUpFields) {
         for (const field of signUpFields) {
-            if (field === "name") continue
-            if (field === "image") continue
+            if (field === "name" || field === "image") continue
             const additionalField = additionalFields?.[field]
             if (!additionalField) continue
 
-            defaultValues[field] =
-                additionalField.type === "boolean" ? false : ""
+            if (additionalField.type === "boolean") {
+                defaultValues[field] = false
+            } else if (additionalField.type === "number") {
+                defaultValues[field] = ""
+            } else {
+                defaultValues[field] = ""
+            }
         }
     }
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
-        defaultValues
+    const form = useAppForm({
+        defaultValues,
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value)
+        },
+        onSubmit: async ({ value }) => {
+            try {
+                // Validate additional fields with custom validators if provided
+                for (const [field, fieldValue] of Object.entries(value)) {
+                    if (field === "email" || field === "password" || field === "confirmPassword" || field === "name" || field === "username" || field === "image") continue
+
+                    const additionalField = additionalFields?.[field]
+                    if (!additionalField?.validate) continue
+
+                    if (
+                        typeof fieldValue === "string" &&
+                        !(await additionalField.validate(fieldValue))
+                    ) {
+                        toast({
+                            variant: "error",
+                            message: `${additionalField.label} ${localization.IS_INVALID}`
+                        })
+                        return
+                    }
+                }
+
+                const fetchOptions: BetterFetchOption = {
+                    throw: true,
+                    headers: await getCaptchaHeaders("/sign-up/email")
+                }
+
+                const { email, password, name, username, image, confirmPassword, ...additionalFieldValues } = value
+
+                const data = await authClient.signUp.email({
+                    email,
+                    password,
+                    name: name || "",
+                    ...(username !== undefined && { username }),
+                    ...(image !== undefined && { image }),
+                    ...additionalFieldValues,
+                    callbackURL: getCallbackURL(),
+                    fetchOptions
+                })
+
+                if ("token" in data && data.token) {
+                    await onSuccess()
+                } else {
+                    if (emailVerification) {
+                        toast({
+                            variant: "success",
+                            message: localization.EMAIL_VERIFICATION!
+                        })
+                    } else {
+                        toast({
+                            variant: "success",
+                            message: localization.SIGN_UP_EMAIL!
+                        })
+                    }
+
+                    navigate(
+                        `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
+                    )
+                }
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+
+                form.reset()
+            }
+        }
     })
 
-    isSubmitting =
-        isSubmitting || form.formState.isSubmitting || transitionPending
+    isSubmitting = isSubmitting || form.state.isSubmitting || transitionPending
 
     useEffect(() => {
-        setIsSubmitting?.(form.formState.isSubmitting || transitionPending)
-    }, [form.formState.isSubmitting, transitionPending, setIsSubmitting])
+        setIsSubmitting?.(form.state.isSubmitting || transitionPending)
+    }, [form.state.isSubmitting, transitionPending, setIsSubmitting])
 
     const handleAvatarChange = async (file: File) => {
-        if (!avatar) return
+        if (!file) return
 
         setUploadingAvatar(true)
 
@@ -280,113 +341,38 @@ export function SignUpForm({
             const resizedFile = await resizeAndCropImage(
                 file,
                 crypto.randomUUID(),
-                avatar.size,
-                avatar.extension
+                200,
+                "webp"
             )
+            const base64 = await fileToBase64(resizedFile)
 
-            let image: string | undefined | null
-
-            if (avatar.upload) {
-                image = await avatar.upload(resizedFile)
-            } else {
-                image = await fileToBase64(resizedFile)
-            }
-
-            if (image) {
-                setAvatarImage(image)
-                form.setValue("image", image)
-            } else {
-                setAvatarImage(null)
-                form.setValue("image", "")
-            }
+            setAvatarImage(base64)
+            form.setFieldValue("image", base64)
         } catch (error) {
-            console.error(error)
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization })
+                message: "Failed to upload avatar"
             })
+        } finally {
+            setUploadingAvatar(false)
         }
-
-        setUploadingAvatar(false)
     }
 
     const handleDeleteAvatar = () => {
         setAvatarImage(null)
-        form.setValue("image", "")
+        form.setFieldValue("image", "")
     }
 
     const openFileDialog = () => fileInputRef.current?.click()
 
-    async function signUp({
-        email,
-        password,
-        name,
-        username,
-        confirmPassword,
-        image,
-        ...additionalFieldValues
-    }: z.infer<typeof formSchema>) {
-        try {
-            // Validate additional fields with custom validators if provided
-            for (const [field, value] of Object.entries(
-                additionalFieldValues
-            )) {
-                const additionalField = additionalFields?.[field]
-                if (!additionalField?.validate) continue
-
-                if (
-                    typeof value === "string" &&
-                    !(await additionalField.validate(value))
-                ) {
-                    form.setError(field, {
-                        message: `${additionalField.label} ${localization.IS_INVALID}`
-                    })
-                    return
-                }
-            }
-
-            const fetchOptions: BetterFetchOption = {
-                throw: true,
-                headers: await getCaptchaHeaders("/sign-up/email")
-            }
-
-            const data = await authClient.signUp.email({
-                email,
-                password,
-                name: name || "",
-                ...(username !== undefined && { username }),
-                ...(image !== undefined && { image }),
-                ...additionalFieldValues,
-                callbackURL: getCallbackURL(),
-                fetchOptions
-            })
-
-            if ("token" in data && data.token) {
-                await onSuccess()
-            } else {
-                navigate(
-                    `${basePath}/${viewPaths.SIGN_IN}${window.location.search}`
-                )
-                toast({
-                    variant: "success",
-                    message: localization.SIGN_UP_EMAIL!
-                })
-            }
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-
-            form.resetField("password")
-            form.resetField("confirmPassword")
-        }
-    }
-
     return (
-        <Form {...form}>
+        <form.AppForm>
             <form
-                onSubmit={form.handleSubmit(signUp)}
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                }}
                 noValidate={isHydrated}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
@@ -405,12 +391,13 @@ export function SignUpForm({
                             }}
                         />
 
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="image"
-                            render={() => (
-                                <FormItem>
-                                    <FormLabel>{localization.AVATAR}</FormLabel>
+                            children={() => (
+                                <div className="space-y-2">
+                                    <label className={cn("text-sm font-medium", classNames?.label)}>
+                                        {localization.AVATAR}
+                                    </label>
 
                                     <div className="flex items-center gap-4">
                                         <DropdownMenu>
@@ -421,29 +408,27 @@ export function SignUpForm({
                                                     variant="ghost"
                                                     type="button"
                                                 >
-                                                    <UserAvatar
-                                                        isPending={
-                                                            uploadingAvatar
-                                                        }
-                                                        className="size-16"
-                                                        user={
-                                                            avatarImage
-                                                                ? {
-                                                                    name:
-                                                                        form.watch(
-                                                                            "name"
-                                                                        ) ||
-                                                                        "",
-                                                                    email: form.watch(
-                                                                        "email"
-                                                                    ),
-                                                                    image: avatarImage
+                                                    <form.Subscribe
+                                                        selector={(state) => ({
+                                                            name: state.values.name || "",
+                                                            email: state.values.email || ""
+                                                        })}
+                                                        children={({ name, email }) => (
+                                                            <UserAvatar
+                                                                isPending={uploadingAvatar}
+                                                                className="size-16"
+                                                                user={
+                                                                    avatarImage
+                                                                        ? {
+                                                                            name,
+                                                                            email,
+                                                                            image: avatarImage
+                                                                        }
+                                                                        : null
                                                                 }
-                                                                : null
-                                                        }
-                                                        localization={
-                                                            localization
-                                                        }
+                                                                localization={localization}
+                                                            />
+                                                        )}
                                                     />
                                                 </Button>
                                             </DropdownMenuTrigger>
@@ -494,102 +479,105 @@ export function SignUpForm({
                                             {localization.UPLOAD}
                                         </Button>
                                     </div>
-
-                                    <FormMessage />
-                                </FormItem>
+                                </div>
                             )}
                         />
                     </>
                 )}
 
                 {signUpFields?.includes("name") && (
-                    <FormField
-                        control={form.control}
+                    <form.AppField
                         name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className={classNames?.label}>
+                        children={(field) => (
+                            <field.FormItem>
+                                <field.FormLabel className={classNames?.label}>
                                     {localization.NAME}
-                                </FormLabel>
+                                </field.FormLabel>
 
-                                <FormControl>
+                                <field.FormControl>
                                     <Input
                                         className={classNames?.input}
                                         placeholder={
                                             localization.NAME_PLACEHOLDER
                                         }
+                                        autoComplete="name"
                                         disabled={isSubmitting}
-                                        {...field}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => field.handleChange(e.target.value)}
                                     />
-                                </FormControl>
+                                </field.FormControl>
 
-                                <FormMessage className={classNames?.error} />
-                            </FormItem>
+                                <field.FormMessage className={classNames?.error} />
+                            </field.FormItem>
                         )}
                     />
                 )}
 
                 {usernameEnabled && (
-                    <FormField
-                        control={form.control}
+                    <form.AppField
                         name="username"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className={classNames?.label}>
+                        children={(field) => (
+                            <field.FormItem>
+                                <field.FormLabel className={classNames?.label}>
                                     {localization.USERNAME}
-                                </FormLabel>
+                                </field.FormLabel>
 
-                                <FormControl>
+                                <field.FormControl>
                                     <Input
                                         className={classNames?.input}
                                         placeholder={
                                             localization.USERNAME_PLACEHOLDER
                                         }
+                                        autoComplete="username"
                                         disabled={isSubmitting}
-                                        {...field}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => field.handleChange(e.target.value)}
                                     />
-                                </FormControl>
+                                </field.FormControl>
 
-                                <FormMessage className={classNames?.error} />
-                            </FormItem>
+                                <field.FormMessage className={classNames?.error} />
+                            </field.FormItem>
                         )}
                     />
                 )}
 
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {localization.EMAIL}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
                                     placeholder={localization.EMAIL_PLACEHOLDER}
+                                    autoComplete="email"
                                     disabled={isSubmitting}
-                                    {...field}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
-                <FormField
-                    control={form.control}
+                <form.AppField
                     name="password"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className={classNames?.label}>
+                    children={(field) => (
+                        <field.FormItem>
+                            <field.FormLabel className={classNames?.label}>
                                 {localization.PASSWORD}
-                            </FormLabel>
+                            </field.FormLabel>
 
-                            <FormControl>
+                            <field.FormControl>
                                 <PasswordInput
                                     autoComplete="new-password"
                                     className={classNames?.input}
@@ -598,26 +586,27 @@ export function SignUpForm({
                                     }
                                     disabled={isSubmitting}
                                     enableToggle
-                                    {...field}
+                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) => field.handleChange(e.target.value)}
                                 />
-                            </FormControl>
+                            </field.FormControl>
 
-                            <FormMessage className={classNames?.error} />
-                        </FormItem>
+                            <field.FormMessage className={classNames?.error} />
+                        </field.FormItem>
                     )}
                 />
 
                 {confirmPasswordEnabled && (
-                    <FormField
-                        control={form.control}
+                    <form.AppField
                         name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className={classNames?.label}>
+                        children={(field) => (
+                            <field.FormItem>
+                                <field.FormLabel className={classNames?.label}>
                                     {localization.CONFIRM_PASSWORD}
-                                </FormLabel>
+                                </field.FormLabel>
 
-                                <FormControl>
+                                <field.FormControl>
                                     <PasswordInput
                                         autoComplete="new-password"
                                         className={classNames?.input}
@@ -626,12 +615,14 @@ export function SignUpForm({
                                         }
                                         disabled={isSubmitting}
                                         enableToggle
-                                        {...field}
+                                        value={field.state.value}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => field.handleChange(e.target.value)}
                                     />
-                                </FormControl>
+                                </field.FormControl>
 
-                                <FormMessage className={classNames?.error} />
-                            </FormItem>
+                                <field.FormMessage className={classNames?.error} />
+                            </field.FormItem>
                         )}
                     />
                 )}
@@ -646,50 +637,44 @@ export function SignUpForm({
                         }
 
                         return additionalField.type === "boolean" ? (
-                            <FormField
+                            <form.AppField
                                 key={field}
-                                control={form.control}
                                 name={field}
-                                render={({ field: formField }) => (
-                                    <FormItem className="flex">
-                                        <FormControl>
+                                children={(formField) => (
+                                    <formField.FormItem className="flex">
+                                        <formField.FormControl>
                                             <Checkbox
-                                                checked={
-                                                    formField.value as boolean
-                                                }
-                                                onCheckedChange={
-                                                    formField.onChange
-                                                }
+                                                checked={formField.state.value}
+                                                onCheckedChange={(checked) => formField.handleChange(checked === true)}
                                                 disabled={isSubmitting}
                                             />
-                                        </FormControl>
+                                        </formField.FormControl>
 
-                                        <FormLabel
+                                        <formField.FormLabel
                                             className={classNames?.label}
                                         >
                                             {additionalField.label}
-                                        </FormLabel>
+                                        </formField.FormLabel>
 
-                                        <FormMessage
+                                        <formField.FormMessage
                                             className={classNames?.error}
                                         />
-                                    </FormItem>
+                                    </formField.FormItem>
                                 )}
                             />
                         ) : (
-                            <FormField
+                            <form.AppField
                                 key={field}
-                                control={form.control}
                                 name={field}
-                                render={({ field: formField }) => (
-                                    <FormItem>
-                                        <FormLabel
+                                children={(formField) => (
+                                    <formField.FormItem>
+                                        <formField.FormLabel
                                             className={classNames?.label}
                                         >
                                             {additionalField.label}
-                                        </FormLabel>
+                                        </formField.FormLabel>
 
-                                        <FormControl>
+                                        <formField.FormControl>
                                             <Input
                                                 className={classNames?.input}
                                                 type={
@@ -706,14 +691,16 @@ export function SignUpForm({
                                                         : "")
                                                 }
                                                 disabled={isSubmitting}
-                                                {...formField}
+                                                value={formField.state.value}
+                                                onBlur={formField.handleBlur}
+                                                onChange={(e) => formField.handleChange(e.target.value)}
                                             />
-                                        </FormControl>
+                                        </formField.FormControl>
 
-                                        <FormMessage
+                                        <formField.FormMessage
                                             className={classNames?.error}
                                         />
-                                    </FormItem>
+                                    </formField.FormItem>
                                 )}
                             />
                         )
@@ -725,22 +712,27 @@ export function SignUpForm({
                     action="/sign-up/email"
                 />
 
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={cn(
-                        "w-full",
-                        classNames?.button,
-                        classNames?.primaryButton
+                <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isSubmitting]) => (
+                        <Button
+                            type="submit"
+                            disabled={!canSubmit || isSubmitting}
+                            className={cn(
+                                "w-full",
+                                classNames?.button,
+                                classNames?.primaryButton
+                            )}
+                        >
+                            {isSubmitting ? (
+                                <Loader2 className="animate-spin" />
+                            ) : (
+                                localization.SIGN_UP_ACTION
+                            )}
+                        </Button>
                     )}
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        localization.SIGN_UP_ACTION
-                    )}
-                </Button>
+                />
             </form>
-        </Form>
+        </form.AppForm>
     )
 }

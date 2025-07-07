@@ -4,7 +4,7 @@ import { useContext, useMemo } from "react"
 import { AuthUIContext } from "../lib/auth-ui-provider"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../localization/auth-localization"
-import type { Profile } from "../types/profile"
+import type { Profile } from "../types/data-structure-types"
 import { Skeleton } from "@/components/ui/skeleton"
 import { UserAvatar, type UserAvatarClassNames } from "./user-avatar"
 

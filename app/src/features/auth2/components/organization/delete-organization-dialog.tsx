@@ -1,9 +1,7 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
 import { type ComponentProps, useContext } from "react"
-import { useForm } from "react-hook-form"
 import * as z from "zod"
 
 import { AuthUIContext } from "../../lib/auth-ui-provider"
@@ -21,14 +19,7 @@ import {
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+import { useAppForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { OrganizationView } from "./organization-view"
 
@@ -37,6 +28,10 @@ export interface DeleteOrganizationDialogProps
     classNames?: SettingsCardClassNames
     localization?: AuthLocalization
 }
+
+const formSchema = z.object({
+    slug: z.string().min(1, { message: "Organization slug is required" })
+})
 
 export function DeleteOrganizationDialog({
     classNames,
@@ -59,51 +54,52 @@ export function DeleteOrganizationDialog({
         useActiveOrganization()
     const { refetch: refetchOrganizations } = useListOrganizations()
 
-    const formSchema = z.object({
-        slug: z
-            .string()
-            .min(1, { message: localization.SLUG_REQUIRED! })
-            .refine((val) => val === activeOrganization?.slug, {
-                message: localization.SLUG_DOES_NOT_MATCH!
-            })
-    })
-
-    const form = useForm({
-        resolver: zodResolver(formSchema),
+    const form = useAppForm({
         defaultValues: {
             slug: ""
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value)
+                if (!result.success) {
+                    return result.error.issues[0]?.message
+                }
+                if (value.slug !== activeOrganization?.slug) {
+                    return localization.SLUG_DOES_NOT_MATCH!
+                }
+                return undefined
+            }
+        },
+        onSubmit: async ({ value }) => {
+            if (!activeOrganization) return
+
+            try {
+                await authClient.organization.delete({
+                    organizationId: activeOrganization.id,
+                    fetchOptions: {
+                        throw: true
+                    }
+                })
+
+                await refetchOrganizations?.()
+                await refetchActiveOrganization?.()
+
+                toast({
+                    variant: "success",
+                    message: localization.DELETE_ORGANIZATION_SUCCESS!
+                })
+                navigate(redirectTo)
+                onOpenChange?.(false)
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: getLocalizedError({ error, localization })
+                })
+            }
         }
     })
 
-    const { isSubmitting } = form.formState
-
-    const deleteOrganization = async () => {
-        if (!activeOrganization) return
-
-        try {
-            await authClient.organization.delete({
-                organizationId: activeOrganization.id,
-                fetchOptions: {
-                    throw: true
-                }
-            })
-
-            await refetchOrganizations?.()
-            await refetchActiveOrganization?.()
-
-            toast({
-                variant: "success",
-                message: localization.DELETE_ORGANIZATION_SUCCESS!
-            })
-            navigate(redirectTo)
-            onOpenChange?.(false)
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization })
-            })
-        }
-    }
+    const isSubmitting = form.state.isSubmitting
 
     return (
         <Dialog onOpenChange={onOpenChange} {...props}>
@@ -134,17 +130,20 @@ export function DeleteOrganizationDialog({
                     />
                 </Card>
 
-                <Form {...form}>
+                <form.AppForm>
                     <form
-                        onSubmit={form.handleSubmit(deleteOrganization)}
+                        onSubmit={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            form.handleSubmit()
+                        }}
                         className="grid gap-6"
                     >
-                        <FormField
-                            control={form.control}
+                        <form.AppField
                             name="slug"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className={classNames?.label}>
+                            children={(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel className={classNames?.label}>
                                         {
                                             localization?.DELETE_ORGANIZATION_INSTRUCTIONS
                                         }
@@ -152,23 +151,25 @@ export function DeleteOrganizationDialog({
                                         <span className="font-bold">
                                             {activeOrganization?.slug}
                                         </span>
-                                    </FormLabel>
+                                    </field.FormLabel>
 
-                                    <FormControl>
+                                    <field.FormControl>
                                         <Input
                                             placeholder={
                                                 activeOrganization?.slug
                                             }
                                             className={classNames?.input}
                                             autoComplete="off"
-                                            {...field}
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
                                         />
-                                    </FormControl>
+                                    </field.FormControl>
 
-                                    <FormMessage
+                                    <field.FormMessage
                                         className={classNames?.error}
                                     />
-                                </FormItem>
+                                </field.FormItem>
                             )}
                         />
 
@@ -185,24 +186,28 @@ export function DeleteOrganizationDialog({
                                 {localization.CANCEL}
                             </Button>
 
-                            <Button
-                                className={cn(
-                                    classNames?.button,
-                                    classNames?.destructiveButton
+                            <form.Subscribe
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                children={([canSubmit, isSubmitting]) => (
+                                    <Button
+                                        className={cn(
+                                            classNames?.button,
+                                            classNames?.destructiveButton
+                                        )}
+                                        disabled={!canSubmit || isSubmitting}
+                                        variant="destructive"
+                                        type="submit"
+                                    >
+                                        {isSubmitting && (
+                                            <Loader2 className="animate-spin" />
+                                        )}
+                                        {localization.DELETE_ORGANIZATION_ACTION}
+                                    </Button>
                                 )}
-                                disabled={isSubmitting}
-                                variant="destructive"
-                                type="submit"
-                            >
-                                {isSubmitting && (
-                                    <Loader2 className="animate-spin" />
-                                )}
-
-                                {localization?.DELETE_ORGANIZATION}
-                            </Button>
+                            />
                         </DialogFooter>
                     </form>
-                </Form>
+                </form.AppForm>
             </DialogContent>
         </Dialog>
     )

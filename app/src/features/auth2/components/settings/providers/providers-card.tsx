@@ -6,11 +6,11 @@ import { AuthUIContext } from "../../../lib/auth-ui-provider"
 import { socialProviders } from "../../../lib/social-providers"
 import { cn } from "@/lib/utils"
 import type { AuthLocalization } from "../../../localization/auth-localization"
-import type { Refetch } from "../../../types/refetch"
-import { CardContent } from "@/components/ui/card"
+import type { Refetch } from "../../../types/hook-integration-types"
+import { Card, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { SettingsCard } from "../shared/settings-card"
 import type { SettingsCardClassNames } from "../shared/settings-card"
-import { SettingsCellSkeleton } from "../skeletons/settings-cell-skeleton"
 import { ProviderCell } from "./provider-cell"
 
 export interface ProvidersCardProps {
@@ -59,10 +59,29 @@ export function ProvidersCard({
             <CardContent className={cn("grid gap-4", classNames?.content)}>
                 {isPending ? (
                     social?.providers?.map((provider) => (
-                        <SettingsCellSkeleton
+                        <Card
                             key={provider}
-                            classNames={classNames}
-                        />
+                            className={cn(
+                                "flex-row items-center gap-3 px-4 py-3",
+                                classNames?.cell
+                            )}
+                        >
+                            <div className="flex items-center gap-2">
+                                <Skeleton
+                                    className={cn("size-5 rounded-full", classNames?.skeleton)}
+                                />
+
+                                <div>
+                                    <Skeleton
+                                        className={cn("h-4 w-24", classNames?.skeleton)}
+                                    />
+                                </div>
+                            </div>
+
+                            <Skeleton
+                                className={cn("ms-auto size-8 w-12", classNames?.skeleton)}
+                            />
+                        </Card>
                     ))
                 ) : (
                     <>
