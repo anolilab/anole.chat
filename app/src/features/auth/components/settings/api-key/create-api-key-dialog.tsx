@@ -1,166 +1,112 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext } from "react";
-import * as z from "zod";
+import { useState } from "react";
+import { t } from "@lingui/core/macro";
 
-import { useLang } from "../../../hooks/use-lang";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
+import { useCreateAPIKey } from "../../../hooks/api-key/use-create-api-key";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
-import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-interface CreateAPIKeyDialogProps extends ComponentProps<typeof Dialog> {
+interface CreateAPIKeyDialogProps {
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
-    onSuccess: (key: string) => void;
-    refetch?: Refetch;
+
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onAPIKeyCreated: (apiKey: string) => void;
 }
 
-export function CreateAPIKeyDialog({ classNames, localization, onSuccess, refetch, onOpenChange, ...props }: CreateAPIKeyDialogProps) {
-    const { authClient, apiKey, localization: contextLocalization, toast } = useContext(AuthUIContext);
+export function CreateAPIKeyDialog({ classNames, open, onOpenChange, onAPIKeyCreated }: CreateAPIKeyDialogProps) {
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [expiresInDays, setExpiresInDays] = useState("");
 
-    localization = { ...contextLocalization, ...localization };
-
-    const { lang } = useLang();
-
-    const formSchema = z.object({
-        name: z.string().min(1, `${localization.NAME} ${localization.IS_REQUIRED}`),
-        expiresInDays: z.string().optional(),
-    });
-
-    const form = useAppForm({
-        defaultValues: {
-            name: "",
-            expiresInDays: "none",
-        },
-        validators: {
-            onChange: ({ value }) => formSchema.safeParse(value),
-        },
-        onSubmit: async ({ value }) => {
-            try {
-                const expiresIn = value.expiresInDays && value.expiresInDays !== "none" ? Number.parseInt(value.expiresInDays) * 60 * 60 * 24 : undefined;
-
-                const result = await authClient.apiKey.create({
-                    name: value.name,
-                    expiresIn,
-                    prefix: typeof apiKey === "object" ? apiKey.prefix : undefined,
-                    metadata: typeof apiKey === "object" ? apiKey.metadata : undefined,
-                    fetchOptions: { throw: true },
-                });
-
-                await refetch?.();
-                onSuccess(result.key);
-                onOpenChange?.(false);
-                form.reset();
-            } catch (error) {
-                toast({
-                    variant: "error",
-                    message: getLocalizedError({ error, localization }),
-                });
-            }
+    const { mutate: createAPIKey, isPending } = useCreateAPIKey({
+        onSuccess: (result) => {
+            onAPIKeyCreated(result.key);
+            setName("");
+            setDescription("");
+            setExpiresInDays("");
         },
     });
 
-    const rtf = new Intl.RelativeTimeFormat(lang ?? "en");
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (name.trim()) {
+            createAPIKey({
+                name: name.trim(),
+                description: description.trim() || undefined,
+                expiresInDays: expiresInDays ? Number.parseInt(expiresInDays, 10) : undefined,
+            });
+        }
+    };
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.CREATE_API_KEY}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Create API Key`}</DialogTitle>
 
-                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
-                        {localization.CREATE_API_KEY_DESCRIPTION}
-                    </DialogDescription>
+                    <DialogDescription
+                        className={cn("text-xs md:text-sm", classNames?.description)}
+                    >{t`Create a new API key for programmatic access to your account.`}</DialogDescription>
                 </DialogHeader>
 
-                <form.AppForm>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            form.handleSubmit();
-                        }}
-                        className="space-y-6"
-                    >
-                        <div className="flex gap-4">
-                            <form.AppField
-                                name="name"
-                                children={(field) => (
-                                    <field.FormItem className="flex-1">
-                                        <field.FormLabel className={classNames?.label}>{localization.NAME}</field.FormLabel>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="api-key-name">{t`Name`}</Label>
+                        <Input
+                            id="api-key-name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder={t`Enter a name for your API key`}
+                            required
+                        />
+                    </div>
 
-                                        <field.FormControl>
-                                            <Input
-                                                className={classNames?.input}
-                                                placeholder={localization.API_KEY_NAME_PLACEHOLDER}
-                                                autoFocus
-                                                value={field.state.value}
-                                                onBlur={field.handleBlur}
-                                                onChange={(e) => field.handleChange(e.target.value)}
-                                            />
-                                        </field.FormControl>
+                    <div className="space-y-2">
+                        <Label htmlFor="api-key-description">{t`Description (optional)`}</Label>
+                        <Textarea
+                            id="api-key-description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder={t`Describe what this API key will be used for`}
+                            rows={3}
+                        />
+                    </div>
 
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            />
+                    <div className="space-y-2">
+                        <Label htmlFor="api-key-expires">{t`Expires in (days, optional)`}</Label>
+                        <Input
+                            id="api-key-expires"
+                            type="number"
+                            value={expiresInDays}
+                            onChange={(e) => setExpiresInDays(e.target.value)}
+                            placeholder={t`Leave empty for no expiration`}
+                            min="1"
+                        />
+                    </div>
 
-                            <form.AppField
-                                name="expiresInDays"
-                                children={(field) => (
-                                    <field.FormItem>
-                                        <field.FormLabel className={classNames?.label}>{localization.EXPIRES}</field.FormLabel>
+                    <DialogFooter className={classNames?.dialog?.footer}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            disabled={isPending}
+                            className={cn(classNames?.button, classNames?.outlineButton)}
+                        >
+                            {t`Cancel`}
+                        </Button>
 
-                                        <Select onValueChange={field.handleChange} value={field.state.value}>
-                                            <field.FormControl>
-                                                <SelectTrigger className={classNames?.input}>
-                                                    <SelectValue placeholder={localization.NO_EXPIRATION} />
-                                                </SelectTrigger>
-                                            </field.FormControl>
-
-                                            <SelectContent>
-                                                <SelectItem value="none">{localization.NO_EXPIRATION}</SelectItem>
-
-                                                <SelectItem value="7">{rtf.format(7, "day")}</SelectItem>
-
-                                                <SelectItem value="30">{rtf.format(30, "day")}</SelectItem>
-
-                                                <SelectItem value="90">{rtf.format(90, "day")}</SelectItem>
-
-                                                <SelectItem value="180">{rtf.format(180, "day")}</SelectItem>
-
-                                                <SelectItem value="365">{rtf.format(365, "day")}</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <DialogFooter className={classNames?.dialog?.footer}>
-                            <form.Subscribe
-                                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                                children={([canSubmit, isSubmitting]) => (
-                                    <Button type="submit" disabled={!canSubmit} className={classNames?.button}>
-                                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        {localization.CREATE_API_KEY}
-                                    </Button>
-                                )}
-                            />
-                        </DialogFooter>
-                    </form>
-                </form.AppForm>
+                        <Button type="submit" disabled={!name.trim() || isPending} className={cn(classNames?.button, classNames?.primaryButton)}>
+                            {isPending ? t`Creating...` : t`Create API Key`}
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

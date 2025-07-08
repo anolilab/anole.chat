@@ -1,72 +1,63 @@
 "use client";
 
-import { useContext, useState } from "react";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { CardContent } from "@/components/ui/card";
-import { SettingsCard } from "../shared/settings-card";
-import type { SettingsCardProps } from "../shared/settings-card";
-import { APIKeyCell } from "./api-key-cell";
+import { PlusIcon } from "lucide-react";
+import { type ComponentProps, useMemo, useState } from "react";
+import { t } from "@lingui/core/macro";
+
 import { APIKeyDisplayDialog } from "./api-key-display-dialog";
 import { CreateAPIKeyDialog } from "./create-api-key-dialog";
+import { APIKeyCell } from "./api-key-cell";
+import { useListApiKeys } from "../../../hooks/api-key/use-list-api-keys";
+import { SettingsCard } from "../shared/settings-card";
+import { Button } from "@/components/ui/button";
 
-export function APIKeysCard({ className, classNames, localization, ...props }: SettingsCardProps) {
-    const {
-        hooks: { useListApiKeys },
-        localization: contextLocalization,
-    } = useContext(AuthUIContext);
+export interface APIKeysCardProps extends ComponentProps<typeof SettingsCard> {}
 
-    localization = { ...contextLocalization, ...localization };
+export function APIKeysCard({ ...props }: APIKeysCardProps) {
+    const { data: apiKeys } = useListApiKeys();
 
-    const { data: apiKeys, isPending, refetch } = useListApiKeys();
+    const [showCreateDialog, setShowCreateDialog] = useState(false);
+    const [displayAPIKey, setDisplayAPIKey] = useState<string | null>(null);
 
-    const [createDialogOpen, setCreateDialogOpen] = useState(false);
-    const [displayDialogOpen, setDisplayDialogOpen] = useState(false);
-    const [createdApiKey, setCreatedApiKey] = useState("");
-
-    const handleCreateApiKey = (apiKey: string) => {
-        setCreatedApiKey(apiKey);
-        setDisplayDialogOpen(true);
-    };
+    const sortedAPIKeys = useMemo(() => {
+        if (!apiKeys) return [];
+        return [...apiKeys].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }, [apiKeys]);
 
     return (
         <>
             <SettingsCard
-                className={className}
-                classNames={classNames}
-                actionLabel={localization.CREATE_API_KEY}
-                description={localization.API_KEYS_DESCRIPTION}
-                instructions={localization.API_KEYS_INSTRUCTIONS}
-                isPending={isPending}
-                title={localization.API_KEYS}
-                action={() => setCreateDialogOpen(true)}
                 {...props}
+                header={t`API Keys`}
+                description={t`Create and manage API keys for programmatic access to your account.`}
+                footer={
+                    <Button variant="outline" onClick={() => setShowCreateDialog(true)} className="w-fit">
+                        <PlusIcon />
+                        {t`Create API Key`}
+                    </Button>
+                }
             >
-                {apiKeys && apiKeys.length > 0 && (
-                    <CardContent className={cn("grid gap-4", classNames?.content)}>
-                        {apiKeys?.map((apiKey) => (
-                            <APIKeyCell key={apiKey.id} classNames={classNames} apiKey={apiKey} localization={localization} refetch={refetch} />
+                {sortedAPIKeys.length > 0 ? (
+                    <div className="space-y-2">
+                        {sortedAPIKeys.map((apiKey) => (
+                            <APIKeyCell key={apiKey.id} apiKey={apiKey} />
                         ))}
-                    </CardContent>
+                    </div>
+                ) : (
+                    <div className="text-muted-foreground py-8 text-center text-sm">{t`No API keys found. Create one to get started.`}</div>
                 )}
             </SettingsCard>
 
             <CreateAPIKeyDialog
-                classNames={classNames}
-                localization={localization}
-                open={createDialogOpen}
-                onOpenChange={setCreateDialogOpen}
-                onSuccess={handleCreateApiKey}
-                refetch={refetch}
+                open={showCreateDialog}
+                onOpenChange={setShowCreateDialog}
+                onAPIKeyCreated={(apiKey) => {
+                    setDisplayAPIKey(apiKey);
+                    setShowCreateDialog(false);
+                }}
             />
 
-            <APIKeyDisplayDialog
-                classNames={classNames}
-                apiKey={createdApiKey}
-                localization={localization}
-                open={displayDialogOpen}
-                onOpenChange={setDisplayDialogOpen}
-            />
+            <APIKeyDisplayDialog open={Boolean(displayAPIKey)} onOpenChange={(open) => !open && setDisplayAPIKey(null)} apiKey={displayAPIKey || ""} />
         </>
     );
 }

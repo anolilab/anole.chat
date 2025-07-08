@@ -1,110 +1,84 @@
 "use client";
 
-import type { SocialProvider } from "better-auth/social-providers";
-import { Loader2 } from "lucide-react";
-import { useContext, useState } from "react";
+import { type ComponentProps, useState } from "react";
+import { t } from "@lingui/core/macro";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import type { Provider } from "../../../lib/social-providers";
-import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
-import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-export interface ProviderCellProps {
-    className?: string;
-    classNames?: SettingsCardClassNames;
-    account?: { accountId: string; provider: string } | null;
-    isPending?: boolean;
-    localization?: Partial<AuthLocalization>;
-    other?: boolean;
-    provider: Provider;
-    refetch?: Refetch;
+interface Provider {
+    id: string;
+    provider: string;
+    email?: string;
+    username?: string;
+    connectedAt: string;
 }
 
-export function ProviderCell({ className, classNames, account, localization, other, provider, refetch }: ProviderCellProps) {
-    const {
-        authClient,
-        basePath,
-        baseURL,
-        localization: contextLocalization,
-        mutators: { unlinkAccount },
-        viewPaths,
-        toast,
-    } = useContext(AuthUIContext);
+interface ProviderCellProps extends ComponentProps<"div"> {
+    classNames?: SettingsCardClassNames;
 
-    localization = { ...contextLocalization, ...localization };
+    provider: Provider;
+    onDisconnect?: (providerId: string) => void;
+}
 
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleLink = async () => {
-        setIsLoading(true);
-        const callbackURL = `${baseURL}${basePath}/${viewPaths.CALLBACK}?redirectTo=${window.location.pathname}`;
-
-        try {
-            if (other) {
-                await authClient.oauth2.link({
-                    providerId: provider.provider as SocialProvider,
-                    callbackURL,
-                    fetchOptions: { throw: true },
-                });
-            } else {
-                await authClient.linkSocial({
-                    provider: provider.provider as SocialProvider,
-                    callbackURL,
-                    fetchOptions: { throw: true },
-                });
-            }
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization }),
-            });
-
-            setIsLoading(false);
-        }
+function getProviderDisplayName(provider: string) {
+    const providers: Record<string, string> = {
+        google: "Google",
+        github: "GitHub",
+        discord: "Discord",
+        microsoft: "Microsoft",
+        apple: "Apple",
+        facebook: "Facebook",
+        twitter: "Twitter",
+        linkedin: "LinkedIn",
     };
 
-    const handleUnlink = async () => {
-        setIsLoading(true);
+    return providers[provider] || provider.charAt(0).toUpperCase() + provider.slice(1);
+}
 
+export function ProviderCell({ classNames, provider, onDisconnect, className, ...props }: ProviderCellProps) {
+    const [isDisconnecting, setIsDisconnecting] = useState(false);
+
+    const displayName = getProviderDisplayName(provider.provider);
+    const connectedDate = new Date(provider.connectedAt).toLocaleDateString();
+
+    const handleDisconnect = async () => {
+        if (!onDisconnect) return;
+
+        setIsDisconnecting(true);
         try {
-            await unlinkAccount({
-                accountId: account?.accountId,
-                providerId: provider.provider,
-            });
-
-            await refetch?.();
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization }),
-            });
+            await onDisconnect(provider.id);
+        } finally {
+            setIsDisconnecting(false);
         }
-
-        setIsLoading(false);
     };
 
     return (
-        <Card className={cn("flex-row items-center gap-3 px-4 py-3", className, classNames?.cell)}>
-            {provider.icon && <provider.icon className={cn("size-4", classNames?.icon)} />}
+        <div className={cn("flex items-center justify-between rounded-lg border p-4", className, classNames?.content)} {...props}>
+            <div className="flex items-center gap-3">
+                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                    <span className="text-sm font-medium">{displayName.slice(0, 2).toUpperCase()}</span>
+                </div>
 
-            <span className="text-sm">{provider.name}</span>
+                <div className="flex flex-col">
+                    <div className="font-medium">{displayName}</div>
+                    <div className="text-muted-foreground text-sm">
+                        {provider.email || provider.username}
+                        {` • ${t`Connected on ${connectedDate}`}`}
+                    </div>
+                </div>
+            </div>
 
             <Button
-                className={cn("relative ms-auto", classNames?.button)}
-                disabled={isLoading}
+                variant="outline"
                 size="sm"
-                type="button"
-                variant={account ? "outline" : "default"}
-                onClick={account ? handleUnlink : handleLink}
+                onClick={handleDisconnect}
+                disabled={isDisconnecting}
+                className={cn("text-destructive hover:text-destructive", classNames?.button, classNames?.outlineButton)}
             >
-                {isLoading && <Loader2 className="animate-spin" />}
-                {account ? localization.UNLINK : localization.LINK}
+                {isDisconnecting ? t`Disconnecting...` : t`Disconnect`}
             </Button>
-        </Card>
+        </div>
     );
 }

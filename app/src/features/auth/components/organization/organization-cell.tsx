@@ -2,12 +2,12 @@
 
 import type { Organization } from "better-auth/plugins/organization";
 import { EllipsisIcon, Loader2, LogOutIcon, SettingsIcon } from "lucide-react";
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,22 +19,18 @@ export interface OrganizationCellProps {
     className?: string;
     classNames?: SettingsCardClassNames;
     organization: Organization;
-    localization?: AuthLocalization;
 }
 
-export function OrganizationCell({ className, classNames, organization, localization: localizationProp }: OrganizationCellProps) {
+export function OrganizationCell({ className, classNames, organization }: OrganizationCellProps) {
     const {
         authClient,
         basePath,
         hooks: { useActiveOrganization },
-        localization: contextLocalization,
         settings,
         viewPaths,
         navigate,
         toast,
     } = useContext(AuthUIContext);
-
-    const localization = useMemo(() => ({ ...contextLocalization, ...localizationProp }), [contextLocalization, localizationProp]);
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
@@ -62,17 +58,17 @@ export function OrganizationCell({ className, classNames, organization, localiza
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         } finally {
             setIsManagingOrganization(false);
         }
-    }, [activeOrganization, authClient, organization.id, basePath, settings?.basePath, viewPaths, navigate, toast, localization, refetchActiveOrganization]);
+    }, [activeOrganization, authClient, organization.id, basePath, settings?.basePath, viewPaths, navigate, toast, refetchActiveOrganization]);
 
     return (
         <>
             <Card className={cn("flex-row p-4", className, classNames?.cell)}>
-                <OrganizationView organization={organization} localization={localization} />
+                <OrganizationView organization={organization} />
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -91,19 +87,19 @@ export function OrganizationCell({ className, classNames, organization, localiza
                         <DropdownMenuItem onClick={handleManageOrganization} disabled={isManagingOrganization}>
                             <SettingsIcon className={classNames?.icon} />
 
-                            {localization.MANAGE_ORGANIZATION}
+                            {t`Manage Organization`}
                         </DropdownMenuItem>
 
                         <DropdownMenuItem onClick={() => setIsLeaveDialogOpen(true)} variant="destructive">
                             <LogOutIcon className={classNames?.icon} />
 
-                            {localization.LEAVE_ORGANIZATION}
+                            {t`Leave Organization`}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </Card>
 
-            <LeaveOrganizationDialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen} organization={organization} localization={localization} />
+            <LeaveOrganizationDialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen} organization={organization} />
         </>
     );
 }

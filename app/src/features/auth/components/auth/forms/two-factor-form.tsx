@@ -6,13 +6,13 @@ import { Loader2, QrCodeIcon, SendIcon } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { useIsHydrated } from "../../../hooks/use-hydrated";
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError, getSearchParam } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { User } from "../../../types/auth-core-types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -26,7 +26,6 @@ export interface TwoFactorFormProps {
     className?: string;
     classNames?: AuthFormClassNames;
     isSubmitting?: boolean;
-    localization?: Partial<AuthLocalization>;
     otpSeparators?: 0 | 1 | 2;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
@@ -44,7 +43,7 @@ const formSchema = z.object({
     trustDevice: z.boolean().optional(),
 });
 
-export function TwoFactorForm({ className, classNames, isSubmitting, localization, otpSeparators = 0, redirectTo, setIsSubmitting }: TwoFactorFormProps) {
+export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparators = 0, redirectTo, setIsSubmitting }: TwoFactorFormProps) {
     const isHydrated = useIsHydrated();
     const totpURI = isHydrated ? getSearchParam("totpURI") : null;
     const initialSendRef = useRef(false);
@@ -53,14 +52,11 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
         authClient,
         basePath,
         hooks: { useSession },
-        localization: contextLocalization,
         twoFactor,
         viewPaths,
         toast,
         Link,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { onSuccess, isPending: transitionPending } = useOnSuccessTransition({
         redirectTo,
@@ -103,13 +99,13 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                 if (sessionData && !isTwoFactorEnabled) {
                     toast({
                         variant: "success",
-                        message: localization?.TWO_FACTOR_ENABLED,
+                        message: t`Two-factor authentication enabled`,
                     });
                 }
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
 
                 form.reset();
@@ -152,7 +148,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
 
             if ((error as BetterFetchError).error.code === "INVALID_TWO_FACTOR_COOKIE") {
@@ -174,11 +170,10 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                 }}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
-                {twoFactor?.includes("totp") && totpURI && method === "totp" && (
+                {twoFactor?.includes("totp") && totpURI != null && (method ?? null) === "totp" && (
                     <div className="space-y-3">
-                        <Label className={classNames?.label}>{localization.TWO_FACTOR_TOTP_LABEL}</Label>
-
-                        <QRCode className={cn("shadow-xs border", classNames?.qrCode)} value={totpURI} />
+                        <Label className={classNames?.label}>{t`Two-factor authentication (TOTP)`}</Label>
+                        <QRCode className={cn("shadow-xs border", classNames?.qrCode)} value={totpURI ?? ""} />
                     </div>
                 )}
 
@@ -189,13 +184,13 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                             children={(field) => (
                                 <field.FormItem>
                                     <div className="flex items-center justify-between">
-                                        <field.FormLabel className={classNames?.label}>{localization.ONE_TIME_PASSWORD}</field.FormLabel>
+                                        <field.FormLabel className={classNames?.label}>{t`One-time password`}</field.FormLabel>
 
                                         <Link
                                             className={cn("text-sm hover:underline", classNames?.forgotPasswordLink)}
                                             href={`${basePath}/${viewPaths.RECOVER_ACCOUNT}${isHydrated ? window.location.search : ""}`}
                                         >
-                                            {localization.FORGOT_AUTHENTICATOR}
+                                            {t`Forgot authenticator`}
                                         </Link>
                                     </div>
 
@@ -238,7 +233,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                                         />
                                     </field.FormControl>
 
-                                    <field.FormLabel className={classNames?.label}>{localization.TRUST_DEVICE}</field.FormLabel>
+                                    <field.FormLabel className={classNames?.label}>{t`Trust this device`}</field.FormLabel>
                                 </field.FormItem>
                             )}
                         />
@@ -252,7 +247,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                             children={([canSubmit, isSubmitting]) => (
                                 <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn(classNames?.button, classNames?.primaryButton)}>
                                     {isSubmitting && <Loader2 className="animate-spin" />}
-                                    {localization.TWO_FACTOR_ACTION}
+                                    {t`Two-factor authentication`}
                                 </Button>
                             )}
                         />
@@ -268,7 +263,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                         >
                             {isSendingOtp ? <Loader2 className="animate-spin" /> : <SendIcon className={classNames?.icon} />}
 
-                            {localization.RESEND_CODE}
+                            {t`Resend code`}
                             {cooldownSeconds > 0 && ` (${cooldownSeconds})`}
                         </Button>
                     )}
@@ -282,7 +277,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                             disabled={isSubmitting}
                         >
                             <SendIcon className={classNames?.icon} />
-                            {localization.SEND_VERIFICATION_CODE}
+                            {t`Send verification code`}
                         </Button>
                     )}
 
@@ -295,7 +290,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, localizatio
                             disabled={isSubmitting}
                         >
                             <QrCodeIcon className={classNames?.icon} />
-                            {localization.CONTINUE_WITH_AUTHENTICATOR}
+                            {t`Continue with authenticator`}
                         </Button>
                     )}
                 </div>

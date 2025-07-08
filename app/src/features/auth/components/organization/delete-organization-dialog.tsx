@@ -3,11 +3,11 @@
 import { Loader2 } from "lucide-react";
 import { type ComponentProps, useContext } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,24 +18,20 @@ import { OrganizationView } from "./organization-view";
 
 export interface DeleteOrganizationDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
 }
 
 const formSchema = z.object({
-    slug: z.string().min(1, { message: "Organization slug is required" }),
+    slug: z.string().min(1, { message: t`Organization slug is required` }),
 });
 
-export function DeleteOrganizationDialog({ classNames, localization, onOpenChange, ...props }: DeleteOrganizationDialogProps) {
+export function DeleteOrganizationDialog({ classNames, onOpenChange, ...props }: DeleteOrganizationDialogProps) {
     const {
         authClient,
         hooks: { useActiveOrganization, useListOrganizations },
-        localization: contextLocalization,
         redirectTo,
         navigate,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -51,7 +47,7 @@ export function DeleteOrganizationDialog({ classNames, localization, onOpenChang
                     return result.error.issues[0]?.message;
                 }
                 if (value.slug !== activeOrganization?.slug) {
-                    return localization.SLUG_DOES_NOT_MATCH!;
+                    return t`Slug does not match`;
                 }
                 return undefined;
             },
@@ -72,14 +68,14 @@ export function DeleteOrganizationDialog({ classNames, localization, onOpenChang
 
                 toast({
                     variant: "success",
-                    message: localization.DELETE_ORGANIZATION_SUCCESS!,
+                    message: t`Organization deleted successfully`,
                 });
                 navigate(redirectTo);
                 onOpenChange?.(false);
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -91,15 +87,15 @@ export function DeleteOrganizationDialog({ classNames, localization, onOpenChang
         <Dialog onOpenChange={onOpenChange} {...props}>
             <DialogContent className={cn("sm:max-w-md", classNames?.dialog?.content)}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization?.DELETE_ORGANIZATION}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Delete Organization`}</DialogTitle>
 
                     <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
-                        {localization?.DELETE_ORGANIZATION_DESCRIPTION}
+                        {t`This action cannot be undone. This will permanently delete the organization and all associated data.`}
                     </DialogDescription>
                 </DialogHeader>
 
                 <Card className={cn("my-2 flex-row p-4", classNames?.cell)}>
-                    <OrganizationView organization={activeOrganization} localization={localization} />
+                    <OrganizationView organization={activeOrganization} />
                 </Card>
 
                 <form.AppForm>
@@ -116,9 +112,7 @@ export function DeleteOrganizationDialog({ classNames, localization, onOpenChang
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel className={classNames?.label}>
-                                        {localization?.DELETE_ORGANIZATION_INSTRUCTIONS}
-
-                                        <span className="font-bold">{activeOrganization?.slug}</span>
+                                        {t`Please type`} <span className="font-bold">{activeOrganization?.slug}</span> {t`to confirm`}
                                     </field.FormLabel>
 
                                     <field.FormControl>
@@ -144,7 +138,7 @@ export function DeleteOrganizationDialog({ classNames, localization, onOpenChang
                                 className={cn(classNames?.button, classNames?.secondaryButton)}
                                 onClick={() => onOpenChange?.(false)}
                             >
-                                {localization.CANCEL}
+                                {t`Cancel`}
                             </Button>
 
                             <form.Subscribe
@@ -157,7 +151,7 @@ export function DeleteOrganizationDialog({ classNames, localization, onOpenChang
                                         type="submit"
                                     >
                                         {isSubmitting && <Loader2 className="animate-spin" />}
-                                        {localization.DELETE_ORGANIZATION_ACTION}
+                                        {t`Delete Organization`}
                                     </Button>
                                 )}
                             />

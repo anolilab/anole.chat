@@ -8,9 +8,9 @@ import { UpdateFieldCard } from "./account/update-field-card";
 import { UpdateNameCard } from "./account/update-name-card";
 import { UpdateUsernameCard } from "./account/update-username-card";
 import { ChangeEmailCard } from "./security/change-email-card";
-import type { SettingsCardsProps } from "./settings-cards";
+import type { AuthCardProps } from "../../types/ui-configuration-types";
 
-export function AccountSettingsCards({ className, classNames, localization }: Omit<SettingsCardsProps, "view">) {
+export function AccountSettingsCards({ className, classNames }: AuthCardProps) {
     const {
         additionalFields,
         avatar,
@@ -22,16 +22,16 @@ export function AccountSettingsCards({ className, classNames, localization }: Om
     } = useContext(AuthUIContext);
 
     const { data: sessionData } = useSession();
-    
+
     return (
-        <div className={cn("flex w-full flex-col gap-4 md:gap-6", className, classNames?.cards)}>
-            {settings?.fields?.includes("image") && avatar && <UpdateAvatarCard classNames={classNames?.card} localization={localization} />}
+        <div className={cn("flex w-full flex-col gap-4 md:gap-6", className, classNames?.card)}>
+            {settings?.fields?.includes("image") && avatar && <UpdateAvatarCard classNames={classNames} />}
 
-            {credentials?.username && <UpdateUsernameCard classNames={classNames?.card} localization={localization} />}
+            {credentials?.username && <UpdateUsernameCard classNames={classNames} />}
 
-            {settings?.fields?.includes("name") && <UpdateNameCard classNames={classNames?.card} localization={localization} />}
+            {settings?.fields?.includes("name") && <UpdateNameCard classNames={classNames} />}
 
-            {changeEmail && <ChangeEmailCard classNames={classNames?.card} localization={localization} />}
+            {changeEmail && <ChangeEmailCard classNames={classNames} />}
 
             {settings?.fields?.map((field) => {
                 if (field === "image") return null;
@@ -47,13 +47,12 @@ export function AccountSettingsCards({ className, classNames, localization }: Om
                 return (
                     <UpdateFieldCard
                         key={field}
-                        classNames={classNames?.card}
+                        classNames={classNames}
                         value={defaultValue}
                         description={description}
                         name={field}
                         instructions={instructions}
                         label={label}
-                        localization={localization}
                         placeholder={placeholder}
                         required={required}
                         type={type}
@@ -62,7 +61,7 @@ export function AccountSettingsCards({ className, classNames, localization }: Om
                 );
             })}
 
-            {multiSession && <AccountsCard classNames={classNames?.card} localization={localization} />}
+            {multiSession && <AccountsCard classNames={classNames} />}
         </div>
     );
 }

@@ -1,5 +1,6 @@
 "use client";
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { useIsHydrated } from "../../hooks/use-hydrated";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
@@ -10,13 +11,10 @@ import { CardContent } from "@/components/ui/card";
 import { CreateOrganizationDialog } from "./create-organization-dialog";
 import { OrganizationCell } from "./organization-cell";
 
-export function OrganizationsCard({ className, classNames, localization, ...props }: SettingsCardProps) {
+export function OrganizationsCard({ className, classNames, ...props }: SettingsCardProps) {
     const {
         hooks: { useListOrganizations },
-        localization: contextLocalization,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const isHydrated = useIsHydrated();
     const { data: organizations, isPending: organizationsPending } = useListOrganizations();
@@ -30,10 +28,10 @@ export function OrganizationsCard({ className, classNames, localization, ...prop
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                title={localization.ORGANIZATIONS}
-                description={localization.ORGANIZATIONS_DESCRIPTION}
-                instructions={localization.ORGANIZATIONS_INSTRUCTIONS}
-                actionLabel={localization.CREATE_ORGANIZATION}
+                title={t`Organizations`}
+                description={t`Manage your organizations and memberships`}
+                instructions={t`Create new organizations or manage existing ones`}
+                actionLabel={t`Create Organization`}
                 action={() => setCreateDialogOpen(true)}
                 isPending={isPending}
                 {...props}
@@ -41,13 +39,13 @@ export function OrganizationsCard({ className, classNames, localization, ...prop
                 {organizations && organizations?.length > 0 && (
                     <CardContent className={cn("grid gap-4", classNames?.content)}>
                         {organizations?.map((organization) => (
-                            <OrganizationCell key={organization.id} classNames={classNames} organization={organization} localization={localization} />
+                            <OrganizationCell key={organization.id} classNames={classNames} organization={organization} />
                         ))}
                     </CardContent>
                 )}
             </SettingsCard>
 
-            <CreateOrganizationDialog classNames={classNames} localization={localization} open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+            <CreateOrganizationDialog classNames={classNames} open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
         </>
     );
 }

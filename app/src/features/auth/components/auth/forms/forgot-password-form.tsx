@@ -8,38 +8,35 @@ import { useIsHydrated } from "../../../hooks/use-hydrated";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Captcha } from "../../captcha/captcha";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import type { AuthFormClassNames } from "../auth-form";
 import type { BetterFetchOption } from "better-auth/react";
+import { t } from "@lingui/core/macro";
 
 export interface ForgotPasswordFormProps {
     className?: string;
     classNames?: AuthFormClassNames;
     isSubmitting?: boolean;
-    localization: Partial<AuthLocalization>;
     setIsSubmitting?: (value: boolean) => void;
 }
 
-export function ForgotPasswordForm({ className, classNames, isSubmitting, localization, setIsSubmitting }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ className, classNames, isSubmitting, setIsSubmitting }: ForgotPasswordFormProps) {
     const isHydrated = useIsHydrated();
-    const { captchaRef, getCaptchaHeaders } = useCaptcha({ localization });
+    const { captchaRef, getCaptchaHeaders } = useCaptcha({});
 
-    const { authClient, basePath, baseURL, localization: contextLocalization, navigate, toast, viewPaths } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
+    const { authClient, basePath, baseURL, viewPaths, navigate, toast } = useContext(AuthUIContext);
 
     const formSchema = z.object({
         email: z
             .string()
             .min(1, {
-                message: `${localization.EMAIL} ${localization.IS_REQUIRED}`,
+                message: t`Email is required`,
             })
             .email({
-                message: `${localization.EMAIL} ${localization.IS_INVALID}`,
+                message: t`Email is invalid`,
             }),
     });
 
@@ -71,14 +68,14 @@ export function ForgotPasswordForm({ className, classNames, isSubmitting, locali
 
                 toast({
                     variant: "success",
-                    message: localization.FORGOT_PASSWORD_EMAIL,
+                    message: t`Email sent successfully`,
                 });
 
                 navigate(`${basePath}/${viewPaths.SIGN_IN}${window.location.search}`);
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -109,14 +106,14 @@ export function ForgotPasswordForm({ className, classNames, isSubmitting, locali
                     name="email"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.EMAIL}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
                                     autoComplete="email"
-                                    placeholder={localization.EMAIL_PLACEHOLDER}
+                                    placeholder={t`Enter your email`}
                                     value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -129,13 +126,13 @@ export function ForgotPasswordForm({ className, classNames, isSubmitting, locali
                     )}
                 />
 
-                <Captcha ref={captchaRef} localization={localization} action="/forget-password" />
+                <Captcha ref={captchaRef} action="/forget-password" />
 
                 <form.Subscribe
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isFormSubmitting]) => (
                         <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
-                            {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : localization.FORGOT_PASSWORD_ACTION}
+                            {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : t`Forgot Password`}
                         </Button>
                     )}
                 />

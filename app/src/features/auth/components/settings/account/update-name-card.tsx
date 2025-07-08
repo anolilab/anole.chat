@@ -1,18 +1,17 @@
 "use client";
 
 import { useContext } from "react";
+import { t } from "@lingui/core/macro";
+
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import type { SettingsCardProps } from "../shared/settings-card";
 import { UpdateFieldCard } from "./update-field-card";
 
-export function UpdateNameCard({ className, classNames, localization, ...props }: SettingsCardProps) {
+export function UpdateNameCard({ className, classNames, ...props }: SettingsCardProps) {
     const {
         hooks: { useSession },
-        localization: contextLocalization,
         nameRequired,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { data: sessionData } = useSession();
 
@@ -21,12 +20,11 @@ export function UpdateNameCard({ className, classNames, localization, ...props }
             className={className}
             classNames={classNames}
             value={sessionData?.user.name}
-            description={localization.NAME_DESCRIPTION}
+            description={t`Your display name for your account`}
             name="name"
-            instructions={localization.NAME_INSTRUCTIONS}
-            label={localization.NAME}
-            localization={localization}
-            placeholder={localization.NAME_PLACEHOLDER}
+            instructions={t`Enter your full name or display name`}
+            label={t`Name`}
+            placeholder={t`Enter your name`}
             required={nameRequired}
             {...props}
         />

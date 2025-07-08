@@ -4,11 +4,11 @@ import { useContext, useEffect } from "react";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import { DeleteOrganizationCard } from "../organization/delete-organization-card";
 import { OrganizationLogoCard } from "../organization/organization-logo-card";
 import { OrganizationNameCard } from "../organization/organization-name-card";
 import { OrganizationSlugCard } from "../organization/organization-slug-card";
 import type { AuthCardProps } from "../../types/ui-configuration-types";
+import { DeleteOrganizationCard } from "../organization/delete-organization-card";
 
 export function OrganizationSettingsCards({ className, classNames }: AuthCardProps) {
     const {

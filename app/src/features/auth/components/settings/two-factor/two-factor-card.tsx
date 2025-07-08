@@ -1,51 +1,77 @@
 "use client";
 
-import { useContext, useState } from "react";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import type { AuthLocalization } from "../../../localization/auth-localization";
-import type { User } from "../../../types/auth-core-types";
-import { SettingsCard } from "../shared/settings-card";
-import type { SettingsCardClassNames } from "../shared/settings-card";
-import { TwoFactorPasswordDialog } from "./two-factor-password-dialog";
+import { ShieldCheckIcon, ShieldOffIcon } from "lucide-react";
+import { type ComponentProps, useState } from "react";
+import { t } from "@lingui/core/macro";
 
-export interface TwoFactorCardProps {
-    className?: string;
-    classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
+import { SettingsCard } from "../shared/settings-card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+export interface TwoFactorCardProps extends ComponentProps<typeof SettingsCard> {
+    isEnabled?: boolean;
+    onToggle?: (enable: boolean) => Promise<void>;
+    onShowBackupCodes?: () => void;
 }
 
-export function TwoFactorCard({ className, classNames, localization }: TwoFactorCardProps) {
-    const {
-        localization: contextLocalization,
-        hooks: { useSession },
-    } = useContext(AuthUIContext);
+export function TwoFactorCard({ isEnabled = false, onToggle, onShowBackupCodes, ...props }: TwoFactorCardProps) {
+    const [isPending, setIsPending] = useState(false);
 
-    const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+    const handleToggle = async () => {
+        if (!onToggle) return;
 
-    localization = { ...contextLocalization, ...localization };
-
-    const { data: sessionData, isPending } = useSession();
-    const isTwoFactorEnabled = (sessionData?.user as User)?.twoFactorEnabled;
+        setIsPending(true);
+        try {
+            await onToggle(!isEnabled);
+        } finally {
+            setIsPending(false);
+        }
+    };
 
     return (
-        <div>
-            <SettingsCard
-                className={className}
-                classNames={classNames}
-                actionLabel={isTwoFactorEnabled ? localization.DISABLE_TWO_FACTOR : localization.ENABLE_TWO_FACTOR}
-                description={localization.TWO_FACTOR_CARD_DESCRIPTION}
-                instructions={isTwoFactorEnabled ? localization.TWO_FACTOR_DISABLE_INSTRUCTIONS : localization.TWO_FACTOR_ENABLE_INSTRUCTIONS}
-                isPending={isPending}
-                title={localization.TWO_FACTOR}
-                action={() => setShowPasswordDialog(true)}
-            />
+        <SettingsCard
+            {...props}
+            header={
+                <div className="flex items-center gap-2">
+                    {isEnabled ? <ShieldCheckIcon className="h-5 w-5 text-green-600" /> : <ShieldOffIcon className="text-muted-foreground h-5 w-5" />}
+                    {t`Two-Factor Authentication`}
+                    <Badge variant={isEnabled ? "default" : "secondary"}>{isEnabled ? t`Enabled` : t`Disabled`}</Badge>
+                </div>
+            }
+            description={
+                isEnabled
+                    ? t`Two-factor authentication is currently enabled for your account. This adds an extra layer of security.`
+                    : t`Add an extra layer of security to your account by enabling two-factor authentication.`
+            }
+            footer={
+                <div className="flex gap-2">
+                    <Button variant={isEnabled ? "destructive" : "default"} onClick={handleToggle} disabled={isPending} className="w-fit">
+                        {isPending ? (isEnabled ? t`Disabling...` : t`Enabling...`) : isEnabled ? t`Disable 2FA` : t`Enable 2FA`}
+                    </Button>
 
-            <TwoFactorPasswordDialog
-                classNames={classNames}
-                open={showPasswordDialog}
-                onOpenChange={setShowPasswordDialog}
-                isTwoFactorEnabled={!!isTwoFactorEnabled}
-            />
-        </div>
+                    {isEnabled && onShowBackupCodes && (
+                        <Button variant="outline" onClick={onShowBackupCodes} className="w-fit">
+                            {t`View Backup Codes`}
+                        </Button>
+                    )}
+                </div>
+            }
+        >
+            {isEnabled ? (
+                <div className="space-y-3">
+                    <div className="text-sm">{t`Two-factor authentication is active. You'll need your authenticator app or backup codes to sign in.`}</div>
+                    <div className="text-muted-foreground text-xs">
+                        {t`Make sure you have access to your authenticator app and backup codes before disabling 2FA.`}
+                    </div>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    <div className="text-sm">{t`Enable two-factor authentication to secure your account with an additional verification step.`}</div>
+                    <div className="text-muted-foreground text-xs">
+                        {t`You'll need an authenticator app like Google Authenticator or Authy to generate verification codes.`}
+                    </div>
+                </div>
+            )}
+        </SettingsCard>
     );
 }

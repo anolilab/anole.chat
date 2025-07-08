@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { type ComponentProps, useContext, useState } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../../lib/utils";
@@ -24,7 +25,7 @@ const formSchema = z.object({
 });
 
 export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorEnabled, ...props }: TwoFactorPasswordDialogProps) {
-    const { localization, authClient, basePath, viewPaths, navigate, toast, twoFactor } = useContext(AuthUIContext);
+    const { authClient, toast, twoFactor } = useContext(AuthUIContext);
     const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
     const [totpURI, setTotpURI] = useState<string | null>(null);
@@ -71,7 +72,7 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
     }
@@ -85,14 +86,14 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
 
             toast({
                 variant: "success",
-                message: localization.TWO_FACTOR_DISABLED,
+                message: t`Two-factor authentication disabled`,
             });
 
             onOpenChange?.(false);
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
     }
@@ -104,10 +105,12 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
             <Dialog onOpenChange={onOpenChange} {...props}>
                 <DialogContent className={cn("sm:max-w-md", classNames?.dialog)}>
                     <DialogHeader className={classNames?.dialog?.header}>
-                        <DialogTitle className={classNames?.title}>{localization.TWO_FACTOR}</DialogTitle>
+                        <DialogTitle className={classNames?.title}>{t`Two-Factor Authentication`}</DialogTitle>
 
                         <DialogDescription className={classNames?.description}>
-                            {isTwoFactorEnabled ? localization.TWO_FACTOR_DISABLE_INSTRUCTIONS : localization.TWO_FACTOR_ENABLE_INSTRUCTIONS}
+                            {isTwoFactorEnabled
+                                ? t`Enter your password to disable two-factor authentication`
+                                : t`Enter your password to enable two-factor authentication`}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -124,12 +127,12 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
                                 name="password"
                                 children={(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel className={classNames?.label}>{localization.PASSWORD}</field.FormLabel>
+                                        <field.FormLabel className={classNames?.label}>{t`Password`}</field.FormLabel>
 
                                         <field.FormControl>
                                             <PasswordInput
                                                 className={classNames?.input}
-                                                placeholder={localization.PASSWORD_PLACEHOLDER}
+                                                placeholder={t`Enter your password`}
                                                 autoComplete="current-password"
                                                 value={field.state.value}
                                                 onBlur={field.handleBlur}
@@ -149,7 +152,7 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
                                     onClick={() => onOpenChange?.(false)}
                                     className={cn(classNames?.button, classNames?.secondaryButton)}
                                 >
-                                    {localization.CANCEL}
+                                    {t`Cancel`}
                                 </Button>
 
                                 <form.Subscribe
@@ -161,7 +164,7 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
                                             className={cn(classNames?.button, classNames?.primaryButton)}
                                         >
                                             {isSubmitting && <Loader2 className="animate-spin" />}
-                                            {isTwoFactorEnabled ? localization.DISABLE_TWO_FACTOR : localization.ENABLE_TWO_FACTOR}
+                                            {isTwoFactorEnabled ? t`Disable Two-Factor` : t`Enable Two-Factor`}
                                         </Button>
                                     )}
                                 />

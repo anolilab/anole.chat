@@ -1,90 +1,101 @@
 "use client";
 
-import type { Session } from "better-auth";
-import { LaptopIcon, Loader2, SmartphoneIcon } from "lucide-react";
-import { useContext, useState } from "react";
-import { UAParser } from "ua-parser-js";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
+import { MonitorIcon, SmartphoneIcon, TabletIcon, MoreHorizontalIcon } from "lucide-react";
+import { useState } from "react";
+import { t } from "@lingui/core/macro";
+
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
-import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-export interface SessionCellProps {
-    className?: string;
-    classNames?: SettingsCardClassNames;
-    localization?: Partial<AuthLocalization>;
-    session: Session;
-    refetch?: Refetch;
+interface Session {
+    id: string;
+    deviceType: "mobile" | "tablet" | "desktop";
+    deviceName?: string;
+    browser?: string;
+    os?: string;
+    location?: string;
+    ipAddress?: string;
+    isCurrent: boolean;
+    createdAt: string;
+    lastActiveAt: string;
 }
 
-export function SessionCell({ className, classNames, localization, session, refetch }: SessionCellProps) {
-    const {
-        basePath,
-        hooks: { useSession },
-        localization: contextLocalization,
-        mutators: { revokeSession },
-        viewPaths,
-        navigate,
-        toast,
-    } = useContext(AuthUIContext);
+interface SessionCellProps {
+    classNames?: SettingsCardClassNames;
 
-    localization = { ...contextLocalization, ...localization };
+    session: Session;
+    onRevokeSession?: (sessionId: string) => void;
+}
 
-    const { data: sessionData } = useSession();
-    const isCurrentSession = session.id === sessionData?.session?.id;
+function getDeviceIcon(deviceType: Session["deviceType"]) {
+    switch (deviceType) {
+        case "mobile":
+            return SmartphoneIcon;
+        case "tablet":
+            return TabletIcon;
+        case "desktop":
+            return MonitorIcon;
+        default:
+            return MonitorIcon;
+    }
+}
 
-    const [isLoading, setIsLoading] = useState(false);
+export function SessionCell({ classNames, session, onRevokeSession }: SessionCellProps) {
+    const [isRevoking, setIsRevoking] = useState(false);
+
+    const DeviceIcon = getDeviceIcon(session.deviceType);
+    const createdDate = new Date(session.createdAt).toLocaleDateString();
+    const lastActiveDate = new Date(session.lastActiveAt).toLocaleDateString();
 
     const handleRevoke = async () => {
-        setIsLoading(true);
+        if (!onRevokeSession || session.isCurrent) return;
 
-        if (isCurrentSession) {
-            navigate(`${basePath}/${viewPaths.SIGN_OUT}`);
-            return;
-        }
-
+        setIsRevoking(true);
         try {
-            await revokeSession({ token: session.token });
-            refetch?.();
-        } catch (error) {
-            toast({
-                variant: "error",
-                message: getLocalizedError({ error, localization }),
-            });
-
-            setIsLoading(false);
+            await onRevokeSession(session.id);
+        } finally {
+            setIsRevoking(false);
         }
     };
 
-    const parser = UAParser(session.userAgent as string);
-    const isMobile = parser.device.type === "mobile";
-
     return (
-        <Card className={cn("flex-row items-center gap-3 px-4 py-3", className, classNames?.cell)}>
-            {isMobile ? <SmartphoneIcon className={cn("size-4", classNames?.icon)} /> : <LaptopIcon className={cn("size-4", classNames?.icon)} />}
+        <div className={cn("flex items-center justify-between rounded-lg border p-4", classNames?.content)}>
+            <div className="flex items-center gap-3">
+                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                    <DeviceIcon className="h-5 w-5" />
+                </div>
 
-            <div className="flex flex-col">
-                <span className="text-sm font-semibold">{isCurrentSession ? localization.CURRENT_SESSION : session?.ipAddress}</span>
-
-                <span className="text-muted-foreground text-xs">
-                    {parser.os.name}, {parser.browser.name}
-                </span>
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                        <span className="font-medium">{session.deviceName || session.browser || t`Unknown Device`}</span>
+                        {session.isCurrent && <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">{t`Current`}</span>}
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                        {session.os && `${session.os} • `}
+                        {session.location && `${session.location} • `}
+                        {t`Last active ${lastActiveDate}`}
+                    </div>
+                </div>
             </div>
 
-            <Button
-                className={cn("relative ms-auto", classNames?.button, classNames?.outlineButton)}
-                disabled={isLoading}
-                size="sm"
-                variant="outline"
-                onClick={handleRevoke}
-            >
-                {isLoading && <Loader2 className="animate-spin" />}
-                {isCurrentSession ? localization.SIGN_OUT : localization.REVOKE}
-            </Button>
-        </Card>
+            {!session.isCurrent && (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isRevoking}>
+                            <MoreHorizontalIcon className="h-4 w-4" />
+                            <span className="sr-only">{t`More options`}</span>
+                        </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={handleRevoke} disabled={isRevoking} className="text-destructive">
+                            {isRevoking ? t`Revoking...` : t`Revoke Session`}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )}
+        </div>
     );
 }

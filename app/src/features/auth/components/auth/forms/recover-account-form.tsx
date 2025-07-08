@@ -2,37 +2,46 @@
 import { Loader2 } from "lucide-react";
 import { useContext, useEffect } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
+import { useIsHydrated } from "../../../hooks/use-hydrated";
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { InputOTP } from "@/components/ui/input-otp";
 import type { AuthFormClassNames } from "../auth-form";
+import { OTPInputGroup } from "../otp-input-group";
 
 export interface RecoverAccountFormProps {
     className?: string;
     classNames?: AuthFormClassNames;
     isSubmitting?: boolean;
-    localization: Partial<AuthLocalization>;
+    otpSeparators?: 0 | 1 | 2;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
 }
 
-const formSchema = z.object({
-    code: z.string().min(1, { message: "Backup code is required" }),
-});
+export function RecoverAccountForm({ className, classNames, isSubmitting, otpSeparators = 0, redirectTo, setIsSubmitting }: RecoverAccountFormProps) {
+    const isHydrated = useIsHydrated();
 
-export function RecoverAccountForm({ className, classNames, isSubmitting, localization, redirectTo, setIsSubmitting }: RecoverAccountFormProps) {
-    const { authClient, localization: contextLocalization, toast } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
+    const { authClient, toast } = useContext(AuthUIContext);
 
     const { onSuccess, isPending: transitionPending } = useOnSuccessTransition({
         redirectTo,
+    });
+
+    const formSchema = z.object({
+        code: z
+            .string()
+            .min(1, {
+                message: t`Backup code is required`,
+            })
+            .min(6, {
+                message: t`Backup code is invalid`,
+            }),
     });
 
     const form = useAppForm({
@@ -40,15 +49,15 @@ export function RecoverAccountForm({ className, classNames, isSubmitting, locali
             code: "",
         },
         validators: {
-            onChange: ({ value }) => {
+            onChange: ({ value }: { value: { code: string } }) => {
                 const result = formSchema.safeParse(value);
                 if (!result.success) {
-                    return result.error.issues[0]?.message;
+                    return result.error.flatten().fieldErrors;
                 }
                 return undefined;
             },
         },
-        onSubmit: async ({ value }) => {
+        onSubmit: async ({ value }: { value: { code: string } }) => {
             try {
                 await authClient.twoFactor.verifyBackupCode({
                     code: value.code,
@@ -59,7 +68,7 @@ export function RecoverAccountForm({ className, classNames, isSubmitting, locali
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
 
                 form.reset();
@@ -67,11 +76,15 @@ export function RecoverAccountForm({ className, classNames, isSubmitting, locali
         },
     });
 
-    isSubmitting = isSubmitting || form.state.isSubmitting || transitionPending;
-
     useEffect(() => {
-        setIsSubmitting?.(form.state.isSubmitting || transitionPending);
-    }, [form.state.isSubmitting, transitionPending, setIsSubmitting]);
+        form.Subscribe({
+            selector: (state) => [state.isSubmitting, transitionPending],
+            children: ([isFormSubmitting, isPending]) => {
+                setIsSubmitting?.(Boolean(isFormSubmitting || isPending));
+                return null;
+            },
+        });
+    }, [setIsSubmitting, transitionPending]);
 
     return (
         <form.AppForm>
@@ -81,24 +94,32 @@ export function RecoverAccountForm({ className, classNames, isSubmitting, locali
                     e.stopPropagation();
                     form.handleSubmit();
                 }}
-                className={cn("grid gap-6", className, classNames?.base)}
+                noValidate={isHydrated}
+                className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 <form.AppField
                     name="code"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.BACKUP_CODE}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`Backup Code`}</field.FormLabel>
 
                             <field.FormControl>
-                                <Input
-                                    placeholder={localization.BACKUP_CODE_PLACEHOLDER}
-                                    autoComplete="off"
-                                    className={classNames?.input}
-                                    disabled={isSubmitting}
+                                <InputOTP
                                     value={field.state.value}
-                                    onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
-                                />
+                                    maxLength={6}
+                                    onChange={(value) => {
+                                        field.handleChange(value);
+
+                                        if (value.length === 6) {
+                                            form.handleSubmit();
+                                        }
+                                    }}
+                                    containerClassName={classNames?.otpInputContainer}
+                                    className={classNames?.otpInput}
+                                    disabled={isSubmitting}
+                                >
+                                    <OTPInputGroup otpSeparators={otpSeparators} />
+                                </InputOTP>
                             </field.FormControl>
 
                             <field.FormMessage className={classNames?.error} />
@@ -106,14 +127,17 @@ export function RecoverAccountForm({ className, classNames, isSubmitting, locali
                     )}
                 />
 
-                <form.Subscribe
-                    selector={(state) => [state.canSubmit, state.isSubmitting]}
-                    children={([canSubmit, isSubmitting]) => (
-                        <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn(classNames?.button, classNames?.primaryButton)}>
-                            {isSubmitting ? <Loader2 className="animate-spin" /> : localization.RECOVER_ACCOUNT_ACTION}
-                        </Button>
-                    )}
-                />
+                <div className="grid gap-4">
+                    <form.Subscribe
+                        selector={(state) => [state.canSubmit, state.isSubmitting]}
+                        children={([canSubmit, isFormSubmitting]) => (
+                            <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn(classNames?.button, classNames?.primaryButton)}>
+                                {(isFormSubmitting || isSubmitting) && <Loader2 className="animate-spin" />}
+                                {t`Recover account`}
+                            </Button>
+                        )}
+                    />
+                </div>
             </form>
         </form.AppForm>
     );

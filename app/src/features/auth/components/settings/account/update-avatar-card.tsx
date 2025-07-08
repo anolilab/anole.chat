@@ -2,12 +2,12 @@
 
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import { type ComponentProps, useContext, useRef, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -19,20 +19,16 @@ import { SettingsCardHeader } from "../shared/settings-card-header";
 export interface UpdateAvatarCardProps extends ComponentProps<typeof Card> {
     className?: string;
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
 }
 
-export function UpdateAvatarCard({ className, classNames, localization, ...props }: UpdateAvatarCardProps) {
+export function UpdateAvatarCard({ className, classNames, ...props }: UpdateAvatarCardProps) {
     const {
         hooks: { useSession },
         mutators: { updateUser },
-        localization: authLocalization,
         optimistic,
         avatar,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...authLocalization, ...localization };
 
     const { data: sessionData, isPending, refetch } = useSession();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -65,7 +61,7 @@ export function UpdateAvatarCard({ className, classNames, localization, ...props
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -83,7 +79,7 @@ export function UpdateAvatarCard({ className, classNames, localization, ...props
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -111,8 +107,8 @@ export function UpdateAvatarCard({ className, classNames, localization, ...props
             <div className="flex justify-between">
                 <SettingsCardHeader
                     className="grow self-start"
-                    title={localization.AVATAR}
-                    description={localization.AVATAR_DESCRIPTION}
+                    title={t`Avatar`}
+                    description={t`Upload a profile picture for your account`}
                     isPending={isPending}
                     classNames={classNames}
                 />
@@ -126,7 +122,6 @@ export function UpdateAvatarCard({ className, classNames, localization, ...props
                                 className="size-20 text-2xl"
                                 classNames={classNames?.avatar}
                                 user={sessionData?.user}
-                                localization={localization}
                             />
                         </Button>
                     </DropdownMenuTrigger>
@@ -134,12 +129,12 @@ export function UpdateAvatarCard({ className, classNames, localization, ...props
                     <DropdownMenuContent align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
                         <DropdownMenuItem onClick={openFileDialog} disabled={loading}>
                             <UploadCloudIcon />
-                            {localization.UPLOAD_AVATAR}
+                            {t`Upload Avatar`}
                         </DropdownMenuItem>
                         {sessionData?.user.image && (
                             <DropdownMenuItem onClick={handleDeleteAvatar} disabled={loading} variant="destructive">
                                 <Trash2Icon />
-                                {localization.DELETE_AVATAR}
+                                {t`Delete Avatar`}
                             </DropdownMenuItem>
                         )}
                     </DropdownMenuContent>
@@ -148,7 +143,7 @@ export function UpdateAvatarCard({ className, classNames, localization, ...props
 
             <SettingsCardFooter
                 className="!py-5"
-                instructions={localization.AVATAR_INSTRUCTIONS}
+                instructions={t`Click the avatar to upload a new image or delete the current one`}
                 classNames={classNames}
                 isPending={isPending}
                 isSubmitting={loading}

@@ -4,7 +4,6 @@ import { type ReactNode, createContext, useContext, useEffect, useMemo, useRef }
 import { toast } from "sonner";
 
 import { useAuthData } from "../hooks/use-auth-data";
-import { type AuthLocalization, authLocalization } from "../localization/auth-localization";
 import type { AnyAuthClient, AuthClient } from "../types/auth-core-types";
 import type { AdditionalFields } from "../types/form-validation-types";
 import type { AuthHooks, AuthMutators } from "../types/hook-integration-types";
@@ -106,7 +105,6 @@ export type AuthUIContextType = {
      */
     gravatar?: boolean | GravatarOptions;
     hooks: AuthHooks;
-    localization: AuthLocalization;
     /**
      * Enable or disable Magic Link support
      * @default false
@@ -222,12 +220,6 @@ export type AuthUIProviderProps = {
      */
     toast?: RenderToast;
     /**
-     * Customize the Localization strings
-     * @default authLocalization
-     * @remarks `AuthLocalization`
-     */
-    localization?: AuthLocalization;
-    /**
      * ADVANCED: Custom mutators for updating auth data
      */
     mutators?: Partial<AuthMutators>;
@@ -248,18 +240,7 @@ export type AuthUIProviderProps = {
 } & Partial<
     Omit<
         AuthUIContextType,
-        | "authClient"
-        | "viewPaths"
-        | "localization"
-        | "mutators"
-        | "toast"
-        | "hooks"
-        | "avatar"
-        | "settings"
-        | "deleteUser"
-        | "credentials"
-        | "signUp"
-        | "organization"
+        "authClient" | "viewPaths" | "mutators" | "toast" | "hooks" | "avatar" | "settings" | "deleteUser" | "credentials" | "signUp" | "organization"
     >
 >;
 
@@ -282,7 +263,6 @@ export const AuthUIProvider = ({
     freshAge = 60 * 60 * 24,
     hooks: hooksProp,
     mutators: mutatorsProp,
-    localization: localizationProp,
     nameRequired = true,
     organization: organizationProp,
     signUp: signUpProp,
@@ -453,10 +433,6 @@ export const AuthUIProvider = ({
         return { ...authViewPaths, ...viewPathsProp } as AuthViewPaths;
     }, [viewPathsProp]);
 
-    const localization = useMemo(() => {
-        return { ...authLocalization, ...localizationProp } as AuthLocalization;
-    }, [localizationProp]);
-
     const hooks = useMemo(() => {
         return { ...defaultHooks, ...hooksProp } as AuthHooks;
     }, [defaultHooks, hooksProp]);
@@ -483,10 +459,10 @@ export const AuthUIProvider = ({
             console.log({ error });
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
-    }, [localization, toast]);
+    }, [toast]);
 
     return (
         <AuthUIContext.Provider
@@ -504,7 +480,6 @@ export const AuthUIProvider = ({
                 genericOAuth: genericOAuthProp,
                 hooks,
                 mutators,
-                localization,
                 nameRequired,
                 organization,
                 settings,

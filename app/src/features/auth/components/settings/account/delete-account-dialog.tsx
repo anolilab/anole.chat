@@ -1,10 +1,11 @@
 import { Loader2 } from "lucide-react";
 import { type ComponentProps, useContext } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
+
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,14 +17,13 @@ import type { SettingsCardClassNames } from "../shared/settings-card";
 export interface DeleteAccountDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
     accounts?: { provider: string }[] | null;
-    localization?: AuthLocalization;
 }
 
 const formSchema = z.object({
     password: z.string().optional(),
 });
 
-export function DeleteAccountDialog({ classNames, accounts, localization, onOpenChange, ...props }: DeleteAccountDialogProps) {
+export function DeleteAccountDialog({ classNames, accounts, onOpenChange, ...props }: DeleteAccountDialogProps) {
     const {
         authClient,
         basePath,
@@ -31,13 +31,10 @@ export function DeleteAccountDialog({ classNames, accounts, localization, onOpen
         deleteUser,
         freshAge,
         hooks: { useSession },
-        localization: contextLocalization,
         viewPaths,
         navigate,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { data: sessionData } = useSession();
     const session = sessionData?.session;
@@ -53,7 +50,7 @@ export function DeleteAccountDialog({ classNames, accounts, localization, onOpen
         validators: {
             onChange: ({ value }) => {
                 if (credentialsLinked && !value.password) {
-                    return { password: localization.PASSWORD_REQUIRED! };
+                    return { password: t`Password is required` };
                 }
                 return undefined;
             },
@@ -83,19 +80,19 @@ export function DeleteAccountDialog({ classNames, accounts, localization, onOpen
                 if (deleteUser?.verification) {
                     toast({
                         variant: "success",
-                        message: localization.DELETE_ACCOUNT_VERIFY!,
+                        message: t`Please check your email to verify account deletion`,
                     });
                 } else {
                     toast({
                         variant: "success",
-                        message: localization.DELETE_ACCOUNT_SUCCESS!,
+                        message: t`Account deleted successfully`,
                     });
                     navigate(`${basePath}/${viewPaths.SIGN_OUT}`);
                 }
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
 
@@ -107,15 +104,17 @@ export function DeleteAccountDialog({ classNames, accounts, localization, onOpen
         <Dialog onOpenChange={onOpenChange} {...props}>
             <DialogContent className={cn("sm:max-w-md", classNames?.dialog?.content)}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization?.DELETE_ACCOUNT}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Delete Account`}</DialogTitle>
 
                     <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
-                        {isFresh ? localization?.DELETE_ACCOUNT_INSTRUCTIONS : localization?.SESSION_NOT_FRESH}
+                        {isFresh
+                            ? t`This action cannot be undone. Please enter your password to confirm.`
+                            : t`Your session is not fresh. Please sign out and sign back in to delete your account.`}
                     </DialogDescription>
                 </DialogHeader>
 
                 <Card className={cn("my-2 flex-row p-4", classNames?.cell)}>
-                    <UserView user={user} localization={localization} />
+                    <UserView user={user} />
                 </Card>
 
                 <form.AppForm>
@@ -132,12 +131,12 @@ export function DeleteAccountDialog({ classNames, accounts, localization, onOpen
                                 name="password"
                                 children={(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel className={classNames?.label}>{localization?.PASSWORD}</field.FormLabel>
+                                        <field.FormLabel className={classNames?.label}>{t`Password`}</field.FormLabel>
 
                                         <field.FormControl>
                                             <Input
                                                 autoComplete="current-password"
-                                                placeholder={localization?.PASSWORD_PLACEHOLDER}
+                                                placeholder={t`Enter your password`}
                                                 type="password"
                                                 className={classNames?.input}
                                                 value={field.state.value}
@@ -159,7 +158,7 @@ export function DeleteAccountDialog({ classNames, accounts, localization, onOpen
                                 className={cn(classNames?.button, classNames?.secondaryButton)}
                                 onClick={() => onOpenChange?.(false)}
                             >
-                                {localization.CANCEL}
+                                {t`Cancel`}
                             </Button>
 
                             <form.Subscribe
@@ -172,7 +171,7 @@ export function DeleteAccountDialog({ classNames, accounts, localization, onOpen
                                         type="submit"
                                     >
                                         {isSubmitting && <Loader2 className="animate-spin" />}
-                                        {isFresh ? localization?.DELETE_ACCOUNT : localization?.SIGN_OUT}
+                                        {isFresh ? t`Delete Account` : t`Sign Out`}
                                     </Button>
                                 )}
                             />

@@ -1,11 +1,11 @@
 "use client";
 import { ChevronsUpDown, LogInIcon, LogOutIcon, PlusCircleIcon, SettingsIcon, UserRoundPlus } from "lucide-react";
-import { type ComponentProps, Fragment, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentProps, Fragment, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../lib/auth-ui-provider";
 import { getLocalizedError } from "../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../localization/auth-localization";
 import type { AnyAuthClient, User } from "../types/auth-core-types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -42,11 +42,6 @@ export interface UserButtonProps {
     }[];
     trigger?: ReactNode;
     disableDefaultLinks?: boolean;
-    /**
-     * @default authLocalization
-     * @remarks `AuthLocalization`
-     */
-    localization?: AuthLocalization;
 }
 
 /**
@@ -66,7 +61,6 @@ export function UserButton({
     trigger,
     additionalLinks,
     disableDefaultLinks,
-    localization: propLocalization,
     size,
     ...props
 }: UserButtonProps & ComponentProps<typeof Button>) {
@@ -74,7 +68,6 @@ export function UserButton({
         basePath,
         hooks: { useSession, useListDeviceSessions },
         mutators: { setActiveSession },
-        localization: contextLocalization,
         multiSession,
         settings,
         signUp,
@@ -83,8 +76,6 @@ export function UserButton({
         onSessionChange,
         Link,
     } = useContext(AuthUIContext);
-
-    const localization = useMemo(() => ({ ...contextLocalization, ...propLocalization }), [contextLocalization, propLocalization]);
 
     let deviceSessions: AnyAuthClient["$Infer"]["Session"][] | undefined | null = null;
     let deviceSessionsPending = false;
@@ -112,12 +103,12 @@ export function UserButton({
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
                 setActiveSessionPending(false);
             }
         },
-        [setActiveSession, onSessionChange, toast, localization],
+        [setActiveSession, onSessionChange, toast],
     );
 
     // biome-ignore lint/correctness/useExhaustiveDependencies:
@@ -151,8 +142,7 @@ export function UserButton({
                                 className={cn(className, classNames?.base)}
                                 classNames={classNames?.trigger?.avatar}
                                 user={user}
-                                aria-label={localization.ACCOUNT}
-                                localization={localization}
+                                aria-label={t`Account`}
                             />
                         </Button>
                     ) : (
@@ -162,7 +152,6 @@ export function UserButton({
                                 user={!(user as User)?.isAnonymous ? user : null}
                                 isPending={isPending}
                                 classNames={classNames?.trigger?.user}
-                                localization={localization}
                             />
 
                             <ChevronsUpDown className="ml-auto" />
@@ -177,9 +166,9 @@ export function UserButton({
             >
                 <div className={cn("p-2", classNames?.content?.menuItem)}>
                     {(user && !(user as User).isAnonymous) || isPending ? (
-                        <UserView user={user} isPending={isPending} classNames={classNames?.content?.user} localization={localization} />
+                        <UserView user={user} isPending={isPending} classNames={classNames?.content?.user} />
                     ) : (
-                        <div className="text-muted-foreground -my-1 text-xs">{localization.ACCOUNT}</div>
+                        <div className="text-muted-foreground -my-1 text-xs">{t`Account`}</div>
                     )}
                 </div>
 
@@ -205,7 +194,7 @@ export function UserButton({
                             <DropdownMenuItem className={classNames?.content?.menuItem}>
                                 <LogInIcon />
 
-                                {localization.SIGN_IN}
+                                {t`Sign In`}
                             </DropdownMenuItem>
                         </Link>
 
@@ -214,7 +203,7 @@ export function UserButton({
                                 <DropdownMenuItem className={classNames?.content?.menuItem}>
                                     <UserRoundPlus />
 
-                                    {localization.SIGN_UP}
+                                    {t`Sign Up`}
                                 </DropdownMenuItem>
                             </Link>
                         )}
@@ -226,7 +215,7 @@ export function UserButton({
                                 <DropdownMenuItem className={classNames?.content?.menuItem}>
                                     <SettingsIcon />
 
-                                    {localization.SETTINGS}
+                                    {t`Settings`}
                                 </DropdownMenuItem>
                             </Link>
                         )}
@@ -235,7 +224,7 @@ export function UserButton({
                             <DropdownMenuItem className={classNames?.content?.menuItem}>
                                 <LogOutIcon />
 
-                                {localization.SIGN_OUT}
+                                {t`Sign Out`}
                             </DropdownMenuItem>
                         </Link>
                     </>
@@ -271,7 +260,7 @@ export function UserButton({
                             <DropdownMenuItem className={classNames?.content?.menuItem}>
                                 <PlusCircleIcon />
 
-                                {localization.ADD_ACCOUNT}
+                                {t`Add Account`}
                             </DropdownMenuItem>
                         </Link>
                     </>

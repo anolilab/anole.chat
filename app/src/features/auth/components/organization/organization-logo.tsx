@@ -3,11 +3,9 @@
 import type { Organization } from "better-auth/plugins/organization";
 import { BuildingIcon } from "lucide-react";
 import type { ComponentProps } from "react";
-import { useContext } from "react";
+import { t } from "@lingui/core/macro";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -24,11 +22,6 @@ export interface OrganizationLogoProps {
     isPending?: boolean;
     size?: "sm" | "default" | "lg" | "xl" | null;
     organization?: Partial<Organization> | null;
-    /**
-     * @default authLocalization
-     * @remarks `AuthLocalization`
-     */
-    localization?: AuthLocalization;
 }
 
 /**
@@ -38,19 +31,7 @@ export interface OrganizationLogoProps {
  * - Shows a skeleton when isPending is true
  * - Falls back to a building icon when no logo is available
  */
-export function OrganizationLogo({
-    className,
-    classNames,
-    isPending,
-    size,
-    organization,
-    localization: propLocalization,
-    ...props
-}: OrganizationLogoProps & ComponentProps<typeof Avatar>) {
-    const { localization: contextLocalization } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...propLocalization };
-
+export function OrganizationLogo({ className, classNames, isPending, size, organization, ...props }: OrganizationLogoProps & ComponentProps<typeof Avatar>) {
     const name = organization?.name;
     const src = organization?.logo;
 
@@ -73,7 +54,7 @@ export function OrganizationLogo({
             className={cn("bg-muted", size === "sm" ? "size-6" : size === "lg" ? "size-10" : size === "xl" ? "size-12" : "size-8", className, classNames?.base)}
             {...props}
         >
-            <AvatarImage alt={name || localization?.ORGANIZATION} className={classNames?.image} src={src || undefined} />
+            <AvatarImage alt={name || t`Organization`} className={classNames?.image} src={src || undefined} />
 
             <AvatarFallback className={cn("text-foreground", classNames?.fallback)} delayMs={src ? 600 : undefined}>
                 <BuildingIcon className={cn("size-[50%]", classNames?.fallbackIcon)} />

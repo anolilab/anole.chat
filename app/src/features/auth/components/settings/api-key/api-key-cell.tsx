@@ -1,12 +1,11 @@
 "use client";
 
 import { KeyRoundIcon } from "lucide-react";
-import { useContext, useState } from "react";
+import { useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { useLang } from "../../../hooks/use-lang";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { ApiKey } from "../../../types/data-structure-types";
 import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
@@ -18,24 +17,21 @@ export interface APIKeyCellProps {
     className?: string;
     classNames?: SettingsCardClassNames;
     apiKey: ApiKey;
-    localization?: Partial<AuthLocalization>;
+
     refetch?: Refetch;
 }
 
-export function APIKeyCell({ className, classNames, apiKey, localization, refetch }: APIKeyCellProps) {
-    const { localization: contextLocalization } = useContext(AuthUIContext);
-    localization = { ...contextLocalization, ...localization };
-
+export function APIKeyCell({ className, classNames, apiKey, refetch }: APIKeyCellProps) {
     const { lang } = useLang();
 
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     // Format expiration date or show "Never expires"
     const formatExpiration = () => {
-        if (!apiKey.expiresAt) return localization.NEVER_EXPIRES;
+        if (!apiKey.expiresAt) return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
-        return `${localization.EXPIRES} ${expiresDate.toLocaleDateString(lang ?? "en", {
+        return `${t`Expires`} ${expiresDate.toLocaleDateString(lang ?? "en", {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -66,18 +62,11 @@ export function APIKeyCell({ className, classNames, apiKey, localization, refetc
                     variant="outline"
                     onClick={() => setShowDeleteDialog(true)}
                 >
-                    {localization.DELETE}
+                    {t`Delete`}
                 </Button>
             </Card>
 
-            <ApiKeyDeleteDialog
-                classNames={classNames}
-                apiKey={apiKey}
-                localization={localization}
-                open={showDeleteDialog}
-                onOpenChange={setShowDeleteDialog}
-                refetch={refetch}
-            />
+            <ApiKeyDeleteDialog classNames={classNames} apiKey={apiKey} open={showDeleteDialog} onOpenChange={setShowDeleteDialog} refetch={refetch} />
         </>
     );
 }

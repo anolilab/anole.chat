@@ -2,6 +2,7 @@
 
 import { useContext } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
@@ -12,13 +13,11 @@ import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function OrganizationNameCard({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
+export function OrganizationNameCard({ className, classNames, ...props }: SettingsCardProps) {
     const {
         hooks: { useActiveOrganization },
-        localization: contextLocalization,
     } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...localizationProp };
     const { data: activeOrganization } = useActiveOrganization();
 
     if (!activeOrganization) {
@@ -26,11 +25,11 @@ export function OrganizationNameCard({ className, classNames, localization: loca
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                description={localization.ORGANIZATION_NAME_DESCRIPTION}
-                instructions={localization.ORGANIZATION_NAME_INSTRUCTIONS}
+                description={t`Change your organization's display name`}
+                instructions={t`This is how your organization appears to members`}
                 isPending
-                title={localization.ORGANIZATION_NAME}
-                actionLabel={localization.SAVE}
+                title={t`Organization Name`}
+                actionLabel={t`Save`}
                 optimistic={props.optimistic}
                 {...props}
             >
@@ -41,23 +40,20 @@ export function OrganizationNameCard({ className, classNames, localization: loca
         );
     }
 
-    return <OrganizationNameForm className={className} classNames={classNames} localization={localization} {...props} />;
+    return <OrganizationNameForm className={className} classNames={classNames} {...props} />;
 }
 
 const formSchema = z.object({
-    name: z.string().min(1, { message: "Organization name is required" }),
+    name: z.string().min(1, { message: t`Organization name is required` }),
 });
 
-function OrganizationNameForm({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
+function OrganizationNameForm({ className, classNames, ...props }: SettingsCardProps) {
     const {
         authClient,
-        localization: contextLocalization,
         hooks: { useActiveOrganization, useListOrganizations, useHasPermission },
         optimistic,
         toast,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -86,7 +82,7 @@ function OrganizationNameForm({ className, classNames, localization: localizatio
             if (activeOrganization.name === value.name) {
                 toast({
                     variant: "error",
-                    message: `${localization.ORGANIZATION_NAME} ${localization.IS_THE_SAME}`,
+                    message: t`Organization name is the same`,
                 });
                 return;
             }
@@ -104,12 +100,12 @@ function OrganizationNameForm({ className, classNames, localization: localizatio
 
                 toast({
                     variant: "success",
-                    message: `${localization.ORGANIZATION_NAME} ${localization.UPDATED_SUCCESSFULLY}`,
+                    message: t`Organization name updated successfully`,
                 });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -129,11 +125,11 @@ function OrganizationNameForm({ className, classNames, localization: localizatio
                 <SettingsCard
                     className={className}
                     classNames={classNames}
-                    description={localization.ORGANIZATION_NAME_DESCRIPTION}
-                    instructions={localization.ORGANIZATION_NAME_INSTRUCTIONS}
+                    description={t`Change your organization's display name`}
+                    instructions={t`This is how your organization appears to members`}
                     isPending={isPending}
-                    title={localization.ORGANIZATION_NAME}
-                    actionLabel={localization.SAVE}
+                    title={t`Organization Name`}
+                    actionLabel={t`Save`}
                     optimistic={optimistic}
                     disabled={!hasPermission?.success}
                     {...props}
@@ -149,7 +145,7 @@ function OrganizationNameForm({ className, classNames, localization: localizatio
                                         <field.FormControl>
                                             <Input
                                                 className={classNames?.input}
-                                                placeholder={localization.ORGANIZATION_NAME_PLACEHOLDER}
+                                                placeholder={t`Enter organization name`}
                                                 autoComplete="organization"
                                                 disabled={isSubmitting || !hasPermission?.success}
                                                 value={field.state.value}

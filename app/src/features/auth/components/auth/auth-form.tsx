@@ -5,7 +5,6 @@ import { useContext, useEffect } from "react";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import type { AuthView } from "../../lib/auth-view-paths";
 import { getAuthViewByPath } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import { AuthCallback } from "./auth-callback";
 import { EmailOTPForm } from "./forms/email-otp-form";
 import { ForgotPasswordForm } from "./forms/forgot-password-form";
@@ -41,7 +40,6 @@ export interface AuthFormProps {
     classNames?: AuthFormClassNames;
     callbackURL?: string;
     isSubmitting?: boolean;
-    localization?: Partial<AuthLocalization>;
     pathname?: string;
     redirectTo?: string;
     view?: AuthView;
@@ -49,33 +47,10 @@ export interface AuthFormProps {
     setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
-export function AuthForm({
-    className,
-    classNames,
-    callbackURL,
-    isSubmitting,
-    localization,
-    pathname,
-    redirectTo,
-    view,
-    otpSeparators = 0,
-    setIsSubmitting,
-}: AuthFormProps) {
-    const {
-        basePath,
-        credentials,
-        localization: contextLocalization,
-        magicLink,
-        emailOTP,
-        signUp,
-        twoFactor: twoFactorEnabled,
-        viewPaths,
-        replace,
-    } = useContext(AuthUIContext);
+export function AuthForm({ className, classNames, callbackURL, isSubmitting, pathname, redirectTo, view, otpSeparators = 0, setIsSubmitting }: AuthFormProps) {
+    const { basePath, credentials, magicLink, emailOTP, signUp, twoFactor: twoFactorEnabled, viewPaths, replace } = useContext(AuthUIContext);
 
     const signUpEnabled = !!signUp;
-
-    localization = { ...contextLocalization, ...localization };
 
     const path = pathname?.split("/").pop();
 
@@ -122,20 +97,12 @@ export function AuthForm({
 
     if (view === "SIGN_IN") {
         return credentials ? (
-            <SignInForm
-                className={className}
-                classNames={classNames}
-                localization={localization}
-                redirectTo={redirectTo}
-                isSubmitting={isSubmitting}
-                setIsSubmitting={setIsSubmitting}
-            />
+            <SignInForm className={className} classNames={classNames} redirectTo={redirectTo} isSubmitting={isSubmitting} setIsSubmitting={setIsSubmitting} />
         ) : magicLink ? (
             <MagicLinkForm
                 className={className}
                 classNames={classNames}
                 callbackURL={callbackURL}
-                localization={localization}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
                 setIsSubmitting={setIsSubmitting}
@@ -145,7 +112,6 @@ export function AuthForm({
                 className={className}
                 classNames={classNames}
                 callbackURL={callbackURL}
-                localization={localization}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
                 setIsSubmitting={setIsSubmitting}
@@ -158,7 +124,6 @@ export function AuthForm({
             <TwoFactorForm
                 className={className}
                 classNames={classNames}
-                localization={localization}
                 otpSeparators={otpSeparators}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
@@ -172,7 +137,6 @@ export function AuthForm({
             <RecoverAccountForm
                 className={className}
                 classNames={classNames}
-                localization={localization}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
                 setIsSubmitting={setIsSubmitting}
@@ -186,7 +150,6 @@ export function AuthForm({
                 className={className}
                 classNames={classNames}
                 callbackURL={callbackURL}
-                localization={localization}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
                 setIsSubmitting={setIsSubmitting}
@@ -200,7 +163,6 @@ export function AuthForm({
                 className={className}
                 classNames={classNames}
                 callbackURL={callbackURL}
-                localization={localization}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
                 setIsSubmitting={setIsSubmitting}
@@ -209,19 +171,11 @@ export function AuthForm({
     }
 
     if (view === "FORGOT_PASSWORD") {
-        return (
-            <ForgotPasswordForm
-                className={className}
-                classNames={classNames}
-                localization={localization}
-                isSubmitting={isSubmitting}
-                setIsSubmitting={setIsSubmitting}
-            />
-        );
+        return <ForgotPasswordForm className={className} classNames={classNames} isSubmitting={isSubmitting} setIsSubmitting={setIsSubmitting} />;
     }
 
     if (view === "RESET_PASSWORD") {
-        return <ResetPasswordForm className={className} classNames={classNames} localization={localization} />;
+        return <ResetPasswordForm className={className} classNames={classNames} />;
     }
 
     if (view === "SIGN_UP") {
@@ -231,7 +185,6 @@ export function AuthForm({
                     className={className}
                     classNames={classNames}
                     callbackURL={callbackURL}
-                    localization={localization}
                     redirectTo={redirectTo}
                     isSubmitting={isSubmitting}
                     setIsSubmitting={setIsSubmitting}

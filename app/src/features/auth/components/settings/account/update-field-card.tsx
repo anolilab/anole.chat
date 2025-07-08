@@ -2,11 +2,11 @@
 
 import { type ReactNode, useContext } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { FieldType } from "../../../types/form-validation-types";
 import { CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,7 +20,7 @@ export interface UpdateFieldCardProps {
     classNames?: SettingsCardClassNames;
     description?: ReactNode;
     instructions?: ReactNode;
-    localization?: Partial<AuthLocalization>;
+
     name: string;
     placeholder?: string;
     required?: boolean;
@@ -35,7 +35,6 @@ export function UpdateFieldCard({
     classNames,
     description,
     instructions,
-    localization,
     name,
     placeholder,
     required,
@@ -47,12 +46,9 @@ export function UpdateFieldCard({
     const {
         hooks: { useSession },
         mutators: { updateUser },
-        localization: contextLocalization,
         optimistic,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { isPending, refetch } = useSession();
 
@@ -63,30 +59,30 @@ export function UpdateFieldCard({
             ? z.preprocess(
                   (val) => (!val ? undefined : Number(val)),
                   z.number({
-                      required_error: `${label} ${localization.IS_REQUIRED}`,
-                      invalid_type_error: `${label} ${localization.IS_INVALID}`,
+                      required_error: `${label} ${t`is required`}`,
+                      invalid_type_error: `${label} ${t`is invalid`}`,
                   }),
               )
             : z.coerce
                   .number({
-                      invalid_type_error: `${label} ${localization.IS_INVALID}`,
+                      invalid_type_error: `${label} ${t`is invalid`}`,
                   })
                   .optional();
     } else if (type === "boolean") {
         fieldSchema = required
             ? z.coerce
                   .boolean({
-                      required_error: `${label} ${localization.IS_REQUIRED}`,
-                      invalid_type_error: `${label} ${localization.IS_INVALID}`,
+                      required_error: `${label} ${t`is required`}`,
+                      invalid_type_error: `${label} ${t`is invalid`}`,
                   })
                   .refine((val) => val === true, {
-                      message: `${label} ${localization.IS_REQUIRED}`,
+                      message: `${label} ${t`is required`}`,
                   })
             : z.coerce.boolean({
-                  invalid_type_error: `${label} ${localization.IS_INVALID}`,
+                  invalid_type_error: `${label} ${t`is invalid`}`,
               });
     } else {
-        fieldSchema = required ? z.string().min(1, `${label} ${localization.IS_REQUIRED}`) : z.string().optional();
+        fieldSchema = required ? z.string().min(1, `${label} ${t`is required`}`) : z.string().optional();
     }
 
     const form = useAppForm({
@@ -109,14 +105,14 @@ export function UpdateFieldCard({
             if (value === newValue) {
                 toast({
                     variant: "error",
-                    message: `${label} ${localization.IS_THE_SAME}`,
+                    message: `${label} ${t`is the same as current value`}`,
                 });
                 return;
             }
 
             if (validate && typeof newValue === "string" && !(await validate(newValue))) {
                 form.setErrorMap({
-                    [name]: `${label} ${localization.IS_INVALID}`,
+                    [name]: `${label} ${t`is invalid`}`,
                 });
                 return;
             }
@@ -127,12 +123,12 @@ export function UpdateFieldCard({
                 await refetch?.();
                 toast({
                     variant: "success",
-                    message: `${label} ${localization.UPDATED_SUCCESSFULLY}`,
+                    message: `${label} ${t`updated successfully`}`,
                 });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -156,7 +152,7 @@ export function UpdateFieldCard({
                     instructions={instructions}
                     isPending={isPending}
                     title={label}
-                    actionLabel={localization.SAVE}
+                    actionLabel={t`Save`}
                     optimistic={optimistic}
                 >
                     <CardContent className={classNames?.content}>

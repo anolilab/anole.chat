@@ -4,12 +4,12 @@ import { Loader2 } from "lucide-react";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import { type ComponentProps, useContext, useRef, useState } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -21,19 +21,15 @@ import { OrganizationLogo } from "./organization-logo";
 export interface CreateOrganizationDialogProps extends ComponentProps<typeof Dialog> {
     className?: string;
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
 }
 
-export function CreateOrganizationDialog({ className, classNames, localization: localizationProp, onOpenChange, ...props }: CreateOrganizationDialogProps) {
+export function CreateOrganizationDialog({ className, classNames, onOpenChange, ...props }: CreateOrganizationDialogProps) {
     const {
         authClient,
         hooks: { useActiveOrganization, useListOrganizations },
-        localization: contextLocalization,
         organization,
         toast,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const [logo, setLogo] = useState<string | null>(null);
     const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -47,15 +43,15 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
     const formSchema = z.object({
         logo: z.string().optional(),
         name: z.string().min(1, {
-            message: `${localization.ORGANIZATION_NAME} ${localization.IS_REQUIRED}`,
+            message: t`Organization name is required`,
         }),
         slug: z
             .string()
             .min(1, {
-                message: `${localization.ORGANIZATION_SLUG} ${localization.IS_REQUIRED}`,
+                message: t`Organization slug is required`,
             })
             .regex(/^[a-z0-9-]+$/, {
-                message: `${localization.ORGANIZATION_SLUG} ${localization.IS_INVALID}`,
+                message: t`Organization slug is invalid`,
             }),
     });
 
@@ -89,12 +85,12 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
 
                 toast({
                     variant: "success",
-                    message: localization.CREATE_ORGANIZATION_SUCCESS,
+                    message: t`Organization created successfully`,
                 });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -121,7 +117,7 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -137,10 +133,10 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
         <Dialog onOpenChange={onOpenChange} {...props}>
             <DialogContent className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.CREATE_ORGANIZATION}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Create Organization`}</DialogTitle>
 
                     <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
-                        {localization.ORGANIZATIONS_INSTRUCTIONS}
+                        {t`Create a new organization to collaborate with your team`}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -172,7 +168,7 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                                         />
 
                                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                            {localization.LOGO}
+                                            {t`Logo`}
                                         </label>
 
                                         <div className="flex items-center gap-4">
@@ -185,7 +181,6 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                                                                 <OrganizationLogo
                                                                     className="size-16"
                                                                     isPending={uploadingLogo}
-                                                                    localization={localization}
                                                                     organization={
                                                                         logo
                                                                             ? {
@@ -203,13 +198,13 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                                                 <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
                                                     <DropdownMenuItem onClick={openFileDialog} disabled={uploadingLogo}>
                                                         <UploadCloudIcon />
-                                                        {localization.UPLOAD_LOGO}
+                                                        {t`Upload Logo`}
                                                     </DropdownMenuItem>
 
                                                     {logo && (
                                                         <DropdownMenuItem onClick={deleteLogo} disabled={uploadingLogo} variant="destructive">
                                                             <Trash2Icon />
-                                                            {localization.DELETE_LOGO}
+                                                            {t`Delete Logo`}
                                                         </DropdownMenuItem>
                                                     )}
                                                 </DropdownMenuContent>
@@ -218,7 +213,7 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                                             <Button disabled={uploadingLogo} variant="outline" onClick={openFileDialog} type="button">
                                                 {uploadingLogo && <Loader2 className="animate-spin" />}
 
-                                                {localization.UPLOAD}
+                                                {t`Upload`}
                                             </Button>
                                         </div>
                                     </div>
@@ -230,11 +225,11 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                             name="name"
                             children={(field) => (
                                 <field.FormItem>
-                                    <field.FormLabel>{localization.ORGANIZATION_NAME}</field.FormLabel>
+                                    <field.FormLabel>{t`Organization Name`}</field.FormLabel>
 
                                     <field.FormControl>
                                         <Input
-                                            placeholder={localization.ORGANIZATION_NAME_PLACEHOLDER}
+                                            placeholder={t`Enter organization name`}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
@@ -250,11 +245,11 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                             name="slug"
                             children={(field) => (
                                 <field.FormItem>
-                                    <field.FormLabel>{localization.ORGANIZATION_SLUG}</field.FormLabel>
+                                    <field.FormLabel>{t`Organization Slug`}</field.FormLabel>
 
                                     <field.FormControl>
                                         <Input
-                                            placeholder={localization.ORGANIZATION_SLUG_PLACEHOLDER}
+                                            placeholder={t`Enter organization slug`}
                                             value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
@@ -273,7 +268,7 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                                 onClick={() => onOpenChange?.(false)}
                                 className={cn(classNames?.button, classNames?.outlineButton)}
                             >
-                                {localization.CANCEL}
+                                {t`Cancel`}
                             </Button>
 
                             <form.Subscribe
@@ -282,7 +277,7 @@ export function CreateOrganizationDialog({ className, classNames, localization: 
                                     <Button type="submit" className={cn(classNames?.button, classNames?.primaryButton)} disabled={!canSubmit}>
                                         {isSubmitting && <Loader2 className="animate-spin" />}
 
-                                        {localization.CREATE_ORGANIZATION}
+                                        {t`Create Organization`}
                                     </Button>
                                 )}
                             />

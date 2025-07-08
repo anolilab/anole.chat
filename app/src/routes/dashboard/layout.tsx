@@ -6,16 +6,7 @@ import { Outlet, useLocation, createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/features/layout/components/site-header";
 import { Authenticated } from "convex/react";
 import { NavItems, type NavItem } from "@/features/layout/components/nav-items";
-import {
-    Home,
-    MessageSquare,
-    Settings,
-    Users,
-    Key,
-    Shield,
-    Building,
-    User
-} from "lucide-react";
+import { Home, MessageSquare, Settings, Users, Key, Shield, Building, User } from "lucide-react";
 import { useContext } from "react";
 import { AuthUIContext } from "@/features/auth/lib/auth-ui-provider";
 
@@ -95,10 +86,10 @@ function RouteComponent() {
                 }
             >
                 <div className="flex h-dvh w-full">
-                    <AppSidebar 
+                    <AppSidebar
                         header={
                             <div className="flex items-center gap-2 px-4 py-2">
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <MessageSquare className="size-4" />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -112,7 +103,7 @@ function RouteComponent() {
                                 <NavItems items={navigationItems.main} label="Main" colorMode="dark" />
                                 <NavItems items={navigationItems.settings} label="Settings" colorMode="dark" />
                             </>
-                        } 
+                        }
                     />
                     <SidebarInset>
                         <SiteHeader>

@@ -1,12 +1,12 @@
 "use client";
 
 import { ChevronsUpDown, LogInIcon, PlusCircleIcon, SettingsIcon } from "lucide-react";
-import { type ComponentProps, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { type ComponentProps, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { User } from "../../types/auth-core-types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -41,7 +41,6 @@ export interface OrganizationSwitcherProps extends Omit<ComponentProps<typeof Bu
     classNames?: OrganizationSwitcherClassNames;
     align?: "center" | "start" | "end";
     trigger?: ReactNode;
-    localization?: AuthLocalization;
     onSetActive?: (organizationId: string | null) => void;
     /**
      * Hide the personal organization option from the switcher.
@@ -62,29 +61,16 @@ export interface OrganizationSwitcherProps extends Omit<ComponentProps<typeof Bu
  * - Supports multi-session functionality for switching between accounts
  * - Can be customized with additional links and styling options
  */
-export function OrganizationSwitcher({
-    className,
-    classNames,
-    align,
-    trigger,
-    localization: localizationProp,
-    size,
-    onSetActive,
-    hidePersonal,
-    ...props
-}: OrganizationSwitcherProps) {
+export function OrganizationSwitcher({ className, classNames, align, trigger, size, onSetActive, hidePersonal, ...props }: OrganizationSwitcherProps) {
     const {
         authClient,
         basePath,
         hooks: { useActiveOrganization, useSession, useListOrganizations },
-        localization: contextLocalization,
         settings,
         toast,
         viewPaths,
         Link,
     } = useContext(AuthUIContext);
-
-    const localization = useMemo(() => ({ ...contextLocalization, ...localizationProp }), [contextLocalization, localizationProp]);
 
     const [activeOrganizationPending, setActiveOrganizationPending] = useState(false);
     const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] = useState(false);
@@ -126,13 +112,13 @@ export function OrganizationSwitcher({
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
 
                 setActiveOrganizationPending(false);
             }
         },
-        [authClient, toast, localization, onSetActive, refetchActiveOrganization, hidePersonal],
+        [authClient, toast, onSetActive, refetchActiveOrganization, hidePersonal],
     );
 
     // Determine whether to show personal view based on hidePersonal prop
@@ -177,8 +163,7 @@ export function OrganizationSwitcher({
                                         classNames={classNames?.trigger?.avatar}
                                         isPending={isPending || activeOrganizationPending}
                                         organization={activeOrganization}
-                                        aria-label={localization.ORGANIZATION}
-                                        localization={localization}
+                                        aria-label={t`Organization`}
                                     />
                                 ) : (
                                     <UserAvatar
@@ -187,8 +172,7 @@ export function OrganizationSwitcher({
                                         classNames={classNames?.trigger?.avatar}
                                         isPending={isPending}
                                         user={user}
-                                        aria-label={localization.ACCOUNT}
-                                        localization={localization}
+                                        aria-label={t`Account`}
                                     />
                                 )}
                             </Button>
@@ -202,18 +186,11 @@ export function OrganizationSwitcher({
                                     <OrganizationView
                                         classNames={classNames?.trigger?.organization}
                                         isPending={isPending || activeOrganizationPending}
-                                        localization={localization}
                                         organization={activeOrganization}
                                         size={size}
                                     />
                                 ) : (
-                                    <PersonalAccountView
-                                        classNames={classNames?.trigger?.user}
-                                        isPending={isPending}
-                                        localization={localization}
-                                        size={size}
-                                        user={user}
-                                    />
+                                    <PersonalAccountView classNames={classNames?.trigger?.user} isPending={isPending} size={size} user={user} />
                                 )}
 
                                 <ChevronsUpDown className="ml-auto" />
@@ -234,10 +211,9 @@ export function OrganizationSwitcher({
                                         classNames={classNames?.content?.organization}
                                         isPending={isPending || activeOrganizationPending}
                                         organization={activeOrganization}
-                                        localization={localization}
                                     />
                                 ) : (
-                                    <PersonalAccountView classNames={classNames?.content?.user} isPending={isPending} localization={localization} user={user} />
+                                    <PersonalAccountView classNames={classNames?.content?.user} isPending={isPending} user={user} />
                                 )}
 
                                 {!isPending && (
@@ -249,7 +225,7 @@ export function OrganizationSwitcher({
                                 )}
                             </>
                         ) : (
-                            <div className="text-muted-foreground -my-1 text-xs">{localization.ORGANIZATION}</div>
+                            <div className="text-muted-foreground -my-1 text-xs">{t`Organization`}</div>
                         )}
                     </div>
 
@@ -257,7 +233,7 @@ export function OrganizationSwitcher({
 
                     {activeOrganization && !hidePersonal && (
                         <DropdownMenuItem onClick={() => switchOrganization(null)}>
-                            <PersonalAccountView classNames={classNames?.content?.user} isPending={isPending} localization={localization} user={user} />
+                            <PersonalAccountView classNames={classNames?.content?.user} isPending={isPending} user={user} />
                         </DropdownMenuItem>
                     )}
 
@@ -265,12 +241,7 @@ export function OrganizationSwitcher({
                         (organization) =>
                             organization.id !== activeOrganization?.id && (
                                 <DropdownMenuItem key={organization.id} onClick={() => switchOrganization(organization.id)}>
-                                    <OrganizationView
-                                        classNames={classNames?.content?.organization}
-                                        isPending={isPending}
-                                        localization={localization}
-                                        organization={organization}
-                                    />
+                                    <OrganizationView classNames={classNames?.content?.organization} isPending={isPending} organization={organization} />
                                 </DropdownMenuItem>
                             ),
                     )}
@@ -282,20 +253,20 @@ export function OrganizationSwitcher({
                     {!isPending && sessionData && !(user as User).isAnonymous ? (
                         <DropdownMenuItem className={cn(classNames?.content?.menuItem)} onClick={() => setIsCreateOrgDialogOpen(true)}>
                             <PlusCircleIcon />
-                            {localization.CREATE_ORGANIZATION}
+                            {t`Create Organization`}
                         </DropdownMenuItem>
                     ) : (
                         <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
                             <DropdownMenuItem className={cn(classNames?.content?.menuItem)}>
                                 <LogInIcon />
-                                {localization.SIGN_IN}
+                                {t`Sign In`}
                             </DropdownMenuItem>
                         </Link>
                     )}
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            <CreateOrganizationDialog open={isCreateOrgDialogOpen} onOpenChange={setIsCreateOrgDialogOpen} localization={localization} />
+            <CreateOrganizationDialog open={isCreateOrgDialogOpen} onOpenChange={setIsCreateOrgDialogOpen} />
         </>
     );
 }

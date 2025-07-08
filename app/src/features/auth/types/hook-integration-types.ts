@@ -1,6 +1,6 @@
-import type { BetterFetchError } from "@better-fetch/fetch";
+import type { BetterFetchError } from "better-auth/react";
 import type { Invitation } from "better-auth/plugins/organization";
-import type { AnyAuthClient, AuthClient } from "./auth-core-types";
+import type { AnyAuthClient } from "./auth-core-types";
 import type { ApiKey } from "./data-structure-types";
 
 // Refetch Function Type (from refetch.ts)
@@ -39,15 +39,15 @@ export type AuthHooks = {
     useListAccounts: () => AuthHook<{ accountId: string; provider: string }[]>;
     useListDeviceSessions: () => AuthHook<AnyAuthClient["$Infer"]["Session"][]>;
     useListSessions: () => AuthHook<AnyAuthSession["session"][]>;
-    useListPasskeys: () => Partial<ReturnType<AuthClient["useListPasskeys"]>>;
+    useListPasskeys: () => Partial<ReturnType<AnyAuthClient["useListPasskeys"]>>;
     useListApiKeys: () => AuthHook<ApiKey[]>;
-    useActiveOrganization: () => Partial<ReturnType<AuthClient["useActiveOrganization"]>>;
-    useListOrganizations: () => Partial<ReturnType<AuthClient["useListOrganizations"]>>;
-    useHasPermission: (params: Parameters<AuthClient["organization"]["hasPermission"]>[0]) => AuthHook<{
+    useActiveOrganization: () => Partial<ReturnType<AnyAuthClient["useActiveOrganization"]>>;
+    useListOrganizations: () => Partial<ReturnType<AnyAuthClient["useListOrganizations"]>>;
+    useHasPermission: (params: Parameters<AnyAuthClient["organization"]["hasPermission"]>[0]) => AuthHook<{
         error: null;
         success: boolean;
     }>;
-    useInvitation: (params: Parameters<AuthClient["organization"]["getInvitation"]>[0]) => AuthHook<
+    useInvitation: (params: Parameters<AnyAuthClient["organization"]["getInvitation"]>[0]) => AuthHook<
         Invitation & {
             organizationName: string;
             organizationSlug: string;

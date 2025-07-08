@@ -1,11 +1,11 @@
 import type { SocialProvider } from "better-auth/social-providers";
 import { useCallback, useContext } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import type { Provider } from "../../lib/social-providers";
 import { cn } from "@/lib/utils";
 import { getLocalizedError, getSearchParam } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import type { AuthCardClassNames } from "./auth-card";
 
@@ -14,7 +14,6 @@ interface ProviderButtonProps {
     classNames?: AuthCardClassNames;
     callbackURL?: string;
     isSubmitting: boolean;
-    localization: Partial<AuthLocalization>;
     other?: boolean;
     provider: Provider;
     redirectTo?: string;
@@ -27,7 +26,6 @@ export function ProviderButton({
     classNames,
     callbackURL: callbackURLProp,
     isSubmitting,
-    localization,
     other,
     provider,
     redirectTo: redirectToProp,
@@ -83,7 +81,7 @@ export function ProviderButton({
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
 
             setIsSubmitting(false);
@@ -106,7 +104,7 @@ export function ProviderButton({
             {provider.icon && <provider.icon className={classNames?.form?.icon} />}
 
             {socialLayout === "grid" && provider.name}
-            {socialLayout === "vertical" && `${localization.SIGN_IN_WITH} ${provider.name}`}
+            {socialLayout === "vertical" && `${t`Sign in with`} ${provider.name}`}
         </Button>
     );
 }

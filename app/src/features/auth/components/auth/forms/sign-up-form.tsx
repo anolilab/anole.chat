@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { useIsHydrated } from "../../../hooks/use-hydrated";
@@ -12,8 +13,7 @@ import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
 import { cn } from "@/lib/utils";
-import { getLocalizedError, getPasswordSchema, getSearchParam } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
+import { getLocalizedError, getSearchParam } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { Captcha } from "../../captcha/captcha";
 import { PasswordInput } from "../../password-input";
@@ -30,24 +30,14 @@ export interface SignUpFormProps {
     classNames?: AuthFormClassNames;
     callbackURL?: string;
     isSubmitting?: boolean;
-    localization: Partial<AuthLocalization>;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
     passwordValidation?: PasswordValidation;
 }
 
-export function SignUpForm({
-    className,
-    classNames,
-    callbackURL,
-    isSubmitting,
-    localization,
-    redirectTo,
-    setIsSubmitting,
-    passwordValidation,
-}: SignUpFormProps) {
+export function SignUpForm({ className, classNames, callbackURL, isSubmitting, redirectTo, setIsSubmitting, passwordValidation }: SignUpFormProps) {
     const isHydrated = useIsHydrated();
-    const { captchaRef, getCaptchaHeaders } = useCaptcha({ localization });
+    const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
     const {
         additionalFields,
@@ -56,7 +46,6 @@ export function SignUpForm({
         baseURL,
         credentials,
         emailVerification,
-        localization: contextLocalization,
         nameRequired,
         persistClient,
         redirectTo: contextRedirectTo,
@@ -72,7 +61,6 @@ export function SignUpForm({
     const contextPasswordValidation = credentials?.passwordValidation;
     const signUpFields = signUpOptions?.fields;
 
-    localization = { ...contextLocalization, ...localization };
     passwordValidation = { ...contextPasswordValidation, ...passwordValidation };
 
     // Avatar upload state
@@ -96,29 +84,64 @@ export function SignUpForm({
         email: z
             .string()
             .min(1, {
-                message: `${localization.EMAIL} ${localization.IS_REQUIRED}`,
+                message: t`Email is required`,
             })
             .email({
-                message: `${localization.EMAIL} ${localization.IS_INVALID}`,
+                message: t`Email is invalid`,
             }),
-        password: getPasswordSchema(passwordValidation, localization),
+        password: (() => {
+            let schema = z.string().min(1, {
+                message: t`Password is required`,
+            });
+            if (passwordValidation?.minLength) {
+                schema = schema.min(passwordValidation.minLength, {
+                    message: t`Password is too short`,
+                });
+            }
+            if (passwordValidation?.maxLength) {
+                schema = schema.max(passwordValidation.maxLength, {
+                    message: t`Password is too long`,
+                });
+            }
+            if (passwordValidation?.regex) {
+                schema = schema.regex(passwordValidation.regex, {
+                    message: t`Invalid password`,
+                });
+            }
+            return schema;
+        })(),
     };
 
     // Add confirmPassword field if enabled
     if (confirmPasswordEnabled) {
-        schemaFields.confirmPassword = getPasswordSchema(passwordValidation, {
-            PASSWORD_REQUIRED: localization.CONFIRM_PASSWORD_REQUIRED,
-            PASSWORD_TOO_SHORT: localization.PASSWORD_TOO_SHORT,
-            PASSWORD_TOO_LONG: localization.PASSWORD_TOO_LONG,
-            INVALID_PASSWORD: localization.INVALID_PASSWORD,
-        });
+        schemaFields.confirmPassword = (() => {
+            let schema = z.string().min(1, {
+                message: t`Confirm password is required`,
+            });
+            if (passwordValidation?.minLength) {
+                schema = schema.min(passwordValidation.minLength, {
+                    message: t`Password is too short`,
+                });
+            }
+            if (passwordValidation?.maxLength) {
+                schema = schema.max(passwordValidation.maxLength, {
+                    message: t`Password is too long`,
+                });
+            }
+            if (passwordValidation?.regex) {
+                schema = schema.regex(passwordValidation.regex, {
+                    message: t`Invalid password`,
+                });
+            }
+            return schema;
+        })();
     }
 
     // Add name field if required or included in signUpFields
     if (signUpFields?.includes("name")) {
         schemaFields.name = nameRequired
             ? z.string().min(1, {
-                  message: `${localization.NAME} ${localization.IS_REQUIRED}`,
+                  message: t`Name is required`,
               })
             : z.string().optional();
     }
@@ -126,7 +149,7 @@ export function SignUpForm({
     // Add username field if enabled
     if (usernameEnabled) {
         schemaFields.username = z.string().min(1, {
-            message: `${localization.USERNAME} ${localization.IS_REQUIRED}`,
+            message: t`Username is required`,
         });
     }
 
@@ -152,34 +175,34 @@ export function SignUpForm({
                     ? z.preprocess(
                           (val) => (!val ? undefined : Number(val)),
                           z.number({
-                              required_error: `${additionalField.label} ${localization.IS_REQUIRED}`,
-                              invalid_type_error: `${additionalField.label} ${localization.IS_INVALID}`,
+                              required_error: t`${String(additionalField.label || "")} is required`,
+                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
                           }),
                       )
                     : z.coerce
                           .number({
-                              invalid_type_error: `${additionalField.label} ${localization.IS_INVALID}`,
+                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
                           })
                           .optional();
             } else if (additionalField.type === "boolean") {
                 fieldSchema = additionalField.required
                     ? z.coerce
                           .boolean({
-                              required_error: `${additionalField.label} ${localization.IS_REQUIRED}`,
-                              invalid_type_error: `${additionalField.label} ${localization.IS_INVALID}`,
+                              required_error: t`${String(additionalField.label || "")} is required`,
+                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
                           })
                           .refine((val) => val === true, {
-                              message: `${additionalField.label} ${localization.IS_REQUIRED}`,
+                              message: t`${String(additionalField.label || "")} is required`,
                           })
                     : z.coerce
                           .boolean({
-                              invalid_type_error: `${additionalField.label} ${localization.IS_INVALID}`,
+                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
                           })
                           .optional();
             } else {
                 fieldSchema = additionalField.required
                     ? z.string().min(1, {
-                          message: `${additionalField.label} ${localization.IS_REQUIRED}`,
+                          message: t`${String(additionalField.label || "")} is required`,
                       })
                     : z.string().optional();
             }
@@ -190,7 +213,7 @@ export function SignUpForm({
 
     // Create the final schema
     const formSchema = z.object(schemaFields).refine((data) => !confirmPasswordEnabled || data.password === data.confirmPassword, {
-        message: localization.PASSWORDS_DO_NOT_MATCH,
+        message: t`Passwords do not match`,
         path: ["confirmPassword"],
     });
 
@@ -246,7 +269,7 @@ export function SignUpForm({
                     if (typeof fieldValue === "string" && !(await additionalField.validate(fieldValue))) {
                         toast({
                             variant: "error",
-                            message: `${additionalField.label} ${localization.IS_INVALID}`,
+                            message: t`${String(additionalField.label || "")} is invalid`,
                         });
                         return;
                     }
@@ -276,12 +299,12 @@ export function SignUpForm({
                     if (emailVerification) {
                         toast({
                             variant: "success",
-                            message: localization.EMAIL_VERIFICATION!,
+                            message: t`Email verification sent`,
                         });
                     } else {
                         toast({
                             variant: "success",
-                            message: localization.SIGN_UP_EMAIL!,
+                            message: t`Sign up successful`,
                         });
                     }
 
@@ -290,7 +313,7 @@ export function SignUpForm({
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
 
                 form.reset();
@@ -362,7 +385,7 @@ export function SignUpForm({
                             name="image"
                             children={() => (
                                 <div className="space-y-2">
-                                    <label className={cn("text-sm font-medium", classNames?.label)}>{localization.AVATAR}</label>
+                                    <label className={cn("text-sm font-medium", classNames?.label)}>{t`Avatar`}</label>
 
                                     <div className="flex items-center gap-4">
                                         <DropdownMenu>
@@ -386,7 +409,6 @@ export function SignUpForm({
                                                                           }
                                                                         : null
                                                                 }
-                                                                localization={localization}
                                                             />
                                                         )}
                                                     />
@@ -396,13 +418,13 @@ export function SignUpForm({
                                             <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
                                                 <DropdownMenuItem onClick={openFileDialog} disabled={uploadingAvatar}>
                                                     <UploadCloudIcon />
-                                                    {localization.UPLOAD_AVATAR}
+                                                    {t`Upload Avatar`}
                                                 </DropdownMenuItem>
 
                                                 {avatarImage && (
                                                     <DropdownMenuItem onClick={handleDeleteAvatar} disabled={uploadingAvatar} variant="destructive">
                                                         <Trash2Icon />
-                                                        {localization.DELETE_AVATAR}
+                                                        {t`Delete Avatar`}
                                                     </DropdownMenuItem>
                                                 )}
                                             </DropdownMenuContent>
@@ -411,7 +433,7 @@ export function SignUpForm({
                                         <Button type="button" variant="outline" onClick={openFileDialog} disabled={uploadingAvatar}>
                                             {uploadingAvatar && <Loader2 className="animate-spin" />}
 
-                                            {localization.UPLOAD}
+                                            {t`Upload`}
                                         </Button>
                                     </div>
                                 </div>
@@ -425,12 +447,12 @@ export function SignUpForm({
                         name="name"
                         children={(field) => (
                             <field.FormItem>
-                                <field.FormLabel className={classNames?.label}>{localization.NAME}</field.FormLabel>
+                                <field.FormLabel className={classNames?.label}>{t`Name`}</field.FormLabel>
 
                                 <field.FormControl>
                                     <Input
                                         className={classNames?.input}
-                                        placeholder={localization.NAME_PLACEHOLDER}
+                                        placeholder={t`Enter your name`}
                                         autoComplete="name"
                                         disabled={isSubmitting}
                                         value={field.state.value}
@@ -450,12 +472,12 @@ export function SignUpForm({
                         name="username"
                         children={(field) => (
                             <field.FormItem>
-                                <field.FormLabel className={classNames?.label}>{localization.USERNAME}</field.FormLabel>
+                                <field.FormLabel className={classNames?.label}>{t`Username`}</field.FormLabel>
 
                                 <field.FormControl>
                                     <Input
                                         className={classNames?.input}
-                                        placeholder={localization.USERNAME_PLACEHOLDER}
+                                        placeholder={t`Enter your username`}
                                         autoComplete="username"
                                         disabled={isSubmitting}
                                         value={field.state.value}
@@ -474,13 +496,13 @@ export function SignUpForm({
                     name="email"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.EMAIL}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
-                                    placeholder={localization.EMAIL_PLACEHOLDER}
+                                    placeholder={t`Enter your email`}
                                     autoComplete="email"
                                     disabled={isSubmitting}
                                     value={field.state.value}
@@ -498,13 +520,13 @@ export function SignUpForm({
                     name="password"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.PASSWORD}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`Password`}</field.FormLabel>
 
                             <field.FormControl>
                                 <PasswordInput
                                     autoComplete="new-password"
                                     className={classNames?.input}
-                                    placeholder={localization.PASSWORD_PLACEHOLDER}
+                                    placeholder={t`Enter your password`}
                                     disabled={isSubmitting}
                                     enableToggle
                                     value={field.state.value}
@@ -523,13 +545,13 @@ export function SignUpForm({
                         name="confirmPassword"
                         children={(field) => (
                             <field.FormItem>
-                                <field.FormLabel className={classNames?.label}>{localization.CONFIRM_PASSWORD}</field.FormLabel>
+                                <field.FormLabel className={classNames?.label}>{t`Confirm Password`}</field.FormLabel>
 
                                 <field.FormControl>
                                     <PasswordInput
                                         autoComplete="new-password"
                                         className={classNames?.input}
-                                        placeholder={localization.CONFIRM_PASSWORD_PLACEHOLDER}
+                                        placeholder={t`Enter your password again`}
                                         disabled={isSubmitting}
                                         enableToggle
                                         value={field.state.value}
@@ -567,7 +589,7 @@ export function SignUpForm({
                                             />
                                         </formField.FormControl>
 
-                                        <formField.FormLabel className={classNames?.label}>{additionalField.label}</formField.FormLabel>
+                                        <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
 
                                         <formField.FormMessage className={classNames?.error} />
                                     </formField.FormItem>
@@ -579,7 +601,7 @@ export function SignUpForm({
                                 name={field}
                                 children={(formField) => (
                                     <formField.FormItem>
-                                        <formField.FormLabel className={classNames?.label}>{additionalField.label}</formField.FormLabel>
+                                        <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
 
                                         <formField.FormControl>
                                             <Input
@@ -602,13 +624,13 @@ export function SignUpForm({
                         );
                     })}
 
-                <Captcha ref={captchaRef} localization={localization} action="/sign-up/email" />
+                <Captcha ref={captchaRef} action="/sign-up/email" />
 
                 <form.Subscribe
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isSubmitting]) => (
                         <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
-                            {isSubmitting ? <Loader2 className="animate-spin" /> : localization.SIGN_UP_ACTION}
+                            {isSubmitting ? <Loader2 className="animate-spin" /> : t`Sign Up`}
                         </Button>
                     )}
                 />

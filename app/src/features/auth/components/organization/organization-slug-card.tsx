@@ -2,6 +2,7 @@
 
 import { useContext } from "react";
 import * as z from "zod";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
@@ -12,13 +13,11 @@ import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function OrganizationSlugCard({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
+export function OrganizationSlugCard({ className, classNames, ...props }: SettingsCardProps) {
     const {
         hooks: { useActiveOrganization },
-        localization: contextLocalization,
     } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...localizationProp };
     const { data: activeOrganization } = useActiveOrganization();
 
     if (!activeOrganization) {
@@ -26,11 +25,11 @@ export function OrganizationSlugCard({ className, classNames, localization: loca
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                description={localization.ORGANIZATION_SLUG_DESCRIPTION}
-                instructions={localization.ORGANIZATION_SLUG_INSTRUCTIONS}
+                description={t`Change your organization's unique identifier`}
+                instructions={t`This is your organization's URL namespace`}
                 isPending
-                title={localization.ORGANIZATION_SLUG}
-                actionLabel={localization.SAVE}
+                title={t`Organization Slug`}
+                actionLabel={t`Save`}
                 optimistic={props.optimistic}
                 {...props}
             >
@@ -41,26 +40,23 @@ export function OrganizationSlugCard({ className, classNames, localization: loca
         );
     }
 
-    return <OrganizationSlugForm className={className} classNames={classNames} localization={localization} {...props} />;
+    return <OrganizationSlugForm className={className} classNames={classNames} {...props} />;
 }
 
 const formSchema = z.object({
     slug: z
         .string()
-        .min(1, { message: "Organization slug is required" })
-        .regex(/^[a-z0-9-]+$/, { message: "Organization slug contains invalid characters" }),
+        .min(1, { message: t`Organization slug is required` })
+        .regex(/^[a-z0-9-]+$/, { message: t`Organization slug is invalid` }),
 });
 
-function OrganizationSlugForm({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
+function OrganizationSlugForm({ className, classNames, ...props }: SettingsCardProps) {
     const {
         authClient,
-        localization: contextLocalization,
         hooks: { useActiveOrganization, useListOrganizations, useHasPermission },
         optimistic,
         toast,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -89,7 +85,7 @@ function OrganizationSlugForm({ className, classNames, localization: localizatio
             if (activeOrganization.slug === value.slug) {
                 toast({
                     variant: "error",
-                    message: `${localization.ORGANIZATION_SLUG} ${localization.IS_THE_SAME}`,
+                    message: t`Organization slug is the same`,
                 });
                 return;
             }
@@ -107,12 +103,12 @@ function OrganizationSlugForm({ className, classNames, localization: localizatio
 
                 toast({
                     variant: "success",
-                    message: `${localization.ORGANIZATION_SLUG} ${localization.UPDATED_SUCCESSFULLY}`,
+                    message: t`Organization slug updated successfully`,
                 });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -132,11 +128,11 @@ function OrganizationSlugForm({ className, classNames, localization: localizatio
                 <SettingsCard
                     className={className}
                     classNames={classNames}
-                    description={localization.ORGANIZATION_SLUG_DESCRIPTION}
-                    instructions={localization.ORGANIZATION_SLUG_INSTRUCTIONS}
+                    description={t`Change your organization's unique identifier`}
+                    instructions={t`This is your organization's URL namespace`}
                     isPending={isPending}
-                    title={localization.ORGANIZATION_SLUG}
-                    actionLabel={localization.SAVE}
+                    title={t`Organization Slug`}
+                    actionLabel={t`Save`}
                     optimistic={optimistic}
                     disabled={!hasPermission?.success}
                     {...props}
@@ -152,7 +148,7 @@ function OrganizationSlugForm({ className, classNames, localization: localizatio
                                         <field.FormControl>
                                             <Input
                                                 className={classNames?.input}
-                                                placeholder={localization.ORGANIZATION_SLUG_PLACEHOLDER}
+                                                placeholder={t`Enter organization slug`}
                                                 disabled={isSubmitting || !hasPermission?.success}
                                                 value={field.state.value}
                                                 onBlur={field.handleBlur}

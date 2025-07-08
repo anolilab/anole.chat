@@ -14,7 +14,7 @@ export function useAuthData<T>({
     cacheKey?: string;
     staleTime?: number;
 }) {
-    const { authClient, toast, localization } = useContext(AuthUIContext);
+    const { authClient, toast } = useContext(AuthUIContext);
     const { data: sessionData, isPending: sessionPending } = authClient.useSession();
 
     // Generate a stable cache key based on the queryFn if not provided
@@ -73,7 +73,7 @@ export function useAuthData<T>({
                 setError(error);
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             } else {
                 setError(null);
@@ -86,13 +86,13 @@ export function useAuthData<T>({
             setError(error);
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         } finally {
             authDataCache.setRefetching(stableCacheKey, false);
             authDataCache.removeInFlightRequest(stableCacheKey);
         }
-    }, [stableCacheKey, toast, localization, cacheEntry]);
+    }, [stableCacheKey, toast, cacheEntry]);
 
     useEffect(() => {
         const currentUserId = sessionData?.user?.id;

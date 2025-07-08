@@ -171,10 +171,6 @@ features/auth/
 │   ├── ui-configuration-types.ts
 │   ├── data-structure-types.ts
 │   └── ...
-├── localization/        # Feature-grouped localizations (4 files)
-│   ├── auth-core-errors.ts
-│   ├── auth-method-errors.ts
-│   └── ...
 └── lib/                 # Utilities and configurations
 ```
 
@@ -201,12 +197,10 @@ import { AuthCard } from "@/features/auth/components/auth/auth-card"
 ### Settings Components
 
 ```typescript
-import { SettingsCards } from "@/features/auth/components/settings/settings-cards"
 import { SecuritySettingsCards } from "@/features/auth/components/settings/security-settings-cards"
 import { OrganizationSettingsCards } from "@/features/auth/components/organization/organization-settings-cards"
 
 // Complete settings interface
-<SettingsCards view="account" />
 <SecuritySettingsCards />
 <OrganizationSettingsCards />
 ```
@@ -315,20 +309,6 @@ import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider"
 </AuthQueryProvider>
 ```
 
-### Localization
-
-```typescript
-import { authLocalization } from "@/features/auth/localization/auth-localization"
-
-<AuthUIProviderTanstack
-    localization={{
-        ...authLocalization,
-        SIGN_IN: "Login", // Override specific strings
-        SIGN_UP: "Create Account"
-    }}
-/>
-```
-
 ## 🎨 Styling & Customization
 
 ### CSS Classes
@@ -422,12 +402,11 @@ const ProtectedComponent = () => {
 
 ### Components
 
-| Component                   | Description                   | Props                                     |
-| --------------------------- | ----------------------------- | ----------------------------------------- |
-| `AuthCard`                  | Main authentication interface | `pathname`, `classNames`, `localization`  |
-| `UserButton`                | User profile dropdown         | `className`, `classNames`, `localization` |
-| `SettingsCards`             | Account/security settings     | `view`, `classNames`, `localization`      |
-| `OrganizationSettingsCards` | Organization management       | `classNames`, `localization`              |
+| Component                   | Description                   | Props                     |
+| --------------------------- | ----------------------------- | ------------------------- |
+| `AuthCard`                  | Main authentication interface | `pathname`, `classNames`  |
+| `UserButton`                | User profile dropdown         | `className`, `classNames` |
+| `OrganizationSettingsCards` | Organization management       | `classNames`              |
 
 ### Hooks
 
@@ -443,7 +422,7 @@ const ProtectedComponent = () => {
 All types are available with full TypeScript support:
 
 ```typescript
-import type { AuthClient, SessionData, Organization, AuthLocalization } from "@/features/auth/types";
+import type { AuthClient, SessionData, Organization } from "@/features/auth/types";
 ```
 
 ## 🚀 Performance
@@ -463,7 +442,6 @@ The codebase follows a **feature-based architecture**:
 - **Components** grouped by feature area (auth, settings, organization)
 - **Hooks** consolidated by functionality (7 grouped files vs 25+ individual)
 - **Types** organized by purpose (5 consolidated files vs 25+ scattered)
-- **Localization** grouped by error categories (4 files vs 15+ individual)
 
 ### Contributing
 
@@ -471,7 +449,6 @@ The codebase follows a **feature-based architecture**:
 2. Keep components focused and reusable
 3. Use TypeScript for all new code
 4. Include proper error handling
-5. Add localization for user-facing strings
 
 ## 📄 License
 

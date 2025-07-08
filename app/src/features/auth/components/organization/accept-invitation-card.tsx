@@ -2,12 +2,12 @@
 
 import { CheckIcon, Loader2, XIcon } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { useAuthenticate } from "../../hooks/use-authenticate";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError, getSearchParam } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,19 +17,15 @@ import { OrganizationView } from "./organization-view";
 export interface AcceptInvitationCardProps {
     className?: string;
     classNames?: SettingsCardClassNames;
-    localization?: Partial<AuthLocalization>;
 }
 
-export function AcceptInvitationCard({ className, classNames, localization: localizationProp }: AcceptInvitationCardProps) {
+export function AcceptInvitationCard({ className, classNames }: AcceptInvitationCardProps) {
     const {
         hooks: { useSession },
-        localization: contextLocalization,
         toast,
         redirectTo,
         replace,
     } = useContext(AuthUIContext);
-
-    const localization = useMemo(() => ({ ...contextLocalization, ...localizationProp }), [contextLocalization, localizationProp]);
 
     const { data: sessionData } = useSession();
     const [invitationId, setInvitationId] = useState<string | null>(null);
@@ -40,7 +36,7 @@ export function AcceptInvitationCard({ className, classNames, localization: loca
         if (!invitationIdParam) {
             toast({
                 variant: "error",
-                message: localization.INVITATION_NOT_FOUND,
+                message: t`Invitation not found`,
             });
 
             replace(redirectTo);
@@ -48,7 +44,7 @@ export function AcceptInvitationCard({ className, classNames, localization: loca
         }
 
         setInvitationId(invitationIdParam);
-    }, [localization.INVITATION_NOT_FOUND, toast, replace, redirectTo]);
+    }, [toast, replace, redirectTo]);
 
     // If session is not loaded yet, use authenticate hook to check
     useAuthenticate();
@@ -57,26 +53,18 @@ export function AcceptInvitationCard({ className, classNames, localization: loca
         return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
     }
 
-    return <AcceptInvitationContent className={className} classNames={classNames} localization={localization} invitationId={invitationId} />;
+    return <AcceptInvitationContent className={className} classNames={classNames} invitationId={invitationId} />;
 }
 
-function AcceptInvitationContent({
-    className,
-    classNames,
-    localization: localizationProp,
-    invitationId,
-}: AcceptInvitationCardProps & { invitationId: string }) {
+function AcceptInvitationContent({ className, classNames, invitationId }: AcceptInvitationCardProps & { invitationId: string }) {
     const {
         authClient,
-        localization: contextLocalization,
         toast,
         redirectTo,
         replace,
         organization,
         hooks: { useInvitation },
     } = useContext(AuthUIContext);
-
-    const localization = useMemo(() => ({ ...contextLocalization, ...localizationProp }), [contextLocalization, localizationProp]);
 
     const [isRejecting, setIsRejecting] = useState(false);
     const [isAccepting, setIsAccepting] = useState(false);
@@ -94,7 +82,7 @@ function AcceptInvitationContent({
         if (!invitation) {
             toast({
                 variant: "error",
-                message: localization.INVITATION_NOT_FOUND,
+                message: t`Invitation not found`,
             });
 
             replace(redirectTo);
@@ -104,12 +92,12 @@ function AcceptInvitationContent({
         if (invitation.status !== "pending" || new Date(invitation.expiresAt) < new Date()) {
             toast({
                 variant: "error",
-                message: new Date(invitation.expiresAt) < new Date() ? localization.INVITATION_EXPIRED : localization.INVITATION_NOT_FOUND,
+                message: new Date(invitation.expiresAt) < new Date() ? t`Invitation expired` : t`Invitation not found`,
             });
 
             replace(redirectTo);
         }
-    }, [invitation, isPending, invitationId, localization, toast, replace, redirectTo]);
+    }, [invitation, isPending, invitationId, toast, replace, redirectTo]);
 
     const acceptInvitation = async () => {
         if (!invitationId) return;
@@ -124,14 +112,14 @@ function AcceptInvitationContent({
 
             toast({
                 variant: "success",
-                message: localization.INVITATION_ACCEPTED || "Invitation accepted",
+                message: t`Invitation accepted`,
             });
 
             replace(redirectTo);
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
             setIsAccepting(false);
         }
@@ -150,14 +138,14 @@ function AcceptInvitationContent({
 
             toast({
                 variant: "success",
-                message: localization.INVITATION_REJECTED,
+                message: t`Invitation rejected`,
             });
 
             replace(redirectTo);
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
 
             setIsRejecting(false);
@@ -165,9 +153,9 @@ function AcceptInvitationContent({
     };
 
     const builtInRoles = [
-        { role: "owner", label: localization.OWNER },
-        { role: "admin", label: localization.ADMIN },
-        { role: "member", label: localization.MEMBER },
+        { role: "owner", label: t`Owner` },
+        { role: "admin", label: t`Admin` },
+        { role: "member", label: t`Member` },
     ];
 
     const roles = [...builtInRoles, ...(organization?.customRoles || [])];
@@ -178,9 +166,11 @@ function AcceptInvitationContent({
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
             <CardHeader className={cn("justify-items-center text-center", classNames?.header)}>
-                <CardTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.ACCEPT_INVITATION}</CardTitle>
+                <CardTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Accept Invitation`}</CardTitle>
 
-                <CardDescription className={cn("text-xs md:text-sm", classNames?.description)}>{localization.ACCEPT_INVITATION_DESCRIPTION}</CardDescription>
+                <CardDescription
+                    className={cn("text-xs md:text-sm", classNames?.description)}
+                >{t`You've been invited to join an organization`}</CardDescription>
             </CardHeader>
 
             <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
@@ -197,7 +187,6 @@ function AcceptInvitationContent({
                                   }
                                 : null
                         }
-                        localization={localization}
                     />
 
                     <p className="text-muted-foreground ml-auto text-sm">{roleLabel}</p>
@@ -207,13 +196,13 @@ function AcceptInvitationContent({
                     <Button variant="outline" className={cn(classNames?.button, classNames?.outlineButton)} onClick={rejectInvitation} disabled={isProcessing}>
                         {isRejecting ? <Loader2 className="animate-spin" /> : <XIcon />}
 
-                        {localization.REJECT}
+                        {t`Reject`}
                     </Button>
 
                     <Button className={cn(classNames?.button, classNames?.primaryButton)} onClick={acceptInvitation} disabled={isProcessing}>
                         {isAccepting ? <Loader2 className="animate-spin" /> : <CheckIcon />}
 
-                        {localization.ACCEPT}
+                        {t`Accept`}
                     </Button>
                 </div>
             </CardContent>
@@ -221,7 +210,7 @@ function AcceptInvitationContent({
     );
 }
 
-const AcceptInvitationSkeleton = ({ className, classNames, localization }: AcceptInvitationCardProps) => {
+const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProps) => {
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
             <CardHeader className={cn("justify-items-center", classNames?.header)}>
@@ -232,7 +221,7 @@ const AcceptInvitationSkeleton = ({ className, classNames, localization }: Accep
 
             <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
                 <Card className={cn("flex-row items-center p-4")}>
-                    <OrganizationView isPending localization={localization} />
+                    <OrganizationView isPending />
 
                     <Skeleton className="shrink-2 ml-auto mt-0.5 h-4 w-full max-w-14" />
                 </Card>

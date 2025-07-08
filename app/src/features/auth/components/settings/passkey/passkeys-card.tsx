@@ -1,97 +1,49 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { PlusIcon } from "lucide-react";
+import { type ComponentProps } from "react";
+import { t } from "@lingui/core/macro";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
-import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
-import { CardContent } from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/form";
-import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
-import { SettingsCard } from "../shared/settings-card";
-import type { SettingsCardClassNames } from "../shared/settings-card";
 import { PasskeyCell } from "./passkey-cell";
+import { SettingsCard } from "../shared/settings-card";
+import { Button } from "@/components/ui/button";
 
-export interface PasskeysCardProps {
-    className?: string;
-    classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
+interface PasskeyDevice {
+    id: string;
+    name: string;
+    type: "mobile" | "tablet" | "desktop";
+    createdAt: string;
+    lastUsed?: string;
 }
 
-export function PasskeysCard({ className, classNames, localization }: PasskeysCardProps) {
-    const {
-        authClient,
-        freshAge,
-        hooks: { useListPasskeys, useSession },
-        localization: authLocalization,
-        toast,
-    } = useContext(AuthUIContext);
+export interface PasskeysCardProps extends ComponentProps<typeof SettingsCard> {
+    passkeys?: PasskeyDevice[];
+    onAddPasskey?: () => void;
+    onDeletePasskey?: (passkeyId: string) => void;
+}
 
-    localization = { ...authLocalization, ...localization };
-
-    const { data: passkeys, isPending, refetch } = useListPasskeys();
-
-    const { data: sessionData } = useSession();
-    const session = sessionData?.session;
-    const isFresh = session ? Date.now() - session?.createdAt.getTime() < freshAge * 1000 : false;
-
-    const [showFreshnessDialog, setShowFreshnessDialog] = useState(false);
-
-    const form = useAppForm({
-        defaultValues: {},
-        onSubmit: async () => {
-            // If session isn't fresh, show the freshness dialog
-            if (!isFresh) {
-                setShowFreshnessDialog(true);
-                return;
-            }
-
-            try {
-                await authClient.passkey.addPasskey({
-                    fetchOptions: { throw: true },
-                });
-                await refetch?.();
-            } catch (error) {
-                toast({
-                    variant: "error",
-                    message: getLocalizedError({ error, localization }),
-                });
-            }
-        },
-    });
-
+export function PasskeysCard({ passkeys = [], onAddPasskey, onDeletePasskey, ...props }: PasskeysCardProps) {
     return (
-        <>
-            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} localization={localization} />
-
-            <form.AppForm>
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        form.handleSubmit();
-                    }}
-                >
-                    <SettingsCard
-                        className={className}
-                        classNames={classNames}
-                        actionLabel={localization.ADD_PASSKEY}
-                        description={localization.PASSKEYS_DESCRIPTION}
-                        instructions={localization.PASSKEYS_INSTRUCTIONS}
-                        isPending={isPending}
-                        title={localization.PASSKEYS}
-                    >
-                        {passkeys && passkeys.length > 0 && (
-                            <CardContent className={cn("grid gap-4", classNames?.content)}>
-                                {passkeys?.map((passkey) => (
-                                    <PasskeyCell key={passkey.id} classNames={classNames} localization={localization} passkey={passkey} />
-                                ))}
-                            </CardContent>
-                        )}
-                    </SettingsCard>
-                </form>
-            </form.AppForm>
-        </>
+        <SettingsCard
+            {...props}
+            header={t`Passkeys`}
+            description={t`Passkeys allow you to sign in securely using your device's biometric authentication or security key.`}
+            footer={
+                <Button variant="outline" onClick={onAddPasskey} className="w-fit">
+                    <PlusIcon />
+                    {t`Add Passkey`}
+                </Button>
+            }
+        >
+            {passkeys.length > 0 ? (
+                <div className="space-y-2">
+                    {passkeys.map((passkey) => (
+                        <PasskeyCell key={passkey.id} passkey={passkey} onDelete={onDeletePasskey} />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-muted-foreground py-8 text-center text-sm">{t`No passkeys found. Add one to enable passwordless sign-in.`}</div>
+            )}
+        </SettingsCard>
     );
 }

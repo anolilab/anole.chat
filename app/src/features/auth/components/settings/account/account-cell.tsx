@@ -3,11 +3,11 @@
 import type { Session, User } from "better-auth";
 import { EllipsisIcon, Loader2, LogOutIcon, RepeatIcon } from "lucide-react";
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,22 +19,19 @@ export interface AccountCellProps {
     className?: string;
     classNames?: SettingsCardClassNames;
     deviceSession: { user: User; session: Session };
-    localization?: Partial<AuthLocalization>;
+
     refetch?: Refetch;
 }
 
-export function AccountCell({ className, classNames, deviceSession, localization, refetch }: AccountCellProps) {
+export function AccountCell({ className, classNames, deviceSession, refetch }: AccountCellProps) {
     const {
         basePath,
-        localization: contextLocalization,
         hooks: { useSession },
         mutators: { revokeDeviceSession, setActiveSession },
         toast,
         viewPaths,
         navigate,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { data: sessionData } = useSession();
     const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +49,7 @@ export function AccountCell({ className, classNames, deviceSession, localization
 
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
     };
@@ -70,7 +67,7 @@ export function AccountCell({ className, classNames, deviceSession, localization
 
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
     };
@@ -79,7 +76,7 @@ export function AccountCell({ className, classNames, deviceSession, localization
 
     return (
         <Card className={cn("flex-row p-4", className, classNames?.cell)}>
-            <UserView user={deviceSession.user} localization={localization} />
+            <UserView user={deviceSession.user} />
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -99,7 +96,7 @@ export function AccountCell({ className, classNames, deviceSession, localization
                         <DropdownMenuItem onClick={handleSetActiveSession}>
                             <RepeatIcon className={classNames?.icon} />
 
-                            {localization.SWITCH_ACCOUNT}
+                            {t`Switch Account`}
                         </DropdownMenuItem>
                     )}
 
@@ -115,7 +112,7 @@ export function AccountCell({ className, classNames, deviceSession, localization
                     >
                         <LogOutIcon className={classNames?.icon} />
 
-                        {isCurrentSession ? localization.SIGN_OUT : localization.REVOKE}
+                        {isCurrentSession ? t`Sign Out` : t`Revoke`}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

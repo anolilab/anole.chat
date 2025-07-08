@@ -1,9 +1,9 @@
 "use client";
 
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { SettingsCard } from "../shared/settings-card";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { DeleteAccountDialog } from "./delete-account-dialog";
@@ -13,17 +13,14 @@ export interface DeleteAccountCardProps {
     classNames?: SettingsCardClassNames;
     accounts?: { provider: string }[] | null;
     isPending?: boolean;
-    localization?: AuthLocalization;
+
     skipHook?: boolean;
 }
 
-export function DeleteAccountCard({ className, classNames, accounts, isPending, localization, skipHook }: DeleteAccountCardProps) {
+export function DeleteAccountCard({ className, classNames, accounts, isPending, skipHook }: DeleteAccountCardProps) {
     const {
         hooks: { useListAccounts },
-        localization: contextLocalization,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const [showDialog, setShowDialog] = useState(false);
 
@@ -38,15 +35,15 @@ export function DeleteAccountCard({ className, classNames, accounts, isPending, 
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                actionLabel={localization?.DELETE_ACCOUNT}
-                description={localization?.DELETE_ACCOUNT_DESCRIPTION}
+                actionLabel={t`Delete Account`}
+                description={t`Permanently delete your account and all associated data`}
                 isPending={isPending}
-                title={localization?.DELETE_ACCOUNT}
+                title={t`Delete Account`}
                 variant="destructive"
                 action={() => setShowDialog(true)}
             />
 
-            <DeleteAccountDialog classNames={classNames} accounts={accounts} localization={localization} open={showDialog} onOpenChange={setShowDialog} />
+            <DeleteAccountDialog classNames={classNames} accounts={accounts} open={showDialog} onOpenChange={setShowDialog} />
         </div>
     );
 }
