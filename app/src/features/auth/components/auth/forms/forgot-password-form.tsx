@@ -25,7 +25,7 @@ export interface ForgotPasswordFormProps {
 
 export function ForgotPasswordForm({ className, classNames, isSubmitting, setIsSubmitting }: ForgotPasswordFormProps) {
     const isHydrated = useIsHydrated();
-    const { captchaRef, getCaptchaHeaders } = useCaptcha({});
+    const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
     const { authClient, basePath, baseURL, viewPaths, navigate, toast } = useContext(AuthUIContext);
 

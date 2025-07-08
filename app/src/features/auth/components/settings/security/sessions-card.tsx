@@ -1,18 +1,53 @@
 "use client";
 import { useContext } from "react";
 import { t } from "@lingui/core/macro";
+import { UAParser } from "my-ua-parser";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SettingsCard } from "../shared/settings-card";
 import type { SettingsCardClassNames } from "../shared/settings-card";
-import { Button } from "@/components/ui/button";
+import { SessionCell } from "./session-cell";
+import clsx from "clsx";
 
 export interface SessionsCardProps {
     className?: string;
     classNames?: SettingsCardClassNames;
+}
+
+function parseUserAgent(userAgent: string | null | undefined) {
+    if (!userAgent) {
+        return {
+            deviceType: "desktop" as const,
+            deviceName: undefined,
+            browser: undefined,
+            os: undefined,
+        };
+    }
+
+    const parser = new UAParser(userAgent);
+    const result = parser.getResult();
+
+    // Determine device type based on parsed data
+    let deviceType: "mobile" | "tablet" | "desktop" = "desktop";
+    if (result.device?.type === "mobile") {
+        deviceType = "mobile";
+    } else if (result.device?.type === "tablet") {
+        deviceType = "tablet";
+    }
+
+    return {
+        deviceType,
+        deviceName: result.device?.model || result.device?.vendor,
+        browser: result.browser?.name && result.browser?.version
+            ? `${result.browser.name} ${result.browser.version}`
+            : result.browser?.name,
+        os: result.os?.name && result.os?.version
+            ? `${result.os.name} ${result.os.version}`
+            : result.os?.name,
+    };
 }
 
 export function SessionsCard({ className, classNames }: SessionsCardProps) {
@@ -38,49 +73,44 @@ export function SessionsCard({ className, classNames }: SessionsCardProps) {
     };
 
     return (
-        <SettingsCard className={className} classNames={classNames} description={t`Manage your active sessions`} isPending={isPending} title={t`Sessions`}>
+        <SettingsCard className={clsx(className, "pb-6")} classNames={classNames} description={t`Manage your active sessions`} isPending={isPending} title={t`Sessions`}>
             <CardContent className={cn("grid gap-4", classNames?.content)}>
                 {isPending ? (
-                    <Card className={cn("flex-row items-center gap-3 px-4 py-3", classNames?.cell)}>
-                        <div className="flex items-center gap-2">
-                            <Skeleton className={cn("size-5 rounded-full", classNames?.skeleton)} />
-
-                            <div>
+                    <div className={cn("flex items-center justify-between rounded-lg border p-4", classNames?.content)}>
+                        <div className="flex items-center gap-3">
+                            <Skeleton className={cn("h-10 w-10 rounded-lg", classNames?.skeleton)} />
+                            <div className="flex flex-col gap-2">
                                 <Skeleton className={cn("h-4 w-24", classNames?.skeleton)} />
+                                <Skeleton className={cn("h-3 w-32", classNames?.skeleton)} />
                             </div>
                         </div>
-
-                        <Skeleton className={cn("ms-auto size-8 w-12", classNames?.skeleton)} />
-                    </Card>
+                        <Skeleton className={cn("h-8 w-8 rounded", classNames?.skeleton)} />
+                    </div>
                 ) : (
                     sessions?.map((session) => {
                         const isCurrent = session.id === currentSession?.session?.id;
-                        const createdDate = new Date(session.createdAt).toLocaleDateString();
+                        const parsedUA = parseUserAgent(session.userAgent);
+
+                        // Transform the session data to match SessionCell's expected format
+                        const sessionData = {
+                            id: session.id,
+                            deviceType: parsedUA.deviceType,
+                            deviceName: parsedUA.deviceName,
+                            browser: parsedUA.browser,
+                            os: parsedUA.os,
+                            ipAddress: session.ipAddress || undefined,
+                            isCurrent,
+                            createdAt: session.createdAt.toISOString(),
+                            lastActiveAt: session.createdAt.toISOString(), // Using createdAt as fallback since lastActiveAt might not be available
+                        };
 
                         return (
-                            <Card key={session.id} className={cn("flex-row items-center p-4", classNames?.cell)}>
-                                <div className="flex flex-1 flex-col">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-medium">{session.userAgent ? session.userAgent.split(" ")[0] : t`Unknown Device`}</span>
-                                        {isCurrent && <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">{t`Current`}</span>}
-                                    </div>
-                                    <div className="text-muted-foreground text-sm">
-                                        {session.ipAddress && `${session.ipAddress} • `}
-                                        {t`Created ${createdDate}`}
-                                    </div>
-                                </div>
-
-                                {!isCurrent && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleRevokeSession(session.token)}
-                                        className={cn(classNames?.button, classNames?.outlineButton)}
-                                    >
-                                        {t`Revoke`}
-                                    </Button>
-                                )}
-                            </Card>
+                            <SessionCell
+                                key={session.id}
+                                classNames={classNames}
+                                session={sessionData}
+                                onRevokeSession={() => handleRevokeSession(session.token)}
+                            />
                         );
                     })
                 )}

@@ -1,84 +1,105 @@
 "use client";
 
-import { type ComponentProps, useState } from "react";
+import type { SocialProvider } from "better-auth/social-providers";
+import { Loader2 } from "lucide-react";
+import { useContext, useState } from "react";
 import { t } from "@lingui/core/macro";
 
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import type { Provider } from "../../../lib/social-providers";
 import { cn } from "@/lib/utils";
+import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-interface Provider {
-    id: string;
-    provider: string;
-    email?: string;
-    username?: string;
-    connectedAt: string;
-}
-
-interface ProviderCellProps extends ComponentProps<"div"> {
+export interface ProviderCellProps {
+    className?: string;
     classNames?: SettingsCardClassNames;
-
+    account?: { accountId: string; provider: string } | null;
+    isPending?: boolean;
+    other?: boolean;
     provider: Provider;
-    onDisconnect?: (providerId: string) => void;
+    refetch?: Refetch;
 }
 
-function getProviderDisplayName(provider: string) {
-    const providers: Record<string, string> = {
-        google: "Google",
-        github: "GitHub",
-        discord: "Discord",
-        microsoft: "Microsoft",
-        apple: "Apple",
-        facebook: "Facebook",
-        twitter: "Twitter",
-        linkedin: "LinkedIn",
-    };
+export function ProviderCell({ className, classNames, account, other, provider, refetch }: ProviderCellProps) {
+    const {
+        authClient,
+        basePath,
+        baseURL,
+        mutators: { unlinkAccount },
+        viewPaths,
+        toast,
+    } = useContext(AuthUIContext);
 
-    return providers[provider] || provider.charAt(0).toUpperCase() + provider.slice(1);
-}
+    const [isLoading, setIsLoading] = useState(false);
 
-export function ProviderCell({ classNames, provider, onDisconnect, className, ...props }: ProviderCellProps) {
-    const [isDisconnecting, setIsDisconnecting] = useState(false);
+    const handleLink = async () => {
+        setIsLoading(true);
+        const callbackURL = `${baseURL}${basePath}/${viewPaths.CALLBACK}?redirectTo=${window.location.pathname}`;
 
-    const displayName = getProviderDisplayName(provider.provider);
-    const connectedDate = new Date(provider.connectedAt).toLocaleDateString();
-
-    const handleDisconnect = async () => {
-        if (!onDisconnect) return;
-
-        setIsDisconnecting(true);
         try {
-            await onDisconnect(provider.id);
-        } finally {
-            setIsDisconnecting(false);
+            if (other) {
+                await authClient.oauth2.link({
+                    providerId: provider.provider as SocialProvider,
+                    callbackURL,
+                    fetchOptions: { throw: true },
+                });
+            } else {
+                await authClient.linkSocial({
+                    provider: provider.provider as SocialProvider,
+                    callbackURL,
+                    fetchOptions: { throw: true },
+                });
+            }
+        } catch (error) {
+            toast({
+                variant: "error",
+                message: t`Failed to link account`,
+            });
+
+            setIsLoading(false);
         }
     };
 
-    return (
-        <div className={cn("flex items-center justify-between rounded-lg border p-4", className, classNames?.content)} {...props}>
-            <div className="flex items-center gap-3">
-                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                    <span className="text-sm font-medium">{displayName.slice(0, 2).toUpperCase()}</span>
-                </div>
+    const handleUnlink = async () => {
+        setIsLoading(true);
 
-                <div className="flex flex-col">
-                    <div className="font-medium">{displayName}</div>
-                    <div className="text-muted-foreground text-sm">
-                        {provider.email || provider.username}
-                        {` • ${t`Connected on ${connectedDate}`}`}
-                    </div>
-                </div>
-            </div>
+        try {
+            await unlinkAccount({
+                accountId: account?.accountId,
+                providerId: provider.provider,
+            });
+
+            await refetch?.();
+        } catch (error) {
+            toast({
+                variant: "error",
+                message: t`Failed to unlink account`,
+            });
+        }
+
+        setIsLoading(false);
+    };
+
+    return (
+        <Card className={cn("flex-row items-center gap-3 px-4 py-3", className, classNames?.cell)}>
+            {provider.icon && <provider.icon className={cn("size-4", classNames?.icon)} />}
+
+            <span className="text-sm">{provider.name}</span>
 
             <Button
-                variant="outline"
+                className={cn("relative ms-auto", classNames?.button)}
+                disabled={isLoading}
                 size="sm"
-                onClick={handleDisconnect}
-                disabled={isDisconnecting}
-                className={cn("text-destructive hover:text-destructive", classNames?.button, classNames?.outlineButton)}
+                type="button"
+                variant={account ? "outline" : "default"}
+                onClick={account ? handleUnlink : handleLink}
             >
-                {isDisconnecting ? t`Disconnecting...` : t`Disconnect`}
+                {isLoading && <Loader2 className="animate-spin" />}
+                {account ? t`Unlink` : t`Link`}
             </Button>
-        </div>
+        </Card>
     );
 }

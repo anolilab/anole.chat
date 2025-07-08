@@ -77,7 +77,7 @@ export function SettingsCard({
     const displayFooter = footer || actionLabel;
 
     return (
-        <Card className={cn("w-full pb-0 text-start", variant === "destructive" && "border-destructive/40", className, classNames?.base)} {...props}>
+        <Card className={cn("w-full text-start pb-0", variant === "destructive" && "border-destructive/40", className, classNames?.base)} {...props}>
             <SettingsCardHeader classNames={classNames} description={description} isPending={isPending} title={displayTitle} />
 
             {children}

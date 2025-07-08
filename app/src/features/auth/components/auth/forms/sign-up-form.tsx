@@ -175,34 +175,34 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                     ? z.preprocess(
                           (val) => (!val ? undefined : Number(val)),
                           z.number({
-                              required_error: t`${String(additionalField.label || "")} is required`,
-                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
+                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
                           }),
                       )
                     : z.coerce
                           .number({
-                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
+                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
                           })
                           .optional();
             } else if (additionalField.type === "boolean") {
                 fieldSchema = additionalField.required
                     ? z.coerce
                           .boolean({
-                              required_error: t`${String(additionalField.label || "")} is required`,
-                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
+                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
                           })
                           .refine((val) => val === true, {
-                              message: t`${String(additionalField.label || "")} is required`,
+                              message: `${String(additionalField.label || "")} ${t`is required`}`,
                           })
                     : z.coerce
                           .boolean({
-                              invalid_type_error: t`${String(additionalField.label || "")} is invalid`,
+                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
                           })
                           .optional();
             } else {
                 fieldSchema = additionalField.required
                     ? z.string().min(1, {
-                          message: t`${String(additionalField.label || "")} is required`,
+                          message: `${String(additionalField.label || "")} ${t`is required`}`,
                       })
                     : z.string().optional();
             }
@@ -269,7 +269,7 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                     if (typeof fieldValue === "string" && !(await additionalField.validate(fieldValue))) {
                         toast({
                             variant: "error",
-                            message: t`${String(additionalField.label || "")} is invalid`,
+                            message: `${String(additionalField.label || "")} ${t`is invalid`}`,
                         });
                         return;
                     }

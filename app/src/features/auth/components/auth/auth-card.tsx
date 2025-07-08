@@ -61,7 +61,6 @@ export interface AuthCardProps {
      * @default 0
      */
     otpSeparators?: 0 | 1 | 2;
-    setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
 export function AuthCard({

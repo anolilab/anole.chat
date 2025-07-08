@@ -1,51 +1,95 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
-import { type ComponentProps } from "react";
+import { useContext } from "react";
 import { t } from "@lingui/core/macro";
 
-import { ProviderCell } from "./provider-cell";
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import { socialProviders } from "../../../lib/social-providers";
+import { cn } from "@/lib/utils";
+import type { Refetch } from "../../../types/hook-integration-types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SettingsCard } from "../shared/settings-card";
-import { Button } from "@/components/ui/button";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { ProviderCell } from "./provider-cell";
 
-interface Provider {
-    id: string;
-    provider: string;
-    email?: string;
-    username?: string;
-    connectedAt: string;
+export interface ProvidersCardProps {
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    accounts?: { accountId: string; provider: string }[] | null;
+    isPending?: boolean;
+    skipHook?: boolean;
+    refetch?: Refetch;
 }
 
-export interface ProvidersCardProps extends ComponentProps<typeof SettingsCard> {
-    providers?: Provider[];
-    onConnectProvider?: () => void;
-    onDisconnectProvider?: (providerId: string) => void;
-}
+export function ProvidersCard({ className, classNames, accounts, isPending, skipHook, refetch }: ProvidersCardProps) {
+    const {
+        hooks: { useListAccounts },
+        social,
+        genericOAuth,
+    } = useContext(AuthUIContext);
 
-export function ProvidersCard({ providers = [], onConnectProvider, onDisconnectProvider, ...props }: ProvidersCardProps) {
+    if (!skipHook) {
+        const result = useListAccounts();
+        accounts = result.data;
+        isPending = result.isPending;
+        refetch = result.refetch;
+    }
+
     return (
         <SettingsCard
-            {...props}
-            header={t`Connected Accounts`}
-            description={t`Manage your connected social accounts and third-party providers.`}
-            footer={
-                <Button variant="outline" onClick={onConnectProvider} className="w-fit">
-                    <PlusIcon />
-                    {t`Connect Account`}
-                </Button>
-            }
+            className={className}
+            classNames={classNames}
+            title={t`Connected Accounts`}
+            description={t`Manage your connected social accounts and third-party providers`}
+            isPending={isPending}
         >
-            {providers.length > 0 ? (
-                <div className="space-y-2">
-                    {providers.map((provider) => (
-                        <ProviderCell key={provider.id} provider={provider} onDisconnect={onDisconnectProvider} />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-muted-foreground py-8 text-center text-sm">
-                    {t`No connected accounts found. Connect a social account to enable additional sign-in options.`}
-                </div>
-            )}
+            <CardContent className={cn("grid gap-4", classNames?.content)}>
+                {isPending ? (
+                    social?.providers?.map((provider) => (
+                        <Card key={provider} className={cn("flex-row items-center gap-3 px-4 py-3", classNames?.cell)}>
+                            <div className="flex items-center gap-2">
+                                <Skeleton className={cn("size-5 rounded-full", classNames?.skeleton)} />
+
+                                <div>
+                                    <Skeleton className={cn("h-4 w-24", classNames?.skeleton)} />
+                                </div>
+                            </div>
+
+                            <Skeleton className={cn("ms-auto size-8 w-12", classNames?.skeleton)} />
+                        </Card>
+                    ))
+                ) : (
+                    <>
+                        {social?.providers?.map((provider) => {
+                            const socialProvider = socialProviders.find((socialProvider) => socialProvider.provider === provider);
+
+                            if (!socialProvider) return null;
+
+                            return (
+                                <ProviderCell
+                                    key={provider}
+                                    classNames={classNames}
+                                    account={accounts?.find((acc) => acc.provider === provider)}
+                                    provider={socialProvider}
+                                    refetch={refetch}
+                                />
+                            );
+                        })}
+
+                        {genericOAuth?.providers?.map((provider) => (
+                            <ProviderCell
+                                key={provider.provider}
+                                classNames={classNames}
+                                account={accounts?.find((acc) => acc.provider === provider.provider)}
+                                provider={provider}
+                                refetch={refetch}
+                                other
+                            />
+                        ))}
+                    </>
+                )}
+            </CardContent>
         </SettingsCard>
     );
 }
