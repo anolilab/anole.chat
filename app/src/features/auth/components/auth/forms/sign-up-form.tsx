@@ -6,6 +6,7 @@ import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { useSearch } from "@tanstack/react-router";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { useIsHydrated } from "../../../hooks/use-hydrated";
@@ -13,7 +14,7 @@ import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
 import { cn } from "@/lib/utils";
-import { getLocalizedError, getSearchParam } from "../../../lib/utils";
+import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { Captcha } from "../../captcha/captcha";
 import { PasswordInput } from "../../password-input";
@@ -56,6 +57,8 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
         avatar,
     } = useContext(AuthUIContext);
 
+    const search = useSearch({ strict: false }) as any;
+
     const confirmPasswordEnabled = credentials?.confirmPassword;
     const usernameEnabled = credentials?.username;
     const contextPasswordValidation = credentials?.passwordValidation;
@@ -68,7 +71,7 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
     const [avatarImage, setAvatarImage] = useState<string | null>(null);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-    const getRedirectTo = useCallback(() => redirectTo || getSearchParam("redirectTo") || contextRedirectTo, [redirectTo, contextRedirectTo]);
+    const getRedirectTo = useCallback(() => redirectTo || search?.redirectTo || contextRedirectTo, [redirectTo, search?.redirectTo, contextRedirectTo]);
 
     const getCallbackURL = useCallback(
         () => `${baseURL}${callbackURL || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,

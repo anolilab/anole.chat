@@ -1,11 +1,12 @@
 import type { SocialProvider } from "better-auth/social-providers";
 import { useCallback, useContext } from "react";
 import { t } from "@lingui/core/macro";
+import { useSearch } from "@tanstack/react-router";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import type { Provider } from "../../lib/social-providers";
 import { cn } from "@/lib/utils";
-import { getLocalizedError, getSearchParam } from "../../lib/utils";
+import { getLocalizedError } from "../../lib/utils";
 import { Button } from "@/components/ui/button";
 import type { AuthCardClassNames } from "./auth-card";
 
@@ -34,7 +35,9 @@ export function ProviderButton({
 }: ProviderButtonProps) {
     const { authClient, basePath, baseURL, persistClient, redirectTo: contextRedirectTo, viewPaths, social, genericOAuth, toast } = useContext(AuthUIContext);
 
-    const getRedirectTo = useCallback(() => redirectToProp || getSearchParam("redirectTo") || contextRedirectTo, [redirectToProp, contextRedirectTo]);
+    const search = useSearch({ strict: false });
+
+    const getRedirectTo = useCallback(() => redirectToProp || search.redirectTo || contextRedirectTo, [redirectToProp, search.redirectTo, contextRedirectTo]);
 
     const getCallbackURL = useCallback(
         () => `${baseURL}${callbackURLProp || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,

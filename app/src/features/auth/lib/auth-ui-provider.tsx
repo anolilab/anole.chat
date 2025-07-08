@@ -2,9 +2,11 @@
 
 import { type ReactNode, createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
+import { useSearch } from "@tanstack/react-router";
 
 import { useAuthData } from "../hooks/use-auth-data";
-import type { AnyAuthClient, AuthClient } from "../types/auth-core-types";
+import type { AnyAuthClient } from "../types/auth-core-types";
+import type { AuthClient } from "@/lib/auth/client";
 import type { AdditionalFields } from "../types/form-validation-types";
 import type { AuthHooks, AuthMutators } from "../types/hook-integration-types";
 import type { AvatarOptions, CaptchaOptions } from "../types/ui-configuration-types";
@@ -22,7 +24,7 @@ import type {
     SocialOptions,
 } from "../types/ui-configuration-types";
 import { type AuthViewPaths, authViewPaths } from "./auth-view-paths";
-import { getLocalizedError, getSearchParam } from "./utils";
+import { getLocalizedError } from "./utils";
 
 const defaultToast: RenderToast = ({ variant = "default", message }) => {
     if (variant === "default") {
@@ -246,6 +248,16 @@ export type AuthUIProviderProps = {
 
 export const AuthUIContext = createContext<AuthUIContextType>({} as unknown as AuthUIContextType);
 
+function useAuthUISearch() {
+    try {
+        const search = useSearch({ strict: false }) as any;
+        return search;
+    } catch {
+        // If useSearch fails (e.g., outside of router context), return null
+        return null;
+    }
+}
+
 export const AuthUIProvider = ({
     children,
     authClient: authClientProp,
@@ -448,12 +460,13 @@ export const AuthUIProvider = ({
     basePath = basePath.endsWith("/") ? basePath.slice(0, -1) : basePath;
 
     const { data: sessionData } = hooks.useSession();
+    const search = useAuthUISearch();
 
     const errorShown = useRef(false);
     useEffect(() => {
         if (errorShown.current) return;
 
-        const error = getSearchParam("error");
+        const error = search?.error;
         if (error) {
             errorShown.current = true;
             console.log({ error });
@@ -462,7 +475,7 @@ export const AuthUIProvider = ({
                 message: getLocalizedError({ error }),
             });
         }
-    }, [toast]);
+    }, [search?.error, toast]);
 
     return (
         <AuthUIContext.Provider
@@ -487,6 +500,17 @@ export const AuthUIProvider = ({
                 social: socialProp,
                 toast,
                 viewPaths,
+                navigate: (href: string) => {
+                    window.location.href = href;
+                },
+                replace: (href: string) => {
+                    window.location.replace(href);
+                },
+                Link: ({ href, children, ...linkProps }) => (
+                    <a href={href} {...linkProps}>
+                        {children}
+                    </a>
+                ),
                 ...props,
             }}
         >

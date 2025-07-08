@@ -7,18 +7,19 @@ import { useContext, useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { useSearch } from "@tanstack/react-router";
 
 import { useIsHydrated } from "../../../hooks/use-hydrated";
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import { getLocalizedError, getSearchParam } from "../../../lib/utils";
+import { getLocalizedError } from "../../../lib/utils";
 import type { User } from "../../../types/auth-core-types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppForm } from "@/components/ui/form";
 import { InputOTP } from "@/components/ui/input-otp";
-import { Label } from "@/components/ui/label";
+import CopyButton from "@/components/copy-button";
 import type { AuthFormClassNames } from "../auth-form";
 import { OTPInputGroup } from "../otp-input-group";
 
@@ -43,9 +44,25 @@ const formSchema = z.object({
     trustDevice: z.boolean().optional(),
 });
 
+// Helper function to extract secret from TOTP URI
+const extractSecretFromTotpUri = (totpURI: string): string | null => {
+    try {
+        const url = new URL(totpURI);
+        return url.searchParams.get("secret");
+    } catch {
+        return null;
+    }
+};
+
 export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparators = 0, redirectTo, setIsSubmitting }: TwoFactorFormProps) {
     const isHydrated = useIsHydrated();
-    const totpURI = isHydrated ? getSearchParam("totpURI") : null;
+    const search = useSearch({ strict: false }) as any;
+
+    const totpURI = isHydrated ? search?.totpURI : null;
+    const digits = isHydrated ? search?.digits : null;
+    const hideForgotAuthenticator = search?.hideForgotAuthenticator ? true : false;
+    const totpSecret = totpURI ? extractSecretFromTotpUri(totpURI) : null;
+
     const initialSendRef = useRef(false);
 
     const {
@@ -126,6 +143,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
         const timer = setTimeout(() => {
             setCooldownSeconds((prev) => prev - 1);
         }, 1000);
+
         return () => clearTimeout(timer);
     }, [cooldownSeconds]);
 
@@ -164,9 +182,35 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 {twoFactor?.includes("totp") && totpURI && method === "totp" && (
-                    <div className="space-y-3 mx-auto">
-                        <Label className={classNames?.label}>{t`Two-factor authentication (TOTP)`}</Label>
-                        <QRCode className={cn("shadow-xs border", classNames?.qrCode)} value={totpURI} />
+                    <div className="space-y-4">
+                        <div className={classNames?.label}>
+                            {t`Using an authenticator app like`}{" "}
+                            <a href="https://www.google.com/search?q=google+authenticator" target="_blank" className="text-blue-500 hover:underline">
+                                Google Authenticator
+                            </a>
+                            ,{" "}
+                            <a href="https://www.google.com/search?q=google+authenticator" target="_blank" className="text-blue-500 hover:underline">
+                                Microsoft Authenticator
+                            </a>{" "}
+                            {t`or`}{" "}
+                            <a href="https://www.google.com/search?q=google+authenticator" target="_blank" className="text-blue-500 hover:underline">
+                                Authy
+                            </a>
+                            , {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
+                        </div>
+                        <QRCode className={cn("shadow-xs mx-auto border", classNames?.qrCode)} value={totpURI} />
+
+                        {totpSecret && (
+                            <div className="max-w-sm space-y-2">
+                                <p className="text-muted-foreground text-center text-sm">
+                                    {t`Scan not working? Copy this code key and enter it manually in your authentication app.`}
+                                </p>
+                                <div className="bg-muted/50 flex items-center justify-center gap-2 rounded-md border p-3">
+                                    <code className="break-all font-mono text-sm">{totpSecret}</code>
+                                    <CopyButton textToCopy={totpSecret} />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -179,22 +223,24 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                                     <div className="flex items-center justify-between">
                                         <field.FormLabel className={classNames?.label}>{t`One-time password`}</field.FormLabel>
 
-                                        <Link
-                                            className={cn("text-sm hover:underline", classNames?.forgotPasswordLink)}
-                                            href={`${basePath}/${viewPaths.RECOVER_ACCOUNT}${isHydrated ? window.location.search : ""}`}
-                                        >
-                                            {t`Forgot authenticator`}
-                                        </Link>
+                                        {!hideForgotAuthenticator && (
+                                            <Link
+                                                className={cn("text-sm hover:underline", classNames?.forgotPasswordLink)}
+                                                href={`${basePath}/${viewPaths.RECOVER_ACCOUNT}${isHydrated ? window.location.search : ""}`}
+                                            >
+                                                {t`Forgot authenticator`}
+                                            </Link>
+                                        )}
                                     </div>
 
                                     <field.FormControl>
                                         <InputOTP
-                                            maxLength={6}
+                                            maxLength={digits}
                                             value={field.state.value}
                                             onChange={(value) => {
                                                 field.handleChange(value);
 
-                                                if (value.length === 6) {
+                                                if (value.length === digits) {
                                                     form.handleSubmit();
                                                 }
                                             }}

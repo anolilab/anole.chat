@@ -5,12 +5,13 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useContext, useEffect } from "react";
 import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { useSearch } from "@tanstack/react-router";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { useIsHydrated } from "../../../hooks/use-hydrated";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import { getLocalizedError, getSearchParam } from "../../../lib/utils";
+import { getLocalizedError } from "../../../lib/utils";
 import { Captcha } from "../../captcha/captcha";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
@@ -37,9 +38,11 @@ export function MagicLinkForm({
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
-    const { authClient, basePath, baseURL, persistClient, viewPaths, toast } = useContext(AuthUIContext);
+    const { authClient, basePath, baseURL, persistClient, redirectTo: contextRedirectTo, viewPaths, toast } = useContext(AuthUIContext);
 
-    const getRedirectTo = useCallback(() => redirectToProp || getSearchParam("redirectTo") || contextRedirectTo, [redirectToProp, contextRedirectTo]);
+    const search = useSearch({ strict: false });
+
+    const getRedirectTo = useCallback(() => redirectToProp || search.redirectTo || contextRedirectTo, [redirectToProp, search.redirectTo, contextRedirectTo]);
 
     const getCallbackURL = useCallback(
         () => `${baseURL}${callbackURLProp || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,

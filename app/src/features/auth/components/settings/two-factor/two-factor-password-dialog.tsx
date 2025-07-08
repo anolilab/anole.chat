@@ -25,14 +25,7 @@ const formSchema = z.object({
 });
 
 export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorEnabled, ...props }: TwoFactorPasswordDialogProps) {
-    const {
-        authClient,
-        basePath,
-        viewPaths,
-        navigate,
-        toast,
-        twoFactor
-    } = useContext(AuthUIContext);
+    const { authClient, basePath, viewPaths, navigate, toast, twoFactor } = useContext(AuthUIContext);
     const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
     const [totpURI, setTotpURI] = useState<string | null>(null);
@@ -181,18 +174,19 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
                 </DialogContent>
             </Dialog>
 
-            <BackupCodesDialog open={showBackupCodesDialog} onOpenChange={(open) => {
-                    setShowBackupCodesDialog(open)
+            <BackupCodesDialog
+                open={showBackupCodesDialog}
+                onOpenChange={(open) => {
+                    setShowBackupCodesDialog(open);
 
                     if (!open) {
-                        const url = `${basePath}/${viewPaths.TWO_FACTOR}`
-                        navigate(
-                            twoFactor?.includes("totp") && totpURI
-                                ? `${url}?totpURI=${totpURI}`
-                                : url
-                        )
+                        const url = `${basePath}/${viewPaths.TWO_FACTOR}`;
+                        navigate(twoFactor?.includes("totp") && totpURI ? `${url}?totpURI=${totpURI}&hideForgotAuthenticator=true` : url);
                     }
-                }} backupCodes={backupCodes} classNames={classNames} />
+                }}
+                backupCodes={backupCodes}
+                classNames={classNames}
+            />
         </>
     );
 }

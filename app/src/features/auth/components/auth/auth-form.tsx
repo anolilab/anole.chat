@@ -50,8 +50,6 @@ export function AuthForm({ className, classNames, callbackURL, isSubmitting, red
 
     const signUpEnabled = !!signUp;
 
-    view = view || "SIGN_IN";
-
     // Redirect to appropriate view based on enabled features
     useEffect(() => {
         let isInvalidView = false;

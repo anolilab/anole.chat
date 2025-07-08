@@ -3,11 +3,12 @@
 import { CheckIcon, Loader2, XIcon } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { t } from "@lingui/core/macro";
+import { useSearch } from "@tanstack/react-router";
 
 import { useAuthenticate } from "../../hooks/use-authenticate";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import { getLocalizedError, getSearchParam } from "../../lib/utils";
+import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,9 +30,10 @@ export function AcceptInvitationCard({ className, classNames }: AcceptInvitation
 
     const { data: sessionData } = useSession();
     const [invitationId, setInvitationId] = useState<string | null>(null);
+    const search = useSearch({ strict: false }) as any;
 
     useEffect(() => {
-        const invitationIdParam = getSearchParam("invitationId");
+        const invitationIdParam = search?.invitationId;
 
         if (!invitationIdParam) {
             toast({
@@ -44,7 +46,7 @@ export function AcceptInvitationCard({ className, classNames }: AcceptInvitation
         }
 
         setInvitationId(invitationIdParam);
-    }, [toast, replace, redirectTo]);
+    }, [search?.invitationId, toast, replace, redirectTo]);
 
     // If session is not loaded yet, use authenticate hook to check
     useAuthenticate();

@@ -1,7 +1,4 @@
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
-import type { PasswordValidation } from "../types/form-validation-types";
-import type { AuthView, AuthViewPaths } from "./auth-view-paths";
 
 export function isValidEmail(email: string) {
     const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -19,11 +16,7 @@ export function errorCodeToCamelCase(errorCode: string): string {
 /**
  * Gets a localized error message from an error object
  */
-export function getLocalizedError({
-    error,
-}: {
-    error: any;
-}) {
+export function getLocalizedError({ error }: { error: any }) {
     // Handle string error codes directly
     if (typeof error === "string") {
         return getErrorTranslation(error);
@@ -383,10 +376,6 @@ function getErrorTranslation(errorCode: string): string {
         default:
             return t`Request failed`;
     }
-}
-
-export function getSearchParam(paramName: string) {
-    return typeof window !== "undefined" ? new URLSearchParams(window.location.search).get(paramName) : null;
 }
 
 export function getKeyByValue<T extends Record<string, unknown>>(object: T, value?: T[keyof T]): keyof T | undefined {

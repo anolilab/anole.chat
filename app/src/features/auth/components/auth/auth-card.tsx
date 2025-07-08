@@ -68,18 +68,16 @@ export function AuthCard({
     cardHeader,
     redirectTo,
     socialLayout = "auto",
-    view,
+    view = "SIGN_IN",
     otpSeparators = 0,
 }: AuthCardProps) {
     const isHydrated = useIsHydrated();
 
     const { basePath, credentials, magicLink, emailOTP, oneTap, passkey, signUp, social, genericOAuth, viewPaths, Link } = useContext(AuthUIContext);
-
+    console.log(passkey);
     if (socialLayout === "auto") {
         socialLayout = !credentials ? "vertical" : social?.providers && social.providers.length > 2 ? "horizontal" : "vertical";
     }
-
-    view = view || "SIGN_IN";
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -102,7 +100,7 @@ export function AuthCard({
     if (view === "ACCEPT_INVITATION") return <AcceptInvitationCard className={className} classNames={classNames} />;
 
     const getCardContent = () => {
-        switch (view || path) {
+        switch (view) {
             case "SIGN_IN":
                 return {
                     title: t`Sign In`,
@@ -179,6 +177,7 @@ export function AuthCard({
                             otpSeparators={otpSeparators}
                             redirectTo={redirectTo}
                             setIsSubmitting={setIsSubmitting}
+                            view={view}
                         />
 
                         {magicLink &&
