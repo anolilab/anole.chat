@@ -1,90 +1,86 @@
 "use client";
 
-import { MoreHorizontalIcon, SmartphoneIcon, TabletIcon, MonitorIcon } from "lucide-react";
-import { useState } from "react";
+import { FingerprintIcon, Loader2 } from "lucide-react";
+import { useContext, useState } from "react";
 import { t } from "@lingui/core/macro";
 
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Card } from "@/components/ui/card";
+import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-interface PasskeyDevice {
-    id: string;
-    name: string;
-    type: "mobile" | "tablet" | "desktop";
-    createdAt: string;
-    lastUsed?: string;
-}
-
-interface PasskeyCellProps {
+export interface PasskeyCellProps {
+    className?: string;
     classNames?: SettingsCardClassNames;
-
-    passkey: PasskeyDevice;
-    onDelete?: (passkeyId: string) => void;
+    passkey: { id: string; createdAt: Date };
 }
 
-function getDeviceIcon(type: PasskeyDevice["type"]) {
-    switch (type) {
-        case "mobile":
-            return SmartphoneIcon;
-        case "tablet":
-            return TabletIcon;
-        case "desktop":
-            return MonitorIcon;
-        default:
-            return MonitorIcon;
-    }
-}
+export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps) {
+    const {
+        freshAge,
+        hooks: { useSession, useListPasskeys },
+        mutators: { deletePasskey },
+        toast,
+    } = useContext(AuthUIContext);
 
-export function PasskeyCell({ classNames, passkey, onDelete }: PasskeyCellProps) {
-    const [isDeleting, setIsDeleting] = useState(false);
+    const { refetch } = useListPasskeys();
 
-    const DeviceIcon = getDeviceIcon(passkey.type);
-    const createdDate = new Date(passkey.createdAt).toLocaleDateString();
-    const lastUsedDate = passkey.lastUsed ? new Date(passkey.lastUsed).toLocaleDateString() : null;
+    const { data: sessionData } = useSession();
+    const session = sessionData?.session;
+    const isFresh = session ? Date.now() - session?.createdAt.getTime() < freshAge * 1000 : false;
 
-    const handleDelete = async () => {
-        if (!onDelete) return;
+    const [showFreshnessDialog, setShowFreshnessDialog] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-        setIsDeleting(true);
+    const handleDeletePasskey = async () => {
+        // If session isn't fresh, show the freshness dialog
+        if (!isFresh) {
+            setShowFreshnessDialog(true);
+            return;
+        }
+
+        setIsLoading(true);
+
         try {
-            await onDelete(passkey.id);
-        } finally {
-            setIsDeleting(false);
+            await deletePasskey({ id: passkey.id });
+            refetch?.();
+        } catch (error) {
+            setIsLoading(false);
+
+            toast({
+                variant: "error",
+                message: t`Failed to delete passkey`,
+            });
         }
     };
 
     return (
-        <div className={cn("flex items-center justify-between rounded-lg border p-4", classNames?.content)}>
-            <div className="flex items-center gap-3">
-                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                    <DeviceIcon className="h-5 w-5" />
+        <>
+            <SessionFreshnessDialog 
+                open={showFreshnessDialog} 
+                onOpenChange={setShowFreshnessDialog} 
+                classNames={classNames} 
+            />
+
+            <Card className={cn("flex-row items-center p-4", className, classNames?.cell)}>
+                <div className="flex items-center gap-3">
+                    <FingerprintIcon className={cn("size-4", classNames?.icon)} />
+                    <span className="text-sm">{passkey.createdAt.toLocaleString()}</span>
                 </div>
 
-                <div className="flex flex-col">
-                    <div className="font-medium">{passkey.name}</div>
-                    <div className="text-muted-foreground text-sm">
-                        {t`Created on ${createdDate}`}
-                        {lastUsedDate && ` • ${t`Last used ${lastUsedDate}`}`}
-                    </div>
-                </div>
-            </div>
-
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
-                        <MoreHorizontalIcon className="h-4 w-4" />
-                        <span className="sr-only">{t`More options`}</span>
-                    </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleDelete} disabled={isDeleting} className="text-destructive">
-                        {isDeleting ? t`Deleting...` : t`Delete`}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+                <Button
+                    className={cn("relative ms-auto", classNames?.button, classNames?.outlineButton)}
+                    disabled={isLoading}
+                    size="sm"
+                    variant="outline"
+                    onClick={handleDeletePasskey}
+                >
+                    {isLoading && <Loader2 className="animate-spin" />}
+                    {t`Delete`}
+                </Button>
+            </Card>
+        </>
     );
 }

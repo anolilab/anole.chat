@@ -1,49 +1,100 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
-import { type ComponentProps } from "react";
+import { useContext, useState } from "react";
 import { t } from "@lingui/core/macro";
 
-import { PasskeyCell } from "./passkey-cell";
+import { AuthUIContext } from "../../../lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+import { CardContent } from "@/components/ui/card";
+import { useAppForm } from "@/components/ui/form";
+import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
 import { SettingsCard } from "../shared/settings-card";
-import { Button } from "@/components/ui/button";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { PasskeyCell } from "./passkey-cell";
 
-interface PasskeyDevice {
-    id: string;
-    name: string;
-    type: "mobile" | "tablet" | "desktop";
-    createdAt: string;
-    lastUsed?: string;
+export interface PasskeysCardProps {
+    className?: string;
+    classNames?: SettingsCardClassNames;
 }
 
-export interface PasskeysCardProps extends ComponentProps<typeof SettingsCard> {
-    passkeys?: PasskeyDevice[];
-    onAddPasskey?: () => void;
-    onDeletePasskey?: (passkeyId: string) => void;
-}
+export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
+    const {
+        authClient,
+        freshAge,
+        hooks: { useListPasskeys, useSession },
+        toast,
+    } = useContext(AuthUIContext);
 
-export function PasskeysCard({ passkeys = [], onAddPasskey, onDeletePasskey, ...props }: PasskeysCardProps) {
-    return (
-        <SettingsCard
-            {...props}
-            header={t`Passkeys`}
-            description={t`Passkeys allow you to sign in securely using your device's biometric authentication or security key.`}
-            footer={
-                <Button variant="outline" onClick={onAddPasskey} className="w-fit">
-                    <PlusIcon />
-                    {t`Add Passkey`}
-                </Button>
+    const { data: passkeys, isPending, refetch } = useListPasskeys();
+
+    const { data: sessionData } = useSession();
+    const session = sessionData?.session;
+    const isFresh = session ? Date.now() - session?.createdAt.getTime() < freshAge * 1000 : false;
+
+    const [showFreshnessDialog, setShowFreshnessDialog] = useState(false);
+
+    const form = useAppForm({
+        defaultValues: {},
+        onSubmit: async () => {
+            // If session isn't fresh, show the freshness dialog
+            if (!isFresh) {
+                setShowFreshnessDialog(true);
+                return;
             }
-        >
-            {passkeys.length > 0 ? (
-                <div className="space-y-2">
-                    {passkeys.map((passkey) => (
-                        <PasskeyCell key={passkey.id} passkey={passkey} onDelete={onDeletePasskey} />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-muted-foreground py-8 text-center text-sm">{t`No passkeys found. Add one to enable passwordless sign-in.`}</div>
-            )}
-        </SettingsCard>
+
+            try {
+                await authClient.passkey.addPasskey({
+                    fetchOptions: { throw: true },
+                });
+                await refetch?.();
+            } catch (error) {
+                toast({
+                    variant: "error",
+                    message: t`Failed to add passkey`,
+                });
+            }
+        },
+    });
+
+    return (
+        <>
+            <SessionFreshnessDialog 
+                open={showFreshnessDialog} 
+                onOpenChange={setShowFreshnessDialog} 
+                classNames={classNames} 
+            />
+
+            <form.AppForm>
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        form.handleSubmit();
+                    }}
+                >
+                    <SettingsCard
+                        className={className}
+                        classNames={classNames}
+                        actionLabel={t`Add Passkey`}
+                        description={t`Passkeys allow you to sign in securely using your device's biometric authentication or security key.`}
+                        instructions={t`Click the button below to register a new passkey with your device.`}
+                        isPending={isPending}
+                        title={t`Passkeys`}
+                    >
+                        {passkeys && passkeys.length > 0 && (
+                            <CardContent className={cn("grid gap-4", classNames?.content)}>
+                                {passkeys?.map((passkey) => (
+                                    <PasskeyCell 
+                                        key={passkey.id} 
+                                        classNames={classNames} 
+                                        passkey={passkey} 
+                                    />
+                                ))}
+                            </CardContent>
+                        )}
+                    </SettingsCard>
+                </form>
+            </form.AppForm>
+        </>
     );
 }

@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { ApiKeyDeleteDialog } from "./api-key-delete-dialog";
 import { i18n } from "@lingui/core";
+import { DEFAULT_LOCALE } from "@/lib/intl/client";
 
 export interface APIKeyCellProps {
     className?: string;
@@ -29,7 +30,7 @@ export function APIKeyCell({ className, classNames, apiKey, refetch }: APIKeyCel
         if (!apiKey.expiresAt) return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
-        return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale, {
+        return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale ?? DEFAULT_LOCALE, {
             month: "short",
             day: "numeric",
             year: "numeric",

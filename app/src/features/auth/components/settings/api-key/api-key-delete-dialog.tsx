@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { i18n } from "@lingui/core";
+import { DEFAULT_LOCALE } from "@/lib/intl/client";
 
 interface ApiKeyDeleteDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
@@ -52,7 +53,7 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, 
         if (!apiKey.expiresAt) return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
-        return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale, {
+        return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale ?? DEFAULT_LOCALE, {
             month: "short",
             day: "numeric",
             year: "numeric",

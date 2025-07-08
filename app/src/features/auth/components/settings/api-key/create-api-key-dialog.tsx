@@ -15,6 +15,7 @@ import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { SettingsCardClassNames } from "../shared/settings-card";
+import { DEFAULT_LOCALE } from "@/lib/intl/client";
 
 interface CreateAPIKeyDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
@@ -63,7 +64,7 @@ export function CreateAPIKeyDialog({ classNames, onSuccess, refetch, onOpenChang
         },
     });
 
-    const rtf = new Intl.RelativeTimeFormat(i18n.locale ?? "en");
+    const rtf = new Intl.RelativeTimeFormat(i18n.locale ?? DEFAULT_LOCALE);
 
     return (
         <Dialog onOpenChange={onOpenChange} {...props}>
