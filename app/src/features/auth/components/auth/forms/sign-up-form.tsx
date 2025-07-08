@@ -23,7 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UserAvatar } from "../../user-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { AuthFormClassNames } from "../auth-form";
 
 export interface SignUpFormProps {
@@ -400,19 +400,10 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                                                             email: state.values.email || "",
                                                         })}
                                                         children={({ name, email }) => (
-                                                            <UserAvatar
-                                                                isPending={uploadingAvatar}
-                                                                className="size-16"
-                                                                user={
-                                                                    avatarImage
-                                                                        ? {
-                                                                              name,
-                                                                              email,
-                                                                              image: avatarImage,
-                                                                          }
-                                                                        : null
-                                                                }
-                                                            />
+                                                            <Avatar className="size-16">
+                                                                {avatarImage && <AvatarImage src={avatarImage} alt={name || "User"} />}
+                                                                <AvatarFallback className="rounded-lg">{name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                                                            </Avatar>
                                                         )}
                                                     />
                                                 </Button>

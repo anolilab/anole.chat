@@ -4,13 +4,11 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import type { UserAvatarClassNames } from "../../user-avatar";
 import { SettingsCardFooter } from "./settings-card-footer";
 import { SettingsCardHeader } from "./settings-card-header";
 
 export type SettingsCardClassNames = {
     base?: string;
-    avatar?: UserAvatarClassNames;
     button?: string;
     cell?: string;
     checkbox?: string;

@@ -11,7 +11,7 @@ import { getLocalizedError } from "../../../lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { UserAvatar } from "../../user-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { SettingsCardFooter } from "../shared/settings-card-footer";
 import { SettingsCardHeader } from "../shared/settings-card-header";
@@ -116,13 +116,10 @@ export function UpdateAvatarCard({ className, classNames, ...props }: UpdateAvat
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button className="me-6 size-fit rounded-full" size="icon" variant="ghost">
-                            <UserAvatar
-                                isPending={isPending || loading}
-                                key={sessionData?.user.image}
-                                className="size-20 text-2xl"
-                                classNames={classNames?.avatar}
-                                user={sessionData?.user}
-                            />
+                            <Avatar className="size-20 text-2xl">
+                                {sessionData?.user.image && <AvatarImage src={sessionData.user.image} alt={sessionData?.user.name || "User"} />}
+                                <AvatarFallback className="rounded-lg">{sessionData?.user.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                            </Avatar>
                         </Button>
                     </DropdownMenuTrigger>
 

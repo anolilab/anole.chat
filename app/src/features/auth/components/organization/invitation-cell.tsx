@@ -12,7 +12,7 @@ import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { UserAvatar } from "../user-avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export interface InvitationCellProps {
     className?: string;
@@ -69,7 +69,9 @@ export function InvitationCell({ className, classNames, invitation }: Invitation
     return (
         <Card className={cn("flex-row items-center p-4", className, classNames?.cell)}>
             <div className="flex flex-1 items-center gap-2">
-                <UserAvatar className="my-0.5" user={{ email: invitation.email }} />
+                <Avatar className="my-0.5 h-8 w-8 rounded-lg">
+                    <AvatarFallback className="rounded-lg">{invitation.email?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                </Avatar>
 
                 <div className="grid flex-1 text-left leading-tight">
                     <span className="truncate text-sm font-semibold">{invitation.email}</span>

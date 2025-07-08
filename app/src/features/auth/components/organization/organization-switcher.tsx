@@ -10,10 +10,9 @@ import { cn } from "@/lib/utils";
 import type { User } from "../../types/auth-core-types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { UserAvatar, type UserAvatarClassNames } from "../user-avatar";
-import type { UserViewClassNames } from "../user-view";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CreateOrganizationDialog } from "./create-organization-dialog";
-import { OrganizationLogo } from "./organization-logo";
+import { OrganizationLogo, type OrganizationLogoClassNames } from "./organization-logo";
 import { OrganizationView, type OrganizationViewClassNames } from "./organization-view";
 import { PersonalAccountView } from "./personal-account-view";
 
@@ -22,16 +21,16 @@ export interface OrganizationSwitcherClassNames {
     skeleton?: string;
     trigger?: {
         base?: string;
-        avatar?: UserAvatarClassNames;
-        user?: UserViewClassNames;
+        avatar?: OrganizationLogoClassNames;
+        user?: string;
         organization?: OrganizationViewClassNames;
         skeleton?: string;
     };
     content?: {
         base?: string;
-        user?: UserViewClassNames;
+        user?: string;
         organization?: OrganizationViewClassNames;
-        avatar?: UserAvatarClassNames;
+        avatar?: string;
         menuItem?: string;
         separator?: string;
     };
@@ -165,14 +164,10 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                                         aria-label={t`Organization`}
                                     />
                                 ) : (
-                                    <UserAvatar
-                                        key={user?.image}
-                                        className={cn(className, classNames?.base)}
-                                        classNames={classNames?.trigger?.avatar}
-                                        isPending={isPending}
-                                        user={user}
-                                        aria-label={t`Account`}
-                                    />
+                                    <Avatar className={cn(className, classNames?.base)}>
+                                        {user?.image && <AvatarImage src={user.image} alt={user?.name || "User"} />}
+                                        <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                                    </Avatar>
                                 )}
                             </Button>
                         ) : (

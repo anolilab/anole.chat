@@ -4,7 +4,7 @@ import { t } from "@lingui/core/macro";
 
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserAvatar } from "../user-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { UserViewProps } from "../user-view";
 
 /**
@@ -17,10 +17,14 @@ import type { UserViewProps } from "../user-view";
  * - Always shows "Personal Account" as subtitle for default and lg sizes
  * - Supports customization through classNames prop
  */
+// TODO: check this classNames
 export function PersonalAccountView({ className, classNames, isPending, size, user }: UserViewProps) {
     return (
         <div className={cn("flex items-center gap-2", className, classNames?.base)}>
-            <UserAvatar className={cn(size !== "sm" && "my-0.5")} classNames={classNames?.avatar} isPending={isPending} size={size} user={user} />
+            <Avatar className="h-8 w-8 rounded-lg">
+                {user?.image && <AvatarImage src={user.image} alt={user?.name || "User"} />}
+                <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+            </Avatar>
 
             <div className={cn("grid flex-1 text-left leading-tight", classNames?.content)}>
                 {isPending ? (
