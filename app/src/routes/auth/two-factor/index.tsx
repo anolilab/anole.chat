@@ -7,6 +7,6 @@ export const Route = createFileRoute("/auth/two-factor/")({
 
 function RouteComponent() {
     return (
-        <AuthCard pathname="two-factor" />
+        <AuthCard view="TWO_FACTOR" />
     );
 }
