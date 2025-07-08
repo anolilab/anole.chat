@@ -2,12 +2,12 @@
 
 import { Loader2 } from "lucide-react";
 import { useContext, useEffect, useRef } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import { getLocalizedError, getPasswordSchema } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
+import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { PasswordInput } from "../../password-input";
 import { Button } from "@/components/ui/button";
@@ -17,40 +17,68 @@ import type { AuthFormClassNames } from "../auth-form";
 export interface ResetPasswordFormProps {
     className?: string;
     classNames?: AuthFormClassNames;
-    localization: Partial<AuthLocalization>;
     passwordValidation?: PasswordValidation;
 }
 
-export function ResetPasswordForm({ className, classNames, localization, passwordValidation }: ResetPasswordFormProps) {
+export function ResetPasswordForm({ className, classNames, passwordValidation }: ResetPasswordFormProps) {
     const tokenChecked = useRef(false);
 
-    const { authClient, basePath, credentials, localization: contextLocalization, viewPaths, navigate, toast } = useContext(AuthUIContext);
+    const { authClient, basePath, credentials, viewPaths, navigate, toast } = useContext(AuthUIContext);
 
     const confirmPasswordEnabled = credentials?.confirmPassword;
     const contextPasswordValidation = credentials?.passwordValidation;
 
-    localization = { ...contextLocalization, ...localization };
     passwordValidation = { ...contextPasswordValidation, ...passwordValidation };
 
     const formSchema = z
         .object({
-            newPassword: getPasswordSchema(passwordValidation, {
-                PASSWORD_REQUIRED: localization.NEW_PASSWORD_REQUIRED,
-                PASSWORD_TOO_SHORT: localization.PASSWORD_TOO_SHORT,
-                PASSWORD_TOO_LONG: localization.PASSWORD_TOO_LONG,
-                INVALID_PASSWORD: localization.INVALID_PASSWORD,
-            }),
+            newPassword: (() => {
+                let schema = z.string().min(1, {
+                    message: t`New password is required`,
+                });
+                if (passwordValidation?.minLength) {
+                    schema = schema.min(passwordValidation.minLength, {
+                        message: t`Password is too short`,
+                    });
+                }
+                if (passwordValidation?.maxLength) {
+                    schema = schema.max(passwordValidation.maxLength, {
+                        message: t`Password is too long`,
+                    });
+                }
+                if (passwordValidation?.regex) {
+                    schema = schema.regex(passwordValidation.regex, {
+                        message: t`Invalid password`,
+                    });
+                }
+                return schema;
+            })(),
             confirmPassword: confirmPasswordEnabled
-                ? getPasswordSchema(passwordValidation, {
-                      PASSWORD_REQUIRED: localization.CONFIRM_PASSWORD_REQUIRED,
-                      PASSWORD_TOO_SHORT: localization.PASSWORD_TOO_SHORT,
-                      PASSWORD_TOO_LONG: localization.PASSWORD_TOO_LONG,
-                      INVALID_PASSWORD: localization.INVALID_PASSWORD,
-                  })
+                ? (() => {
+                      let schema = z.string().min(1, {
+                          message: t`Confirm password is required`,
+                      });
+                      if (passwordValidation?.minLength) {
+                          schema = schema.min(passwordValidation.minLength, {
+                              message: t`Password is too short`,
+                          });
+                      }
+                      if (passwordValidation?.maxLength) {
+                          schema = schema.max(passwordValidation.maxLength, {
+                              message: t`Password is too long`,
+                          });
+                      }
+                      if (passwordValidation?.regex) {
+                          schema = schema.regex(passwordValidation.regex, {
+                              message: t`Invalid password`,
+                          });
+                      }
+                      return schema;
+                  })()
                 : z.string().optional(),
         })
         .refine((data) => !confirmPasswordEnabled || data.newPassword === data.confirmPassword, {
-            message: localization.PASSWORDS_DO_NOT_MATCH,
+            message: t`Passwords do not match`,
             path: ["confirmPassword"],
         });
 
@@ -81,14 +109,14 @@ export function ResetPasswordForm({ className, classNames, localization, passwor
 
                 toast({
                     variant: "success",
-                    message: localization.RESET_PASSWORD_SUCCESS,
+                    message: t`Password reset successful`,
                 });
 
                 navigate(`${basePath}/${viewPaths.SIGN_IN}${window.location.search}`);
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
 
                 form.reset();
@@ -107,9 +135,9 @@ export function ResetPasswordForm({ className, classNames, localization, passwor
 
         if (!token || token === "INVALID_TOKEN") {
             navigate(`${basePath}/${viewPaths.SIGN_IN}${window.location.search}`);
-            toast({ variant: "error", message: localization.INVALID_TOKEN });
+            toast({ variant: "error", message: t`Invalid token` });
         }
-    }, [basePath, navigate, toast, viewPaths, localization]);
+    }, [basePath, navigate, toast, viewPaths]);
 
     return (
         <form.AppForm>
@@ -125,13 +153,13 @@ export function ResetPasswordForm({ className, classNames, localization, passwor
                     name="newPassword"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.NEW_PASSWORD}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`New password`}</field.FormLabel>
 
                             <field.FormControl>
                                 <PasswordInput
                                     autoComplete="new-password"
                                     className={classNames?.input}
-                                    placeholder={localization.NEW_PASSWORD_PLACEHOLDER}
+                                    placeholder={t`Enter new password`}
                                     disabled={isSubmitting}
                                     value={field.state.value}
                                     onBlur={field.handleBlur}
@@ -149,13 +177,13 @@ export function ResetPasswordForm({ className, classNames, localization, passwor
                         name="confirmPassword"
                         children={(field) => (
                             <field.FormItem>
-                                <field.FormLabel className={classNames?.label}>{localization.CONFIRM_PASSWORD}</field.FormLabel>
+                                <field.FormLabel className={classNames?.label}>{t`Confirm password`}</field.FormLabel>
 
                                 <field.FormControl>
                                     <PasswordInput
                                         autoComplete="new-password"
                                         className={classNames?.input}
-                                        placeholder={localization.CONFIRM_PASSWORD_PLACEHOLDER}
+                                        placeholder={t`Confirm new password`}
                                         disabled={isSubmitting}
                                         value={field.state.value}
                                         onBlur={field.handleBlur}
@@ -173,7 +201,7 @@ export function ResetPasswordForm({ className, classNames, localization, passwor
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isSubmitting]) => (
                         <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn(classNames?.button, classNames?.primaryButton)}>
-                            {isSubmitting ? <Loader2 className="animate-spin" /> : localization.RESET_PASSWORD_ACTION}
+                            {isSubmitting ? <Loader2 className="animate-spin" /> : t`Reset password`}
                         </Button>
                     )}
                 />

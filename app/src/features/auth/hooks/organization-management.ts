@@ -1,5 +1,6 @@
 import type { AnyUseQueryOptions } from "@tanstack/react-query";
-import type { AnyAuthClient, AuthClient } from "../types/auth-core-types";
+import type { AnyAuthClient } from "../types/auth-core-types";
+import type { AuthClient } from "@/lib/auth/client";
 import { useAuthQuery } from "./shared/use-auth-query";
 
 // Active Organization Hook

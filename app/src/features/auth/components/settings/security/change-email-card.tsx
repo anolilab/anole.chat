@@ -1,9 +1,9 @@
 "use client";
 
 import { useContext, useState } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
+import { t } from "@lingui/core/macro";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
 import { CardContent } from "@/components/ui/card";
 import { useAppForm } from "@/components/ui/form";
@@ -13,19 +13,19 @@ import { SettingsCard } from "../shared/settings-card";
 import type { SettingsCardProps } from "../shared/settings-card";
 
 const formSchema = z.object({
-    email: z.string().min(1, { message: "Email is required" }).email({ message: "Invalid email" }),
+    email: z
+        .string()
+        .min(1, { message: t`Email is required` })
+        .email({ message: t`Invalid email` }),
 });
 
-export function ChangeEmailCard({ className, classNames, localization, ...props }: SettingsCardProps) {
+export function ChangeEmailCard({ className, classNames, ...props }: SettingsCardProps) {
     const {
         authClient,
         emailVerification,
         hooks: { useSession },
-        localization: contextLocalization,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { data: sessionData, isPending, refetch } = useSession();
     const [resendDisabled, setResendDisabled] = useState(false);
@@ -48,7 +48,7 @@ export function ChangeEmailCard({ className, classNames, localization, ...props 
                 await new Promise((resolve) => setTimeout(resolve));
                 toast({
                     variant: "error",
-                    message: localization.EMAIL_IS_THE_SAME,
+                    message: t`Email is the same`,
                 });
                 return;
             }
@@ -63,19 +63,19 @@ export function ChangeEmailCard({ className, classNames, localization, ...props 
                 if (sessionData?.user.emailVerified) {
                     toast({
                         variant: "success",
-                        message: localization.EMAIL_VERIFY_CHANGE!,
+                        message: t`Please verify your new email address`,
                     });
                 } else {
                     await refetch?.();
                     toast({
                         variant: "success",
-                        message: `${localization.EMAIL} ${localization.UPDATED_SUCCESSFULLY}`,
+                        message: t`Email updated successfully`,
                     });
                 }
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: t`Failed to update email address`,
                 });
             }
         },
@@ -97,12 +97,12 @@ export function ChangeEmailCard({ className, classNames, localization, ...props 
 
                 toast({
                     variant: "success",
-                    message: localization.EMAIL_VERIFICATION!,
+                    message: t`Verification email sent`,
                 });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: t`Failed to send verification email`,
                 });
                 setResendDisabled(false);
                 throw error;
@@ -126,11 +126,11 @@ export function ChangeEmailCard({ className, classNames, localization, ...props 
                     <SettingsCard
                         className={className}
                         classNames={classNames}
-                        description={localization.EMAIL_DESCRIPTION}
-                        instructions={localization.EMAIL_INSTRUCTIONS}
+                        description={t`Update your account email address`}
+                        instructions={t`Enter your new email address below`}
                         isPending={isPending}
-                        title={localization.EMAIL}
-                        actionLabel={localization.SAVE}
+                        title={t`Email Address`}
+                        actionLabel={t`Save`}
                         {...props}
                     >
                         <CardContent className={classNames?.content}>
@@ -144,7 +144,7 @@ export function ChangeEmailCard({ className, classNames, localization, ...props 
                                             <field.FormControl>
                                                 <Input
                                                     className={classNames?.input}
-                                                    placeholder={localization.EMAIL_PLACEHOLDER}
+                                                    placeholder={t`Enter your email address`}
                                                     type="email"
                                                     autoComplete="email"
                                                     disabled={isSubmitting}
@@ -176,9 +176,9 @@ export function ChangeEmailCard({ className, classNames, localization, ...props 
                         <SettingsCard
                             className={className}
                             classNames={classNames}
-                            title={localization.VERIFY_YOUR_EMAIL}
-                            description={localization.VERIFY_YOUR_EMAIL_DESCRIPTION}
-                            actionLabel={localization.RESEND_VERIFICATION_EMAIL}
+                            title={t`Verify Your Email`}
+                            description={t`Please check your email and click the verification link`}
+                            actionLabel={t`Resend Verification Email`}
                             disabled={resendDisabled}
                             {...props}
                         />

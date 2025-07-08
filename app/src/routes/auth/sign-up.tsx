@@ -6,9 +6,5 @@ export const Route = createFileRoute("/auth/sign-up")({
 });
 
 function RouteComponent() {
-    return (
-        <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center p-2 md:p-6">
-            <AuthCard pathname="sign-up" />
-        </div>
-    );
+    return (<AuthCard view="SIGN_UP" />);
 }

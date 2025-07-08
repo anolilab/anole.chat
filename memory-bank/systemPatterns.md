@@ -356,6 +356,115 @@ This architecture provides a robust, high-performance foundation for AI chat wit
 - **Error Boundaries**: Hierarchical error handling with recovery mechanisms
 - **Loading States**: Comprehensive loading indicators for all async operations
 
+## UI Component Patterns
+
+### Form System with Enhanced Validation
+
+The project uses an enhanced form system built on TanStack Form with comprehensive validation and accessibility features:
+
+**Form Component Architecture** (`app/src/components/ui/form.tsx`):
+
+```typescript
+// Enhanced FormItem with required prop support
+interface FormItemProps extends React.ComponentProps<"div"> {
+    required?: boolean;
+}
+
+// FormLabel with automatic required indicators
+interface FormLabelProps extends React.ComponentProps<typeof Label> {
+    required?: boolean;
+}
+
+// Context-based requirement propagation
+const FormItemContext = React.createContext<{
+    id: string;
+    required?: boolean;
+}>({} as FormItemContextValue);
+```
+
+**Key Features**:
+
+- **Required Field Indicators**: Automatic visual indicators (*) for required fields
+- **Context Propagation**: Required state flows through form hierarchy automatically
+- **Accessibility**: Proper ARIA attributes (`aria-required`, `aria-invalid`)
+- **Error Display**: Integrated error message display with internationalization
+- **Type Safety**: Full TypeScript support with proper prop interfaces
+
+**Usage Patterns**:
+
+```typescript
+// Method 1: Set required on FormItem (propagates to children)
+<form.AppField name="email">
+    {(field) => (
+        <field.FormItem required>
+            <field.FormLabel>{t`Email`}</field.FormLabel>
+            <field.FormControl>
+                <Input {...field.props} />
+            </field.FormControl>
+        </field.FormItem>
+    )}
+</form.AppField>
+
+// Method 2: Set required directly on FormLabel
+<field.FormLabel required>{t`Password`}</field.FormLabel>
+```
+
+### Authentication Component Patterns
+
+**Internationalization with @lingui/core/macro**:
+
+All authentication components follow consistent patterns for internationalization:
+
+```typescript
+// Standard import pattern
+import { t } from "@lingui/core/macro";
+
+// Template literal usage for all user-facing text
+const errorMessage = t`Failed to create API key`;
+const buttonText = t`Create API Key`;
+
+// Form validation with internationalized messages
+const formSchema = z.object({
+    name: z.string().trim().min(1, t`Name is required`),
+});
+```
+
+**Component Interface Patterns**:
+
+```typescript
+// Clean interfaces without localization props
+export interface ComponentProps {
+    className?: string;
+    classNames?: SettingsCardClassNames;
+    // No localization prop needed
+}
+
+// Error handling with direct translations
+catch (error) {
+    toast({
+        variant: "error",
+        message: t`Operation failed`,
+    });
+}
+```
+
+**Auth Context Integration**:
+
+```typescript
+// Standard auth context usage
+const {
+    authClient,
+    hooks: { useSession, useListPasskeys },
+    mutators: { deletePasskey },
+    toast,
+} = useContext(AuthUIContext);
+
+// Session freshness checking
+const isFresh = session 
+    ? Date.now() - session?.createdAt.getTime() < freshAge * 1000 
+    : false;
+```
+
 ## Advanced Feature Patterns
 
 ### Thread Management System

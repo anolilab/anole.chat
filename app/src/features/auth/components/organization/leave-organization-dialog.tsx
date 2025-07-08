@@ -3,11 +3,11 @@
 import type { Organization } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
 import { type ComponentProps, useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,26 +17,15 @@ import { OrganizationView } from "./organization-view";
 export interface LeaveOrganizationDialogProps extends ComponentProps<typeof Dialog> {
     className?: string;
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
     organization: Organization;
 }
 
-export function LeaveOrganizationDialog({
-    organization,
-    className,
-    classNames,
-    localization: localizationProp,
-    onOpenChange,
-    ...props
-}: LeaveOrganizationDialogProps) {
+export function LeaveOrganizationDialog({ organization, className, classNames, onOpenChange, ...props }: LeaveOrganizationDialogProps) {
     const {
         authClient,
         hooks: { useActiveOrganization, useListOrganizations },
-        localization: contextLocalization,
         toast,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -56,7 +45,7 @@ export function LeaveOrganizationDialog({
 
             toast({
                 variant: "success",
-                message: localization.LEAVE_ORGANIZATION_SUCCESS,
+                message: t`Left organization successfully`,
             });
 
             if (activeOrganization?.id === organization.id) {
@@ -69,7 +58,7 @@ export function LeaveOrganizationDialog({
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -80,15 +69,15 @@ export function LeaveOrganizationDialog({
         <Dialog onOpenChange={onOpenChange} {...props}>
             <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.LEAVE_ORGANIZATION}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Leave Organization`}</DialogTitle>
 
                     <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
-                        {localization.LEAVE_ORGANIZATION_CONFIRM}
+                        {t`Are you sure you want to leave this organization?`}
                     </DialogDescription>
                 </DialogHeader>
 
                 <Card className={cn("my-2 flex-row p-4", className, classNames?.cell)}>
-                    <OrganizationView organization={organization} localization={localization} />
+                    <OrganizationView organization={organization} />
                 </Card>
 
                 <DialogFooter className={classNames?.dialog?.footer}>
@@ -99,7 +88,7 @@ export function LeaveOrganizationDialog({
                         className={cn(classNames?.button, classNames?.outlineButton)}
                         disabled={isLeaving}
                     >
-                        {localization.CANCEL}
+                        {t`Cancel`}
                     </Button>
 
                     <Button
@@ -111,7 +100,7 @@ export function LeaveOrganizationDialog({
                     >
                         {isLeaving && <Loader2 className="animate-spin" />}
 
-                        {localization.LEAVE_ORGANIZATION}
+                        {t`Leave Organization`}
                     </Button>
                 </DialogFooter>
             </DialogContent>

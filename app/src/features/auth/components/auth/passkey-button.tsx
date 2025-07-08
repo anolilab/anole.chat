@@ -1,26 +1,23 @@
 import { FingerprintIcon } from "lucide-react";
 import { useContext } from "react";
+import { t } from "@lingui/core/macro";
 
 import { useOnSuccessTransition } from "../../hooks/use-success-transition";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import type { AuthCardClassNames } from "./auth-card";
 
 interface PasskeyButtonProps {
     classNames?: AuthCardClassNames;
     isSubmitting?: boolean;
-    localization: Partial<AuthLocalization>;
     redirectTo?: string;
     setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
-export function PasskeyButton({ classNames, isSubmitting, localization, redirectTo, setIsSubmitting }: PasskeyButtonProps) {
-    const { authClient, localization: contextLocalization, toast } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
+export function PasskeyButton({ classNames, isSubmitting, redirectTo, setIsSubmitting }: PasskeyButtonProps) {
+    const { authClient, toast } = useContext(AuthUIContext);
 
     const { onSuccess } = useOnSuccessTransition({ redirectTo });
 
@@ -37,7 +34,6 @@ export function PasskeyButton({ classNames, isSubmitting, localization, redirect
                     variant: "error",
                     message: getLocalizedError({
                         error: response.error,
-                        localization,
                     }),
                 });
 
@@ -48,7 +44,7 @@ export function PasskeyButton({ classNames, isSubmitting, localization, redirect
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
 
             setIsSubmitting?.(false);
@@ -66,7 +62,7 @@ export function PasskeyButton({ classNames, isSubmitting, localization, redirect
             onClick={signInPassKey}
         >
             <FingerprintIcon />
-            {localization.SIGN_IN_WITH} {localization.PASSKEY}
+            {t`Sign in with passkey`}
         </Button>
     );
 }

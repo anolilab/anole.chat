@@ -14,7 +14,6 @@ const handler = async (req: Request) => {
 
     return createMcpHandler(
         async (server) => {
-            // biome-ignore lint/complexity/noForEach: <explanation>
             tools.forEach((tool) => {
                 console.log("🌐 Registering tool", tool.name);
                 server.tool(tool.name, tool.description, tool.inputSchema ? tool.inputSchema.shape : {}, tool.callback);

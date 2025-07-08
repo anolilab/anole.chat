@@ -2,12 +2,12 @@
 
 import { Loader2 } from "lucide-react";
 import { type ComponentProps, useContext } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,39 +17,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export interface InviteMemberDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
 }
 
-export function InviteMemberDialog({ classNames, localization: localizationProp, onOpenChange, ...props }: InviteMemberDialogProps) {
+export function InviteMemberDialog({ classNames, onOpenChange, ...props }: InviteMemberDialogProps) {
     const {
         authClient,
         hooks: { useActiveOrganization, useSession },
-        localization: contextLocalization,
         toast,
         organization,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { data: sessionData } = useSession();
     const membership = activeOrganization?.members.find((m) => m.userId === sessionData?.user.id);
 
     const builtInRoles = [
-        { role: "owner", label: localization.OWNER },
-        { role: "admin", label: localization.ADMIN },
-        { role: "member", label: localization.MEMBER },
+        { role: "owner", label: t`Owner` },
+        { role: "admin", label: t`Admin` },
+        { role: "member", label: t`Member` },
     ] as const;
 
     const roles = [...builtInRoles, ...(organization?.customRoles || [])];
     const availableRoles = roles.filter((role) => membership?.role === "owner" || role.role !== "owner");
 
     const formSchema = z.object({
-        email: z.string().min(1, { message: localization.EMAIL_REQUIRED }).email({
-            message: localization.INVALID_EMAIL,
-        }),
+        email: z
+            .string()
+            .min(1, { message: t`Email is required` })
+            .email({
+                message: t`Invalid email`,
+            }),
         role: z.string().min(1, {
-            message: `${localization.ROLE} ${localization.IS_REQUIRED}`,
+            message: t`Role is required`,
         }),
     });
 
@@ -77,12 +76,12 @@ export function InviteMemberDialog({ classNames, localization: localizationProp,
 
                 toast({
                     variant: "success",
-                    message: localization.SEND_INVITATION_SUCCESS || "Invitation sent successfully",
+                    message: t`Invitation sent successfully`,
                 });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -92,10 +91,10 @@ export function InviteMemberDialog({ classNames, localization: localizationProp,
         <Dialog onOpenChange={onOpenChange} {...props}>
             <DialogContent className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.INVITE_MEMBER}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Invite Member`}</DialogTitle>
 
                     <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
-                        {localization.INVITE_MEMBER_DESCRIPTION}
+                        {t`Invite a new member to join your organization`}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -112,11 +111,11 @@ export function InviteMemberDialog({ classNames, localization: localizationProp,
                             name="email"
                             children={(field) => (
                                 <field.FormItem>
-                                    <field.FormLabel className={classNames?.label}>{localization.EMAIL}</field.FormLabel>
+                                    <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                                     <field.FormControl>
                                         <Input
-                                            placeholder={localization.EMAIL_PLACEHOLDER}
+                                            placeholder={t`Enter email address`}
                                             type="email"
                                             autoComplete="email"
                                             value={field.state.value}
@@ -135,7 +134,7 @@ export function InviteMemberDialog({ classNames, localization: localizationProp,
                             name="role"
                             children={(field) => (
                                 <field.FormItem>
-                                    <field.FormLabel className={classNames?.label}>{localization.ROLE}</field.FormLabel>
+                                    <field.FormLabel className={classNames?.label}>{t`Role`}</field.FormLabel>
 
                                     <Select onValueChange={field.handleChange} value={field.state.value}>
                                         <field.FormControl>
@@ -164,7 +163,7 @@ export function InviteMemberDialog({ classNames, localization: localizationProp,
                                 children={([canSubmit, isSubmitting]) => (
                                     <Button type="submit" disabled={!canSubmit} className={classNames?.button}>
                                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        {localization.SEND_INVITATION}
+                                        {t`Send Invitation`}
                                     </Button>
                                 )}
                             />

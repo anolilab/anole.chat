@@ -1,20 +1,17 @@
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
+import { t } from "@lingui/core/macro";
 
 import { useOnSuccessTransition } from "../../hooks/use-success-transition";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 
 interface OneTapProps {
-    localization: Partial<AuthLocalization>;
     redirectTo?: string;
 }
 
-export function OneTap({ localization, redirectTo }: OneTapProps) {
-    const { authClient, localization: contextLocalization, toast } = useContext(AuthUIContext);
+export function OneTap({ redirectTo }: OneTapProps) {
+    const { authClient, toast } = useContext(AuthUIContext);
     const oneTapFetched = useRef(false);
-
-    localization = useMemo(() => ({ ...contextLocalization, ...localization }), [contextLocalization, localization]);
 
     const { onSuccess } = useOnSuccessTransition({ redirectTo });
 
@@ -32,10 +29,10 @@ export function OneTap({ localization, redirectTo }: OneTapProps) {
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: t`An error occurred during One Tap sign in`,
             });
         }
-    }, [authClient, localization, onSuccess, toast]);
+    }, [authClient, onSuccess, toast]);
 
     return null;
 }

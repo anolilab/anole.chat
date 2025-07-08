@@ -1,5 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { locales as appLocales } from "@/lib/intl/client";
+import { locales as appLocales, DEFAULT_LOCALE } from "@/lib/intl/client";
 import { i18n } from "@lingui/core";
 import { createServerFn } from "@tanstack/react-start";
 import { setHeader } from "@tanstack/react-start/server";
@@ -23,7 +23,7 @@ export const LanguageToggle: FC = () => {
         <ToggleGroup
             type="single"
             variant="outline"
-            value={i18n.locale}
+            value={i18n.locale ?? DEFAULT_LOCALE}
             onValueChange={(value) => {
                 if (value) {
                     updateLanguage({ data: value }).then(() => {

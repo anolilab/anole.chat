@@ -3,12 +3,11 @@
 import type { SocialProvider } from "better-auth/social-providers";
 import { Loader2 } from "lucide-react";
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import type { Provider } from "../../../lib/social-providers";
-import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,24 +18,20 @@ export interface ProviderCellProps {
     classNames?: SettingsCardClassNames;
     account?: { accountId: string; provider: string } | null;
     isPending?: boolean;
-    localization?: Partial<AuthLocalization>;
     other?: boolean;
     provider: Provider;
     refetch?: Refetch;
 }
 
-export function ProviderCell({ className, classNames, account, localization, other, provider, refetch }: ProviderCellProps) {
+export function ProviderCell({ className, classNames, account, other, provider, refetch }: ProviderCellProps) {
     const {
         authClient,
         basePath,
         baseURL,
-        localization: contextLocalization,
         mutators: { unlinkAccount },
         viewPaths,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -61,7 +56,7 @@ export function ProviderCell({ className, classNames, account, localization, oth
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: t`Failed to link account`,
             });
 
             setIsLoading(false);
@@ -81,7 +76,7 @@ export function ProviderCell({ className, classNames, account, localization, oth
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: t`Failed to unlink account`,
             });
         }
 
@@ -103,7 +98,7 @@ export function ProviderCell({ className, classNames, account, localization, oth
                 onClick={account ? handleUnlink : handleLink}
             >
                 {isLoading && <Loader2 className="animate-spin" />}
-                {account ? localization.UNLINK : localization.LINK}
+                {account ? t`Unlink` : t`Link`}
             </Button>
         </Card>
     );

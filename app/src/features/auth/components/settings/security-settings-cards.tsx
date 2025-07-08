@@ -8,13 +8,11 @@ import { PasskeysCard } from "./passkey/passkeys-card";
 import { ProvidersCard } from "./providers/providers-card";
 import { ChangePasswordCard } from "./security/change-password-card";
 import { SessionsCard } from "./security/sessions-card";
-import type { SettingsCardsProps } from "./settings-cards";
+import type { AuthCardProps } from "../../types/ui-configuration-types";
 import { TwoFactorCard } from "./two-factor/two-factor-card";
 
-export function SecuritySettingsCards({ className, classNames, localization }: Omit<SettingsCardsProps, "view">) {
-    const { credentials, deleteUser, hooks, localization: contextLocalization, passkey, social, genericOAuth, twoFactor } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
+export function SecuritySettingsCards({ className, classNames }: AuthCardProps) {
+    const { credentials, deleteUser, hooks, passkey, social, genericOAuth, twoFactor } = useContext(AuthUIContext);
 
     const { useListAccounts } = hooks;
 
@@ -23,31 +21,20 @@ export function SecuritySettingsCards({ className, classNames, localization }: O
     const credentialsLinked = accounts?.some((acc) => acc.provider === "credential");
 
     return (
-        <div className={cn("flex w-full flex-col gap-4 md:gap-6", className, classNames?.cards)}>
-            {credentials && (
-                <ChangePasswordCard accounts={accounts} classNames={classNames?.card} isPending={accountsPending} localization={localization} skipHook />
-            )}
+        <div className={cn("flex w-full flex-col gap-4 md:gap-6", className, classNames?.card)}>
+            {credentials && <ChangePasswordCard accounts={accounts} classNames={classNames} isPending={accountsPending} skipHook />}
 
             {(social?.providers?.length || genericOAuth?.providers?.length) && (
-                <ProvidersCard
-                    accounts={accounts}
-                    classNames={classNames?.card}
-                    isPending={accountsPending}
-                    localization={localization}
-                    refetch={refetchAccounts}
-                    skipHook
-                />
+                <ProvidersCard accounts={accounts} classNames={classNames} isPending={accountsPending} refetch={refetchAccounts} skipHook />
             )}
 
-            {twoFactor && credentialsLinked && <TwoFactorCard classNames={classNames?.card} localization={localization} />}
+            {twoFactor && credentialsLinked && <TwoFactorCard classNames={classNames} />}
 
-            {passkey && <PasskeysCard classNames={classNames?.card} localization={localization} />}
+            {passkey && <PasskeysCard classNames={classNames} />}
 
-            <SessionsCard classNames={classNames?.card} localization={localization} />
+            <SessionsCard classNames={classNames} />
 
-            {deleteUser && (
-                <DeleteAccountCard accounts={accounts} classNames={classNames?.card} isPending={accountsPending} localization={localization} skipHook />
-            )}
+            {deleteUser && <DeleteAccountCard accounts={accounts} classNames={classNames} isPending={accountsPending} skipHook />}
         </div>
     );
 }

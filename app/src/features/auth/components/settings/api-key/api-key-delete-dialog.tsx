@@ -2,36 +2,33 @@
 
 import { KeyRoundIcon, Loader2 } from "lucide-react";
 import { type ComponentProps, useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
-import { useLang } from "../../../hooks/use-lang";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { ApiKey } from "../../../types/data-structure-types";
 import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { SettingsCardClassNames } from "../shared/settings-card";
+import { i18n } from "@lingui/core";
+import { DEFAULT_LOCALE } from "@/lib/intl/client";
 
 interface ApiKeyDeleteDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
     apiKey: ApiKey;
-    localization?: AuthLocalization;
+
     refetch?: Refetch;
 }
 
-export function ApiKeyDeleteDialog({ classNames, apiKey, localization, refetch, onOpenChange, ...props }: ApiKeyDeleteDialogProps) {
+export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, ...props }: ApiKeyDeleteDialogProps) {
     const {
-        localization: contextLocalization,
         mutators: { deleteApiKey },
         toast,
     } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization };
-
-    const { lang } = useLang();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleDelete = async () => {
@@ -44,7 +41,7 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, localization, refetch, 
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -53,10 +50,10 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, localization, refetch, 
 
     // Format expiration date or show "Never expires"
     const formatExpiration = () => {
-        if (!apiKey.expiresAt) return localization.NEVER_EXPIRES;
+        if (!apiKey.expiresAt) return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
-        return `${localization.EXPIRES} ${expiresDate.toLocaleDateString(lang ?? "en", {
+        return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale ?? DEFAULT_LOCALE, {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -68,10 +65,12 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, localization, refetch, 
             <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>
-                        {localization.DELETE} {localization.API_KEY}
+                        {t`Delete`} {t`API Key`}
                     </DialogTitle>
 
-                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>{localization.DELETE_API_KEY_CONFIRM}</DialogDescription>
+                    <DialogDescription
+                        className={cn("text-xs md:text-sm", classNames?.description)}
+                    >{t`Are you sure you want to delete this API key? This action cannot be undone.`}</DialogDescription>
                 </DialogHeader>
 
                 <Card className={cn("my-2 flex-row items-center gap-3 px-4 py-3", classNames?.cell)}>
@@ -99,7 +98,7 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, localization, refetch, 
                         disabled={isLoading}
                         className={cn(classNames?.button, classNames?.secondaryButton)}
                     >
-                        {localization.CANCEL}
+                        {t`Cancel`}
                     </Button>
 
                     <Button
@@ -110,7 +109,7 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, localization, refetch, 
                         className={cn(classNames?.button, classNames?.destructiveButton)}
                     >
                         {isLoading && <Loader2 className="animate-spin" />}
-                        {localization.DELETE}
+                        {t`Delete`}
                     </Button>
                 </DialogFooter>
             </DialogContent>

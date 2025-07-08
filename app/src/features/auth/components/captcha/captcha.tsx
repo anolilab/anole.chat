@@ -4,15 +4,12 @@ import { type RefObject, useContext } from "react";
 
 import { useTheme } from "next-themes";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
-import type { AuthLocalization } from "../../localization/auth-localization";
 
 // Default captcha endpoints
 const DEFAULT_CAPTCHA_ENDPOINTS = ["/sign-up/email", "/sign-in/email", "/forget-password"];
 
 interface CaptchaProps {
-    // biome-ignore lint/suspicious/noExplicitAny:
     ref: RefObject<any>;
-    localization: Partial<AuthLocalization>;
     action?: string; // Optional action to check if it's in the endpoints list
 }
 

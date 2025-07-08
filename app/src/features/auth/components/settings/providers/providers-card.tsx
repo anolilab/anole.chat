@@ -1,11 +1,11 @@
 "use client";
 
 import { useContext } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { socialProviders } from "../../../lib/social-providers";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { Refetch } from "../../../types/hook-integration-types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,20 +18,16 @@ export interface ProvidersCardProps {
     classNames?: SettingsCardClassNames;
     accounts?: { accountId: string; provider: string }[] | null;
     isPending?: boolean;
-    localization?: Partial<AuthLocalization>;
     skipHook?: boolean;
     refetch?: Refetch;
 }
 
-export function ProvidersCard({ className, classNames, accounts, isPending, localization, skipHook, refetch }: ProvidersCardProps) {
+export function ProvidersCard({ className, classNames, accounts, isPending, skipHook, refetch }: ProvidersCardProps) {
     const {
         hooks: { useListAccounts },
-        localization: contextLocalization,
         social,
         genericOAuth,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     if (!skipHook) {
         const result = useListAccounts();
@@ -44,8 +40,8 @@ export function ProvidersCard({ className, classNames, accounts, isPending, loca
         <SettingsCard
             className={className}
             classNames={classNames}
-            title={localization.PROVIDERS}
-            description={localization.PROVIDERS_DESCRIPTION}
+            title={t`Connected Accounts`}
+            description={t`Manage your connected social accounts and third-party providers`}
             isPending={isPending}
         >
             <CardContent className={cn("grid gap-4", classNames?.content)}>

@@ -1,20 +1,17 @@
 "use client";
 
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { SettingsCard } from "../settings/shared/settings-card";
 import type { SettingsCardProps } from "../settings/shared/settings-card";
 import { DeleteOrganizationDialog } from "./delete-organization-dialog";
 
-export function DeleteOrganizationCard({ className, classNames, localization }: SettingsCardProps) {
+export function DeleteOrganizationCard({ className, classNames }: SettingsCardProps) {
     const {
         hooks: { useActiveOrganization, useSession },
-        localization: contextLocalization,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
-
     const [showDialog, setShowDialog] = useState(false);
 
     const { data: activeOrganization, isPending: organizationPending } = useActiveOrganization();
@@ -32,15 +29,15 @@ export function DeleteOrganizationCard({ className, classNames, localization }: 
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                actionLabel={localization?.DELETE_ORGANIZATION}
-                description={localization?.DELETE_ORGANIZATION_DESCRIPTION}
+                actionLabel={t`Delete Organization`}
+                description={t`Permanently delete this organization and all its data`}
                 isPending={isPending}
-                title={localization?.DELETE_ORGANIZATION}
+                title={t`Delete Organization`}
                 variant="destructive"
                 action={() => setShowDialog(true)}
             />
 
-            <DeleteOrganizationDialog classNames={classNames} localization={localization} open={showDialog} onOpenChange={setShowDialog} />
+            <DeleteOrganizationDialog classNames={classNames} open={showDialog} onOpenChange={setShowDialog} />
         </>
     );
 }

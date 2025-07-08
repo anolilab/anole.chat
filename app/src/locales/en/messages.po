@@ -13,757 +13,2007 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:132
+#: src/features/auth/components/organization/accept-invitation-card.tsx:205
+msgid "Accept"
+msgstr "Accept"
+
+#: src/features/auth/components/organization/accept-invitation-card.tsx:169
 msgid "Accept Invitation"
 msgstr "Accept Invitation"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:277
-msgid "Actions"
-msgstr "Actions"
+#: src/features/auth/components/user-button.tsx:145
+#: src/features/auth/components/user-button.tsx:171
+#: src/features/auth/components/organization/organization-switcher.tsx:175
+msgid "Account"
+msgstr "Account"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:99
-msgid "Active Sessions"
-msgstr "Active Sessions"
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:88
+msgid "Account deleted successfully"
+msgstr "Account deleted successfully"
 
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:43
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:48
-msgid "Add New Passkey"
-msgstr "Add New Passkey"
+#: src/features/auth/lib/utils.ts:368
+msgid "Account locked"
+msgstr "Account locked"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:132
-#: src/routes/dashboard/settings/-components/organization-card.tsx:186
-#: src/routes/dashboard/settings/-components/organization-card.tsx:385
-#: src/routes/dashboard/settings/-components/admin.tsx:199
+#: src/features/auth/lib/utils.ts:96
+msgid "Account not found"
+msgstr "Account not found"
+
+#: src/features/auth/components/settings/account/accounts-card.tsx:31
+msgid "Accounts"
+msgstr "Accounts"
+
+#: src/features/auth/components/user-button.tsx:263
+#: src/features/auth/components/settings/account/accounts-card.tsx:33
+msgid "Add Account"
+msgstr "Add Account"
+
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:44
+msgid "Add an extra layer of security to your account by enabling two-factor authentication."
+msgstr "Add an extra layer of security to your account by enabling two-factor authentication."
+
+#: src/features/auth/components/settings/passkey/passkeys-card.tsx:34
+msgid "Add Passkey"
+msgstr "Add Passkey"
+
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:40
+#: src/features/auth/components/organization/remove-member-dialog.tsx:34
+#: src/features/auth/components/organization/member-cell.tsx:39
+#: src/features/auth/components/organization/invite-member-dialog.tsx:36
+#: src/features/auth/components/organization/invitation-cell.tsx:37
+#: src/features/auth/components/organization/accept-invitation-card.tsx:157
 msgid "Admin"
 msgstr "Admin"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:156
-msgid "Admin Dashboard"
-msgstr "Admin Dashboard"
-
-#: src/routes/(auth)/register.tsx:15
+#: src/features/auth/components/auth/auth-card.tsx:270
 msgid "Already have an account?"
 msgstr "Already have an account?"
 
-#: src/components/assistant-ui/thread-list.tsx:1143
+#: src/features/auth/components/auth/one-tap.tsx:32
+msgid "An error occurred during One Tap sign in"
+msgstr "An error occurred during One Tap sign in"
+
+#: src/features/auth/lib/utils.ts:128
+msgid "Anonymous users cannot sign in again anonymously"
+msgstr "Anonymous users cannot sign in again anonymously"
+
+#: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:68
+msgid "API Key"
+msgstr "API Key"
+
+#: src/features/auth/components/settings/api-key/api-key-display-dialog.tsx:31
+msgid "API Key Created"
+msgstr "API Key Created"
+
+#: src/features/auth/lib/utils.ts:174
+msgid "API Key getter returned an invalid key type. Expected string."
+msgstr "API Key getter returned an invalid key type. Expected string."
+
+#: src/features/auth/lib/utils.ts:146
+msgid "API Key has expired"
+msgstr "API Key has expired"
+
+#: src/features/auth/lib/utils.ts:148
+msgid "API Key has reached its usage limit"
+msgstr "API Key has reached its usage limit"
+
+#: src/features/auth/lib/utils.ts:144
+msgid "API Key is disabled"
+msgstr "API Key is disabled"
+
+#: src/features/auth/lib/utils.ts:150
+msgid "API Key is not recoverable"
+msgstr "API Key is not recoverable"
+
+#: src/features/auth/lib/utils.ts:142
+msgid "API Key not found"
+msgstr "API Key not found"
+
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:35
+msgid "API Keys"
+msgstr "API Keys"
+
+#: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:73
+msgid "Are you sure you want to delete this API key? This action cannot be undone."
+msgstr "Are you sure you want to delete this API key? This action cannot be undone."
+
+#: src/components/assistant-ui/thread-list.tsx:1197
 msgid "Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation."
 msgstr "Are you sure you want to delete this thread? This action cannot be undone and will permanently remove all messages in this conversation."
 
-#: src/features/auth/components/forgot-password.tsx:58
-msgid "Back to Reset"
-msgstr "Back to Reset"
+#: src/features/auth/components/organization/leave-organization-dialog.tsx:75
+msgid "Are you sure you want to leave this organization?"
+msgstr "Are you sure you want to leave this organization?"
 
-#: src/features/auth/components/forgot-password.tsx:124
-msgid "Back to Sign In"
-msgstr "Back to Sign In"
+#: src/features/auth/components/organization/remove-member-dialog.tsx:80
+msgid "Are you sure you want to remove this member?"
+msgstr "Are you sure you want to remove this member?"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:372
-msgid "Ban"
-msgstr "Ban"
+#: src/features/auth/components/auth/auth-card.tsx:152
+msgid "Authentication"
+msgstr "Authentication"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:220
-#: src/routes/dashboard/settings/-components/admin.tsx:257
-msgid "Ban User"
-msgstr "Ban User"
+#: src/features/auth/lib/utils.ts:308
+msgid "Authentication failed"
+msgstr "Authentication failed"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:276
-msgid "Banned"
-msgstr "Banned"
+#: src/features/auth/components/settings/account/update-avatar-card.tsx:110
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:388
+msgid "Avatar"
+msgstr "Avatar"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:254
-msgid "Banning"
-msgstr "Banning"
+#: src/features/auth/components/auth/forms/recover-account-form.tsx:104
+msgid "Backup Code"
+msgstr "Backup Code"
 
-#: src/components/assistant-ui/thread-list.tsx:1147
+#: src/features/auth/lib/utils.ts:366
+msgid "Backup code already used"
+msgstr "Backup code already used"
+
+#: src/features/auth/components/auth/forms/recover-account-form.tsx:43
+msgid "Backup code is invalid"
+msgstr "Backup code is invalid"
+
+#: src/features/auth/components/auth/forms/recover-account-form.tsx:40
+msgid "Backup code is required"
+msgstr "Backup code is required"
+
+#: src/features/auth/components/settings/two-factor/backup-codes-dialog.tsx:44
+msgid "Backup Codes"
+msgstr "Backup Codes"
+
+#: src/features/auth/lib/utils.ts:324
+msgid "Backup codes are not enabled"
+msgstr "Backup codes are not enabled"
+
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:155
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:80
+#: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:101
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:161
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:135
+#: src/features/auth/components/organization/remove-member-dialog.tsx:93
+#: src/features/auth/components/organization/leave-organization-dialog.tsx:91
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:141
+#: src/features/auth/components/organization/create-organization-dialog.tsx:271
+#: src/components/assistant-ui/thread-list.tsx:1201
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:230
-msgid "Cannot invite members to personal workspace"
-msgstr "Cannot invite members to personal workspace"
+#: src/features/auth/components/organization/invitation-cell.tsx:101
+msgid "Cancel Invitation"
+msgstr "Cancel Invitation"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:34
-#: src/routes/dashboard/settings/-components/change-password.tsx:39
-#: src/routes/dashboard/settings/-components/change-password.tsx:99
+#: src/features/auth/lib/utils.ts:248
+msgid "Captcha verification failed"
+msgstr "Captcha verification failed"
+
+#: src/features/auth/lib/utils.ts:300
+msgid "Challenge not found"
+msgstr "Challenge not found"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:226
 msgid "Change Password"
 msgstr "Change Password"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:40
-msgid "Change your password"
-msgstr "Change your password"
+#: src/features/auth/components/settings/security/change-password-card.tsx:223
+msgid "Change your account password"
+msgstr "Change your account password"
 
-#: src/features/auth/components/forgot-password.tsx:47
-msgid "Check Email"
-msgstr "Check Email"
+#: src/features/auth/components/organization/organization-name-card.tsx:28
+#: src/features/auth/components/organization/organization-name-card.tsx:128
+msgid "Change your organization's display name"
+msgstr "Change your organization's display name"
 
-#: src/features/auth/components/otp.tsx:87
-msgid "Check your email for the OTP sent to"
-msgstr "Check your email for the OTP sent to"
+#: src/features/auth/components/organization/organization-slug-card.tsx:28
+#: src/features/auth/components/organization/organization-slug-card.tsx:131
+msgid "Change your organization's unique identifier"
+msgstr "Change your organization's unique identifier"
 
-#: src/features/auth/components/forgot-password.tsx:53
-msgid "Check your spam folder if you don't see the email"
-msgstr "Check your spam folder if you don't see the email"
+#: src/features/auth/components/settings/account/update-username-card.tsx:26
+msgid "Choose a unique username"
+msgstr "Choose a unique username"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:123
-msgid "Close"
-msgstr "Close"
+#: src/features/auth/components/organization/organization-logo-card.tsx:50
+#: src/features/auth/components/organization/organization-logo-card.tsx:207
+msgid "Click on the logo to upload a new image"
+msgstr "Click on the logo to upload a new image"
 
-#: src/features/auth/components/reset-password.tsx:93
-msgid "Confirm New Password"
-msgstr "Confirm New Password"
+#: src/features/auth/components/settings/account/update-avatar-card.tsx:146
+msgid "Click the avatar to upload a new image or delete the current one"
+msgstr "Click the avatar to upload a new image or delete the current one"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:58
-#: src/routes/dashboard/settings/-components/change-password.tsx:63
-#: src/features/auth/components/sign-up-form.tsx:179
-#: src/features/auth/components/sign-up-form.tsx:184
-#: src/features/auth/components/register-form.tsx:128
+#: src/features/auth/components/settings/security/change-password-card.tsx:305
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:186
+msgid "Confirm new password"
+msgstr "Confirm new password"
+
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:180
+msgid "Confirm password"
+msgstr "Confirm password"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:299
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:548
 msgid "Confirm Password"
 msgstr "Confirm Password"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:182
-msgid "Copy URI"
-msgstr "Copy URI"
+#: src/features/auth/components/settings/security/change-password-card.tsx:97
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:119
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:59
+msgid "Confirm password is required"
+msgstr "Confirm password is required"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:348
-msgid "Create"
-msgstr "Create"
+#: src/features/auth/components/settings/providers/providers-card.tsx:43
+msgid "Connected Accounts"
+msgstr "Connected Accounts"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:293
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:293
+msgid "Continue with authenticator"
+msgstr "Continue with authenticator"
+
+#: src/features/auth/components/settings/api-key/api-key-display-dialog.tsx:51
+msgid "Copied to clipboard"
+msgstr "Copied to clipboard"
+
+#: src/features/auth/components/settings/two-factor/backup-codes-dialog.tsx:86
+msgid "Copied!"
+msgstr "Copied!"
+
+#: src/features/auth/components/settings/two-factor/backup-codes-dialog.tsx:91
+msgid "Copy"
+msgstr "Copy"
+
+#: src/features/auth/components/settings/api-key/api-key-display-dialog.tsx:56
+msgid "Copy to clipboard"
+msgstr "Copy to clipboard"
+
+#: src/features/auth/lib/utils.ts:126
+msgid "Could not create session"
+msgstr "Could not create session"
+
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:75
+msgid "Create a new API key for programmatic access to your account"
+msgstr "Create a new API key for programmatic access to your account"
+
+#: src/features/auth/components/organization/create-organization-dialog.tsx:139
 msgid "Create a new organization to collaborate with your team"
 msgstr "Create a new organization to collaborate with your team"
 
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:49
-msgid "Create a new passkey to securely access your account without a password."
-msgstr "Create a new passkey to securely access your account without a password."
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:36
+msgid "Create and manage API keys for programmatic access to your account."
+msgstr "Create and manage API keys for programmatic access to your account."
 
-#: src/features/auth/components/sign-up-form.tsx:223
-#: src/features/auth/components/register-form.tsx:160
-msgid "Create Account"
-msgstr "Create Account"
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:72
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:151
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:40
+msgid "Create API Key"
+msgstr "Create API Key"
 
-#: src/features/auth/components/sign-up-form.tsx:86
-msgid "Create an account to get started"
-msgstr "Create an account to get started"
+#: src/features/auth/components/organization/organizations-card.tsx:33
+msgid "Create new organizations or manage existing ones"
+msgstr "Create new organizations or manage existing ones"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:116
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:62
-msgid "Create Passkey"
-msgstr "Create Passkey"
+#: src/features/auth/components/organization/organizations-card.tsx:34
+#: src/features/auth/components/organization/organization-switcher.tsx:256
+#: src/features/auth/components/organization/create-organization-dialog.tsx:136
+#: src/features/auth/components/organization/create-organization-dialog.tsx:280
+msgid "Create Organization"
+msgstr "Create Organization"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:160
-#: src/routes/dashboard/settings/-components/admin.tsx:165
-#: src/routes/dashboard/settings/-components/admin.tsx:211
-msgid "Create User"
-msgstr "Create User"
+#: src/features/auth/components/settings/passkey/passkey-cell.tsx:68
+msgid "Created on {createdDate}"
+msgstr "Created on {createdDate}"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:208
-msgid "Creating"
-msgstr "Creating"
+#: src/components/assistant-ui/thread.tsx:109
+msgid "Creativity"
+msgstr "Creativity"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:43
+#: src/features/auth/lib/utils.ts:90
+msgid "Credential account not found"
+msgstr "Credential account not found"
+
+#: src/features/auth/components/settings/security/session-cell.tsx:73
+msgid "Current"
+msgstr "Current"
+
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:59
+#: src/features/auth/components/settings/security/change-password-card.tsx:253
 msgid "Current Password"
 msgstr "Current Password"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:130
-msgid "Decline"
-msgstr "Decline"
+#: src/features/auth/components/settings/security/change-password-card.tsx:54
+msgid "Current password is required"
+msgstr "Current password is required"
 
-#: src/components/assistant-ui/thread-list.tsx:1155
+#: src/features/auth/lib/utils.ts:168
+msgid "Custom key expiration values are disabled"
+msgstr "Custom key expiration values are disabled"
+
+#: src/features/auth/components/settings/passkey/passkey-cell.tsx:84
+#: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:68
+#: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:112
+#: src/features/auth/components/settings/api-key/api-key-cell.tsx:64
+#: src/components/assistant-ui/thread-list.tsx:1209
 msgid "Delete"
 msgstr "Delete"
 
-#: src/components/assistant-ui/thread-list.tsx:1137
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:107
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:174
+#: src/features/auth/components/settings/account/delete-account-card.tsx:38
+#: src/features/auth/components/settings/account/delete-account-card.tsx:41
+msgid "Delete Account"
+msgstr "Delete Account"
+
+#: src/features/auth/components/settings/account/update-avatar-card.tsx:137
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:427
+msgid "Delete Avatar"
+msgstr "Delete Avatar"
+
+#: src/features/auth/components/organization/organization-logo-card.tsx:198
+#: src/features/auth/components/organization/create-organization-dialog.tsx:207
+msgid "Delete Logo"
+msgstr "Delete Logo"
+
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:90
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:154
+#: src/features/auth/components/organization/delete-organization-card.tsx:32
+#: src/features/auth/components/organization/delete-organization-card.tsx:35
+msgid "Delete Organization"
+msgstr "Delete Organization"
+
+#: src/components/assistant-ui/thread-list.tsx:1191
 msgid "Delete thread"
 msgstr "Delete thread"
 
-#: src/components/assistant-ui/thread-list.tsx:1141
+#: src/components/assistant-ui/thread-list.tsx:1195
 msgid "Delete Thread"
 msgstr "Delete Thread"
 
-#: src/components/assistant-ui/thread-list.tsx:1137
+#: src/features/auth/components/settings/passkey/passkey-cell.tsx:84
+#: src/components/assistant-ui/thread-list.tsx:1191
 msgid "Deleting..."
 msgstr "Deleting..."
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:223
-#: src/routes/dashboard/settings/-components/user-card.tsx:228
-#: src/routes/dashboard/settings/-components/user-card.tsx:318
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:49
 msgid "Disable 2FA"
 msgstr "Disable 2FA"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:231
-msgid "Disable two-factor authentication for your account"
-msgstr "Disable two-factor authentication for your account"
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:167
+msgid "Disable Two-Factor"
+msgstr "Disable Two-Factor"
 
-#: src/routes/(auth)/reset-password.tsx:16
-#: src/routes/(auth)/login.tsx:16
-#: src/routes/(auth)/forgot-password.tsx:17
-#: src/routes/(auth)/two-factor/otp.tsx:17
-#: src/routes/(auth)/two-factor/index.tsx:18
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:38
+msgid "Disabled"
+msgstr "Disabled"
+
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:49
+msgid "Disabling..."
+msgstr "Disabling..."
+
+#: src/features/auth/components/auth/auth-card.tsx:268
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:42
-#: src/routes/dashboard/settings/-components/change-user.tsx:47
-msgid "Edit User"
-msgstr "Edit User"
+#: src/features/auth/components/settings/two-factor/backup-codes-dialog.tsx:101
+#: src/features/auth/components/settings/api-key/api-key-display-dialog.tsx:62
+msgid "Done"
+msgstr "Done"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:377
-#: src/routes/dashboard/settings/-components/organization-card.tsx:378
-#: src/routes/dashboard/settings/-components/admin.tsx:273
-#: src/features/auth/components/sign-up-form.tsx:141
-#: src/features/auth/components/sign-in-form.tsx:60
-#: src/features/auth/components/register-form.tsx:84
-#: src/features/auth/components/forgot-password.tsx:87
+#: src/features/auth/components/settings/two-factor/backup-codes-dialog.tsx:73
+msgid "Download"
+msgstr "Download"
+
+#: src/features/auth/components/settings/two-factor/backup-codes-dialog.tsx:62
+msgid "Each code can only be used once. Keep them secure and treat them like passwords."
+msgstr "Each code can only be used once. Keep them secure and treat them like passwords."
+
+#: src/features/auth/components/organization/invite-member-dialog.tsx:114
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:499
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:173
+#: src/features/auth/components/auth/forms/magic-link-form.tsx:126
+#: src/features/auth/components/auth/forms/forgot-password-form.tsx:109
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:124
 msgid "Email"
 msgstr "Email"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:223
-#: src/routes/dashboard/settings/-components/user-card.tsx:228
-#: src/routes/dashboard/settings/-components/user-card.tsx:320
+#: src/features/auth/components/settings/security/change-email-card.tsx:129
+msgid "Email Address"
+msgstr "Email Address"
+
+#: src/features/auth/lib/utils.ts:88
+msgid "Email cannot be updated"
+msgstr "Email cannot be updated"
+
+#: src/features/auth/components/auth/auth-card.tsx:147
+msgid "Email Code"
+msgstr "Email Code"
+
+#: src/features/auth/lib/utils.ts:354
+msgid "Email is already taken"
+msgstr "Email is already taken"
+
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:90
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:61
+#: src/features/auth/components/auth/forms/magic-link-form.tsx:56
+#: src/features/auth/components/auth/forms/forgot-password-form.tsx:39
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:59
+msgid "Email is invalid"
+msgstr "Email is invalid"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:16
+#: src/features/auth/components/organization/invite-member-dialog.tsx:46
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:87
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:58
+#: src/features/auth/components/auth/forms/magic-link-form.tsx:53
+#: src/features/auth/components/auth/forms/forgot-password-form.tsx:36
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:56
+msgid "Email is required"
+msgstr "Email is required"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:48
+msgid "Email is the same"
+msgstr "Email is the same"
+
+#: src/features/auth/lib/utils.ts:80
+msgid "Email not verified"
+msgstr "Email not verified"
+
+#: src/features/auth/components/auth/forms/forgot-password-form.tsx:71
+msgid "Email sent successfully"
+msgstr "Email sent successfully"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:69
+msgid "Email updated successfully"
+msgstr "Email updated successfully"
+
+#: src/features/auth/lib/utils.ts:282
+msgid "Email verification is required before you can subscribe to a plan"
+msgstr "Email verification is required before you can subscribe to a plan"
+
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:302
+msgid "Email verification sent"
+msgstr "Email verification sent"
+
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:49
 msgid "Enable 2FA"
 msgstr "Enable 2FA"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:232
-msgid "Enable two-factor authentication for enhanced security"
-msgstr "Enable two-factor authentication for enhanced security"
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:167
+msgid "Enable Two-Factor"
+msgstr "Enable Two-Factor"
 
-#: src/features/auth/components/two-factor.tsx:74
-#: src/features/auth/components/otp.tsx:91
-msgid "Enter 6-digit code"
-msgstr "Enter 6-digit code"
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:69
+msgid "Enable two-factor authentication to secure your account with an additional verification step."
+msgstr "Enable two-factor authentication to secure your account with an additional verification step."
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:242
-msgid "Enter OTP"
-msgstr "Enter OTP"
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:38
+msgid "Enabled"
+msgstr "Enabled"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:191
-msgid "Enter Password"
-msgstr "Enter Password"
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:49
+msgid "Enabling..."
+msgstr "Enabling..."
 
-#: src/features/auth/components/forgot-password.tsx:91
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:98
+msgid "Enter a name for your API key"
+msgstr "Enter a name for your API key"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:259
+msgid "Enter current password"
+msgstr "Enter current password"
+
+#: src/features/auth/components/organization/invite-member-dialog.tsx:118
+msgid "Enter email address"
+msgstr "Enter email address"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:281
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:162
+msgid "Enter new password"
+msgstr "Enter new password"
+
+#: src/features/auth/components/organization/organization-name-card.tsx:148
+#: src/features/auth/components/organization/create-organization-dialog.tsx:232
+msgid "Enter organization name"
+msgstr "Enter organization name"
+
+#: src/features/auth/components/organization/organization-slug-card.tsx:151
+#: src/features/auth/components/organization/create-organization-dialog.tsx:252
+msgid "Enter organization slug"
+msgstr "Enter organization slug"
+
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:65
+msgid "Enter your current password"
+msgstr "Enter your current password"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:224
+msgid "Enter your current password and choose a new one"
+msgstr "Enter your current password and choose a new one"
+
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:505
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:180
+#: src/features/auth/components/auth/forms/magic-link-form.tsx:133
+#: src/features/auth/components/auth/forms/forgot-password-form.tsx:116
 msgid "Enter your email"
 msgstr "Enter your email"
 
-#: src/features/auth/components/sign-in-form.tsx:44
+#: src/features/auth/components/settings/security/change-email-card.tsx:144
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:131
+msgid "Enter your email address"
+msgstr "Enter your email address"
+
+#: src/features/auth/components/auth/auth-card.tsx:113
 msgid "Enter your email below to login to your account"
 msgstr "Enter your email below to login to your account"
 
-#: src/features/auth/components/forgot-password.tsx:71
-msgid "Enter your email to receive a password reset link"
-msgstr "Enter your email to receive a password reset link"
+#: src/features/auth/components/auth/auth-card.tsx:148
+msgid "Enter your email to receive a code"
+msgstr "Enter your email to receive a code"
 
-#: src/features/auth/components/reset-password.tsx:59
+#: src/features/auth/components/auth/auth-card.tsx:143
+msgid "Enter your email to receive a magic link"
+msgstr "Enter your email to receive a magic link"
+
+#: src/features/auth/components/auth/auth-card.tsx:123
+msgid "Enter your email to reset your password"
+msgstr "Enter your email to reset your password"
+
+#: src/features/auth/components/settings/account/update-name-card.tsx:25
+msgid "Enter your full name or display name"
+msgstr "Enter your full name or display name"
+
+#: src/features/auth/components/auth/auth-card.tsx:118
+msgid "Enter your information to create an account"
+msgstr "Enter your information to create an account"
+
+#: src/features/auth/components/settings/account/update-name-card.tsx:27
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:455
+msgid "Enter your name"
+msgstr "Enter your name"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:127
+msgid "Enter your new email address below"
+msgstr "Enter your new email address below"
+
+#: src/features/auth/components/auth/auth-card.tsx:128
 msgid "Enter your new password below"
 msgstr "Enter your new password below"
 
-#: src/features/auth/components/two-factor.tsx:52
-msgid "Enter your TOTP code from your authenticator app"
-msgstr "Enter your TOTP code from your authenticator app"
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:135
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:139
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:529
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:214
+msgid "Enter your password"
+msgstr "Enter your password"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:228
-msgid "Expiration Date"
-msgstr "Expiration Date"
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:554
+msgid "Enter your password again"
+msgstr "Enter your password again"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:132
-msgid "Expiration date is required"
-msgstr "Expiration date is required"
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:112
+msgid "Enter your password to disable two-factor authentication"
+msgstr "Enter your password to disable two-factor authentication"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:145
-msgid "Failed to ban user"
-msgstr "Failed to ban user"
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:113
+msgid "Enter your password to enable two-factor authentication"
+msgstr "Enter your password to enable two-factor authentication"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:81
+#: src/features/auth/components/settings/account/update-username-card.tsx:28
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:480
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:180
+msgid "Enter your username"
+msgstr "Enter your username"
+
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:115
+#: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:56
+#: src/features/auth/components/settings/api-key/api-key-cell.tsx:33
+#: src/features/auth/components/organization/invitation-cell.tsx:78
+msgid "Expires"
+msgstr "Expires"
+
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:60
+msgid "Failed to create API key"
+msgstr "Failed to create API key"
+
+#: src/features/auth/lib/utils.ts:55
+msgid "Failed to create session"
+msgstr "Failed to create session"
+
+#: src/features/auth/lib/utils.ts:53
 msgid "Failed to create user"
 msgstr "Failed to create user"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:96
-msgid "Failed to delete user"
-msgstr "Failed to delete user"
+#: src/features/auth/lib/utils.ts:280
+msgid "Failed to fetch plans"
+msgstr "Failed to fetch plans"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:121
-msgid "Failed to impersonate user"
-msgstr "Failed to impersonate user"
+#: src/features/auth/lib/utils.ts:59
+msgid "Failed to get session"
+msgstr "Failed to get session"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:108
-msgid "Failed to revoke sessions"
-msgstr "Failed to revoke sessions"
+#: src/features/auth/lib/utils.ts:76
+msgid "Failed to get user info"
+msgstr "Failed to get user info"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:347
-msgid "Failed to unban user"
-msgstr "Failed to unban user"
+#: src/features/auth/components/settings/providers/provider-cell.tsx:59
+msgid "Failed to link account"
+msgstr "Failed to link account"
 
-#: src/features/auth/components/sign-up-form.tsx:104
-msgid "First Name"
-msgstr "First Name"
+#: src/features/auth/lib/utils.ts:226
+msgid "Failed to retrieve invitation"
+msgstr "Failed to retrieve invitation"
 
-#: src/features/auth/components/forgot-password.tsx:70
+#: src/features/auth/components/settings/security/sessions-card.tsx:70
+msgid "Failed to revoke session"
+msgstr "Failed to revoke session"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:93
+msgid "Failed to send verification code"
+msgstr "Failed to send verification code"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:102
+msgid "Failed to send verification email"
+msgstr "Failed to send verification email"
+
+#: src/features/auth/components/settings/providers/provider-cell.tsx:79
+msgid "Failed to unlink account"
+msgstr "Failed to unlink account"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:75
+msgid "Failed to update email address"
+msgstr "Failed to update email address"
+
+#: src/features/auth/lib/utils.ts:312
+msgid "Failed to update passkey"
+msgstr "Failed to update passkey"
+
+#: src/features/auth/lib/utils.ts:57
+msgid "Failed to update user"
+msgstr "Failed to update user"
+
+#: src/features/auth/lib/utils.ts:304
+msgid "Failed to verify registration"
+msgstr "Failed to verify registration"
+
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:53
+msgid "For security reasons, please confirm your password to continue with this action."
+msgstr "For security reasons, please confirm your password to continue with this action."
+
+#: src/features/auth/lib/utils.ts:374
+msgid "Forbidden"
+msgstr "Forbidden"
+
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:193
+msgid "Forgot authenticator"
+msgstr "Forgot authenticator"
+
+#: src/features/auth/components/auth/auth-card.tsx:122
+#: src/features/auth/components/auth/forms/forgot-password-form.tsx:135
 msgid "Forgot Password"
 msgstr "Forgot Password"
 
-#: src/features/auth/components/sign-in-form.tsx:82
-msgid "Forgot your password?"
-msgstr "Forgot your password?"
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:205
+msgid "Forgot password?"
+msgstr "Forgot password?"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:51
-msgid "Full Name"
-msgstr "Full Name"
+#: src/components/assistant-ui/thread.tsx:107
+msgid "Generate creative ideas for my project"
+msgstr "Generate creative ideas for my project"
 
-#: src/features/auth/components/invitation-error.tsx:24
-msgid "Go Home"
-msgstr "Go Home"
+#: src/features/auth/components/auth/auth-card.tsx:291
+msgid "Go back"
+msgstr "Go back"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:326
-msgid "Impersonate"
-msgstr "Impersonate"
+#. placeholder {0}: session.user.name
+#: src/components/assistant-ui/thread.tsx:84
+msgid "Hello {0}! What would you like to do today?"
+msgstr "Hello {0}! What would you like to do today?"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:118
-msgid "Impersonated user"
-msgstr "Impersonated user"
+#: src/components/assistant-ui/thread.tsx:87
+msgid "How can I help you today?"
+msgstr "How can I help you today?"
 
-#: src/features/auth/components/two-factor.tsx:41
-#: src/features/auth/components/otp.tsx:54
+#: src/features/auth/lib/utils.ts:74
+msgid "ID token not supported"
+msgstr "ID token not supported"
+
+#: src/features/auth/lib/utils.ts:378
+msgid "Internal server error"
+msgstr "Internal server error"
+
+#: src/features/auth/lib/utils.ts:170
+msgid "Invalid API key"
+msgstr "Invalid API key"
+
+#: src/features/auth/lib/utils.ts:364
+msgid "Invalid backup code"
+msgstr "Invalid backup code"
+
+#: src/features/auth/lib/utils.ts:326
+msgid "Invalid code"
+msgstr "Invalid code"
+
+#: src/features/auth/lib/utils.ts:63
+#: src/features/auth/components/settings/security/change-email-card.tsx:16
+#: src/features/auth/components/organization/invite-member-dialog.tsx:48
+msgid "Invalid email"
+msgstr "Invalid email"
+
+#: src/features/auth/lib/utils.ts:66
+msgid "Invalid email or password"
+msgstr "Invalid email or password"
+
+#: src/features/auth/lib/utils.ts:260
+msgid "Invalid OAuth configuration"
+msgstr "Invalid OAuth configuration"
+
+#: src/features/auth/lib/utils.ts:292
 msgid "Invalid OTP"
 msgstr "Invalid OTP"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:120
-msgid "Invitation Declined"
-msgstr "Invitation Declined"
+#: src/features/auth/lib/utils.ts:61
+#: src/features/auth/components/settings/security/change-password-card.tsx:68
+#: src/features/auth/components/settings/security/change-password-card.tsx:89
+#: src/features/auth/components/settings/security/change-password-card.tsx:111
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:108
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:133
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:79
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:51
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:73
+msgid "Invalid password"
+msgstr "Invalid password"
 
-#: src/features/auth/components/invitation-error.tsx:14
-msgid "Invitation Error"
-msgstr "Invitation Error"
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:40
+msgid "Invalid password. Please try again."
+msgstr "Invalid password. Please try again."
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:100
-msgid "Invitation sent to"
-msgstr "Invitation sent to"
+#: src/features/auth/lib/utils.ts:334
+msgid "Invalid phone number"
+msgstr "Invalid phone number"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:412
-msgid "Invite"
-msgstr "Invite"
+#: src/features/auth/lib/utils.ts:338
+msgid "Invalid phone number or password"
+msgstr "Invalid phone number or password"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:374
+#: src/features/auth/lib/utils.ts:268
+msgid "Invalid session token"
+msgstr "Invalid session token"
+
+#: src/features/auth/lib/utils.ts:72
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:138
+msgid "Invalid token"
+msgstr "Invalid token"
+
+#: src/features/auth/lib/utils.ts:330
+msgid "Invalid two factor cookie"
+msgstr "Invalid two factor cookie"
+
+#: src/features/auth/lib/utils.ts:360
+msgid "Invalid two-factor code"
+msgstr "Invalid two-factor code"
+
+#: src/features/auth/lib/utils.ts:352
+msgid "Invalid username"
+msgstr "Invalid username"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:210
+msgid "Invalid verification code"
+msgstr "Invalid verification code"
+
+#: src/features/auth/components/organization/accept-invitation-card.tsx:115
+msgid "Invitation accepted"
+msgstr "Invitation accepted"
+
+#: src/features/auth/components/organization/invitation-cell.tsx:57
+msgid "Invitation cancelled"
+msgstr "Invitation cancelled"
+
+#: src/features/auth/components/organization/accept-invitation-card.tsx:95
+msgid "Invitation expired"
+msgstr "Invitation expired"
+
+#: src/features/auth/lib/utils.ts:244
+msgid "Invitation limit reached"
+msgstr "Invitation limit reached"
+
+#: src/features/auth/lib/utils.ts:216
+#: src/features/auth/components/organization/accept-invitation-card.tsx:39
+#: src/features/auth/components/organization/accept-invitation-card.tsx:85
+#: src/features/auth/components/organization/accept-invitation-card.tsx:95
+msgid "Invitation not found"
+msgstr "Invitation not found"
+
+#: src/features/auth/components/organization/accept-invitation-card.tsx:141
+msgid "Invitation rejected"
+msgstr "Invitation rejected"
+
+#: src/features/auth/components/organization/invite-member-dialog.tsx:79
+msgid "Invitation sent successfully"
+msgstr "Invitation sent successfully"
+
+#: src/features/auth/components/organization/organization-invitations-card.tsx:32
+msgid "Invitations waiting for a response"
+msgstr "Invitations waiting for a response"
+
+#: src/features/auth/components/organization/invite-member-dialog.tsx:97
 msgid "Invite a new member to join your organization"
 msgstr "Invite a new member to join your organization"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:368
-#: src/routes/dashboard/settings/-components/organization-card.tsx:373
+#: src/features/auth/components/organization/organization-members-card.tsx:38
+#: src/features/auth/components/organization/organization-members-card.tsx:80
+#: src/features/auth/components/organization/invite-member-dialog.tsx:94
 msgid "Invite Member"
 msgstr "Invite Member"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:97
-msgid "invited you to join"
-msgstr "invited you to join"
+#: src/features/auth/components/organization/organization-members-card.tsx:37
+#: src/features/auth/components/organization/organization-members-card.tsx:79
+msgid "Invite new members and update existing member roles"
+msgstr "Invite new members and update existing member roles"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:168
-msgid "Invites"
-msgstr "Invites"
+#: src/features/auth/lib/utils.ts:222
+msgid "Inviter is no longer a member of the organization"
+msgstr "Inviter is no longer a member of the organization"
 
-#: src/components/assistant-ui/thread-list.tsx:183
+#: src/features/auth/components/settings/account/update-field-card.tsx:63
+#: src/features/auth/components/settings/account/update-field-card.tsx:68
+#: src/features/auth/components/settings/account/update-field-card.tsx:76
+#: src/features/auth/components/settings/account/update-field-card.tsx:82
+#: src/features/auth/components/settings/account/update-field-card.tsx:115
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:179
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:184
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:192
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:199
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:272
+msgid "is invalid"
+msgstr "is invalid"
+
+#: src/features/auth/components/settings/account/update-field-card.tsx:62
+#: src/features/auth/components/settings/account/update-field-card.tsx:75
+#: src/features/auth/components/settings/account/update-field-card.tsx:79
+#: src/features/auth/components/settings/account/update-field-card.tsx:85
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:178
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:191
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:195
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:205
+msgid "is required"
+msgstr "is required"
+
+#: src/features/auth/components/settings/account/update-field-card.tsx:108
+msgid "is the same as current value"
+msgstr "is the same as current value"
+
+#: src/components/assistant-ui/thread-list.tsx:181
 msgid "Keyboard shortcuts (?)"
 msgstr "Keyboard shortcuts (?)"
 
-#: src/features/auth/components/sign-up-form.tsx:122
-msgid "Last Name"
-msgstr "Last Name"
+#: src/features/auth/components/settings/security/session-cell.tsx:78
+msgid "Last active {lastActiveDate}"
+msgstr "Last active {lastActiveDate}"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:146
-msgid "Leave"
-msgstr "Leave"
+#: src/features/auth/components/settings/passkey/passkey-cell.tsx:69
+msgid "Last used {lastUsedDate}"
+msgstr "Last used {lastUsedDate}"
 
-#: src/components/assistant-ui/thread-list.tsx:1197
+#: src/features/auth/components/organization/organization-cell.tsx:96
+#: src/features/auth/components/organization/leave-organization-dialog.tsx:72
+#: src/features/auth/components/organization/leave-organization-dialog.tsx:103
+msgid "Leave Organization"
+msgstr "Leave Organization"
+
+#: src/features/auth/components/organization/leave-organization-dialog.tsx:48
+msgid "Left organization successfully"
+msgstr "Left organization successfully"
+
+#: src/features/auth/components/settings/providers/provider-cell.tsx:101
+msgid "Link"
+msgstr "Link"
+
+#: src/components/assistant-ui/thread-list.tsx:1251
 msgid "Loading threads..."
 msgstr "Loading threads..."
 
-#: src/routes/(auth)/register.tsx:17
-msgid "Log in"
-msgstr "Log in"
-
-#: src/features/auth/components/sign-in-form.tsx:114
-msgid "Log In"
-msgstr "Log In"
-
-#: src/routes/(auth)/reset-password.tsx:18
-#: src/routes/(auth)/forgot-password.tsx:19
-#: src/routes/(auth)/two-factor/otp.tsx:19
-#: src/routes/(auth)/two-factor/index.tsx:20
-msgid "Login"
-msgstr "Login"
-
-#: src/routes/dashboard/settings/-components/organization-card.tsx:312
+#: src/features/auth/components/organization/organization-logo-card.tsx:37
+#: src/features/auth/components/organization/organization-logo-card.tsx:171
+#: src/features/auth/components/organization/create-organization-dialog.tsx:171
 msgid "Logo"
 msgstr "Logo"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:54
-msgid "Manage your passkeys for secure authentication"
-msgstr "Manage your passkeys for secure authentication"
+#: src/features/auth/components/auth/auth-card.tsx:142
+msgid "Magic Link"
+msgstr "Magic Link"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:132
-#: src/routes/dashboard/settings/-components/organization-card.tsx:186
-#: src/routes/dashboard/settings/-components/organization-card.tsx:386
+#: src/features/auth/components/auth/forms/magic-link-form.tsx:88
+msgid "Magic link email sent"
+msgstr "Magic link email sent"
+
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:64
+msgid "Make sure you have access to your authenticator app and backup codes before disabling 2FA."
+msgstr "Make sure you have access to your authenticator app and backup codes before disabling 2FA."
+
+#: src/features/auth/components/organization/organization-cell.tsx:90
+msgid "Manage Organization"
+msgstr "Manage Organization"
+
+#: src/features/auth/components/organization/organization-members-card.tsx:36
+#: src/features/auth/components/organization/organization-members-card.tsx:78
+msgid "Manage organization members and their roles"
+msgstr "Manage organization members and their roles"
+
+#: src/features/auth/components/settings/security/sessions-card.tsx:76
+msgid "Manage your active sessions"
+msgstr "Manage your active sessions"
+
+#: src/features/auth/components/settings/account/accounts-card.tsx:32
+msgid "Manage your connected accounts"
+msgstr "Manage your connected accounts"
+
+#: src/features/auth/components/settings/providers/providers-card.tsx:44
+msgid "Manage your connected social accounts and third-party providers"
+msgstr "Manage your connected social accounts and third-party providers"
+
+#: src/features/auth/components/organization/organizations-card.tsx:32
+msgid "Manage your organizations and memberships"
+msgstr "Manage your organizations and memberships"
+
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:41
+#: src/features/auth/components/organization/remove-member-dialog.tsx:35
+#: src/features/auth/components/organization/member-cell.tsx:40
+#: src/features/auth/components/organization/invite-member-dialog.tsx:37
+#: src/features/auth/components/organization/invitation-cell.tsx:38
+#: src/features/auth/components/organization/accept-invitation-card.tsx:158
 msgid "Member"
 msgstr "Member"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:112
-#: src/routes/dashboard/settings/-components/organization-card.tsx:120
+#: src/features/auth/lib/utils.ts:198
+msgid "Member not found"
+msgstr "Member not found"
+
+#: src/features/auth/components/organization/remove-member-dialog.tsx:57
+msgid "Member removed successfully"
+msgstr "Member removed successfully"
+
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:85
+msgid "Member role updated"
+msgstr "Member role updated"
+
+#: src/features/auth/components/organization/organization-members-card.tsx:35
+#: src/features/auth/components/organization/organization-members-card.tsx:77
 msgid "Members"
 msgstr "Members"
 
-#: src/components/assistant-ui/thread-list.tsx:204
+#: src/components/assistant-ui/thread-list.tsx:202
 msgid "Messages"
 msgstr "Messages"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:298
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:60
-#: src/routes/dashboard/settings/-components/admin.tsx:189
-#: src/routes/dashboard/settings/-components/admin.tsx:274
-#: src/features/auth/components/register-form.tsx:72
+#: src/features/auth/lib/utils.ts:162
+msgid "Metadata is disabled"
+msgstr "Metadata is disabled"
+
+#: src/features/auth/lib/utils.ts:132
+msgid "Metadata must be an object or undefined"
+msgstr "Metadata must be an object or undefined"
+
+#: src/features/auth/hooks/use-captcha.tsx:18
+#: src/features/auth/hooks/use-captcha.tsx:37
+msgid "Missing captcha response"
+msgstr "Missing captcha response"
+
+#: src/features/auth/lib/utils.ts:250
+msgid "Missing CAPTCHA response"
+msgstr "Missing CAPTCHA response"
+
+#: src/features/auth/lib/utils.ts:254
+msgid "Missing secret key"
+msgstr "Missing secret key"
+
+#: src/features/auth/components/settings/security/session-cell.tsx:88
+#: src/features/auth/components/settings/passkey/passkey-cell.tsx:78
+msgid "More options"
+msgstr "More options"
+
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:93
+#: src/features/auth/components/settings/account/update-name-card.tsx:26
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:450
 msgid "Name"
 msgstr "Name"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:287
-#: src/routes/dashboard/settings/-components/organization-card.tsx:292
-msgid "New Organization"
-msgstr "New Organization"
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:29
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:144
+msgid "Name is required"
+msgstr "Name is required"
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:66
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:106
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:108
-msgid "New Passkey"
-msgstr "New Passkey"
+#: src/features/auth/lib/utils.ts:380
+msgid "Network error"
+msgstr "Network error"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:51
-#: src/routes/dashboard/settings/-components/change-password.tsx:56
-#: src/features/auth/components/reset-password.tsx:75
+#: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:53
+#: src/features/auth/components/settings/api-key/api-key-cell.tsx:30
+msgid "Never expires"
+msgstr "Never expires"
+
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:156
+msgid "New password"
+msgstr "New password"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:275
 msgid "New Password"
 msgstr "New Password"
 
-#: src/components/assistant-ui/thread-list.tsx:263
+#: src/features/auth/components/settings/security/change-password-card.tsx:75
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:37
+msgid "New password is required"
+msgstr "New password is required"
+
+#: src/components/assistant-ui/thread-list.tsx:261
 msgid "New Thread"
 msgstr "New Thread"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:287
-msgid "No"
-msgstr "No"
+#: src/features/auth/lib/utils.ts:194
+msgid "No active organization"
+msgstr "No active organization"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:226
-msgid "No active invitations"
-msgstr "No active invitations"
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:51
+msgid "No API keys found. Create one to get started."
+msgstr "No API keys found. Create one to get started."
 
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:100
-msgid "No passkeys found"
-msgstr "No passkeys found"
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:120
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:125
+msgid "No expiration"
+msgstr "No expiration"
 
-#: src/components/assistant-ui/thread-list.tsx:1207
+#: src/features/auth/components/settings/passkey/passkeys-card.tsx:45
+msgid "No passkeys found. Add one to enable passwordless sign-in."
+msgstr "No passkeys found. Add one to enable passwordless sign-in."
+
+#: src/components/assistant-ui/thread-list.tsx:1261
 msgid "No threads yet"
 msgstr "No threads yet"
 
-#: src/features/auth/components/otp.tsx:85
-msgid "One-Time Password"
-msgstr "One-Time Password"
+#: src/features/auth/lib/utils.ts:166
+msgid "No values to update"
+msgstr "No values to update"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:46
+#: src/features/auth/lib/utils.ts:376
+msgid "Not found"
+msgstr "Not found"
+
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:187
+msgid "One-time password"
+msgstr "One-time password"
+
+#: src/features/auth/components/auth/auth-card.tsx:207
+msgid "or continue with"
+msgstr "or continue with"
+
+#: src/features/auth/components/organization/organization-view.tsx:61
+#: src/features/auth/components/organization/organization-switcher.tsx:166
+#: src/features/auth/components/organization/organization-switcher.tsx:228
+#: src/features/auth/components/organization/organization-logo.tsx:57
 msgid "Organization"
 msgstr "Organization"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:90
-msgid "Organization Invitation"
-msgstr "Organization Invitation"
+#: src/features/auth/lib/utils.ts:184
+msgid "Organization already exists"
+msgstr "Organization already exists"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:297
+#: src/features/auth/components/organization/create-organization-dialog.tsx:88
+msgid "Organization created successfully"
+msgstr "Organization created successfully"
+
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:71
+msgid "Organization deleted successfully"
+msgstr "Organization deleted successfully"
+
+#: src/features/auth/lib/utils.ts:234
+msgid "Organization membership limit reached"
+msgstr "Organization membership limit reached"
+
+#: src/features/auth/components/organization/organization-name-card.tsx:31
+#: src/features/auth/components/organization/organization-name-card.tsx:131
+#: src/features/auth/components/organization/create-organization-dialog.tsx:228
 msgid "Organization Name"
 msgstr "Organization Name"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:301
+#: src/features/auth/components/organization/organization-name-card.tsx:47
+#: src/features/auth/components/organization/create-organization-dialog.tsx:46
+msgid "Organization name is required"
+msgstr "Organization name is required"
+
+#: src/features/auth/components/organization/organization-name-card.tsx:85
+msgid "Organization name is the same"
+msgstr "Organization name is the same"
+
+#: src/features/auth/components/organization/organization-name-card.tsx:103
+msgid "Organization name updated successfully"
+msgstr "Organization name updated successfully"
+
+#: src/features/auth/lib/utils.ts:186
+msgid "Organization not found"
+msgstr "Organization not found"
+
+#: src/features/auth/components/organization/organization-slug-card.tsx:31
+#: src/features/auth/components/organization/organization-slug-card.tsx:134
+#: src/features/auth/components/organization/create-organization-dialog.tsx:248
 msgid "Organization Slug"
 msgstr "Organization Slug"
 
-#: src/features/auth/components/otp.tsx:31
-msgid "OTP sent to your email"
-msgstr "OTP sent to your email"
+#: src/features/auth/components/organization/organization-slug-card.tsx:50
+#: src/features/auth/components/organization/create-organization-dialog.tsx:54
+msgid "Organization slug is invalid"
+msgstr "Organization slug is invalid"
 
-#: src/features/auth/components/otp.tsx:49
-msgid "OTP validated successfully"
-msgstr "OTP validated successfully"
+#: src/features/auth/components/organization/organization-slug-card.tsx:49
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:24
+#: src/features/auth/components/organization/create-organization-dialog.tsx:51
+msgid "Organization slug is required"
+msgstr "Organization slug is required"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:132
-#: src/routes/dashboard/settings/-components/organization-card.tsx:160
-#: src/routes/dashboard/settings/-components/organization-card.tsx:186
+#: src/features/auth/components/organization/organization-slug-card.tsx:88
+msgid "Organization slug is the same"
+msgstr "Organization slug is the same"
+
+#: src/features/auth/components/organization/organization-slug-card.tsx:106
+msgid "Organization slug updated successfully"
+msgstr "Organization slug updated successfully"
+
+#: src/features/auth/components/organization/organizations-card.tsx:31
+msgid "Organizations"
+msgstr "Organizations"
+
+#: src/features/auth/lib/utils.ts:290
+msgid "OTP expired"
+msgstr "OTP expired"
+
+#: src/features/auth/lib/utils.ts:318
+msgid "OTP has expired"
+msgstr "OTP has expired"
+
+#: src/features/auth/lib/utils.ts:316
+msgid "OTP not enabled"
+msgstr "OTP not enabled"
+
+#: src/features/auth/lib/utils.ts:296
+msgid "OTP not found"
+msgstr "OTP not found"
+
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:39
+#: src/features/auth/components/organization/remove-member-dialog.tsx:33
+#: src/features/auth/components/organization/member-cell.tsx:38
+#: src/features/auth/components/organization/invite-member-dialog.tsx:35
+#: src/features/auth/components/organization/invitation-cell.tsx:36
+#: src/features/auth/components/organization/accept-invitation-card.tsx:156
 msgid "Owner"
 msgstr "Owner"
 
-#: src/routes/dashboard/settings/-components/add-passkey.tsx:52
-msgid "Passkey Name"
-msgstr "Passkey Name"
+#: src/features/auth/lib/utils.ts:306
+msgid "Passkey not found"
+msgstr "Passkey not found"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:153
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:47
-#: src/routes/dashboard/settings/-components/list-passkeys.tsx:53
+#: src/features/auth/components/settings/passkey/passkeys-card.tsx:29
 msgid "Passkeys"
 msgstr "Passkeys"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:246
-#: src/routes/dashboard/settings/-components/user-card.tsx:249
-#: src/routes/dashboard/settings/-components/change-password.tsx:49
-#: src/routes/dashboard/settings/-components/admin.tsx:179
-#: src/features/auth/components/sign-up-form.tsx:160
-#: src/features/auth/components/sign-up-form.tsx:164
-#: src/features/auth/components/sign-in-form.tsx:80
-#: src/features/auth/components/reset-password.tsx:79
-#: src/features/auth/components/reset-password.tsx:97
-#: src/features/auth/components/register-form.tsx:96
+#: src/features/auth/components/settings/passkey/passkeys-card.tsx:30
+msgid "Passkeys allow you to sign in securely using your device's biometric authentication or security key."
+msgstr "Passkeys allow you to sign in securely using your device's biometric authentication or security key."
+
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:130
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:134
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:523
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:198
 msgid "Password"
 msgstr "Password"
 
-#: src/features/auth/components/forgot-password.tsx:48
-msgid "Password reset link sent"
-msgstr "Password reset link sent"
+#: src/features/auth/components/settings/security/change-password-card.tsx:143
+msgid "Password changed successfully"
+msgstr "Password changed successfully"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:52
-#: src/routes/dashboard/settings/-components/organization-card.tsx:70
-#: src/routes/dashboard/settings/-components/organization-card.tsx:110
-msgid "Personal"
-msgstr "Personal"
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:53
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:94
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:65
+msgid "Password is required"
+msgstr "Password is required"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:237
-msgid "Pick a date"
-msgstr "Pick a date"
+#: src/features/auth/lib/utils.ts:84
+#: src/features/auth/components/settings/security/change-password-card.tsx:63
+#: src/features/auth/components/settings/security/change-password-card.tsx:84
+#: src/features/auth/components/settings/security/change-password-card.tsx:106
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:103
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:128
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:74
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:46
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:68
+msgid "Password is too long"
+msgstr "Password is too long"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:66
-msgid "Please verify your email address to access all features"
-msgstr "Please verify your email address to access all features"
+#: src/features/auth/lib/utils.ts:82
+#: src/features/auth/components/settings/security/change-password-card.tsx:58
+#: src/features/auth/components/settings/security/change-password-card.tsx:79
+#: src/features/auth/components/settings/security/change-password-card.tsx:101
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:98
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:123
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:69
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:41
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:63
+msgid "Password is too short"
+msgstr "Password is too short"
 
-#: src/features/auth/components/sign-in-form.tsx:193
-msgid "Powered by"
-msgstr "Powered by"
+#: src/features/auth/components/settings/security/change-password-card.tsx:174
+msgid "Password reset email sent"
+msgstr "Password reset email sent"
 
-#: src/components/assistant-ui/thread-list.tsx:1209
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:112
+msgid "Password reset successful"
+msgstr "Password reset successful"
+
+#: src/features/auth/lib/utils.ts:356
+#: src/features/auth/components/settings/security/change-password-card.tsx:119
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:216
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:81
+msgid "Passwords do not match"
+msgstr "Passwords do not match"
+
+#: src/features/auth/components/organization/organization-invitations-card.tsx:31
+msgid "Pending Invitations"
+msgstr "Pending Invitations"
+
+#: src/features/auth/components/organization/delete-organization-card.tsx:33
+msgid "Permanently delete this organization and all its data"
+msgstr "Permanently delete this organization and all its data"
+
+#: src/features/auth/components/settings/account/delete-account-card.tsx:39
+msgid "Permanently delete your account and all associated data"
+msgstr "Permanently delete your account and all associated data"
+
+#: src/features/auth/components/organization/personal-account-view.tsx:51
+msgid "Personal Account"
+msgstr "Personal Account"
+
+#: src/features/auth/lib/utils.ts:336
+msgid "Phone number already exists"
+msgstr "Phone number already exists"
+
+#: src/features/auth/lib/utils.ts:340
+msgid "Phone number not verified"
+msgstr "Phone number not verified"
+
+#: src/features/auth/components/auth/auth-card.tsx:153
+msgid "Please authenticate to continue"
+msgstr "Please authenticate to continue"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:177
+msgid "Please check your email and click the verification link"
+msgstr "Please check your email and click the verification link"
+
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:83
+msgid "Please check your email to verify account deletion"
+msgstr "Please check your email to verify account deletion"
+
+#: src/features/auth/components/auth/auth-card.tsx:138
+msgid "Please enter a backup code to access your account"
+msgstr "Please enter a backup code to access your account"
+
+#: src/features/auth/components/auth/auth-card.tsx:133
+msgid "Please enter your one-time password to continue"
+msgstr "Please enter your one-time password to continue"
+
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:115
+msgid "Please type"
+msgstr "Please type"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:63
+msgid "Please verify your new email address"
+msgstr "Please verify your new email address"
+
+#: src/components/assistant-ui/thread-list.tsx:1263
 msgid "Press ? for keyboard shortcuts"
 msgstr "Press ? for keyboard shortcuts"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:62
-#: src/features/auth/components/sign-up-form.tsx:198
-msgid "Profile Image"
-msgstr "Profile Image"
+#: src/features/auth/lib/utils.ts:70
+msgid "Provider not found"
+msgstr "Provider not found"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:224
-msgid "Reason"
-msgstr "Reason"
+#: src/features/auth/lib/utils.ts:164
+msgid "Rate limit exceeded"
+msgstr "Rate limit exceeded"
 
-#: src/routes/(auth)/login.tsx:18
-msgid "Register"
-msgstr "Register"
+#: src/features/auth/components/auth/forms/recover-account-form.tsx:136
+msgid "Recover account"
+msgstr "Recover account"
 
-#: src/features/auth/components/sign-in-form.tsx:105
+#: src/features/auth/components/auth/auth-card.tsx:137
+msgid "Recover Account"
+msgstr "Recover Account"
+
+#: src/features/auth/lib/utils.ts:134
+msgid "Refill amount is required when refill interval is provided"
+msgstr "Refill amount is required when refill interval is provided"
+
+#: src/features/auth/lib/utils.ts:136
+msgid "Refill interval is required when refill amount is provided"
+msgstr "Refill interval is required when refill amount is provided"
+
+#: src/features/auth/components/organization/accept-invitation-card.tsx:199
+msgid "Reject"
+msgstr "Reject"
+
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:240
 msgid "Remember me"
 msgstr "Remember me"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:146
-msgid "Remove"
-msgstr "Remove"
+#: src/features/auth/components/organization/remove-member-dialog.tsx:76
+#: src/features/auth/components/organization/remove-member-dialog.tsx:104
+#: src/features/auth/components/organization/member-cell.tsx:74
+msgid "Remove Member"
+msgstr "Remove Member"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:92
-msgid "Resend Verification"
-msgstr "Resend Verification"
+#: src/features/auth/lib/utils.ts:38
+#: src/features/auth/lib/utils.ts:41
+#: src/features/auth/lib/utils.ts:382
+#: src/features/auth/lib/utils.ts:385
+msgid "Request failed"
+msgstr "Request failed"
 
-#: src/features/auth/components/reset-password.tsx:58
-#: src/features/auth/components/reset-password.tsx:118
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:266
+msgid "Resend code"
+msgstr "Resend code"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:178
+msgid "Resend Verification Email"
+msgstr "Resend Verification Email"
+
+#: src/features/auth/components/auth/forms/reset-password-form.tsx:204
+msgid "Reset password"
+msgstr "Reset password"
+
+#: src/features/auth/components/auth/auth-card.tsx:127
 msgid "Reset Password"
 msgstr "Reset Password"
 
-#: src/features/auth/components/reset-password.tsx:118
-msgid "Resetting..."
-msgstr "Resetting..."
-
-#: src/routes/dashboard/settings/-components/organization-card.tsx:215
+#: src/features/auth/components/settings/account/account-cell.tsx:115
 msgid "Revoke"
 msgstr "Revoke"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:379
-#: src/routes/dashboard/settings/-components/admin.tsx:193
-#: src/routes/dashboard/settings/-components/admin.tsx:275
+#: src/features/auth/components/settings/security/session-cell.tsx:94
+msgid "Revoke Session"
+msgstr "Revoke Session"
+
+#: src/features/auth/components/settings/security/session-cell.tsx:94
+msgid "Revoking..."
+msgstr "Revoking..."
+
+#: src/features/auth/components/organization/invite-member-dialog.tsx:137
 msgid "Role"
 msgstr "Role"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:167
-#: src/routes/dashboard/settings/-components/user-card.tsx:172
-msgid "Scan QR Code"
-msgstr "Scan QR Code"
+#: src/features/auth/components/organization/invite-member-dialog.tsx:51
+msgid "Role is required"
+msgstr "Role is required"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:173
-#: src/routes/dashboard/settings/-components/user-card.tsx:241
-msgid "Scan this QR code with your authenticator app"
-msgstr "Scan this QR code with your authenticator app"
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:64
+msgid "Role is the same"
+msgstr "Role is the same"
 
-#: src/components/assistant-ui/thread-list.tsx:209
+#: src/features/auth/lib/utils.ts:200
+msgid "Role not found"
+msgstr "Role not found"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:222
+#: src/features/auth/components/settings/security/change-email-card.tsx:130
+#: src/features/auth/components/settings/account/update-field-card.tsx:155
+#: src/features/auth/components/organization/organization-slug-card.tsx:32
+#: src/features/auth/components/organization/organization-slug-card.tsx:135
+#: src/features/auth/components/organization/organization-name-card.tsx:32
+#: src/features/auth/components/organization/organization-name-card.tsx:132
+msgid "Save"
+msgstr "Save"
+
+#: src/features/auth/components/settings/two-factor/backup-codes-dialog.tsx:47
+msgid "Save these backup codes in a safe place. You can use them to access your account if you lose your two-factor authentication device."
+msgstr "Save these backup codes in a safe place. You can use them to access your account if you lose your two-factor authentication device."
+
+#: src/components/assistant-ui/thread-list.tsx:207
 msgid "Search message content..."
 msgstr "Search message content..."
 
-#: src/components/assistant-ui/thread-list.tsx:209
+#: src/components/assistant-ui/thread-list.tsx:207
 msgid "Search thread titles..."
 msgstr "Search thread titles..."
 
-#: src/components/assistant-ui/thread-list.tsx:168
+#: src/components/assistant-ui/thread-list.tsx:166
 msgid "Search threads (Ctrl+F)"
 msgstr "Search threads (Ctrl+F)"
 
-#: src/features/auth/components/sign-up-form.tsx:234
-msgid "Secured by"
-msgstr "Secured by"
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:114
+msgid "Select role"
+msgstr "Select role"
 
-#: src/routes/dashboard/settings/-components/organization-card.tsx:382
-msgid "Select User"
-msgstr "Select User"
+#: src/features/auth/components/organization/invite-member-dialog.tsx:166
+msgid "Send Invitation"
+msgstr "Send Invitation"
 
-#: src/features/auth/components/otp.tsx:69
-msgid "Send OTP to Email"
-msgstr "Send OTP to Email"
+#: src/features/auth/components/auth/forms/magic-link-form.tsx:152
+msgid "Send Magic Link"
+msgstr "Send Magic Link"
 
-#: src/features/auth/components/forgot-password.tsx:114
-msgid "Send Reset Link"
-msgstr "Send Reset Link"
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:280
+msgid "Send verification code"
+msgstr "Send verification code"
 
-#: src/features/auth/components/forgot-password.tsx:114
-msgid "Sending..."
-msgstr "Sending..."
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:148
+msgid "Send Verification Code"
+msgstr "Send Verification Code"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:106
-msgid "Sessions revoked successfully"
-msgstr "Sessions revoked successfully"
+#: src/features/auth/lib/utils.ts:256
+msgid "Service unavailable"
+msgstr "Service unavailable"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:212
-msgid "Show QR Code"
-msgstr "Show QR Code"
+#: src/features/auth/lib/utils.ts:92
+msgid "Session expired. Re-authenticate to perform this action."
+msgstr "Session expired. Re-authenticate to perform this action."
 
-#: src/features/auth/components/sign-in-form.tsx:43
+#: src/features/auth/components/settings/security/sessions-card.tsx:76
+msgid "Sessions"
+msgstr "Sessions"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:199
+msgid "Set a password for your account"
+msgstr "Set a password for your account"
+
+#: src/features/auth/components/settings/security/change-password-card.tsx:198
+#: src/features/auth/components/settings/security/change-password-card.tsx:200
+msgid "Set Password"
+msgstr "Set Password"
+
+#: src/features/auth/components/user-button.tsx:218
+msgid "Settings"
+msgstr "Settings"
+
+#: src/features/auth/components/auth/auth-card.tsx:281
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:252
+msgid "Sign in"
+msgstr "Sign in"
+
+#: src/features/auth/components/user-button.tsx:197
+#: src/features/auth/components/organization/organization-switcher.tsx:262
+#: src/features/auth/components/auth/auth-card.tsx:112
 msgid "Sign In"
 msgstr "Sign In"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:141
-#: src/routes/dashboard/settings/-components/user-card.tsx:355
+#: src/features/auth/components/auth/provider-button.tsx:107
+msgid "Sign in with"
+msgstr "Sign in with"
+
+#: src/features/auth/components/auth/email-otp-button.tsx:29
+msgid "Sign in with email code"
+msgstr "Sign in with email code"
+
+#: src/features/auth/components/auth/magic-link-button.tsx:29
+msgid "Sign in with magic link"
+msgstr "Sign in with magic link"
+
+#: src/features/auth/components/auth/passkey-button.tsx:65
+msgid "Sign in with passkey"
+msgstr "Sign in with passkey"
+
+#: src/features/auth/components/auth/magic-link-button.tsx:29
+#: src/features/auth/components/auth/email-otp-button.tsx:29
+msgid "Sign in with password"
+msgstr "Sign in with password"
+
+#: src/features/auth/components/user-button.tsx:227
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:174
+#: src/features/auth/components/settings/account/account-cell.tsx:115
 msgid "Sign Out"
 msgstr "Sign Out"
 
-#: src/routes/dashboard/settings/-components/change-password.tsx:67
-msgid "Sign out from other devices"
-msgstr "Sign out from other devices"
+#: src/features/auth/components/auth/auth-card.tsx:281
+msgid "Sign up"
+msgstr "Sign up"
 
-#: src/features/auth/components/sign-up-form.tsx:85
+#: src/features/auth/components/user-button.tsx:206
+#: src/features/auth/components/auth/auth-card.tsx:117
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:633
 msgid "Sign Up"
 msgstr "Sign Up"
 
-#: src/components/assistant-ui/thread-list.tsx:1208
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:307
+msgid "Sign up successful"
+msgstr "Sign up successful"
+
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:50
+msgid "Slug does not match"
+msgstr "Slug does not match"
+
+#: src/features/auth/lib/utils.ts:68
+msgid "Social account already linked"
+msgstr "Social account already linked"
+
+#: src/features/auth/lib/utils.ts:252
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
+#: src/components/assistant-ui/thread-list.tsx:1262
 msgid "Start a new conversation to create your first thread"
 msgstr "Start a new conversation to create your first thread"
 
-#: src/features/auth/components/two-factor.tsx:110
-msgid "Switch to Email Verification"
-msgstr "Switch to Email Verification"
+#: src/features/auth/lib/utils.ts:284
+msgid "Subscription is not active"
+msgstr "Subscription is not active"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:143
-msgid "Terminate"
-msgstr "Terminate"
+#: src/features/auth/lib/utils.ts:286
+msgid "Subscription is not scheduled for cancellation"
+msgstr "Subscription is not scheduled for cancellation"
 
-#: src/features/auth/components/invitation-error.tsx:19
-msgid "The invitation link may be invalid or expired. Please contact the person who invited you."
-msgstr "The invitation link may be invalid or expired. Please contact the person who invited you."
+#: src/features/auth/lib/utils.ts:272
+msgid "Subscription not found"
+msgstr "Subscription not found"
 
-#: src/features/auth/components/invitation-error.tsx:16
-msgid "There was an error with your invitation"
-msgstr "There was an error with your invitation"
+#: src/features/auth/lib/utils.ts:274
+msgid "Subscription plan not found"
+msgstr "Subscription plan not found"
 
-#: src/components/assistant-ui/thread-list.tsx:196
+#: src/features/auth/components/settings/account/account-cell.tsx:99
+msgid "Switch Account"
+msgstr "Switch Account"
+
+#: src/features/auth/lib/utils.ts:204
+msgid "Team already exists"
+msgstr "Team already exists"
+
+#: src/features/auth/lib/utils.ts:206
+msgid "Team not found"
+msgstr "Team not found"
+
+#: src/features/auth/lib/utils.ts:154
+msgid "The expires in is larger than the predefined maximum value"
+msgstr "The expires in is larger than the predefined maximum value"
+
+#: src/features/auth/lib/utils.ts:152
+msgid "The expires in is smaller than the predefined minimum value"
+msgstr "The expires in is smaller than the predefined minimum value"
+
+#: src/features/auth/lib/utils.ts:160
+msgid "The name length is either too large or too small"
+msgstr "The name length is either too large or too small"
+
+#: src/features/auth/lib/utils.ts:264
+msgid "The password you entered has been compromised. Please choose a different password."
+msgstr "The password you entered has been compromised. Please choose a different password."
+
+#: src/features/auth/lib/utils.ts:158
+msgid "The prefix length is either too large or too small"
+msgstr "The prefix length is either too large or too small"
+
+#: src/features/auth/lib/utils.ts:176
+msgid "The property you're trying to set can only be set from the server auth instance only"
+msgstr "The property you're trying to set can only be set from the server auth instance only"
+
+#: src/features/auth/lib/utils.ts:156
+msgid "The remaining count is either too large or too small"
+msgstr "The remaining count is either too large or too small"
+
+#: src/features/auth/lib/utils.ts:172
+msgid "The user ID from the API key is invalid"
+msgstr "The user ID from the API key is invalid"
+
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:111
+msgid "This action cannot be undone. Please enter your password to confirm."
+msgstr "This action cannot be undone. Please enter your password to confirm."
+
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:93
+msgid "This action cannot be undone. This will permanently delete the organization and all associated data."
+msgstr "This action cannot be undone. This will permanently delete the organization and all associated data."
+
+#: src/features/auth/components/organization/organization-name-card.tsx:29
+#: src/features/auth/components/organization/organization-name-card.tsx:129
+msgid "This is how your organization appears to members"
+msgstr "This is how your organization appears to members"
+
+#: src/features/auth/components/organization/organization-slug-card.tsx:29
+#: src/features/auth/components/organization/organization-slug-card.tsx:132
+msgid "This is your organization's URL namespace"
+msgstr "This is your organization's URL namespace"
+
+#: src/components/assistant-ui/thread-list.tsx:194
 msgid "Threads"
 msgstr "Threads"
 
-#: src/features/auth/components/two-factor.tsx:68
-msgid "TOTP Code"
-msgstr "TOTP Code"
+#: src/features/auth/components/organization/delete-organization-dialog.tsx:115
+msgid "to confirm"
+msgstr "to confirm"
 
-#: src/features/auth/components/two-factor.tsx:51
-msgid "TOTP Verification"
-msgstr "TOTP Verification"
+#: src/features/auth/lib/utils.ts:358
+msgid "Token expired"
+msgstr "Token expired"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:160
-msgid "Two Factor"
-msgstr "Two Factor"
+#: src/features/auth/lib/utils.ts:294
+msgid "Too many attempts"
+msgstr "Too many attempts"
 
-#: src/features/auth/components/otp.tsx:63
+#: src/features/auth/lib/utils.ts:328
+msgid "Too many attempts. Please request a new code."
+msgstr "Too many attempts. Please request a new code."
+
+#: src/features/auth/lib/utils.ts:370
+msgid "Too many requests"
+msgstr "Too many requests"
+
+#: src/features/auth/lib/utils.ts:320
+msgid "TOTP not enabled"
+msgstr "TOTP not enabled"
+
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:236
+msgid "Trust this device"
+msgstr "Trust this device"
+
+#: src/features/auth/lib/utils.ts:322
+msgid "Two factor authentication is not enabled"
+msgstr "Two factor authentication is not enabled"
+
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:250
+msgid "Two-factor authentication"
+msgstr "Two-factor authentication"
+
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:108
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:37
+#: src/features/auth/components/auth/auth-card.tsx:132
 msgid "Two-Factor Authentication"
 msgstr "Two-Factor Authentication"
 
-#: src/components/assistant-ui/thread.tsx:130
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:175
+msgid "Two-factor authentication (TOTP)"
+msgstr "Two-factor authentication (TOTP)"
+
+#: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:89
+msgid "Two-factor authentication disabled"
+msgstr "Two-factor authentication disabled"
+
+#: src/features/auth/components/auth/forms/two-factor-form.tsx:102
+msgid "Two-factor authentication enabled"
+msgstr "Two-factor authentication enabled"
+
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:62
+msgid "Two-factor authentication is active. You'll need your authenticator app or backup codes to sign in."
+msgstr "Two-factor authentication is active. You'll need your authenticator app or backup codes to sign in."
+
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:43
+msgid "Two-factor authentication is currently enabled for your account. This adds an extra layer of security."
+msgstr "Two-factor authentication is currently enabled for your account. This adds an extra layer of security."
+
+#: src/features/auth/lib/utils.ts:362
+msgid "Two-factor code expired"
+msgstr "Two-factor code expired"
+
+#: src/components/assistant-ui/thread.tsx:152
 msgid "Type your message here..."
 msgstr "Type your message here..."
 
-#: src/routes/dashboard/settings/-components/admin.tsx:370
-msgid "Unban"
-msgstr "Unban"
+#: src/features/auth/lib/utils.ts:278
+msgid "Unable to create customer"
+msgstr "Unable to create customer"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:109
-msgid "Update"
-msgstr "Update"
+#: src/features/auth/lib/utils.ts:310
+msgid "Unable to create session"
+msgstr "Unable to create session"
 
-#: src/routes/dashboard/settings/-components/change-user.tsx:48
-msgid "Update your profile information"
-msgstr "Update your profile information"
+#: src/features/auth/lib/utils.ts:230
+msgid "Unable to remove last team"
+msgstr "Unable to remove last team"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:45
-#: src/routes/dashboard/settings/-components/admin.tsx:200
+#: src/features/auth/lib/utils.ts:372
+msgid "Unauthorized"
+msgstr "Unauthorized"
+
+#: src/features/auth/lib/utils.ts:140
+msgid "Unauthorized or invalid session"
+msgstr "Unauthorized or invalid session"
+
+#: src/features/auth/lib/utils.ts:344
+msgid "Unexpected error"
+msgstr "Unexpected error"
+
+#: src/features/auth/components/settings/security/session-cell.tsx:72
+msgid "Unknown Device"
+msgstr "Unknown Device"
+
+#: src/features/auth/components/settings/providers/provider-cell.tsx:101
+msgid "Unlink"
+msgstr "Unlink"
+
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:104
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:141
+#: src/features/auth/components/organization/member-cell.tsx:69
+msgid "Update Role"
+msgstr "Update Role"
+
+#: src/features/auth/components/organization/update-member-role-dialog.tsx:106
+msgid "Update the role for this member"
+msgstr "Update the role for this member"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:126
+msgid "Update your account email address"
+msgstr "Update your account email address"
+
+#: src/features/auth/components/settings/account/update-field-card.tsx:126
+msgid "updated successfully"
+msgstr "updated successfully"
+
+#: src/features/auth/components/organization/create-organization-dialog.tsx:216
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:436
+msgid "Upload"
+msgstr "Upload"
+
+#: src/features/auth/components/settings/account/update-avatar-card.tsx:111
+msgid "Upload a profile picture for your account"
+msgstr "Upload a profile picture for your account"
+
+#: src/features/auth/components/settings/account/update-avatar-card.tsx:132
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:421
+msgid "Upload Avatar"
+msgstr "Upload Avatar"
+
+#: src/features/auth/components/organization/organization-logo-card.tsx:193
+#: src/features/auth/components/organization/create-organization-dialog.tsx:201
+msgid "Upload Logo"
+msgstr "Upload Logo"
+
+#: src/features/auth/components/organization/organization-logo-card.tsx:38
+#: src/features/auth/components/organization/organization-logo-card.tsx:172
+msgid "Upload your organization's logo"
+msgstr "Upload your organization's logo"
+
+#: src/features/auth/components/user-view.tsx:61
+#: src/features/auth/components/user-avatar.tsx:68
+#: src/features/auth/components/organization/personal-account-view.tsx:46
 msgid "User"
 msgstr "User"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:139
-msgid "User banned successfully"
-msgstr "User banned successfully"
+#: src/features/auth/lib/utils.ts:86
+msgid "User already exists"
+msgstr "User already exists"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:74
-msgid "User created successfully"
-msgstr "User created successfully"
+#: src/features/auth/lib/utils.ts:98
+msgid "User already has a password. Provide that to delete the account."
+msgstr "User already has a password. Provide that to delete the account."
 
-#: src/routes/dashboard/settings/-components/admin.tsx:91
-msgid "User deleted successfully"
-msgstr "User deleted successfully"
+#: src/features/auth/lib/utils.ts:78
+msgid "User email not found"
+msgstr "User email not found"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:354
-msgid "User unbanned successfully"
-msgstr "User unbanned successfully"
+#: src/features/auth/lib/utils.ts:196
+msgid "User is already a member of this organization"
+msgstr "User is already a member of this organization"
 
-#: src/features/auth/components/otp.tsx:108
-msgid "Validate OTP"
-msgstr "Validate OTP"
+#: src/features/auth/lib/utils.ts:214
+msgid "User is already invited to this organization"
+msgstr "User is already invited to this organization"
 
-#: src/features/auth/components/two-factor.tsx:103
-msgid "Verification Successful"
-msgstr "Verification Successful"
+#: src/features/auth/lib/utils.ts:138
+msgid "User is banned"
+msgstr "User is banned"
 
-#: src/features/auth/components/two-factor.tsx:94
+#: src/features/auth/lib/utils.ts:188
+msgid "User is not a member of the organization"
+msgstr "User is not a member of the organization"
+
+#: src/features/auth/lib/utils.ts:51
+msgid "User not found"
+msgstr "User not found"
+
+#: src/features/auth/components/settings/account/update-username-card.tsx:27
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:475
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:173
+msgid "Username"
+msgstr "Username"
+
+#: src/features/auth/lib/utils.ts:346
+msgid "Username is already taken"
+msgstr "Username is already taken"
+
+#: src/features/auth/components/auth/forms/sign-up-form.tsx:152
+#: src/features/auth/components/auth/forms/sign-in-form.tsx:53
+msgid "Username is required"
+msgstr "Username is required"
+
+#: src/features/auth/lib/utils.ts:350
+msgid "Username is too long"
+msgstr "Username is too long"
+
+#: src/features/auth/lib/utils.ts:348
+msgid "Username is too short"
+msgstr "Username is too short"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:242
+msgid "Verification Code"
+msgstr "Verification Code"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:181
+msgid "Verification code is invalid"
+msgstr "Verification code is invalid"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:178
+msgid "Verification code is required"
+msgstr "Verification code is required"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:86
+msgid "Verification code sent to your email"
+msgstr "Verification code sent to your email"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:97
+msgid "Verification email sent"
+msgstr "Verification email sent"
+
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:84
 msgid "Verify"
 msgstr "Verify"
 
-#: src/routes/dashboard/settings/-components/user-card.tsx:65
-msgid "Verify Email"
-msgstr "Verify Email"
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:274
+msgid "Verify Code"
+msgstr "Verify Code"
 
-#: src/features/auth/components/otp.tsx:64
-msgid "Verify your identity with a one-time password"
-msgstr "Verify your identity with a one-time password"
+#: src/features/auth/components/settings/security/change-email-card.tsx:176
+msgid "Verify Your Email"
+msgstr "Verify Your Email"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:110
-msgid "Welcome to"
-msgstr "Welcome to"
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:50
+msgid "Verify Your Identity"
+msgstr "Verify Your Identity"
 
-#: src/routes/dashboard/settings/-components/admin.tsx:287
-msgid "Yes"
-msgstr "Yes"
+#: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:84
+msgid "Verifying..."
+msgstr "Verifying..."
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:91
-msgid "You have been invited to join an organization"
-msgstr "You have been invited to join an organization"
+#: src/features/auth/components/settings/account/accounts-card.tsx:34
+msgid "View and manage all your active sessions"
+msgstr "View and manage all your active sessions"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:122
-msgid "You have declined the invitation to join"
-msgstr "You have declined the invitation to join"
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:54
+msgid "View Backup Codes"
+msgstr "View Backup Codes"
 
-#: src/routes/(auth)/accept-invitation/$invitationId/index.tsx:112
-msgid "You have successfully joined the organization"
-msgstr "You have successfully joined the organization"
+#: src/features/auth/lib/utils.ts:112
+msgid "You are not allowed to ban users"
+msgstr "You are not allowed to ban users"
+
+#: src/features/auth/lib/utils.ts:220
+msgid "You are not allowed to cancel this invitation"
+msgstr "You are not allowed to cancel this invitation"
+
+#: src/features/auth/lib/utils.ts:104
+msgid "You are not allowed to change users role"
+msgstr "You are not allowed to change users role"
+
+#: src/features/auth/lib/utils.ts:180
+msgid "You are not allowed to create a new organization"
+msgstr "You are not allowed to create a new organization"
+
+#: src/features/auth/lib/utils.ts:202
+msgid "You are not allowed to create a new team"
+msgstr "You are not allowed to create a new team"
+
+#: src/features/auth/lib/utils.ts:236
+msgid "You are not allowed to create teams in this organization"
+msgstr "You are not allowed to create teams in this organization"
+
+#: src/features/auth/lib/utils.ts:106
+msgid "You are not allowed to create users"
+msgstr "You are not allowed to create users"
+
+#: src/features/auth/lib/utils.ts:238
+msgid "You are not allowed to delete teams in this organization"
+msgstr "You are not allowed to delete teams in this organization"
+
+#: src/features/auth/lib/utils.ts:210
+msgid "You are not allowed to delete this member"
+msgstr "You are not allowed to delete this member"
+
+#: src/features/auth/lib/utils.ts:192
+msgid "You are not allowed to delete this organization"
+msgstr "You are not allowed to delete this organization"
+
+#: src/features/auth/lib/utils.ts:242
+msgid "You are not allowed to delete this team"
+msgstr "You are not allowed to delete this team"
+
+#: src/features/auth/lib/utils.ts:118
+msgid "You are not allowed to delete users"
+msgstr "You are not allowed to delete users"
+
+#: src/features/auth/lib/utils.ts:114
+msgid "You are not allowed to impersonate users"
+msgstr "You are not allowed to impersonate users"
+
+#: src/features/auth/lib/utils.ts:224
+msgid "You are not allowed to invite user with this role"
+msgstr "You are not allowed to invite user with this role"
+
+#: src/features/auth/lib/utils.ts:212
+msgid "You are not allowed to invite users to this organization"
+msgstr "You are not allowed to invite users to this organization"
+
+#: src/features/auth/lib/utils.ts:108
+msgid "You are not allowed to list users"
+msgstr "You are not allowed to list users"
+
+#: src/features/auth/lib/utils.ts:110
+msgid "You are not allowed to list users sessions"
+msgstr "You are not allowed to list users sessions"
+
+#: src/features/auth/lib/utils.ts:302
+msgid "You are not allowed to register this passkey"
+msgstr "You are not allowed to register this passkey"
+
+#: src/features/auth/lib/utils.ts:116
+msgid "You are not allowed to revoke users sessions"
+msgstr "You are not allowed to revoke users sessions"
+
+#: src/features/auth/lib/utils.ts:120
+msgid "You are not allowed to set users password"
+msgstr "You are not allowed to set users password"
+
+#: src/features/auth/lib/utils.ts:232
+msgid "You are not allowed to update this member"
+msgstr "You are not allowed to update this member"
+
+#: src/features/auth/lib/utils.ts:190
+msgid "You are not allowed to update this organization"
+msgstr "You are not allowed to update this organization"
+
+#: src/features/auth/lib/utils.ts:240
+msgid "You are not allowed to update this team"
+msgstr "You are not allowed to update this team"
+
+#: src/features/auth/lib/utils.ts:218
+msgid "You are not the recipient of the invitation"
+msgstr "You are not the recipient of the invitation"
+
+#: src/features/auth/lib/utils.ts:94
+msgid "You can't unlink your last account"
+msgstr "You can't unlink your last account"
+
+#: src/features/auth/lib/utils.ts:102
+msgid "You cannot ban yourself"
+msgstr "You cannot ban yourself"
+
+#: src/features/auth/lib/utils.ts:208
+msgid "You cannot leave the organization as the only owner"
+msgstr "You cannot leave the organization as the only owner"
+
+#: src/features/auth/lib/utils.ts:122
+msgid "You have been banned from this application"
+msgstr "You have been banned from this application"
+
+#: src/features/auth/lib/utils.ts:182
+msgid "You have reached the maximum number of organizations"
+msgstr "You have reached the maximum number of organizations"
+
+#: src/features/auth/lib/utils.ts:228
+msgid "You have reached the maximum number of teams"
+msgstr "You have reached the maximum number of teams"
+
+#: src/features/auth/components/settings/two-factor/two-factor-card.tsx:71
+msgid "You'll need an authenticator app like Google Authenticator or Authy to generate verification codes."
+msgstr "You'll need an authenticator app like Google Authenticator or Authy to generate verification codes."
+
+#: src/features/auth/lib/utils.ts:276
+msgid "You're already subscribed to this plan"
+msgstr "You're already subscribed to this plan"
+
+#: src/features/auth/components/organization/accept-invitation-card.tsx:173
+msgid "You've been invited to join an organization"
+msgstr "You've been invited to join an organization"
+
+#: src/features/auth/components/settings/api-key/api-key-display-dialog.tsx:35
+msgid "Your API key has been created successfully. Make sure to copy it now as you won't be able to see it again."
+msgstr "Your API key has been created successfully. Make sure to copy it now as you won't be able to see it again."
+
+#: src/features/auth/components/settings/account/update-name-card.tsx:23
+msgid "Your display name for your account"
+msgstr "Your display name for your account"
+
+#: src/features/auth/components/settings/account/delete-account-dialog.tsx:112
+msgid "Your session is not fresh. Please sign out and sign back in to delete your account."
+msgstr "Your session is not fresh. Please sign out and sign back in to delete your account."
+
+#: src/features/auth/components/settings/account/update-username-card.tsx:24
+msgid "Your unique username for your account"
+msgstr "Your unique username for your account"

@@ -73,22 +73,22 @@ importers:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: ^1.2.12
-        version: 1.2.12(zod@3.25.75)
+        version: 1.2.12(zod@3.25.76)
       '@ai-sdk/google':
         specifier: ^1.2.22
-        version: 1.2.22(zod@3.25.75)
+        version: 1.2.22(zod@3.25.76)
       '@ai-sdk/openai':
         specifier: ^1.3.23
-        version: 1.3.23(zod@3.25.75)
+        version: 1.3.23(zod@3.25.76)
       '@ai-sdk/provider':
         specifier: ^1.1.3
         version: 1.1.3
       '@ai-sdk/react':
         specifier: ^1.2.12
-        version: 1.2.12(react@19.1.0)(zod@3.25.75)
+        version: 1.2.12(react@19.1.0)(zod@3.25.76)
       '@ai-sdk/ui-utils':
         specifier: ^1.2.11
-        version: 1.2.11(zod@3.25.75)
+        version: 1.2.11(zod@3.25.76)
       '@assistant-ui/react':
         specifier: ^0.10.24
         version: 0.10.24(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
@@ -100,7 +100,7 @@ importers:
         version: 0.10.5(@assistant-ui/react@0.10.24(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0)))(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@convex-dev/agent':
         specifier: 0.1.13
-        version: 0.1.13(ai@4.3.17(react@19.1.0)(zod@3.25.75))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))(react@19.1.0)
+        version: 0.1.13(ai@4.3.17(react@19.1.0)(zod@3.25.76))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))(react@19.1.0)
       '@convex-dev/better-auth':
         specifier: ^0.7.0-alpha.12
         version: 0.7.0-alpha.12(@standard-schema/spec@1.0.0)(better-auth@1.2.12)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
@@ -115,13 +115,13 @@ importers:
         version: 0.2.10(convex@1.25.2(react@19.1.0))(react@19.1.0)
       '@convex-dev/react-query':
         specifier: 0.0.0-alpha.11
-        version: 0.0.0-alpha.11(@standard-schema/spec@1.0.0)(@tanstack/react-query@5.81.5(react@19.1.0))(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)
+        version: 0.0.0-alpha.11(@standard-schema/spec@1.0.0)(@tanstack/react-query@5.81.5(react@19.1.0))(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
       '@convex-dev/resend':
         specifier: 0.1.2-beta.2
-        version: 0.1.2-beta.2(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))(react@19.1.0)
+        version: 0.1.2-beta.2(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))(react@19.1.0)
       '@convex-dev/workflow':
         specifier: ^0.2.4
-        version: 0.2.4(@convex-dev/workpool@0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0)))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))
+        version: 0.2.4(@convex-dev/workpool@0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0)))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -139,10 +139,10 @@ importers:
         version: 1.12.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@langchain/community':
         specifier: ^0.3.48
-        version: 0.3.48(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(zod@3.25.75))(@ibm-cloud/watsonx-ai@1.6.7)(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))(axios@1.9.0)(cheerio@1.1.0)(convex@1.25.2(react@19.1.0))(handlebars@4.7.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.0)(ignore@5.3.2)(ioredis@5.6.1)(jsdom@26.1.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(pdf-parse@1.1.1)(playwright@1.53.1)(redis@4.7.1)(weaviate-client@3.6.2)(ws@8.18.2)
+        version: 0.3.48(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(zod@3.25.76))(@ibm-cloud/watsonx-ai@1.6.7)(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))(axios@1.9.0)(cheerio@1.1.0)(convex@1.25.2(react@19.1.0))(handlebars@4.7.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.0)(ignore@5.3.2)(ioredis@5.6.1)(jsdom@26.1.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(pdf-parse@1.1.1)(playwright@1.53.1)(redis@4.7.1)(weaviate-client@3.6.2)(ws@8.18.2)
       '@langchain/textsplitters':
         specifier: ^0.1.0
-        version: 0.1.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))
+        version: 0.1.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))
       '@lingui/core':
         specifier: ^5.3.2
         version: 5.3.2(@lingui/babel-plugin-lingui-macro@5.3.2(babel-plugin-macros@3.1.0)(typescript@5.8.3))(babel-plugin-macros@3.1.0)
@@ -163,13 +163,13 @@ importers:
         version: 1.15.0
       '@openrouter/ai-sdk-provider':
         specifier: ^0.7.2
-        version: 0.7.2(ai@4.3.17(react@19.1.0)(zod@3.25.75))(zod@3.25.75)
+        version: 0.7.2(ai@4.3.17(react@19.1.0)(zod@3.25.76))(zod@3.25.76)
       '@polar-sh/better-auth':
         specifier: ^1.0.4
-        version: 1.0.4(@polar-sh/sdk@0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.75))(better-auth@1.2.12)
+        version: 1.0.4(@polar-sh/sdk@0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.76))(better-auth@1.2.12)
       '@polar-sh/sdk':
         specifier: ^0.34.3
-        version: 0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.75)
+        version: 0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.76)
       '@react-email/components':
         specifier: ^0.1.1
         version: 0.1.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -184,10 +184,10 @@ importers:
         version: 3.7.0
       '@t3-oss/env-core':
         specifier: ^0.13.8
-        version: 0.13.8(typescript@5.8.3)(zod@3.25.75)
+        version: 0.13.8(typescript@5.8.3)(zod@3.25.76)
       '@tailwindcss/vite':
         specifier: ^4.1.11
-        version: 4.1.11(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+        version: 4.1.11(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/form-core':
         specifier: ^1.14.0
         version: 1.14.0
@@ -199,7 +199,7 @@ importers:
         version: 5.81.5
       '@tanstack/react-form':
         specifier: ^1.14.1
-        version: 1.14.1(@tanstack/react-start@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 1.14.1(@tanstack/react-start@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/react-query':
         specifier: ^5.81.5
         version: 5.81.5(react@19.1.0)
@@ -217,7 +217,7 @@ importers:
         version: 1.125.6(@tanstack/react-query@5.81.5(react@19.1.0))(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tanstack/router-core@1.125.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/react-start':
         specifier: 1.125.6
-        version: 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+        version: 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/react-store':
         specifier: ^0.7.3
         version: 0.7.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -229,7 +229,7 @@ importers:
         version: 3.13.12(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/router-plugin':
         specifier: ^1.125.6
-        version: 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+        version: 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/store':
         specifier: ^0.7.2
         version: 0.7.2
@@ -241,7 +241,7 @@ importers:
         version: 2.1.25
       ai:
         specifier: ^4.3.17
-        version: 4.3.17(react@19.1.0)(zod@3.25.75)
+        version: 4.3.17(react@19.1.0)(zod@3.25.76)
       assistant-stream:
         specifier: ^0.2.17
         version: 0.2.17
@@ -262,7 +262,7 @@ importers:
         version: 1.25.2(react@19.1.0)
       convex-helpers:
         specifier: ^0.1.96
-        version: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)
+        version: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
       cookie-es:
         specifier: ^2.0.0
         version: 2.0.0
@@ -305,6 +305,9 @@ importers:
       motion:
         specifier: ^12.23.0
         version: 12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      my-ua-parser:
+        specifier: ^2.0.4
+        version: 2.0.4
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -405,11 +408,11 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       zod:
-        specifier: ^3.25.75
-        version: 3.25.75
+        specifier: ^3.25.76
+        version: 3.25.76
       zod-form-data:
         specifier: ^3.0.0
-        version: 3.0.0(zod@3.25.75)
+        version: 3.0.0(zod@3.25.76)
       zustand:
         specifier: ^5.0.6
         version: 5.0.6(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
@@ -428,7 +431,7 @@ importers:
         version: 5.3.2(typescript@5.8.3)
       '@lingui/vite-plugin':
         specifier: ^5.3.2
-        version: 5.3.2(typescript@5.8.3)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+        version: 5.3.2(typescript@5.8.3)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@4.1.11)
@@ -446,10 +449,10 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.6.0
-        version: 4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+        version: 4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@vitest/browser':
         specifier: ^3.2.4
-        version: 3.2.4(playwright@1.53.1)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
+        version: 3.2.4(playwright@1.53.1)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
       babel-plugin-react-compiler:
         specifier: 19.1.0-rc.2
         version: 19.1.0-rc.2
@@ -478,11 +481,11 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       vite:
-        specifier: ^7.0.2
-        version: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+        specifier: ^7.0.3
+        version: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
       vite-tsconfig-paths:
         specifier: ^5.1.4
-        version: 5.1.4(typescript@5.8.3)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+        version: 5.1.4(typescript@5.8.3)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@edge-runtime/vm@5.0.0)(@types/debug@4.1.12)(@types/node@24.0.10)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
@@ -10307,6 +10310,9 @@ packages:
     resolution: {integrity: sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
+  my-ua-parser@2.0.4:
+    resolution: {integrity: sha512-lhPyjoce3SRNXqgozoVti8XWC6oWY/rMcXljvov9IAgHKj2ZTU3dR5iQ7jLrIj02xD4Ggn6doTi7K2pnSbjzeg==}
+
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
@@ -12959,8 +12965,8 @@ packages:
       vite:
         optional: true
 
-  vite@7.0.2:
-    resolution: {integrity: sha512-hxdyZDY1CM6SNpKI4w4lcUc3Mtkd9ej4ECWVHSMrOdSinVc2zYOAppHeGc/hzmRo3pxM5blMzkuWHOJA/3NiFw==}
+  vite@7.0.3:
+    resolution: {integrity: sha512-y2L5oJZF7bj4c0jgGYgBNSdIu+5HF+m68rn2cQXFbGoShdhV1phX9rbnxy9YXj82aS8MMsCLAAFkRxZeWdldrQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -13333,6 +13339,9 @@ packages:
   zod@3.25.75:
     resolution: {integrity: sha512-OhpzAmVzabPOL6C3A3gpAifqr9MqihV/Msx3gor2b2kviCgcb+HM9SEOpMWwwNp9MRunWnhtAKUoo0AHhjyPPg==}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
   zustand@5.0.6:
     resolution: {integrity: sha512-ihAqNeUVhe0MAD+X8M5UzqyZ9k3FFZLBTtqo6JLPwV53cbRB/mJwBI0PxcIgqhBBHlEs8G45OTDTMq3gNcLq3A==}
     engines: {node: '>=12.20.0'}
@@ -13356,23 +13365,23 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/anthropic@1.2.12(zod@3.25.75)':
+  '@ai-sdk/anthropic@1.2.12(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.75)
-      zod: 3.25.75
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      zod: 3.25.76
 
-  '@ai-sdk/google@1.2.22(zod@3.25.75)':
+  '@ai-sdk/google@1.2.22(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.75)
-      zod: 3.25.75
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      zod: 3.25.76
 
-  '@ai-sdk/openai@1.3.23(zod@3.25.75)':
+  '@ai-sdk/openai@1.3.23(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.75)
-      zod: 3.25.75
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      zod: 3.25.76
 
   '@ai-sdk/provider-utils@2.2.8(zod@3.25.75)':
     dependencies:
@@ -13380,6 +13389,13 @@ snapshots:
       nanoid: 3.3.11
       secure-json-parse: 2.7.0
       zod: 3.25.75
+
+  '@ai-sdk/provider-utils@2.2.8(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 1.1.3
+      nanoid: 3.3.11
+      secure-json-parse: 2.7.0
+      zod: 3.25.76
 
   '@ai-sdk/provider@1.1.3':
     dependencies:
@@ -13395,12 +13411,29 @@ snapshots:
     optionalDependencies:
       zod: 3.25.75
 
+  '@ai-sdk/react@1.2.12(react@19.1.0)(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
+      react: 19.1.0
+      swr: 2.3.3(react@19.1.0)
+      throttleit: 2.1.0
+    optionalDependencies:
+      zod: 3.25.76
+
   '@ai-sdk/ui-utils@1.2.11(zod@3.25.75)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       '@ai-sdk/provider-utils': 2.2.8(zod@3.25.75)
       zod: 3.25.75
       zod-to-json-schema: 3.24.5(zod@3.25.75)
+
+  '@ai-sdk/ui-utils@1.2.11(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 1.1.3
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.5(zod@3.25.76)
 
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -13608,14 +13641,14 @@ snapshots:
 
   '@assistant-ui/react-ai-sdk@0.10.14(@assistant-ui/react@0.10.24(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0)))(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))':
     dependencies:
-      '@ai-sdk/react': 1.2.12(react@19.1.0)(zod@3.25.75)
-      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.75)
+      '@ai-sdk/react': 1.2.12(react@19.1.0)(zod@3.25.76)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
       '@assistant-ui/react': 0.10.24(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
       '@assistant-ui/react-edge': 0.2.12(@assistant-ui/react@0.10.24(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0)))(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.8)(react@19.1.0)
       '@types/json-schema': 7.0.15
       react: 19.1.0
-      zod: 3.25.75
+      zod: 3.25.76
       zustand: 5.0.6(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
     optionalDependencies:
       '@types/react': 19.1.8
@@ -13633,8 +13666,8 @@ snapshots:
       json-schema: 0.4.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-      zod: 3.25.75
-      zod-to-json-schema: 3.24.5(zod@3.25.75)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.5(zod@3.25.76)
     optionalDependencies:
       '@types/react': 19.1.8
       '@types/react-dom': 19.1.6(@types/react@19.1.8)
@@ -13673,7 +13706,7 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       react-textarea-autosize: 8.5.9(@types/react@19.1.8)(react@19.1.0)
-      zod: 3.25.75
+      zod: 3.25.76
       zustand: 5.0.6(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
     optionalDependencies:
       '@types/react': 19.1.8
@@ -14012,17 +14045,17 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@browserbasehq/stagehand@1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(zod@3.25.75)':
+  '@browserbasehq/stagehand@1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(zod@3.25.76)':
     dependencies:
       '@anthropic-ai/sdk': 0.27.3
       '@browserbasehq/sdk': 2.6.0
       '@playwright/test': 1.53.1
       deepmerge: 4.3.1
       dotenv: 17.0.1
-      openai: 4.104.0(ws@8.18.2)(zod@3.25.75)
+      openai: 4.104.0(ws@8.18.2)(zod@3.25.76)
       ws: 8.18.2
-      zod: 3.25.75
-      zod-to-json-schema: 3.24.5(zod@3.25.75)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.5(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -14198,11 +14231,11 @@ snapshots:
       '@types/conventional-commits-parser': 5.0.1
       chalk: 5.4.1
 
-  '@convex-dev/agent@0.1.13(ai@4.3.17(react@19.1.0)(zod@3.25.75))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))(react@19.1.0)':
+  '@convex-dev/agent@0.1.13(ai@4.3.17(react@19.1.0)(zod@3.25.76))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))(react@19.1.0)':
     dependencies:
-      ai: 4.3.17(react@19.1.0)(zod@3.25.75)
+      ai: 4.3.17(react@19.1.0)(zod@3.25.76)
       convex: 1.25.2(react@19.1.0)
-      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)
+      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
     optionalDependencies:
       react: 19.1.0
 
@@ -14228,13 +14261,13 @@ snapshots:
       better-auth: 1.2.12
       better-call: 1.0.9
       convex: 1.25.2(react@19.1.0)
-      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)
+      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
       is-network-error: 1.1.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       remeda: 2.23.0
       type-fest: 4.41.0
-      zod: 3.25.75
+      zod: 3.25.76
     transitivePeerDependencies:
       - '@standard-schema/spec'
       - hono
@@ -14256,13 +14289,13 @@ snapshots:
     optionalDependencies:
       react: 19.1.0
 
-  '@convex-dev/react-query@0.0.0-alpha.11(@standard-schema/spec@1.0.0)(@tanstack/react-query@5.81.5(react@19.1.0))(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)':
+  '@convex-dev/react-query@0.0.0-alpha.11(@standard-schema/spec@1.0.0)(@tanstack/react-query@5.81.5(react@19.1.0))(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       '@auth/core': 0.37.4
       '@convex-dev/auth': 0.0.83(@auth/core@0.37.4)(convex@1.25.2(react@19.1.0))(react@19.1.0)
       '@tanstack/react-query': 5.81.5(react@19.1.0)
       convex: 1.25.2(react@19.1.0)
-      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)
+      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
@@ -14273,10 +14306,10 @@ snapshots:
       - typescript
       - zod
 
-  '@convex-dev/resend@0.1.2-beta.2(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))(react@19.1.0)':
+  '@convex-dev/resend@0.1.2-beta.2(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@convex-dev/rate-limiter': 0.2.10(convex@1.25.2(react@19.1.0))(react@19.1.0)
-      '@convex-dev/workpool': 0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))
+      '@convex-dev/workpool': 0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))
       convex: 1.25.2(react@19.1.0)
       lodash: 4.17.21
       svix: 1.67.0
@@ -14285,17 +14318,17 @@ snapshots:
       - encoding
       - react
 
-  '@convex-dev/workflow@0.2.4(@convex-dev/workpool@0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0)))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))':
+  '@convex-dev/workflow@0.2.4(@convex-dev/workpool@0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0)))(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))':
     dependencies:
-      '@convex-dev/workpool': 0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))
+      '@convex-dev/workpool': 0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))
       async-channel: 0.2.0
       convex: 1.25.2(react@19.1.0)
-      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)
+      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
 
-  '@convex-dev/workpool@0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75))(convex@1.25.2(react@19.1.0))':
+  '@convex-dev/workpool@0.2.14(convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76))(convex@1.25.2(react@19.1.0))':
     dependencies:
       convex: 1.25.2(react@19.1.0)
-      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.75)
+      convex-helpers: 0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
 
   '@csstools/color-helpers@5.0.2': {}
 
@@ -14902,23 +14935,23 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
-  '@langchain/community@0.3.48(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(zod@3.25.75))(@ibm-cloud/watsonx-ai@1.6.7)(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))(axios@1.9.0)(cheerio@1.1.0)(convex@1.25.2(react@19.1.0))(handlebars@4.7.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.0)(ignore@5.3.2)(ioredis@5.6.1)(jsdom@26.1.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(pdf-parse@1.1.1)(playwright@1.53.1)(redis@4.7.1)(weaviate-client@3.6.2)(ws@8.18.2)':
+  '@langchain/community@0.3.48(@browserbasehq/sdk@2.6.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(zod@3.25.76))(@ibm-cloud/watsonx-ai@1.6.7)(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))(axios@1.9.0)(cheerio@1.1.0)(convex@1.25.2(react@19.1.0))(handlebars@4.7.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.4.0)(ignore@5.3.2)(ioredis@5.6.1)(jsdom@26.1.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(pdf-parse@1.1.1)(playwright@1.53.1)(redis@4.7.1)(weaviate-client@3.6.2)(ws@8.18.2)':
     dependencies:
-      '@browserbasehq/stagehand': 1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(zod@3.25.75)
+      '@browserbasehq/stagehand': 1.14.0(@playwright/test@1.53.1)(deepmerge@4.3.1)(dotenv@17.0.1)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(zod@3.25.76)
       '@ibm-cloud/watsonx-ai': 1.6.7
-      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
-      '@langchain/openai': 0.5.13(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))(ws@8.18.2)
-      '@langchain/weaviate': 0.2.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))
+      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
+      '@langchain/openai': 0.5.13(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))(ws@8.18.2)
+      '@langchain/weaviate': 0.2.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))
       binary-extensions: 2.3.0
       expr-eval: 2.0.2
       flat: 5.0.2
       ibm-cloud-sdk-core: 5.4.0
       js-yaml: 4.1.0
-      langchain: 0.3.28(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))(axios@1.9.0)(cheerio@1.1.0)(handlebars@4.7.8)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(ws@8.18.2)
-      langsmith: 0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
-      openai: 4.104.0(ws@8.18.2)(zod@3.25.75)
+      langchain: 0.3.28(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))(axios@1.9.0)(cheerio@1.1.0)(handlebars@4.7.8)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(ws@8.18.2)
+      langsmith: 0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
+      openai: 4.104.0(ws@8.18.2)(zod@3.25.76)
       uuid: 10.0.0
-      zod: 3.25.75
+      zod: 3.25.76
     optionalDependencies:
       '@browserbasehq/sdk': 2.6.0
       cheerio: 1.1.0
@@ -14952,26 +14985,26 @@ snapshots:
       - handlebars
       - peggy
 
-  '@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75))':
+  '@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76))':
     dependencies:
       '@cfworker/json-schema': 4.1.1
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.20
-      langsmith: 0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
+      langsmith: 0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
       mustache: 4.2.0
       p-queue: 6.6.2
       p-retry: 4.6.2
       uuid: 10.0.0
-      zod: 3.25.75
-      zod-to-json-schema: 3.24.5(zod@3.25.75)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.5(zod@3.25.76)
     transitivePeerDependencies:
       - openai
 
-  '@langchain/openai@0.5.13(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))(ws@8.18.2)':
+  '@langchain/openai@0.5.13(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))(ws@8.18.2)':
     dependencies:
-      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
+      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
       js-tiktoken: 1.0.20
       openai: 4.104.0(ws@8.18.2)(zod@3.25.32)
       zod: 3.25.32
@@ -14979,14 +15012,14 @@ snapshots:
       - encoding
       - ws
 
-  '@langchain/textsplitters@0.1.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))':
+  '@langchain/textsplitters@0.1.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))':
     dependencies:
-      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
+      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
       js-tiktoken: 1.0.20
 
-  '@langchain/weaviate@0.2.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))':
+  '@langchain/weaviate@0.2.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))':
     dependencies:
-      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
+      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
       uuid: 10.0.0
       weaviate-client: 3.6.2
     transitivePeerDependencies:
@@ -15099,11 +15132,11 @@ snapshots:
       '@lingui/babel-plugin-lingui-macro': 5.3.2(babel-plugin-macros@3.1.0)(typescript@5.8.3)
       babel-plugin-macros: 3.1.0
 
-  '@lingui/vite-plugin@5.3.2(typescript@5.8.3)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@lingui/vite-plugin@5.3.2(typescript@5.8.3)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@lingui/cli': 5.3.2(typescript@5.8.3)
       '@lingui/conf': 5.3.2(typescript@5.8.3)
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -15152,8 +15185,8 @@ snapshots:
       express-rate-limit: 7.5.0(express@5.1.0)
       pkce-challenge: 5.0.0
       raw-body: 3.0.0
-      zod: 3.25.75
-      zod-to-json-schema: 3.24.5(zod@3.25.75)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.5(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -15252,7 +15285,7 @@ snapshots:
       unixify: 1.0.0
       urlpattern-polyfill: 8.0.2
       yargs: 17.7.2
-      zod: 3.25.75
+      zod: 3.25.76
     transitivePeerDependencies:
       - encoding
       - rollup
@@ -15561,12 +15594,12 @@ snapshots:
 
   '@oozcitak/util@8.3.8': {}
 
-  '@openrouter/ai-sdk-provider@0.7.2(ai@4.3.17(react@19.1.0)(zod@3.25.75))(zod@3.25.75)':
+  '@openrouter/ai-sdk-provider@0.7.2(ai@4.3.17(react@19.1.0)(zod@3.25.76))(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.75)
-      ai: 4.3.17(react@19.1.0)(zod@3.25.75)
-      zod: 3.25.75
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      ai: 4.3.17(react@19.1.0)(zod@3.25.76)
+      zod: 3.25.76
 
   '@opentelemetry/api@1.9.0': {}
 
@@ -15889,16 +15922,16 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@polar-sh/better-auth@1.0.4(@polar-sh/sdk@0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.75))(better-auth@1.2.12)':
+  '@polar-sh/better-auth@1.0.4(@polar-sh/sdk@0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.76))(better-auth@1.2.12)':
     dependencies:
-      '@polar-sh/sdk': 0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.75)
+      '@polar-sh/sdk': 0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.76)
       better-auth: 1.2.12
-      zod: 3.25.75
+      zod: 3.25.76
 
-  '@polar-sh/sdk@0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.75)':
+  '@polar-sh/sdk@0.34.3(@modelcontextprotocol/sdk@1.15.0)(zod@3.25.76)':
     dependencies:
       standardwebhooks: 1.0.0
-      zod: 3.25.75
+      zod: 3.25.76
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.15.0
 
@@ -17396,10 +17429,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@t3-oss/env-core@0.13.8(typescript@5.8.3)(zod@3.25.75)':
+  '@t3-oss/env-core@0.13.8(typescript@5.8.3)(zod@3.25.76)':
     optionalDependencies:
       typescript: 5.8.3
-      zod: 3.25.75
+      zod: 3.25.76
 
   '@tailwindcss/node@4.1.11':
     dependencies:
@@ -17473,14 +17506,14 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 4.1.11
 
-  '@tailwindcss/vite@4.1.11(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tailwindcss/vite@4.1.11(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@tailwindcss/node': 4.1.11
       '@tailwindcss/oxide': 4.1.11
       tailwindcss: 4.1.11
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
 
-  '@tanstack/directive-functions-plugin@1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/directive-functions-plugin@1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/code-frame': 7.27.1
       '@babel/core': 7.27.7
@@ -17489,7 +17522,7 @@ snapshots:
       '@tanstack/router-utils': 1.121.21
       babel-dead-code-elimination: 1.0.10
       tiny-invariant: 1.3.3
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -17507,7 +17540,7 @@ snapshots:
 
   '@tanstack/query-devtools@5.81.2': {}
 
-  '@tanstack/react-form@1.14.1(@tanstack/react-start@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@tanstack/react-form@1.14.1(@tanstack/react-start@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@tanstack/form-core': 1.14.0
       '@tanstack/react-store': 0.7.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -17515,7 +17548,7 @@ snapshots:
       devalue: 5.1.1
       react: 19.1.0
     optionalDependencies:
-      '@tanstack/react-start': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/react-start': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
     transitivePeerDependencies:
       - react-dom
 
@@ -17574,12 +17607,12 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/react-start-plugin@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/react-start-plugin@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
-      '@tanstack/start-plugin-core': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
-      '@vitejs/plugin-react': 4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
-      zod: 3.25.75
+      '@tanstack/start-plugin-core': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@vitejs/plugin-react': 4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      zod: 3.25.76
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -17624,17 +17657,17 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@tanstack/react-start@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/react-start@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@tanstack/react-start-client': 1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@tanstack/react-start-plugin': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/react-start-plugin': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)))(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/react-start-server': 1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@tanstack/start-server-functions-client': 1.125.4(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
-      '@tanstack/start-server-functions-server': 1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
-      '@vitejs/plugin-react': 4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/start-server-functions-client': 1.125.4(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/start-server-functions-server': 1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@vitejs/plugin-react': 4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -17714,11 +17747,11 @@ snapshots:
       recast: 0.23.11
       source-map: 0.7.4
       tsx: 4.20.3
-      zod: 3.25.75
+      zod: 3.25.76
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/router-plugin@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/core': 7.27.7
       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.27.7)
@@ -17733,10 +17766,10 @@ snapshots:
       babel-dead-code-elimination: 1.0.10
       chokidar: 3.6.0
       unplugin: 2.3.5
-      zod: 3.25.75
+      zod: 3.25.76
     optionalDependencies:
       '@tanstack/react-router': 1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -17751,7 +17784,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/server-functions-plugin@1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/server-functions-plugin@1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/code-frame': 7.27.1
       '@babel/core': 7.27.7
@@ -17760,7 +17793,7 @@ snapshots:
       '@babel/template': 7.27.2
       '@babel/traverse': 7.27.7
       '@babel/types': 7.28.0
-      '@tanstack/directive-functions-plugin': 1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/directive-functions-plugin': 1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       babel-dead-code-elimination: 1.0.10
       tiny-invariant: 1.3.3
     transitivePeerDependencies:
@@ -17774,16 +17807,16 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/start-plugin-core@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/start-plugin-core@1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/core': 7.27.7
       '@babel/types': 7.28.0
       '@tanstack/router-core': 1.125.4
       '@tanstack/router-generator': 1.125.4
-      '@tanstack/router-plugin': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/router-plugin': 1.125.6(@tanstack/react-router@1.125.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/router-utils': 1.121.21
-      '@tanstack/server-functions-plugin': 1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/server-functions-plugin': 1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/start-server-core': 1.125.4
       '@types/babel__code-frame': 7.0.6
       '@types/babel__core': 7.20.5
@@ -17793,9 +17826,9 @@ snapshots:
       nitropack: 2.11.12
       pathe: 2.0.3
       ufo: 1.6.1
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
       xmlbuilder2: 3.1.1
-      zod: 3.25.75
+      zod: 3.25.76
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -17840,9 +17873,9 @@ snapshots:
       tiny-warning: 1.0.3
       unctx: 2.4.1
 
-  '@tanstack/start-server-functions-client@1.125.4(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/start-server-functions-client@1.125.4(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
-      '@tanstack/server-functions-plugin': 1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/server-functions-plugin': 1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/start-server-functions-fetcher': 1.125.4
     transitivePeerDependencies:
       - supports-color
@@ -17853,9 +17886,9 @@ snapshots:
       '@tanstack/router-core': 1.125.4
       '@tanstack/start-client-core': 1.125.4
 
-  '@tanstack/start-server-functions-server@1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/start-server-functions-server@1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
-      '@tanstack/server-functions-plugin': 1.124.1(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/server-functions-plugin': 1.124.1(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       tiny-invariant: 1.3.3
     transitivePeerDependencies:
       - supports-color
@@ -18760,7 +18793,7 @@ snapshots:
     transitivePeerDependencies:
       - yaml
 
-  '@vitejs/plugin-react@4.6.0(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@vitejs/plugin-react@4.6.0(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/core': 7.27.4
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.27.4)
@@ -18768,15 +18801,15 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.19
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/browser@3.2.4(playwright@1.53.1)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)':
+  '@vitest/browser@3.2.4(playwright@1.53.1)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)':
     dependencies:
       '@testing-library/dom': 10.4.0
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.0)
-      '@vitest/mocker': 3.2.4(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@vitest/mocker': 3.2.4(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@vitest/utils': 3.2.4
       magic-string: 0.30.17
       sirv: 3.0.1
@@ -18808,7 +18841,7 @@ snapshots:
       tinyrainbow: 2.0.0
       vitest: 3.2.4(@edge-runtime/vm@5.0.0)(@types/debug@4.1.12)(@types/node@24.0.10)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     optionalDependencies:
-      '@vitest/browser': 3.2.4(playwright@1.53.1)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
+      '@vitest/browser': 3.2.4(playwright@1.53.1)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
     transitivePeerDependencies:
       - supports-color
 
@@ -18830,13 +18863,13 @@ snapshots:
       chai: 5.2.0
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
+  '@vitest/mocker@3.2.4(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -19007,15 +19040,15 @@ snapshots:
     optionalDependencies:
       react: 19.1.0
 
-  ai@4.3.17(react@19.1.0)(zod@3.25.75):
+  ai@4.3.17(react@19.1.0)(zod@3.25.76):
     dependencies:
       '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.75)
-      '@ai-sdk/react': 1.2.12(react@19.1.0)(zod@3.25.75)
-      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.75)
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/react': 1.2.12(react@19.1.0)(zod@3.25.76)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
       jsondiffpatch: 0.6.0
-      zod: 3.25.75
+      zod: 3.25.76
     optionalDependencies:
       react: 19.1.0
 
@@ -19310,7 +19343,7 @@ snapshots:
       jose: 6.0.11
       kysely: 0.28.2
       nanostores: 0.11.4
-      zod: 3.25.75
+      zod: 3.25.76
 
   better-call@1.0.9:
     dependencies:
@@ -19872,6 +19905,16 @@ snapshots:
       react: 19.1.0
       typescript: 5.8.3
       zod: 3.25.75
+
+  convex-helpers@0.1.96(@standard-schema/spec@1.0.0)(convex@1.25.2(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76):
+    dependencies:
+      convex: 1.25.2(react@19.1.0)
+    optionalDependencies:
+      '@standard-schema/spec': 1.0.0
+      hono: 4.8.4
+      react: 19.1.0
+      typescript: 5.8.3
+      zod: 3.25.76
 
   convex-test@0.0.37(convex@1.25.2(react@19.1.0)):
     dependencies:
@@ -20983,8 +21026,8 @@ snapshots:
       '@babel/plugin-proposal-private-methods': 7.18.6(@babel/core@7.27.4)
       eslint: 9.30.1(jiti@2.4.2)
       hermes-parser: 0.25.1
-      zod: 3.25.75
-      zod-validation-error: 3.5.2(zod@3.25.75)
+      zod: 3.25.76
+      zod-validation-error: 3.5.2(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -22736,20 +22779,20 @@ snapshots:
       dotenv: 16.5.0
       winston: 3.17.0
 
-  langchain@0.3.28(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))(axios@1.9.0)(cheerio@1.1.0)(handlebars@4.7.8)(openai@4.104.0(ws@8.18.2)(zod@3.25.75))(ws@8.18.2):
+  langchain@0.3.28(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))(axios@1.9.0)(cheerio@1.1.0)(handlebars@4.7.8)(openai@4.104.0(ws@8.18.2)(zod@3.25.76))(ws@8.18.2):
     dependencies:
-      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
-      '@langchain/openai': 0.5.13(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))(ws@8.18.2)
-      '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.75)))
+      '@langchain/core': 0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
+      '@langchain/openai': 0.5.13(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))(ws@8.18.2)
+      '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.59(openai@4.104.0(ws@8.18.2)(zod@3.25.76)))
       js-tiktoken: 1.0.20
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
-      langsmith: 0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.75))
+      langsmith: 0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.76))
       openapi-types: 12.1.3
       p-retry: 4.6.2
       uuid: 10.0.0
       yaml: 2.8.0
-      zod: 3.25.75
+      zod: 3.25.76
     optionalDependencies:
       axios: 1.9.0(debug@4.4.1)
       cheerio: 1.1.0
@@ -22767,7 +22810,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.0.8
 
-  langsmith@0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.75)):
+  langsmith@0.3.33(openai@4.104.0(ws@8.18.2)(zod@3.25.76)):
     dependencies:
       '@types/uuid': 10.0.0
       chalk: 4.1.2
@@ -22777,7 +22820,7 @@ snapshots:
       semver: 7.7.2
       uuid: 10.0.0
     optionalDependencies:
-      openai: 4.104.0(ws@8.18.2)(zod@3.25.75)
+      openai: 4.104.0(ws@8.18.2)(zod@3.25.76)
 
   language-subtag-registry@0.3.23:
     optional: true
@@ -23679,6 +23722,8 @@ snapshots:
 
   mute-stream@2.0.0: {}
 
+  my-ua-parser@2.0.4: {}
+
   mz@2.7.0:
     dependencies:
       any-promise: 1.3.0
@@ -24123,7 +24168,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  openai@4.104.0(ws@8.18.2)(zod@3.25.75):
+  openai@4.104.0(ws@8.18.2)(zod@3.25.76):
     dependencies:
       '@types/node': 18.19.112
       '@types/node-fetch': 2.6.12
@@ -24134,7 +24179,7 @@ snapshots:
       node-fetch: 2.7.0
     optionalDependencies:
       ws: 8.18.2
-      zod: 3.25.75
+      zod: 3.25.76
     transitivePeerDependencies:
       - encoding
 
@@ -26873,7 +26918,7 @@ snapshots:
       debug: 4.4.1
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -26888,18 +26933,18 @@ snapshots:
       - tsx
       - yaml
 
-  vite-tsconfig-paths@5.1.4(typescript@5.8.3)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)):
+  vite-tsconfig-paths@5.1.4(typescript@5.8.3)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)):
     dependencies:
       debug: 4.4.1
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.8.3)
     optionalDependencies:
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0):
+  vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0):
     dependencies:
       esbuild: 0.25.5
       fdir: 6.4.6(picomatch@4.0.2)
@@ -26918,7 +26963,7 @@ snapshots:
 
   vitest-browser-react@1.0.0(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(@vitest/browser@3.2.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vitest@3.2.4):
     dependencies:
-      '@vitest/browser': 3.2.4(playwright@1.53.1)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
+      '@vitest/browser': 3.2.4(playwright@1.53.1)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       vitest: 3.2.4(@edge-runtime/vm@5.0.0)(@types/debug@4.1.12)(@types/node@24.0.10)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
@@ -26930,7 +26975,7 @@ snapshots:
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
+      '@vitest/mocker': 3.2.4(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -26948,14 +26993,14 @@ snapshots:
       tinyglobby: 0.2.14
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
+      vite: 7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
       vite-node: 3.2.4(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@edge-runtime/vm': 5.0.0
       '@types/debug': 4.1.12
       '@types/node': 24.0.10
-      '@vitest/browser': 3.2.4(playwright@1.53.1)(vite@7.0.2(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
+      '@vitest/browser': 3.2.4(playwright@1.53.1)(vite@7.0.3(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.0))(vitest@3.2.4)
       '@vitest/ui': 3.2.4(vitest@3.2.4)
       jsdom: 26.1.0
     transitivePeerDependencies:
@@ -27255,22 +27300,28 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod-form-data@3.0.0(zod@3.25.75):
+  zod-form-data@3.0.0(zod@3.25.76):
     dependencies:
       '@rvf/set-get': 7.0.1
-      zod: 3.25.75
+      zod: 3.25.76
 
   zod-to-json-schema@3.24.5(zod@3.25.75):
     dependencies:
       zod: 3.25.75
 
-  zod-validation-error@3.5.2(zod@3.25.75):
+  zod-to-json-schema@3.24.5(zod@3.25.76):
     dependencies:
-      zod: 3.25.75
+      zod: 3.25.76
+
+  zod-validation-error@3.5.2(zod@3.25.76):
+    dependencies:
+      zod: 3.25.76
 
   zod@3.25.32: {}
 
   zod@3.25.75: {}
+
+  zod@3.25.76: {}
 
   zustand@5.0.6(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0)):
     optionalDependencies:

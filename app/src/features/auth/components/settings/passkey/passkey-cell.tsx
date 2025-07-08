@@ -2,11 +2,10 @@
 
 import { FingerprintIcon, Loader2 } from "lucide-react";
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
@@ -15,20 +14,16 @@ import type { SettingsCardClassNames } from "../shared/settings-card";
 export interface PasskeyCellProps {
     className?: string;
     classNames?: SettingsCardClassNames;
-    localization?: Partial<AuthLocalization>;
     passkey: { id: string; createdAt: Date };
 }
 
-export function PasskeyCell({ className, classNames, localization, passkey }: PasskeyCellProps) {
+export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps) {
     const {
         freshAge,
         hooks: { useSession, useListPasskeys },
-        localization: contextLocalization,
         mutators: { deletePasskey },
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
 
     const { refetch } = useListPasskeys();
 
@@ -56,14 +51,14 @@ export function PasskeyCell({ className, classNames, localization, passkey }: Pa
 
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: t`Failed to delete passkey`,
             });
         }
     };
 
     return (
         <>
-            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} localization={localization} />
+            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} />
 
             <Card className={cn("flex-row items-center p-4", className, classNames?.cell)}>
                 <div className="flex items-center gap-3">
@@ -79,8 +74,7 @@ export function PasskeyCell({ className, classNames, localization, passkey }: Pa
                     onClick={handleDeletePasskey}
                 >
                     {isLoading && <Loader2 className="animate-spin" />}
-
-                    {localization.DELETE}
+                    {t`Delete`}
                 </Button>
             </Card>
         </>

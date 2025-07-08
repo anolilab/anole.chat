@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
@@ -10,17 +11,14 @@ import { CardContent } from "@/components/ui/card";
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { MemberCell } from "./member-cell";
 
-export function OrganizationMembersCard({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
+export function OrganizationMembersCard({ className, classNames, ...props }: SettingsCardProps) {
     const {
         basePath,
         hooks: { useActiveOrganization },
-        localization: contextLocalization,
         settings,
         replace,
         viewPaths,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { data: activeOrganization, isPending: organizationPending, isRefetching: organizationFetching } = useActiveOrganization();
 
@@ -34,26 +32,23 @@ export function OrganizationMembersCard({ className, classNames, localization: l
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                title={localization.MEMBERS}
-                description={localization.MEMBERS_DESCRIPTION}
-                instructions={localization.MEMBERS_INSTRUCTIONS}
-                actionLabel={localization.INVITE_MEMBER}
+                title={t`Members`}
+                description={t`Manage organization members and their roles`}
+                instructions={t`Invite new members and update existing member roles`}
+                actionLabel={t`Invite Member`}
                 isPending
                 {...props}
             />
         );
     }
 
-    return <OrganizationMembersContent className={className} classNames={classNames} localization={localization} {...props} />;
+    return <OrganizationMembersContent className={className} classNames={classNames} {...props} />;
 }
 
-function OrganizationMembersContent({ className, classNames, localization: localizationProp, ...props }: SettingsCardProps) {
+function OrganizationMembersContent({ className, classNames, ...props }: SettingsCardProps) {
     const {
         hooks: { useActiveOrganization, useHasPermission },
-        localization: contextLocalization,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { data: activeOrganization } = useActiveOrganization();
     const { data: hasPermissionInvite, isPending: isPendingInvite } = useHasPermission({
@@ -79,10 +74,10 @@ function OrganizationMembersContent({ className, classNames, localization: local
             <SettingsCard
                 className={className}
                 classNames={classNames}
-                title={localization.MEMBERS}
-                description={localization.MEMBERS_DESCRIPTION}
-                instructions={localization.MEMBERS_INSTRUCTIONS}
-                actionLabel={localization.INVITE_MEMBER}
+                title={t`Members`}
+                description={t`Manage organization members and their roles`}
+                instructions={t`Invite new members and update existing member roles`}
+                actionLabel={t`Invite Member`}
                 action={() => setInviteDialogOpen(true)}
                 isPending={isPending}
                 disabled={!hasPermissionInvite?.success}
@@ -93,19 +88,13 @@ function OrganizationMembersContent({ className, classNames, localization: local
                         {members
                             .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
                             .map((member) => (
-                                <MemberCell
-                                    key={member.id}
-                                    classNames={classNames}
-                                    member={member}
-                                    localization={localization}
-                                    hideActions={!hasPermissionUpdateMember?.success}
-                                />
+                                <MemberCell key={member.id} classNames={classNames} member={member} hideActions={!hasPermissionUpdateMember?.success} />
                             ))}
                     </CardContent>
                 )}
             </SettingsCard>
 
-            <InviteMemberDialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen} classNames={classNames} localization={localization} />
+            <InviteMemberDialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen} classNames={classNames} />
         </>
     );
 }

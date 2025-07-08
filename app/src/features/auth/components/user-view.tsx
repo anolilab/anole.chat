@@ -1,9 +1,8 @@
 "use client";
 
-import { useContext, useMemo } from "react";
-import { AuthUIContext } from "../lib/auth-ui-provider";
+import { t } from "@lingui/core/macro";
+
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../localization/auth-localization";
 import type { Profile } from "../types/data-structure-types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar, type UserAvatarClassNames } from "./user-avatar";
@@ -23,11 +22,6 @@ export interface UserViewProps {
     isPending?: boolean;
     size?: "sm" | "default" | "lg" | null;
     user?: Profile | null;
-    /**
-     * @default authLocalization
-     * @remarks `AuthLocalization`
-     */
-    localization?: AuthLocalization;
 }
 
 /**
@@ -39,21 +33,10 @@ export interface UserViewProps {
  * - Falls back to generic "User" text when neither name nor email is available
  * - Supports customization through classNames prop
  */
-export function UserView({ className, classNames, isPending, size, user, localization: propLocalization }: UserViewProps) {
-    const { localization: contextLocalization } = useContext(AuthUIContext);
-
-    const localization = useMemo(() => ({ ...contextLocalization, ...propLocalization }), [contextLocalization, propLocalization]);
-
+export function UserView({ className, classNames, isPending, size, user }: UserViewProps) {
     return (
         <div className={cn("flex items-center gap-2", className, classNames?.base)}>
-            <UserAvatar
-                className={cn(size !== "sm" && "my-0.5")}
-                classNames={classNames?.avatar}
-                isPending={isPending}
-                size={size}
-                user={user}
-                localization={localization}
-            />
+            <UserAvatar className={cn(size !== "sm" && "my-0.5")} classNames={classNames?.avatar} isPending={isPending} size={size} user={user} />
 
             <div className={cn("grid flex-1 text-left leading-tight", classNames?.content)}>
                 {isPending ? (
@@ -75,7 +58,7 @@ export function UserView({ className, classNames, isPending, size, user, localiz
                                 user?.name ||
                                 user?.fullName ||
                                 user?.email ||
-                                localization?.USER}
+                                t`User`}
                         </span>
 
                         {!user?.isAnonymous && size !== "sm" && (user?.name || user?.username) && (

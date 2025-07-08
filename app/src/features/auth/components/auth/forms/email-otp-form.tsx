@@ -2,14 +2,13 @@
 
 import { Loader2 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
+import { t } from "@lingui/core/macro";
 
 import { useIsHydrated } from "../../../hooks/use-hydrated";
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -22,7 +21,6 @@ export interface EmailOTPFormProps {
     classNames?: AuthFormClassNames;
     callbackURL?: string;
     isSubmitting?: boolean;
-    localization: Partial<AuthLocalization>;
     otpSeparators?: 0 | 1 | 2;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
@@ -42,7 +40,6 @@ function EmailForm({
     className,
     classNames,
     isSubmitting,
-    localization,
     setIsSubmitting,
     setEmail,
 }: EmailOTPFormProps & {
@@ -50,18 +47,16 @@ function EmailForm({
 }) {
     const isHydrated = useIsHydrated();
 
-    const { authClient, localization: contextLocalization, toast } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
+    const { authClient, toast } = useContext(AuthUIContext);
 
     const formSchema = z.object({
         email: z
             .string()
             .min(1, {
-                message: `${localization.EMAIL} ${localization.IS_REQUIRED}`,
+                message: t`Email is required`,
             })
             .email({
-                message: `${localization.EMAIL} ${localization.IS_INVALID}`,
+                message: t`Email is invalid`,
             }),
     });
 
@@ -88,14 +83,14 @@ function EmailForm({
 
                 toast({
                     variant: "success",
-                    message: localization.EMAIL_OTP_VERIFICATION_SENT,
+                    message: t`Verification code sent to your email`,
                 });
 
                 setEmail(value.email);
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: t`Failed to send verification code`,
                 });
             }
         },
@@ -126,14 +121,14 @@ function EmailForm({
                     name="email"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.EMAIL}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
                                     autoComplete="email"
-                                    placeholder={localization.EMAIL_PLACEHOLDER}
+                                    placeholder={t`Enter your email address`}
                                     value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -150,7 +145,7 @@ function EmailForm({
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isFormSubmitting]) => (
                         <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
-                            {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : localization.EMAIL_OTP_SEND_ACTION}
+                            {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : t`Send Verification Code`}
                         </Button>
                     )}
                 />
@@ -163,7 +158,6 @@ export function OTPForm({
     className,
     classNames,
     isSubmitting,
-    localization,
     otpSeparators = 0,
     redirectTo,
     setIsSubmitting,
@@ -171,9 +165,7 @@ export function OTPForm({
 }: EmailOTPFormProps & {
     email: string;
 }) {
-    const { authClient, localization: contextLocalization, toast } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
+    const { authClient, toast } = useContext(AuthUIContext);
 
     const { onSuccess, isPending: transitionPending } = useOnSuccessTransition({
         redirectTo,
@@ -183,10 +175,10 @@ export function OTPForm({
         code: z
             .string()
             .min(1, {
-                message: `${localization.EMAIL_OTP} ${localization.IS_REQUIRED}`,
+                message: t`Verification code is required`,
             })
             .min(6, {
-                message: `${localization.EMAIL_OTP} ${localization.IS_INVALID}`,
+                message: t`Verification code is invalid`,
             }),
     });
 
@@ -215,7 +207,7 @@ export function OTPForm({
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: t`Invalid verification code`,
                 });
 
                 form.reset();
@@ -247,7 +239,7 @@ export function OTPForm({
                     name="code"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.EMAIL_OTP}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`Verification Code`}</field.FormLabel>
 
                             <field.FormControl>
                                 <InputOTP
@@ -279,7 +271,7 @@ export function OTPForm({
                         children={([canSubmit, isFormSubmitting]) => (
                             <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn(classNames?.button, classNames?.primaryButton)}>
                                 {(isFormSubmitting || isSubmitting) && <Loader2 className="animate-spin" />}
-                                {localization.EMAIL_OTP_VERIFY_ACTION}
+                                {t`Verify Code`}
                             </Button>
                         )}
                     />

@@ -1,22 +1,13 @@
 import { AppSidebar } from "@/features/layout/components/app-sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet, useLocation, createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/features/layout/components/site-header";
 import { Authenticated } from "convex/react";
 import { NavItems, type NavItem } from "@/features/layout/components/nav-items";
-import {
-    Home,
-    MessageSquare,
-    Settings,
-    Users,
-    Key,
-    Shield,
-    Building,
-    User
-} from "lucide-react";
-import { useContext } from "react";
+import { MessageSquare, Users, Key, Shield, Building, User } from "lucide-react";
+import { useContext, Fragment } from "react";
 import { AuthUIContext } from "@/features/auth/lib/auth-ui-provider";
 
 export const Route = createFileRoute("/dashboard")({
@@ -37,6 +28,7 @@ function RouteComponent() {
         return {
             label: segment.charAt(0).toUpperCase() + segment.slice(1), // Capitalize first letter
             href: href,
+            isLast: index === pathSegments.length - 1,
         };
     });
 
@@ -95,10 +87,10 @@ function RouteComponent() {
                 }
             >
                 <div className="flex h-dvh w-full">
-                    <AppSidebar 
+                    <AppSidebar
                         header={
                             <div className="flex items-center gap-2 px-4 py-2">
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <MessageSquare className="size-4" />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -112,22 +104,32 @@ function RouteComponent() {
                                 <NavItems items={navigationItems.main} label="Main" colorMode="dark" />
                                 <NavItems items={navigationItems.settings} label="Settings" colorMode="dark" />
                             </>
-                        } 
+                        }
                     />
                     <SidebarInset>
                         <SiteHeader>
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     {breadcrumbItems.map((item, index) => (
-                                        <BreadcrumbItem key={item.href}>
-                                            <BreadcrumbLink
-                                                href={item.href}
-                                                className="text-muted-foreground hover:text-foreground text-sm capitalize dark:hover:text-white"
-                                            >
-                                                {item.label}
-                                            </BreadcrumbLink>
-                                            {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground" />}
-                                        </BreadcrumbItem>
+                                        <Fragment key={item.href}>
+                                            <BreadcrumbItem>
+                                                {item.isLast ? (
+                                                    <BreadcrumbPage className="text-foreground font-medium">
+                                                        {item.label}
+                                                    </BreadcrumbPage>
+                                                ) : (
+                                                    <BreadcrumbLink
+                                                        href={item.href}
+                                                        className="text-muted-foreground hover:text-foreground text-sm capitalize dark:hover:text-white transition-colors"
+                                                    >
+                                                        {item.label}
+                                                    </BreadcrumbLink>
+                                                )}
+                                            </BreadcrumbItem>
+                                            {index < breadcrumbItems.length - 1 && (
+                                                <BreadcrumbSeparator className="text-muted-foreground mx-2" />
+                                            )}
+                                        </Fragment>
                                     ))}
                                 </BreadcrumbList>
                             </Breadcrumb>

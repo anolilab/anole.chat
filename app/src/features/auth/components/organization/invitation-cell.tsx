@@ -3,11 +3,11 @@
 import type { Invitation } from "better-auth/plugins/organization";
 import { EllipsisIcon, Loader2, XIcon } from "lucide-react";
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,27 +18,24 @@ export interface InvitationCellProps {
     className?: string;
     classNames?: SettingsCardClassNames;
     invitation: Invitation;
-    localization?: AuthLocalization;
 }
 
-export function InvitationCell({ className, classNames, invitation, localization: localizationProp }: InvitationCellProps) {
+export function InvitationCell({ className, classNames, invitation }: InvitationCellProps) {
     const {
         authClient,
         organization,
         hooks: { useActiveOrganization },
-        localization: contextLocalization,
         toast,
     } = useContext(AuthUIContext);
 
-    const localization = { ...contextLocalization, ...localizationProp };
     const [isLoading, setIsLoading] = useState(false);
 
     const { refetch } = useActiveOrganization();
 
     const builtInRoles = [
-        { role: "owner", label: localization.OWNER },
-        { role: "admin", label: localization.ADMIN },
-        { role: "member", label: localization.MEMBER },
+        { role: "owner", label: t`Owner` },
+        { role: "admin", label: t`Admin` },
+        { role: "member", label: t`Member` },
     ];
 
     const roles = [...builtInRoles, ...(organization?.customRoles || [])];
@@ -57,12 +54,12 @@ export function InvitationCell({ className, classNames, invitation, localization
 
             toast({
                 variant: "success",
-                message: localization.INVITATION_CANCELLED,
+                message: t`Invitation cancelled`,
             });
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -72,13 +69,13 @@ export function InvitationCell({ className, classNames, invitation, localization
     return (
         <Card className={cn("flex-row items-center p-4", className, classNames?.cell)}>
             <div className="flex flex-1 items-center gap-2">
-                <UserAvatar className="my-0.5" user={{ email: invitation.email }} localization={localization} />
+                <UserAvatar className="my-0.5" user={{ email: invitation.email }} />
 
                 <div className="grid flex-1 text-left leading-tight">
                     <span className="truncate text-sm font-semibold">{invitation.email}</span>
 
                     <span className="text-muted-foreground truncate text-xs">
-                        {localization.EXPIRES} {invitation.expiresAt.toLocaleDateString()}
+                        {t`Expires`} {invitation.expiresAt.toLocaleDateString()}
                     </span>
                 </div>
             </div>
@@ -101,7 +98,7 @@ export function InvitationCell({ className, classNames, invitation, localization
                 <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()}>
                     <DropdownMenuItem onClick={handleCancelInvitation} disabled={isLoading} variant="destructive">
                         <XIcon className={classNames?.icon} />
-                        {localization.CANCEL_INVITATION}
+                        {t`Cancel Invitation`}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

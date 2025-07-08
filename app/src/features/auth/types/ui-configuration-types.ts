@@ -1,7 +1,7 @@
 import type { SocialProvider } from "better-auth/social-providers";
 import type { Provider } from "../lib/social-providers";
-import type { AuthClient } from "./auth-core-types";
 import type { CaptchaProvider, PasswordValidation } from "./form-validation-types";
+import type { AuthCardClassNames } from "../components/auth/auth-card";
 
 // Avatar Configuration Types (from avatar-options.ts)
 export type AvatarOptions = {
@@ -214,3 +214,5 @@ export type DeleteUserOptions = {
      */
     verification?: boolean;
 };
+
+export type AuthCardProps = { className?: string; classNames?: AuthCardClassNames };

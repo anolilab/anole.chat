@@ -2,12 +2,12 @@
 
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import { type ComponentProps, useContext, useRef, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { SettingsCardFooter } from "../settings/shared/settings-card-footer";
 import { SettingsCardHeader } from "../settings/shared/settings-card-header";
@@ -19,16 +19,12 @@ import { OrganizationLogo } from "./organization-logo";
 export interface OrganizationLogoCardProps extends ComponentProps<typeof Card> {
     className?: string;
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
 }
 
-export function OrganizationLogoCard({ className, classNames, localization, ...props }: OrganizationLogoCardProps) {
+export function OrganizationLogoCard({ className, classNames, ...props }: OrganizationLogoCardProps) {
     const {
         hooks: { useActiveOrganization },
-        localization: authLocalization,
     } = useContext(AuthUIContext);
-
-    localization = { ...authLocalization, ...localization };
 
     const { data: activeOrganization } = useActiveOrganization();
 
@@ -38,20 +34,20 @@ export function OrganizationLogoCard({ className, classNames, localization, ...p
                 <div className="flex justify-between">
                     <SettingsCardHeader
                         className="grow self-start"
-                        title={localization.LOGO}
-                        description={localization.LOGO_DESCRIPTION}
+                        title={t`Logo`}
+                        description={t`Upload your organization's logo`}
                         isPending={true}
                         classNames={classNames}
                     />
 
                     <Button type="button" className="me-6 size-fit rounded-full" size="icon" variant="ghost" disabled>
-                        <OrganizationLogo isPending={true} className="size-20 text-2xl" classNames={classNames?.avatar} localization={localization} />
+                        <OrganizationLogo isPending={true} className="size-20 text-2xl" classNames={classNames?.avatar} />
                     </Button>
                 </div>
 
                 <SettingsCardFooter
                     className="!py-5"
-                    instructions={localization.LOGO_INSTRUCTIONS}
+                    instructions={t`Click on the logo to upload a new image`}
                     classNames={classNames}
                     isPending={true}
                     isSubmitting={false}
@@ -60,20 +56,17 @@ export function OrganizationLogoCard({ className, classNames, localization, ...p
         );
     }
 
-    return <OrganizationLogoForm className={className} classNames={classNames} localization={localization} {...props} />;
+    return <OrganizationLogoForm className={className} classNames={classNames} {...props} />;
 }
 
-function OrganizationLogoForm({ className, classNames, localization, ...props }: OrganizationLogoCardProps) {
+function OrganizationLogoForm({ className, classNames, ...props }: OrganizationLogoCardProps) {
     const {
         authClient,
         hooks: { useActiveOrganization, useListOrganizations, useHasPermission },
-        localization: authLocalization,
         optimistic,
         organization,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...authLocalization, ...localization };
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -120,7 +113,7 @@ function OrganizationLogoForm({ className, classNames, localization, ...props }:
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -143,7 +136,7 @@ function OrganizationLogoForm({ className, classNames, localization, ...props }:
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -175,8 +168,8 @@ function OrganizationLogoForm({ className, classNames, localization, ...props }:
             <div className="flex justify-between">
                 <SettingsCardHeader
                     className="grow self-start"
-                    title={localization.LOGO}
-                    description={localization.LOGO_DESCRIPTION}
+                    title={t`Logo`}
+                    description={t`Upload your organization's logo`}
                     isPending={isPending}
                     classNames={classNames}
                 />
@@ -190,7 +183,6 @@ function OrganizationLogoForm({ className, classNames, localization, ...props }:
                                 className="size-20 text-2xl"
                                 classNames={classNames?.avatar}
                                 organization={activeOrganization}
-                                localization={localization}
                             />
                         </Button>
                     </DropdownMenuTrigger>
@@ -198,12 +190,12 @@ function OrganizationLogoForm({ className, classNames, localization, ...props }:
                     <DropdownMenuContent align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
                         <DropdownMenuItem onClick={openFileDialog} disabled={loading || !hasPermission?.success}>
                             <UploadCloudIcon />
-                            {localization.UPLOAD_LOGO}
+                            {t`Upload Logo`}
                         </DropdownMenuItem>
                         {activeOrganization?.logo && (
                             <DropdownMenuItem onClick={handleDeleteLogo} disabled={loading || !hasPermission?.success} variant="destructive">
                                 <Trash2Icon />
-                                {localization.DELETE_LOGO}
+                                {t`Delete Logo`}
                             </DropdownMenuItem>
                         )}
                     </DropdownMenuContent>
@@ -212,7 +204,7 @@ function OrganizationLogoForm({ className, classNames, localization, ...props }:
 
             <SettingsCardFooter
                 className="!py-5"
-                instructions={localization.LOGO_INSTRUCTIONS}
+                instructions={t`Click on the logo to upload a new image`}
                 classNames={classNames}
                 isPending={isPending}
                 isSubmitting={loading}

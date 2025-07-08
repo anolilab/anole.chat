@@ -3,7 +3,6 @@
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Card } from "@/components/ui/card";
 import type { UserAvatarClassNames } from "../../user-avatar";
 import { SettingsCardFooter } from "./settings-card-footer";
@@ -23,8 +22,8 @@ export type SettingsCardClassNames = {
         footer?: string;
         header?: string;
     };
-    error?: string;
     footer?: string;
+    error?: string;
     header?: string;
     icon?: string;
     input?: string;
@@ -42,6 +41,7 @@ export interface SettingsCardProps extends Omit<ComponentProps<typeof Card>, "ti
     className?: string;
     classNames?: SettingsCardClassNames;
     title?: ReactNode;
+    header?: ReactNode;
     description?: ReactNode;
     instructions?: ReactNode;
     actionLabel?: ReactNode;
@@ -50,7 +50,6 @@ export interface SettingsCardProps extends Omit<ComponentProps<typeof Card>, "ti
     isPending?: boolean;
     optimistic?: boolean;
     variant?: "default" | "destructive";
-    localization?: AuthLocalization;
     action?: () => Promise<unknown> | unknown;
 }
 
@@ -59,6 +58,7 @@ export function SettingsCard({
     className,
     classNames,
     title,
+    header,
     description,
     instructions,
     actionLabel,
@@ -70,23 +70,27 @@ export function SettingsCard({
     action,
     ...props
 }: SettingsCardProps) {
+    const displayTitle = header || title;
+
     return (
         <Card className={cn("w-full pb-0 text-start", variant === "destructive" && "border-destructive/40", className, classNames?.base)} {...props}>
-            <SettingsCardHeader classNames={classNames} description={description} isPending={isPending} title={title} />
+            <SettingsCardHeader classNames={classNames} description={description} isPending={isPending} title={displayTitle} />
 
             {children}
 
-            <SettingsCardFooter
-                classNames={classNames}
-                actionLabel={actionLabel}
-                disabled={disabled}
-                isPending={isPending}
-                isSubmitting={isSubmitting}
-                instructions={instructions}
-                optimistic={optimistic}
-                variant={variant}
-                action={action}
-            />
+            {(actionLabel || action) && (
+                <SettingsCardFooter
+                    classNames={classNames}
+                    actionLabel={actionLabel}
+                    disabled={disabled}
+                    isPending={isPending}
+                    isSubmitting={isSubmitting}
+                    instructions={instructions}
+                    optimistic={optimistic}
+                    variant={variant}
+                    action={action}
+                />
+            )}
         </Card>
     );
 }

@@ -1,7 +1,8 @@
-import type { BetterFetchError } from "@better-fetch/fetch";
+import type { BetterFetchError } from "better-auth/react";
 import type { Invitation } from "better-auth/plugins/organization";
-import type { AnyAuthClient, AuthClient } from "./auth-core-types";
+import type { AnyAuthClient } from "./auth-core-types";
 import type { ApiKey } from "./data-structure-types";
+import type { AuthClient } from "@/lib/auth/client";
 
 // Refetch Function Type (from refetch.ts)
 export type Refetch = () => Promise<unknown> | unknown;
@@ -35,9 +36,9 @@ type AuthHook<T> = {
 };
 
 export type AuthHooks = {
-    useSession: () => ReturnType<AnyAuthClient["useSession"]>;
+    useSession: () => ReturnType<AuthClient["useSession"]>;
     useListAccounts: () => AuthHook<{ accountId: string; provider: string }[]>;
-    useListDeviceSessions: () => AuthHook<AnyAuthClient["$Infer"]["Session"][]>;
+    useListDeviceSessions: () => AuthHook<AuthClient["$Infer"]["Session"][]>;
     useListSessions: () => AuthHook<AnyAuthSession["session"][]>;
     useListPasskeys: () => Partial<ReturnType<AuthClient["useListPasskeys"]>>;
     useListApiKeys: () => AuthHook<ApiKey[]>;

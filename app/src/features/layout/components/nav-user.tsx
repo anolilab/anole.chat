@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -15,11 +15,15 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth/client";
 import { useRouter } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 
 export function NavUser() {
     const { isMobile } = useSidebar();
     const { data } = authClient.useSession();
     const router = useRouter();
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     if (!data) {
         return null;
@@ -70,7 +74,7 @@ export function NavUser() {
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => router.navigate({ to: "/dashboard/settings" })}>
+                            <DropdownMenuItem onClick={() => router.navigate({ to: "/dashboard/settings/account" })}>
                                 <BadgeCheck />
                                 Settings
                             </DropdownMenuItem>
@@ -80,7 +84,11 @@ export function NavUser() {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => authClient.signOut()}>
+                        <DropdownMenuItem
+                            onClick={async () => {
+                                await Promise.all([authClient.signOut(), navigate({  to: "/auth/sign-in" })]);
+                            }}
+                        >
                             <LogOut />
                             Log out
                         </DropdownMenuItem>

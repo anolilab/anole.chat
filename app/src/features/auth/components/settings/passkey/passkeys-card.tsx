@@ -1,11 +1,10 @@
 "use client";
 
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { CardContent } from "@/components/ui/card";
 import { useAppForm } from "@/components/ui/form";
 import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
@@ -16,19 +15,15 @@ import { PasskeyCell } from "./passkey-cell";
 export interface PasskeysCardProps {
     className?: string;
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
 }
 
-export function PasskeysCard({ className, classNames, localization }: PasskeysCardProps) {
+export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
     const {
         authClient,
         freshAge,
         hooks: { useListPasskeys, useSession },
-        localization: authLocalization,
         toast,
     } = useContext(AuthUIContext);
-
-    localization = { ...authLocalization, ...localization };
 
     const { data: passkeys, isPending, refetch } = useListPasskeys();
 
@@ -55,7 +50,7 @@ export function PasskeysCard({ className, classNames, localization }: PasskeysCa
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: t`Failed to add passkey`,
                 });
             }
         },
@@ -63,7 +58,7 @@ export function PasskeysCard({ className, classNames, localization }: PasskeysCa
 
     return (
         <>
-            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} localization={localization} />
+            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} />
 
             <form.AppForm>
                 <form
@@ -76,16 +71,16 @@ export function PasskeysCard({ className, classNames, localization }: PasskeysCa
                     <SettingsCard
                         className={className}
                         classNames={classNames}
-                        actionLabel={localization.ADD_PASSKEY}
-                        description={localization.PASSKEYS_DESCRIPTION}
-                        instructions={localization.PASSKEYS_INSTRUCTIONS}
+                        actionLabel={t`Add Passkey`}
+                        description={t`Passkeys allow you to sign in securely using your device's biometric authentication or security key.`}
+                        instructions={t`Click the button below to register a new passkey with your device.`}
                         isPending={isPending}
-                        title={localization.PASSKEYS}
+                        title={t`Passkeys`}
                     >
                         {passkeys && passkeys.length > 0 && (
                             <CardContent className={cn("grid gap-4", classNames?.content)}>
                                 {passkeys?.map((passkey) => (
-                                    <PasskeyCell key={passkey.id} classNames={classNames} localization={localization} passkey={passkey} />
+                                    <PasskeyCell key={passkey.id} classNames={classNames} passkey={passkey} />
                                 ))}
                             </CardContent>
                         )}

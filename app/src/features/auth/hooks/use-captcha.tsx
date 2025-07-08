@@ -3,21 +3,18 @@ import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { type RefObject, useContext, useRef } from "react";
 
 import { AuthUIContext } from "../lib/auth-ui-provider";
-import type { AuthLocalization } from "../localization/auth-localization";
+import { t } from "@lingui/core/macro";
 
 // Default captcha endpoints
 const DEFAULT_CAPTCHA_ENDPOINTS = ["/sign-up/email", "/sign-in/email", "/forget-password"];
 
-export function useCaptcha({ localization }: { localization: Partial<AuthLocalization> }) {
-    const { captcha, localization: contextLocalization } = useContext(AuthUIContext);
+export function useCaptcha() {
+    const { captcha } = useContext(AuthUIContext);
 
-    localization = { ...contextLocalization, ...localization };
-
-    // biome-ignore lint/suspicious/noExplicitAny:
     const captchaRef = useRef<any>(null);
 
     const executeCaptcha = async () => {
-        if (!captcha) throw new Error(localization.MISSING_RESPONSE);
+        if (!captcha) throw new Error(t`Missing captcha response`);
 
         // Sanitize the action name for reCAPTCHA
         let response: string | undefined | null;
@@ -36,7 +33,7 @@ export function useCaptcha({ localization }: { localization: Partial<AuthLocaliz
         }
 
         if (!response) {
-            throw new Error(localization.MISSING_RESPONSE);
+            throw new Error(t`Missing captcha response`);
         }
 
         return response;

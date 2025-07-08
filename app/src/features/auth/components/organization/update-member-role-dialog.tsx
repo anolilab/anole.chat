@@ -4,11 +4,11 @@ import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
 import { type ComponentProps, useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,20 +17,16 @@ import { MemberCell } from "./member-cell";
 
 export interface UpdateMemberRoleDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
     member: Member & { user: Partial<User> };
 }
 
-export function UpdateMemberRoleDialog({ member, classNames, localization: localizationProp, onOpenChange, ...props }: UpdateMemberRoleDialogProps) {
+export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...props }: UpdateMemberRoleDialogProps) {
     const {
         authClient,
         hooks: { useActiveOrganization, useSession },
-        localization: contextLocalization,
         organization,
         toast,
     } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { refetch } = useActiveOrganization();
     const { data: sessionData } = useSession();
@@ -40,9 +36,9 @@ export function UpdateMemberRoleDialog({ member, classNames, localization: local
     const [selectedRole, setSelectedRole] = useState(member.role);
 
     const builtInRoles = [
-        { role: "owner", label: localization.OWNER },
-        { role: "admin", label: localization.ADMIN },
-        { role: "member", label: localization.MEMBER },
+        { role: "owner", label: t`Owner` },
+        { role: "admin", label: t`Admin` },
+        { role: "member", label: t`Member` },
     ];
 
     const roles = [...builtInRoles, ...(organization?.customRoles || [])];
@@ -65,7 +61,7 @@ export function UpdateMemberRoleDialog({ member, classNames, localization: local
         if (selectedRole === member.role) {
             toast({
                 variant: "error",
-                message: `${localization.ROLE} ${localization.IS_THE_SAME}`,
+                message: t`Role is the same`,
             });
 
             return;
@@ -86,7 +82,7 @@ export function UpdateMemberRoleDialog({ member, classNames, localization: local
 
             toast({
                 variant: "success",
-                message: localization.MEMBER_ROLE_UPDATED,
+                message: t`Member role updated`,
             });
 
             await refetch?.();
@@ -94,7 +90,7 @@ export function UpdateMemberRoleDialog({ member, classNames, localization: local
         } catch (error) {
             toast({
                 variant: "error",
-                message: getLocalizedError({ error, localization }),
+                message: getLocalizedError({ error }),
             });
         }
 
@@ -105,17 +101,17 @@ export function UpdateMemberRoleDialog({ member, classNames, localization: local
         <Dialog onOpenChange={onOpenChange} {...props}>
             <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.UPDATE_ROLE}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Update Role`}</DialogTitle>
 
-                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>{localization.UPDATE_ROLE_DESCRIPTION}</DialogDescription>
+                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>{t`Update the role for this member`}</DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
-                    <MemberCell className={classNames?.cell} member={member} localization={localization} hideActions />
+                    <MemberCell className={classNames?.cell} member={member} hideActions />
 
                     <Select value={selectedRole} onValueChange={setSelectedRole}>
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder={localization.SELECT_ROLE} />
+                            <SelectValue placeholder={t`Select role`} />
                         </SelectTrigger>
 
                         <SelectContent>
@@ -136,13 +132,13 @@ export function UpdateMemberRoleDialog({ member, classNames, localization: local
                         className={cn(classNames?.button, classNames?.outlineButton)}
                         disabled={isUpdating}
                     >
-                        {localization.CANCEL}
+                        {t`Cancel`}
                     </Button>
 
                     <Button type="button" onClick={updateMemberRole} className={cn(classNames?.button, classNames?.primaryButton)} disabled={isUpdating}>
                         {isUpdating && <Loader2 className="animate-spin" />}
 
-                        {localization.UPDATE_ROLE}
+                        {t`Update Role`}
                     </Button>
                 </DialogFooter>
             </DialogContent>

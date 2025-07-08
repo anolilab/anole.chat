@@ -1,12 +1,12 @@
 "use client";
 
 import { useContext } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError, getPasswordSchema } from "../../../lib/utils";
+import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { PasswordInput } from "../../password-input";
 import { CardContent } from "@/components/ui/card";
@@ -19,19 +19,17 @@ export interface ChangePasswordCardProps {
     classNames?: SettingsCardClassNames;
     accounts?: { provider: string }[] | null;
     isPending?: boolean;
-    localization?: AuthLocalization;
     skipHook?: boolean;
     passwordValidation?: PasswordValidation;
 }
 
-export function ChangePasswordCard({ className, classNames, accounts, isPending, localization, skipHook, passwordValidation }: ChangePasswordCardProps) {
+export function ChangePasswordCard({ className, classNames, accounts, isPending, skipHook, passwordValidation }: ChangePasswordCardProps) {
     const {
         authClient,
         basePath,
         baseURL,
         credentials,
         hooks: { useSession, useListAccounts },
-        localization: contextLocalization,
         viewPaths,
         toast,
     } = useContext(AuthUIContext);
@@ -39,7 +37,6 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
     const confirmPasswordEnabled = credentials?.confirmPassword;
     const contextPasswordValidation = credentials?.passwordValidation;
 
-    localization = { ...contextLocalization, ...localization };
     passwordValidation = { ...contextPasswordValidation, ...passwordValidation };
 
     const { data: sessionData } = useSession();
@@ -52,24 +49,74 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
 
     const formSchema = z
         .object({
-            currentPassword: getPasswordSchema(passwordValidation, localization),
-            newPassword: getPasswordSchema(passwordValidation, {
-                PASSWORD_REQUIRED: localization.NEW_PASSWORD_REQUIRED,
-                PASSWORD_TOO_SHORT: localization.PASSWORD_TOO_SHORT,
-                PASSWORD_TOO_LONG: localization.PASSWORD_TOO_LONG,
-                INVALID_PASSWORD: localization.INVALID_PASSWORD,
-            }),
+            currentPassword: (() => {
+                let schema = z.string().min(1, {
+                    message: t`Current password is required`,
+                });
+                if (passwordValidation?.minLength) {
+                    schema = schema.min(passwordValidation.minLength, {
+                        message: t`Password is too short`,
+                    });
+                }
+                if (passwordValidation?.maxLength) {
+                    schema = schema.max(passwordValidation.maxLength, {
+                        message: t`Password is too long`,
+                    });
+                }
+                if (passwordValidation?.regex) {
+                    schema = schema.regex(passwordValidation.regex, {
+                        message: t`Invalid password`,
+                    });
+                }
+                return schema;
+            })(),
+            newPassword: (() => {
+                let schema = z.string().min(1, {
+                    message: t`New password is required`,
+                });
+                if (passwordValidation?.minLength) {
+                    schema = schema.min(passwordValidation.minLength, {
+                        message: t`Password is too short`,
+                    });
+                }
+                if (passwordValidation?.maxLength) {
+                    schema = schema.max(passwordValidation.maxLength, {
+                        message: t`Password is too long`,
+                    });
+                }
+                if (passwordValidation?.regex) {
+                    schema = schema.regex(passwordValidation.regex, {
+                        message: t`Invalid password`,
+                    });
+                }
+                return schema;
+            })(),
             confirmPassword: confirmPasswordEnabled
-                ? getPasswordSchema(passwordValidation, {
-                      PASSWORD_REQUIRED: localization.CONFIRM_PASSWORD_REQUIRED,
-                      PASSWORD_TOO_SHORT: localization.PASSWORD_TOO_SHORT,
-                      PASSWORD_TOO_LONG: localization.PASSWORD_TOO_LONG,
-                      INVALID_PASSWORD: localization.INVALID_PASSWORD,
-                  })
+                ? (() => {
+                      let schema = z.string().min(1, {
+                          message: t`Confirm password is required`,
+                      });
+                      if (passwordValidation?.minLength) {
+                          schema = schema.min(passwordValidation.minLength, {
+                              message: t`Password is too short`,
+                          });
+                      }
+                      if (passwordValidation?.maxLength) {
+                          schema = schema.max(passwordValidation.maxLength, {
+                              message: t`Password is too long`,
+                          });
+                      }
+                      if (passwordValidation?.regex) {
+                          schema = schema.regex(passwordValidation.regex, {
+                              message: t`Invalid password`,
+                          });
+                      }
+                      return schema;
+                  })()
                 : z.string().optional(),
         })
         .refine((data) => !confirmPasswordEnabled || data.newPassword === data.confirmPassword, {
-            message: localization.PASSWORDS_DO_NOT_MATCH,
+            message: t`Passwords do not match`,
             path: ["confirmPassword"],
         });
 
@@ -93,14 +140,14 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
 
                 toast({
                     variant: "success",
-                    message: localization.CHANGE_PASSWORD_SUCCESS!,
+                    message: t`Password changed successfully`,
                 });
 
                 form.reset();
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -124,12 +171,12 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
 
                 toast({
                     variant: "success",
-                    message: localization.FORGOT_PASSWORD_EMAIL!,
+                    message: t`Password reset email sent`,
                 });
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -148,9 +195,9 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
                     }}
                 >
                     <SettingsCard
-                        title={localization.SET_PASSWORD}
-                        description={localization.SET_PASSWORD_DESCRIPTION}
-                        actionLabel={localization.SET_PASSWORD}
+                        title={t`Set Password`}
+                        description={t`Set a password for your account`}
+                        actionLabel={t`Set Password`}
                         isPending={isPending}
                         className={className}
                         classNames={classNames}
@@ -172,11 +219,11 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
                 <SettingsCard
                     className={className}
                     classNames={classNames}
-                    actionLabel={localization.SAVE}
-                    description={localization.CHANGE_PASSWORD_DESCRIPTION}
-                    instructions={localization.CHANGE_PASSWORD_INSTRUCTIONS}
+                    actionLabel={t`Save`}
+                    description={t`Change your account password`}
+                    instructions={t`Enter your current password and choose a new one`}
                     isPending={isPending}
-                    title={localization.CHANGE_PASSWORD}
+                    title={t`Change Password`}
                 >
                     <CardContent className={cn("grid gap-6", classNames?.content)}>
                         {isPending || !accounts ? (
@@ -203,13 +250,13 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
                                     name="currentPassword"
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel className={classNames?.label}>{localization.CURRENT_PASSWORD}</field.FormLabel>
+                                            <field.FormLabel className={classNames?.label}>{t`Current Password`}</field.FormLabel>
 
                                             <field.FormControl>
                                                 <PasswordInput
                                                     className={classNames?.input}
                                                     autoComplete="current-password"
-                                                    placeholder={localization.CURRENT_PASSWORD_PLACEHOLDER}
+                                                    placeholder={t`Enter current password`}
                                                     value={field.state.value}
                                                     onBlur={field.handleBlur}
                                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -225,13 +272,13 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
                                     name="newPassword"
                                     children={(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel className={classNames?.label}>{localization.NEW_PASSWORD}</field.FormLabel>
+                                            <field.FormLabel className={classNames?.label}>{t`New Password`}</field.FormLabel>
 
                                             <field.FormControl>
                                                 <PasswordInput
                                                     className={classNames?.input}
                                                     autoComplete="new-password"
-                                                    placeholder={localization.NEW_PASSWORD_PLACEHOLDER}
+                                                    placeholder={t`Enter new password`}
                                                     enableToggle
                                                     value={field.state.value}
                                                     onBlur={field.handleBlur}
@@ -249,13 +296,13 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
                                         name="confirmPassword"
                                         children={(field) => (
                                             <field.FormItem>
-                                                <field.FormLabel className={classNames?.label}>{localization.CONFIRM_PASSWORD}</field.FormLabel>
+                                                <field.FormLabel className={classNames?.label}>{t`Confirm Password`}</field.FormLabel>
 
                                                 <field.FormControl>
                                                     <PasswordInput
                                                         className={classNames?.input}
                                                         autoComplete="new-password"
-                                                        placeholder={localization.CONFIRM_PASSWORD_PLACEHOLDER}
+                                                        placeholder={t`Confirm new password`}
                                                         enableToggle
                                                         value={field.state.value}
                                                         onBlur={field.handleBlur}

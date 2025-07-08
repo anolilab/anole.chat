@@ -117,10 +117,13 @@ The frontend streaming is managed by a collection of custom React hooks designed
 
 ### Internationalization & Accessibility
 
-- **i18n Framework**: Lingui v5.3+ with macro support and Vite plugin
+- **i18n Framework**: Lingui v5.3+ with `@lingui/core/macro` for modern translation management
+- **Migration Complete**: All authentication components migrated from custom localization to Lingui
+- **Translation Patterns**: Template literal usage with `t` macro for all user-facing text
 - **Locale Detection**: `@lingui/detect-locale` for automatic language detection
 - **Supported Languages**: English, German (extensible)
-- **Accessibility**: Full keyboard navigation, screen reader support, ARIA compliance
+- **Form Enhancements**: Enhanced form system with `required` prop support and visual indicators
+- **Accessibility**: Full keyboard navigation, screen reader support, ARIA compliance with improved form accessibility
 
 ### User Interface Enhancements
 

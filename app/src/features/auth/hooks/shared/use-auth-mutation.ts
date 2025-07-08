@@ -6,10 +6,9 @@ import type { NonThrowableResult, ThrowableResult } from "../../types/auth-core-
 import { AuthQueryContext } from "../../lib/auth-query-provider";
 import { useOnMutateError } from "./use-mutate-error";
 
-type AuthMutationFn<TParams> = (params: TParams) => Promise<ThrowableResult | NonThrowableResult>;
+type AuthMutationFn<TParams> = (params: TParams) => Promise<ThrowableResult<any> | NonThrowableResult<any>>;
 
 export function useAuthMutation<
-    // biome-ignore lint/suspicious/noExplicitAny:
     TAuthFn extends AuthMutationFn<any>,
 >({
     queryKey,
@@ -46,11 +45,11 @@ export function useAuthMutation<
 
     const { mutate, isPending, error } = mutation;
 
-    async function mutateAsync(params: Omit<TParams, "fetchOptions"> & { fetchOptions?: { throw?: true } | undefined }): Promise<ThrowableResult>;
+    async function mutateAsync(params: Omit<TParams, "fetchOptions"> & { fetchOptions?: { throw?: true } | undefined }): Promise<ThrowableResult<any>>;
 
-    async function mutateAsync(params: Omit<TParams, "fetchOptions"> & { fetchOptions?: BetterFetchOption }): Promise<NonThrowableResult>;
+    async function mutateAsync(params: Omit<TParams, "fetchOptions"> & { fetchOptions?: BetterFetchOption }): Promise<NonThrowableResult<any>>;
 
-    async function mutateAsync(params: TParams): Promise<ThrowableResult | NonThrowableResult> {
+    async function mutateAsync(params: TParams): Promise<ThrowableResult<any> | NonThrowableResult<any>> {
         return await mutation.mutateAsync(params);
     }
 

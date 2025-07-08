@@ -4,10 +4,10 @@ import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
 import { EllipsisIcon, UserCogIcon, UserXIcon } from "lucide-react";
 import { useContext, useState } from "react";
+import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,17 +20,14 @@ export interface MemberCellProps {
     className?: string;
     classNames?: SettingsCardClassNames;
     member: Member & { user: Partial<User> };
-    localization?: AuthLocalization;
     hideActions?: boolean;
 }
 
-export function MemberCell({ className, classNames, member, localization: localizationProp, hideActions }: MemberCellProps) {
+export function MemberCell({ className, classNames, member, hideActions }: MemberCellProps) {
     const {
         organization,
         hooks: { useActiveOrganization, useSession },
-        localization: contextLocalization,
     } = useContext(AuthUIContext);
-    const localization = { ...contextLocalization, ...localizationProp };
 
     const { data: sessionData } = useSession();
     const { data: activeOrganization } = useActiveOrganization();
@@ -38,9 +35,9 @@ export function MemberCell({ className, classNames, member, localization: locali
     const [updateRoleDialogOpen, setUpdateRoleDialogOpen] = useState(false);
 
     const builtInRoles = [
-        { role: "owner", label: localization.OWNER },
-        { role: "admin", label: localization.ADMIN },
-        { role: "member", label: localization.MEMBER },
+        { role: "owner", label: t`Owner` },
+        { role: "admin", label: t`Admin` },
+        { role: "member", label: t`Member` },
     ];
 
     const myRole = activeOrganization?.members.find((m) => m.user.id === sessionData?.user.id)?.role;
@@ -50,7 +47,7 @@ export function MemberCell({ className, classNames, member, localization: locali
     return (
         <>
             <Card className={cn("flex-row items-center p-4", className, classNames?.cell)}>
-                <UserView user={member.user} localization={localization} className="flex-1" />
+                <UserView user={member.user} className="flex-1" />
                 <span className="text-sm opacity-70">{role?.label}</span>
 
                 {(member.role !== "owner" || myRole === "owner") && !hideActions && (
@@ -69,33 +66,21 @@ export function MemberCell({ className, classNames, member, localization: locali
                         <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()}>
                             <DropdownMenuItem onClick={() => setUpdateRoleDialogOpen(true)}>
                                 <UserCogIcon className={classNames?.icon} />
-                                {localization?.UPDATE_ROLE}
+                                {t`Update Role`}
                             </DropdownMenuItem>
 
                             <DropdownMenuItem onClick={() => setRemoveDialogOpen(true)} variant="destructive">
                                 <UserXIcon className={classNames?.icon} />
-                                {localization?.REMOVE_MEMBER}
+                                {t`Remove Member`}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )}
             </Card>
 
-            <RemoveMemberDialog
-                open={removeDialogOpen}
-                onOpenChange={setRemoveDialogOpen}
-                member={member}
-                classNames={classNames}
-                localization={localization}
-            />
+            <RemoveMemberDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen} member={member} classNames={classNames} />
 
-            <UpdateMemberRoleDialog
-                open={updateRoleDialogOpen}
-                onOpenChange={setUpdateRoleDialogOpen}
-                member={member}
-                classNames={classNames}
-                localization={localization}
-            />
+            <UpdateMemberRoleDialog open={updateRoleDialogOpen} onOpenChange={setUpdateRoleDialogOpen} member={member} classNames={classNames} />
         </>
     );
 }

@@ -13,41 +13,22 @@ import {
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import type { betterAuth } from "better-auth";
+import type { AuthClient } from "@/lib/auth/client";
 
 // Plugin Types
-type ApiKeyClientPlugin = ReturnType<typeof apiKeyClient>;
-type MultiSessionClientPlugin = ReturnType<typeof multiSessionClient>;
-type PasskeyClientPlugin = ReturnType<typeof passkeyClient>;
-type OneTapClientPlugin = ReturnType<typeof oneTapClient>;
-type GenericOAuthClientPlugin = ReturnType<typeof genericOAuthClient>;
-type AnonymousClientPlugin = ReturnType<typeof anonymousClient>;
-type UsernameClientPlugin = ReturnType<typeof usernameClient>;
-type MagicLinkClientPlugin = ReturnType<typeof magicLinkClient>;
-type EmailOTPClientPlugin = ReturnType<typeof emailOTPClient>;
-type TwoFactorClientPlugin = ReturnType<typeof twoFactorClient>;
-
-// Auth Client Configuration
-export const authClient = createAuthClient({
-    plugins: [
-        apiKeyClient(),
-        multiSessionClient(),
-        passkeyClient(),
-        oneTapClient({
-            clientId: "",
-        }),
-        genericOAuthClient(),
-        anonymousClient(),
-        usernameClient(),
-        magicLinkClient(),
-        emailOTPClient(),
-        twoFactorClient(),
-        organizationClient(),
-    ],
-});
+export type ApiKeyClientPlugin = ReturnType<typeof apiKeyClient>;
+export type MultiSessionClientPlugin = ReturnType<typeof multiSessionClient>;
+export type PasskeyClientPlugin = ReturnType<typeof passkeyClient>;
+export type OneTapClientPlugin = ReturnType<typeof oneTapClient>;
+export type GenericOAuthClientPlugin = ReturnType<typeof genericOAuthClient>;
+export type AnonymousClientPlugin = ReturnType<typeof anonymousClient>;
+export type UsernameClientPlugin = ReturnType<typeof usernameClient>;
+export type MagicLinkClientPlugin = ReturnType<typeof magicLinkClient>;
+export type EmailOTPClientPlugin = ReturnType<typeof emailOTPClient>;
+export type TwoFactorClientPlugin = ReturnType<typeof twoFactorClient>;
+export type OrganizationClientPlugin = ReturnType<typeof organizationClient>;
 
 // Core Auth Types
-export type AuthClient = typeof authClient;
-
 export type Session = AuthClient["$Infer"]["Session"]["session"];
 export type User = AuthClient["$Infer"]["Session"]["user"];
 

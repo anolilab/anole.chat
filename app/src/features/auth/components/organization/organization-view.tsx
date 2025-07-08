@@ -1,10 +1,9 @@
 "use client";
 
 import type { Organization } from "better-auth/plugins/organization";
-import { useContext } from "react";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { t } from "@lingui/core/macro";
+
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../localization/auth-localization";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OrganizationLogo, type OrganizationLogoClassNames } from "./organization-logo";
 
@@ -23,11 +22,6 @@ export interface OrganizationViewProps {
     isPending?: boolean;
     size?: "sm" | "default" | "lg" | null;
     organization?: Organization | null;
-    /**
-     * @default authLocalization
-     * @remarks `AuthLocalization`
-     */
-    localization?: AuthLocalization;
 }
 
 /**
@@ -39,18 +33,13 @@ export interface OrganizationViewProps {
  * - Falls back to generic "Organization" text when neither name nor slug is available
  * - Supports customization through classNames prop
  */
-export function OrganizationView({ className, classNames, isPending, size, organization, localization: propLocalization }: OrganizationViewProps) {
-    const { localization: contextLocalization } = useContext(AuthUIContext);
-
-    const localization = { ...contextLocalization, ...propLocalization };
-
+export function OrganizationView({ className, classNames, isPending, size, organization }: OrganizationViewProps) {
     return (
         <div className={cn("flex items-center gap-2 truncate", className, classNames?.base)}>
             <OrganizationLogo
                 className={cn(size !== "sm" && "my-0.5")}
                 classNames={classNames?.avatar}
                 isPending={isPending}
-                localization={localization}
                 organization={organization}
                 size={size}
             />
@@ -69,7 +58,7 @@ export function OrganizationView({ className, classNames, isPending, size, organ
                 ) : (
                     <>
                         <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
-                            {organization?.name || localization?.ORGANIZATION}
+                            {organization?.name || t`Organization`}
                         </span>
 
                         {size !== "sm" && organization?.slug && (

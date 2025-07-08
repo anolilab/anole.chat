@@ -1,7 +1,7 @@
 "use client";
 
-import { useContext, useMemo } from "react";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { t } from "@lingui/core/macro";
+
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar } from "../user-avatar";
@@ -17,21 +17,10 @@ import type { UserViewProps } from "../user-view";
  * - Always shows "Personal Account" as subtitle for default and lg sizes
  * - Supports customization through classNames prop
  */
-export function PersonalAccountView({ className, classNames, isPending, size, user, localization: propLocalization }: UserViewProps) {
-    const { localization: contextLocalization } = useContext(AuthUIContext);
-
-    const localization = useMemo(() => ({ ...contextLocalization, ...propLocalization }), [contextLocalization, propLocalization]);
-
+export function PersonalAccountView({ className, classNames, isPending, size, user }: UserViewProps) {
     return (
         <div className={cn("flex items-center gap-2", className, classNames?.base)}>
-            <UserAvatar
-                className={cn(size !== "sm" && "my-0.5")}
-                classNames={classNames?.avatar}
-                isPending={isPending}
-                localization={localization}
-                size={size}
-                user={user}
-            />
+            <UserAvatar className={cn(size !== "sm" && "my-0.5")} classNames={classNames?.avatar} isPending={isPending} size={size} user={user} />
 
             <div className={cn("grid flex-1 text-left leading-tight", classNames?.content)}>
                 {isPending ? (
@@ -54,12 +43,12 @@ export function PersonalAccountView({ className, classNames, isPending, size, us
                                 user?.name ||
                                 user?.fullName ||
                                 user?.email ||
-                                localization?.USER}
+                                t`User`}
                         </span>
 
                         {size !== "sm" && (
                             <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>
-                                {localization?.PERSONAL_ACCOUNT}
+                                {t`Personal Account`}
                             </span>
                         )}
                     </>

@@ -34,6 +34,7 @@ app.use(
 const authRequestHandler = async (c: any) => {
     const auth = createAuth(c.env);
     const response = await auth.handler(c.req.raw);
+    
     return response;
 };
 
@@ -46,24 +47,6 @@ app.get("/.well-known/openid-configuration", async (c) => {
     const url = `${CONVEX_SITE_URL}/api/auth/convex/.well-known/openid-configuration`;
     return Response.redirect(url);
 });
-
-// OpenID configuration
-app.get(`${authPath}/convex/.well-known/openid-configuration`, authRequestHandler);
-
-// JWKS endpoint
-app.get(`${authPath}/convex/jwks`, authRequestHandler);
-
-// Callback routes (OAuth providers)
-app.get(`${authPath}/callback/*`, authRequestHandler);
-
-// Magic link verification
-app.get(`${authPath}/magic-link/verify`, authRequestHandler);
-
-// Email verification
-app.get(`${authPath}/verify-email`, authRequestHandler);
-
-// Password reset routes
-app.get(`${authPath}/reset-password/*`, authRequestHandler);
 
 // General auth routes (GET)
 app.get(`${authPath}/*`, authRequestHandler);

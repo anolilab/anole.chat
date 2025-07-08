@@ -3,14 +3,14 @@
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2 } from "lucide-react";
 import { useCallback, useContext, useEffect } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
+import { t } from "@lingui/core/macro";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { useIsHydrated } from "../../../hooks/use-hydrated";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError, getSearchParam } from "../../../lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Captcha } from "../../captcha/captcha";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
@@ -22,7 +22,6 @@ export interface MagicLinkFormProps {
     classNames?: AuthFormClassNames;
     callbackURL?: string;
     isSubmitting?: boolean;
-    localization: Partial<AuthLocalization>;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
 }
@@ -32,25 +31,13 @@ export function MagicLinkForm({
     classNames,
     callbackURL: callbackURLProp,
     isSubmitting,
-    localization,
     redirectTo: redirectToProp,
     setIsSubmitting,
 }: MagicLinkFormProps) {
     const isHydrated = useIsHydrated();
-    const { captchaRef, getCaptchaHeaders } = useCaptcha({ localization });
+    const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
-    const {
-        authClient,
-        basePath,
-        baseURL,
-        persistClient,
-        localization: contextLocalization,
-        redirectTo: contextRedirectTo,
-        viewPaths,
-        toast,
-    } = useContext(AuthUIContext);
-
-    localization = { ...contextLocalization, ...localization };
+    const { authClient, basePath, baseURL, persistClient, viewPaths, toast } = useContext(AuthUIContext);
 
     const getRedirectTo = useCallback(() => redirectToProp || getSearchParam("redirectTo") || contextRedirectTo, [redirectToProp, contextRedirectTo]);
 
@@ -63,10 +50,10 @@ export function MagicLinkForm({
         email: z
             .string()
             .min(1, {
-                message: `${localization.EMAIL} ${localization.IS_REQUIRED}`,
+                message: t`Email is required`,
             })
             .email({
-                message: `${localization.EMAIL} ${localization.IS_INVALID}`,
+                message: t`Email is invalid`,
             }),
     });
 
@@ -98,14 +85,14 @@ export function MagicLinkForm({
 
                 toast({
                     variant: "success",
-                    message: localization.MAGIC_LINK_EMAIL,
+                    message: t`Magic link email sent`,
                 });
 
                 form.reset();
             } catch (error) {
                 toast({
                     variant: "error",
-                    message: getLocalizedError({ error, localization }),
+                    message: getLocalizedError({ error }),
                 });
             }
         },
@@ -136,14 +123,14 @@ export function MagicLinkForm({
                     name="email"
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{localization.EMAIL}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
                                     className={classNames?.input}
                                     type="email"
                                     autoComplete="email"
-                                    placeholder={localization.EMAIL_PLACEHOLDER}
+                                    placeholder={t`Enter your email`}
                                     value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
@@ -156,13 +143,13 @@ export function MagicLinkForm({
                     )}
                 />
 
-                <Captcha ref={captchaRef} localization={localization} action="/sign-in/magic-link" />
+                <Captcha ref={captchaRef} action="/sign-in/magic-link" />
 
                 <form.Subscribe
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isFormSubmitting]) => (
                         <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
-                            {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : localization.MAGIC_LINK_ACTION}
+                            {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : t`Send Magic Link`}
                         </Button>
                     )}
                 />

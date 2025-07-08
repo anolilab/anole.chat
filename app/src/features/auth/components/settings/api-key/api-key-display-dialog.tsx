@@ -1,25 +1,21 @@
 "use client";
 
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { type ComponentProps, useContext, useState } from "react";
+import { type ComponentProps, useState } from "react";
+import { t } from "@lingui/core/macro";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
-import type { AuthLocalization } from "../../../localization/auth-localization";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
 interface APIKeyDisplayDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
-    localization?: AuthLocalization;
+
     apiKey: string;
 }
 
-export function APIKeyDisplayDialog({ classNames, apiKey, localization, onOpenChange, ...props }: APIKeyDisplayDialogProps) {
-    const { localization: contextLocalization } = useContext(AuthUIContext);
-    localization = { ...contextLocalization, ...localization };
-
+export function APIKeyDisplayDialog({ classNames, apiKey, onOpenChange, ...props }: APIKeyDisplayDialogProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -32,9 +28,11 @@ export function APIKeyDisplayDialog({ classNames, apiKey, localization, onOpenCh
         <Dialog onOpenChange={onOpenChange} {...props}>
             <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
-                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{localization.API_KEY_CREATED}</DialogTitle>
+                    <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`API Key Created`}</DialogTitle>
 
-                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>{localization.CREATE_API_KEY_SUCCESS}</DialogDescription>
+                    <DialogDescription
+                        className={cn("text-xs md:text-sm", classNames?.description)}
+                    >{t`Your API key has been created successfully. Make sure to copy it now as you won't be able to see it again.`}</DialogDescription>
                 </DialogHeader>
 
                 <div className="bg-muted break-all rounded-md p-4 font-mono text-sm">{apiKey}</div>
@@ -50,18 +48,18 @@ export function APIKeyDisplayDialog({ classNames, apiKey, localization, onOpenCh
                         {copied ? (
                             <>
                                 <CheckIcon className={classNames?.icon} />
-                                {localization.COPIED_TO_CLIPBOARD}
+                                {t`Copied to clipboard`}
                             </>
                         ) : (
                             <>
                                 <CopyIcon className={classNames?.icon} />
-                                {localization.COPY_TO_CLIPBOARD}
+                                {t`Copy to clipboard`}
                             </>
                         )}
                     </Button>
 
                     <Button type="button" variant="default" onClick={() => onOpenChange?.(false)} className={cn(classNames?.button, classNames?.primaryButton)}>
-                        {localization.DONE}
+                        {t`Done`}
                     </Button>
                 </DialogFooter>
             </DialogContent>
