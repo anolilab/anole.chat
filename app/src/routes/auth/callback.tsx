@@ -6,5 +6,5 @@ export const Route = createFileRoute("/auth/callback")({
 });
 
 function RouteComponent() {
-    return (<AuthCallback />);
+    return <AuthCallback />;
 }

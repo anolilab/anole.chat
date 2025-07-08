@@ -788,7 +788,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     if (isCtrlOrCmd) {
                         event.preventDefault();
                         // Create new thread
-                        navigate({  to: "/chat/new" });
+                        navigate({ to: "/chat/new" });
                     }
                     break;
 
@@ -867,7 +867,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     if (isKeyboardNavigating && selectedThreadIndex >= 0 && selectedThreadIndex < flattenedThreads.length) {
                         event.preventDefault();
                         const selectedThread = flattenedThreads[selectedThreadIndex];
-                        navigate({  to: "/chat/$threadId", params: { threadId: selectedThread.threadId }, search: { initialMessage: undefined } });
+                        navigate({ to: "/chat/$threadId", params: { threadId: selectedThread.threadId }, search: { initialMessage: undefined } });
                         setIsKeyboardNavigating(false);
                         setSelectedThreadIndex(-1);
                     }

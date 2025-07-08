@@ -114,7 +114,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
         // Automatically switch to the new branch
         setCurrentThreadId(branchId);
-        navigate({  to: "/chat/$threadId", params: { threadId: branchId }, search: (prev) => ({ ...prev }) });
+        navigate({ to: "/chat/$threadId", params: { threadId: branchId }, search: (prev) => ({ ...prev }) });
 
         return branchId;
     };
@@ -160,11 +160,10 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
             const parentId = getParentThread(threadId);
             if (parentId && parentId !== "default") {
                 setCurrentThreadId(parentId);
-                navigate({  to: "/chat/$threadId", params: { threadId: parentId }, search: (prev) => ({ ...prev }) });
+                navigate({ to: "/chat/$threadId", params: { threadId: parentId }, search: (prev) => ({ ...prev }) });
             } else {
                 // Redirect to main chat with notification
                 navigate({
-                    
                     to: "/chat",
                     search: { redirectReason: "thread-deleted" },
                 });
@@ -349,7 +348,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
     const switchToBranch = (threadId: string) => {
         if (threads.has(threadId)) {
             setCurrentThreadId(threadId);
-            navigate({  to: "/chat/$threadId", params: { threadId }, search: (prev) => ({ ...prev }) });
+            navigate({ to: "/chat/$threadId", params: { threadId }, search: (prev) => ({ ...prev }) });
 
             // Update last activity
             setThreadMetadata((prev) => {

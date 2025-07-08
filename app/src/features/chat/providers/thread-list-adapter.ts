@@ -74,7 +74,7 @@ export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAd
                 setCurrentThreadId(newThreadId);
 
                 // Navigate to the new thread
-                navigate({  to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true, search: { initialMessage: undefined } });
+                navigate({ to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true, search: { initialMessage: undefined } });
             },
 
             onSwitchToThread: async (switchThreadId) => {
@@ -96,7 +96,7 @@ export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAd
                 }
 
                 setCurrentThreadId(switchThreadId);
-                navigate({  to: "/chat/$threadId", params: { threadId: switchThreadId }, search: { initialMessage: undefined } });
+                navigate({ to: "/chat/$threadId", params: { threadId: switchThreadId }, search: { initialMessage: undefined } });
             },
 
             onRename: async (renameThreadId, newTitle) => {
@@ -184,7 +184,7 @@ export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAd
                 // Switch to default thread if deleting current thread
                 if (currentThreadId === deleteThreadId) {
                     setCurrentThreadId("default");
-                    navigate({  to: "/chat" });
+                    navigate({ to: "/chat" });
                 }
 
                 await deleteThread({

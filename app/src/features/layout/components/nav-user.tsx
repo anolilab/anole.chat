@@ -86,7 +86,7 @@ export function NavUser() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={async () => {
-                                await Promise.all([authClient.signOut(), navigate({  to: "/auth/sign-in" })]);
+                                await Promise.all([authClient.signOut(), navigate({ to: "/auth/sign-in" })]);
                             }}
                         >
                             <LogOut />

@@ -8,9 +8,7 @@ import { useOnMutateError } from "./use-mutate-error";
 
 type AuthMutationFn<TParams> = (params: TParams) => Promise<ThrowableResult<any> | NonThrowableResult<any>>;
 
-export function useAuthMutation<
-    TAuthFn extends AuthMutationFn<any>,
->({
+export function useAuthMutation<TAuthFn extends AuthMutationFn<any>>({
     queryKey,
     mutationFn,
     optimisticData,

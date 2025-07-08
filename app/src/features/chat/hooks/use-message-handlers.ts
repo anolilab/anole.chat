@@ -164,7 +164,6 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
 
                     setCurrentThreadId(actualThreadId);
                     navigate({
-                        
                         to: "/chat/$threadId",
                         params: { threadId: actualThreadId },
                         replace: true,

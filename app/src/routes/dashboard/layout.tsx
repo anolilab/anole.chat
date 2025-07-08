@@ -114,21 +114,17 @@ function RouteComponent() {
                                         <Fragment key={item.href}>
                                             <BreadcrumbItem>
                                                 {item.isLast ? (
-                                                    <BreadcrumbPage className="text-foreground font-medium">
-                                                        {item.label}
-                                                    </BreadcrumbPage>
+                                                    <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
                                                 ) : (
                                                     <BreadcrumbLink
                                                         href={item.href}
-                                                        className="text-muted-foreground hover:text-foreground text-sm capitalize dark:hover:text-white transition-colors"
+                                                        className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
                                                     >
                                                         {item.label}
                                                     </BreadcrumbLink>
                                                 )}
                                             </BreadcrumbItem>
-                                            {index < breadcrumbItems.length - 1 && (
-                                                <BreadcrumbSeparator className="text-muted-foreground mx-2" />
-                                            )}
+                                            {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
                                         </Fragment>
                                     ))}
                                 </BreadcrumbList>

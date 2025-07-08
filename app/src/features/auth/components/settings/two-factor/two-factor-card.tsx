@@ -66,7 +66,7 @@ export function TwoFactorCard({ onShowBackupCodes, ...props }: TwoFactorCardProp
                         </div>
                     )}
                 </div>
-                <div className="flex flex-col justify-end items-end gap-4 rounded-b-xl md:flex-row bg-sidebar border-t py-4 px-6">
+                <div className="bg-sidebar flex flex-col items-end justify-end gap-4 rounded-b-xl border-t px-6 py-4 md:flex-row">
                     <div className="flex gap-2">
                         <Button variant={isEnabled ? "destructive" : "default"} onClick={handleToggle} disabled={isPending} className="w-fit">
                             {isPending ? (isEnabled ? t`Disabling...` : t`Enabling...`) : isEnabled ? t`Disable 2FA` : t`Enable 2FA`}

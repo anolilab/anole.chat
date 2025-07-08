@@ -6,7 +6,5 @@ export const Route = createFileRoute("/auth/reset-password")({
 });
 
 function RouteComponent() {
-    return (
-        <AuthCard view="RESET_PASSWORD" />
-    );
+    return <AuthCard view="RESET_PASSWORD" />;
 }

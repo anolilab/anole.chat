@@ -39,14 +39,14 @@ export function NavItems({ items, label, colorMode = "light" }: { items: NavItem
                 {items.map((item) => (
                     <SidebarMenuItem key={item.name}>
                         <SidebarMenuButton asChild className={classes.button}>
-                            <Link 
+                            <Link
                                 to={item.url}
                                 activeProps={{
-                                    className: classes.buttonActive
+                                    className: classes.buttonActive,
                                 }}
                                 activeOptions={{
                                     // Match exact path for main routes, and include sub-paths for settings
-                                    exact: !item.url.includes('/settings')
+                                    exact: !item.url.includes("/settings"),
                                 }}
                             >
                                 {({ isActive }) => (

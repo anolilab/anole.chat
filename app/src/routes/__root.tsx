@@ -111,10 +111,10 @@ const RootDocument = () => {
                         <AuthUIProviderTanstack
                             authClient={authClient}
                             navigate={(href) => {
-                                router.navigate({  to: href });
+                                router.navigate({ to: href });
                             }}
                             replace={(href) => {
-                                router.navigate({  to: href, replace: true });
+                                router.navigate({ to: href, replace: true });
                             }}
                             onSessionChange={() => {
                                 router.invalidate();

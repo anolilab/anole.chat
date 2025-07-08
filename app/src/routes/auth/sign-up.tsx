@@ -6,5 +6,5 @@ export const Route = createFileRoute("/auth/sign-up")({
 });
 
 function RouteComponent() {
-    return (<AuthCard view="SIGN_UP" />);
+    return <AuthCard view="SIGN_UP" />;
 }

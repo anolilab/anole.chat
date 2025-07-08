@@ -34,7 +34,7 @@ app.use(
 const authRequestHandler = async (c: any) => {
     const auth = createAuth(c.env);
     const response = await auth.handler(c.req.raw);
-    
+
     return response;
 };
 
