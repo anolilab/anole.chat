@@ -4,7 +4,6 @@ import { KeyRoundIcon } from "lucide-react";
 import { useState } from "react";
 import { t } from "@lingui/core/macro";
 
-import { useLang } from "../../../hooks/use-lang";
 import { cn } from "@/lib/utils";
 import type { ApiKey } from "../../../types/data-structure-types";
 import type { Refetch } from "../../../types/hook-integration-types";
@@ -12,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { ApiKeyDeleteDialog } from "./api-key-delete-dialog";
+import { i18n } from "@lingui/core";
 
 export interface APIKeyCellProps {
     className?: string;
@@ -22,8 +22,6 @@ export interface APIKeyCellProps {
 }
 
 export function APIKeyCell({ className, classNames, apiKey, refetch }: APIKeyCellProps) {
-    const { lang } = useLang();
-
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     // Format expiration date or show "Never expires"
@@ -31,7 +29,7 @@ export function APIKeyCell({ className, classNames, apiKey, refetch }: APIKeyCel
         if (!apiKey.expiresAt) return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
-        return `${t`Expires`} ${expiresDate.toLocaleDateString(lang ?? "en", {
+        return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale, {
             month: "short",
             day: "numeric",
             year: "numeric",

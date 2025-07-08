@@ -1,19 +1,23 @@
 "use client";
 
 import { PlusIcon } from "lucide-react";
-import { type ComponentProps, useMemo, useState } from "react";
+import { type ComponentProps, useContext, useMemo, useState } from "react";
 import { t } from "@lingui/core/macro";
 
 import { APIKeyDisplayDialog } from "./api-key-display-dialog";
 import { CreateAPIKeyDialog } from "./create-api-key-dialog";
 import { APIKeyCell } from "./api-key-cell";
-import { useListApiKeys } from "../../../hooks/api-key/use-list-api-keys";
 import { SettingsCard } from "../shared/settings-card";
 import { Button } from "@/components/ui/button";
+import { AuthUIContext } from "@/features/auth/lib/auth-ui-provider";
 
 export interface APIKeysCardProps extends ComponentProps<typeof SettingsCard> {}
 
 export function APIKeysCard({ ...props }: APIKeysCardProps) {
+    const {
+        hooks: { useListApiKeys },
+    } = useContext(AuthUIContext);
+
     const { data: apiKeys } = useListApiKeys();
 
     const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -30,12 +34,11 @@ export function APIKeysCard({ ...props }: APIKeysCardProps) {
                 {...props}
                 header={t`API Keys`}
                 description={t`Create and manage API keys for programmatic access to your account.`}
-                footer={
-                    <Button variant="outline" onClick={() => setShowCreateDialog(true)} className="w-fit">
-                        <PlusIcon />
-                        {t`Create API Key`}
-                    </Button>
-                }
+                action={() => setShowCreateDialog(true)}
+                footer={<>
+                    <PlusIcon />
+                    {t`Create API Key`}
+                </>}
             >
                 {sortedAPIKeys.length > 0 ? (
                     <div className="space-y-2">
@@ -51,7 +54,7 @@ export function APIKeysCard({ ...props }: APIKeysCardProps) {
             <CreateAPIKeyDialog
                 open={showCreateDialog}
                 onOpenChange={setShowCreateDialog}
-                onAPIKeyCreated={(apiKey) => {
+                onSuccess={(apiKey) => {
                     setDisplayAPIKey(apiKey);
                     setShowCreateDialog(false);
                 }}

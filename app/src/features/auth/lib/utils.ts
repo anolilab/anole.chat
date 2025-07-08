@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 import type { PasswordValidation } from "../types/form-validation-types";
 import type { AuthView, AuthViewPaths } from "./auth-view-paths";

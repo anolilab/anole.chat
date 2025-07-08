@@ -2,7 +2,8 @@ import type { AnyUseQueryOptions } from "@tanstack/react-query";
 import { useContext } from "react";
 
 import { AuthQueryContext, type AuthQueryOptions } from "../lib/auth-query-provider";
-import type { AnyAuthClient } from "../types/auth-core-types";
+import type { AuthClient } from "@/lib/auth/client";
+
 import { useAuthQuery } from "./shared/use-auth-query";
 import { useAuthMutation } from "./shared/use-auth-mutation";
 

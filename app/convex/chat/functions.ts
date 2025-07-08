@@ -3,7 +3,7 @@ import { components, internal } from "../_generated/api";
 import { internalAction, internalMutation, mutation, action, query, httpAction, internalQuery } from "../_generated/server";
 import { AgentModel, getAgent } from "../ai/lib/agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
-import z from "zod";
+import z from "zod/v4";
 import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
 import { requireUserId } from "@convex/auth/lib/helper";

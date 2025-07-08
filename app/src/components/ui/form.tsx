@@ -22,22 +22,27 @@ const { useAppForm, withForm } = createFormHook({
 
 type FormItemContextValue = {
     id: string;
+    required?: boolean;
 };
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
-function FormItem({ className, ...props }: React.ComponentProps<"div">) {
+interface FormItemProps extends React.ComponentProps<"div"> {
+    required?: boolean;
+}
+
+function FormItem({ className, required, ...props }: FormItemProps) {
     const id = React.useId();
 
     return (
-        <FormItemContext.Provider value={{ id }}>
+        <FormItemContext.Provider value={{ id, required }}>
             <div data-slot="form-item" className={cn("grid gap-2", className)} {...props} />
         </FormItemContext.Provider>
     );
 }
 
 const useFieldContext = () => {
-    const { id } = React.useContext(FormItemContext);
+    const { id, required } = React.useContext(FormItemContext);
     const { name, store, ...fieldContext } = useFormFieldContext();
 
     const errors = useStore(store, (state) => state.meta.errors);
@@ -48,6 +53,7 @@ const useFieldContext = () => {
     return {
         id,
         name,
+        required,
         formItemId: `${id}-form-item`,
         formDescriptionId: `${id}-form-item-description`,
         formMessageId: `${id}-form-item-message`,
@@ -57,8 +63,13 @@ const useFieldContext = () => {
     };
 };
 
-function FormLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
-    const { formItemId, errors } = useFieldContext();
+interface FormLabelProps extends React.ComponentProps<typeof Label> {
+    required?: boolean;
+}
+
+function FormLabel({ className, required, children, ...props }: FormLabelProps) {
+    const { formItemId, errors, required: contextRequired } = useFieldContext();
+    const isRequired = required ?? contextRequired;
 
     return (
         <Label
@@ -67,12 +78,20 @@ function FormLabel({ className, ...props }: React.ComponentProps<typeof Label>) 
             className={cn("data-[error=true]:text-destructive", className)}
             htmlFor={formItemId}
             {...props}
-        />
+        >
+            {children}
+            {isRequired && <span className="text-destructive ml-1">*</span>}
+        </Label>
     );
 }
 
-function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
-    const { errors, formItemId, formDescriptionId, formMessageId } = useFieldContext();
+interface FormControlProps extends React.ComponentProps<typeof Slot> {
+    required?: boolean;
+}
+
+function FormControl({ required, ...props }: FormControlProps) {
+    const { errors, formItemId, formDescriptionId, formMessageId, required: contextRequired } = useFieldContext();
+    const isRequired = required ?? contextRequired;
 
     return (
         <Slot
@@ -80,6 +99,8 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
             id={formItemId}
             aria-describedby={!errors.length ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
             aria-invalid={!!errors.length}
+            aria-required={isRequired}
+            data-required={isRequired}
             {...props}
         />
     );

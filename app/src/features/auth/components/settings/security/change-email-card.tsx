@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useState } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,10 @@ import { SettingsCard } from "../shared/settings-card";
 import type { SettingsCardProps } from "../shared/settings-card";
 
 const formSchema = z.object({
-    email: z.string().min(1, { message: t`Email is required` }).email({ message: t`Invalid email` }),
+    email: z
+        .string()
+        .min(1, { message: t`Email is required` })
+        .email({ message: t`Invalid email` }),
 });
 
 export function ChangeEmailCard({ className, classNames, ...props }: SettingsCardProps) {

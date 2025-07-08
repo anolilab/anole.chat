@@ -3,7 +3,7 @@
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2 } from "lucide-react";
 import { useContext, useEffect } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { useIsHydrated } from "../../../hooks/use-hydrated";

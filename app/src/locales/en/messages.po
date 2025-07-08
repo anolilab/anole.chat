@@ -109,7 +109,7 @@ msgstr "API Key is not recoverable"
 msgid "API Key not found"
 msgstr "API Key not found"
 
-#: src/features/auth/components/settings/api-key/api-keys-card.tsx:31
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:35
 msgid "API Keys"
 msgstr "API Keys"
 
@@ -168,8 +168,6 @@ msgstr "Backup codes are not enabled"
 
 #: src/features/auth/components/settings/two-factor/two-factor-password-dialog.tsx:155
 #: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:80
-#: src/features/auth/components/settings/security/change-email-card.tsx:82
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:102
 #: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:101
 #: src/features/auth/components/settings/account/delete-account-dialog.tsx:161
 #: src/features/auth/components/organization/update-member-role-dialog.tsx:135
@@ -192,10 +190,6 @@ msgstr "Captcha verification failed"
 #: src/features/auth/lib/utils.ts:300
 msgid "Challenge not found"
 msgstr "Challenge not found"
-
-#: src/features/auth/components/settings/security/change-email-card.tsx:43
-msgid "Change Email"
-msgstr "Change Email"
 
 #: src/features/auth/components/settings/security/change-password-card.tsx:226
 msgid "Change Password"
@@ -228,10 +222,6 @@ msgstr "Click on the logo to upload a new image"
 msgid "Click the avatar to upload a new image or delete the current one"
 msgstr "Click the avatar to upload a new image or delete the current one"
 
-#: src/features/auth/components/auth/forms/email-otp-form.tsx:27
-msgid "Code is required"
-msgstr "Code is required"
-
 #: src/features/auth/components/settings/security/change-password-card.tsx:305
 #: src/features/auth/components/auth/forms/reset-password-form.tsx:186
 msgid "Confirm new password"
@@ -252,17 +242,9 @@ msgstr "Confirm Password"
 msgid "Confirm password is required"
 msgstr "Confirm password is required"
 
-#: src/features/auth/components/settings/providers/providers-card.tsx:34
-msgid "Connect Account"
-msgstr "Connect Account"
-
-#: src/features/auth/components/settings/providers/providers-card.tsx:29
+#: src/features/auth/components/settings/providers/providers-card.tsx:43
 msgid "Connected Accounts"
 msgstr "Connected Accounts"
-
-#: src/features/auth/components/settings/providers/provider-cell.tsx:68
-msgid "Connected on {connectedDate}"
-msgstr "Connected on {connectedDate}"
 
 #: src/features/auth/components/auth/forms/two-factor-form.tsx:293
 msgid "Continue with authenticator"
@@ -288,21 +270,21 @@ msgstr "Copy to clipboard"
 msgid "Could not create session"
 msgstr "Could not create session"
 
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:56
-msgid "Create a new API key for programmatic access to your account."
-msgstr "Create a new API key for programmatic access to your account."
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:75
+msgid "Create a new API key for programmatic access to your account"
+msgstr "Create a new API key for programmatic access to your account"
 
 #: src/features/auth/components/organization/create-organization-dialog.tsx:139
 msgid "Create a new organization to collaborate with your team"
 msgstr "Create a new organization to collaborate with your team"
 
-#: src/features/auth/components/settings/api-key/api-keys-card.tsx:32
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:36
 msgid "Create and manage API keys for programmatic access to your account."
 msgstr "Create and manage API keys for programmatic access to your account."
 
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:52
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:106
-#: src/features/auth/components/settings/api-key/api-keys-card.tsx:36
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:72
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:151
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:40
 msgid "Create API Key"
 msgstr "Create API Key"
 
@@ -317,17 +299,9 @@ msgstr "Create new organizations or manage existing ones"
 msgid "Create Organization"
 msgstr "Create Organization"
 
-#: src/features/auth/components/settings/security/sessions-card.tsx:69
-msgid "Created {createdDate}"
-msgstr "Created {createdDate}"
-
 #: src/features/auth/components/settings/passkey/passkey-cell.tsx:68
 msgid "Created on {createdDate}"
 msgstr "Created on {createdDate}"
-
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:106
-msgid "Creating..."
-msgstr "Creating..."
 
 #: src/components/assistant-ui/thread.tsx:109
 msgid "Creativity"
@@ -337,15 +311,9 @@ msgstr "Creativity"
 msgid "Credential account not found"
 msgstr "Credential account not found"
 
-#: src/features/auth/components/settings/security/sessions-card.tsx:65
 #: src/features/auth/components/settings/security/session-cell.tsx:73
 msgid "Current"
 msgstr "Current"
-
-#: src/features/auth/components/settings/security/change-email-card.tsx:50
-#: src/features/auth/components/settings/security/change-email-card.tsx:56
-msgid "Current Email"
-msgstr "Current Email"
 
 #: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:59
 #: src/features/auth/components/settings/security/change-password-card.tsx:253
@@ -363,7 +331,7 @@ msgstr "Custom key expiration values are disabled"
 #: src/features/auth/components/settings/passkey/passkey-cell.tsx:84
 #: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:68
 #: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:112
-#: src/features/auth/components/settings/api-key/api-key-cell.tsx:65
+#: src/features/auth/components/settings/api-key/api-key-cell.tsx:64
 #: src/components/assistant-ui/thread-list.tsx:1209
 msgid "Delete"
 msgstr "Delete"
@@ -405,14 +373,6 @@ msgstr "Delete Thread"
 msgid "Deleting..."
 msgstr "Deleting..."
 
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:77
-msgid "Describe what this API key will be used for"
-msgstr "Describe what this API key will be used for"
-
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:72
-msgid "Description (optional)"
-msgstr "Description (optional)"
-
 #: src/features/auth/components/settings/two-factor/two-factor-card.tsx:49
 msgid "Disable 2FA"
 msgstr "Disable 2FA"
@@ -428,14 +388,6 @@ msgstr "Disabled"
 #: src/features/auth/components/settings/two-factor/two-factor-card.tsx:49
 msgid "Disabling..."
 msgstr "Disabling..."
-
-#: src/features/auth/components/settings/providers/provider-cell.tsx:80
-msgid "Disconnect"
-msgstr "Disconnect"
-
-#: src/features/auth/components/settings/providers/provider-cell.tsx:80
-msgid "Disconnecting..."
-msgstr "Disconnecting..."
 
 #: src/features/auth/components/auth/auth-card.tsx:268
 msgid "Don't have an account?"
@@ -459,10 +411,11 @@ msgstr "Each code can only be used once. Keep them secure and treat them like pa
 #: src/features/auth/components/auth/forms/sign-in-form.tsx:173
 #: src/features/auth/components/auth/forms/magic-link-form.tsx:126
 #: src/features/auth/components/auth/forms/forgot-password-form.tsx:109
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:124
 msgid "Email"
 msgstr "Email"
 
-#: src/features/auth/components/settings/security/change-email-card.tsx:38
+#: src/features/auth/components/settings/security/change-email-card.tsx:129
 msgid "Email Address"
 msgstr "Email Address"
 
@@ -482,16 +435,23 @@ msgstr "Email is already taken"
 #: src/features/auth/components/auth/forms/sign-in-form.tsx:61
 #: src/features/auth/components/auth/forms/magic-link-form.tsx:56
 #: src/features/auth/components/auth/forms/forgot-password-form.tsx:39
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:59
 msgid "Email is invalid"
 msgstr "Email is invalid"
 
+#: src/features/auth/components/settings/security/change-email-card.tsx:16
 #: src/features/auth/components/organization/invite-member-dialog.tsx:46
 #: src/features/auth/components/auth/forms/sign-up-form.tsx:87
 #: src/features/auth/components/auth/forms/sign-in-form.tsx:58
 #: src/features/auth/components/auth/forms/magic-link-form.tsx:53
 #: src/features/auth/components/auth/forms/forgot-password-form.tsx:36
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:56
 msgid "Email is required"
 msgstr "Email is required"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:48
+msgid "Email is the same"
+msgstr "Email is the same"
 
 #: src/features/auth/lib/utils.ts:80
 msgid "Email not verified"
@@ -501,6 +461,10 @@ msgstr "Email not verified"
 msgid "Email sent successfully"
 msgstr "Email sent successfully"
 
+#: src/features/auth/components/settings/security/change-email-card.tsx:69
+msgid "Email updated successfully"
+msgstr "Email updated successfully"
+
 #: src/features/auth/lib/utils.ts:282
 msgid "Email verification is required before you can subscribe to a plan"
 msgstr "Email verification is required before you can subscribe to a plan"
@@ -508,10 +472,6 @@ msgstr "Email verification is required before you can subscribe to a plan"
 #: src/features/auth/components/auth/forms/sign-up-form.tsx:302
 msgid "Email verification sent"
 msgstr "Email verification sent"
-
-#: src/features/auth/components/auth/forms/email-otp-form.tsx:65
-msgid "Email verified successfully"
-msgstr "Email verified successfully"
 
 #: src/features/auth/components/settings/two-factor/two-factor-card.tsx:49
 msgid "Enable 2FA"
@@ -533,7 +493,7 @@ msgstr "Enabled"
 msgid "Enabling..."
 msgstr "Enabling..."
 
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:66
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:98
 msgid "Enter a name for your API key"
 msgstr "Enter a name for your API key"
 
@@ -575,6 +535,11 @@ msgstr "Enter your current password and choose a new one"
 msgid "Enter your email"
 msgstr "Enter your email"
 
+#: src/features/auth/components/settings/security/change-email-card.tsx:144
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:131
+msgid "Enter your email address"
+msgstr "Enter your email address"
+
 #: src/features/auth/components/auth/auth-card.tsx:113
 msgid "Enter your email below to login to your account"
 msgstr "Enter your email below to login to your account"
@@ -604,9 +569,9 @@ msgstr "Enter your information to create an account"
 msgid "Enter your name"
 msgstr "Enter your name"
 
-#: src/features/auth/components/settings/security/change-email-card.tsx:67
-msgid "Enter your new email address"
-msgstr "Enter your new email address"
+#: src/features/auth/components/settings/security/change-email-card.tsx:127
+msgid "Enter your new email address below"
+msgstr "Enter your new email address below"
 
 #: src/features/auth/components/auth/auth-card.tsx:128
 msgid "Enter your new password below"
@@ -637,15 +602,16 @@ msgstr "Enter your password to enable two-factor authentication"
 msgid "Enter your username"
 msgstr "Enter your username"
 
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:115
 #: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:56
-#: src/features/auth/components/settings/api-key/api-key-cell.tsx:34
+#: src/features/auth/components/settings/api-key/api-key-cell.tsx:33
 #: src/features/auth/components/organization/invitation-cell.tsx:78
 msgid "Expires"
 msgstr "Expires"
 
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:83
-msgid "Expires in (days, optional)"
-msgstr "Expires in (days, optional)"
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:60
+msgid "Failed to create API key"
+msgstr "Failed to create API key"
 
 #: src/features/auth/lib/utils.ts:55
 msgid "Failed to create session"
@@ -667,13 +633,33 @@ msgstr "Failed to get session"
 msgid "Failed to get user info"
 msgstr "Failed to get user info"
 
+#: src/features/auth/components/settings/providers/provider-cell.tsx:59
+msgid "Failed to link account"
+msgstr "Failed to link account"
+
 #: src/features/auth/lib/utils.ts:226
 msgid "Failed to retrieve invitation"
 msgstr "Failed to retrieve invitation"
 
-#: src/features/auth/components/settings/security/sessions-card.tsx:35
+#: src/features/auth/components/settings/security/sessions-card.tsx:70
 msgid "Failed to revoke session"
 msgstr "Failed to revoke session"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:93
+msgid "Failed to send verification code"
+msgstr "Failed to send verification code"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:102
+msgid "Failed to send verification email"
+msgstr "Failed to send verification email"
+
+#: src/features/auth/components/settings/providers/provider-cell.tsx:79
+msgid "Failed to unlink account"
+msgstr "Failed to unlink account"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:75
+msgid "Failed to update email address"
+msgstr "Failed to update email address"
 
 #: src/features/auth/lib/utils.ts:312
 msgid "Failed to update passkey"
@@ -746,6 +732,7 @@ msgid "Invalid code"
 msgstr "Invalid code"
 
 #: src/features/auth/lib/utils.ts:63
+#: src/features/auth/components/settings/security/change-email-card.tsx:16
 #: src/features/auth/components/organization/invite-member-dialog.tsx:48
 msgid "Invalid email"
 msgstr "Invalid email"
@@ -806,6 +793,10 @@ msgstr "Invalid two-factor code"
 #: src/features/auth/lib/utils.ts:352
 msgid "Invalid username"
 msgstr "Invalid username"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:210
+msgid "Invalid verification code"
+msgstr "Invalid verification code"
 
 #: src/features/auth/components/organization/accept-invitation-card.tsx:115
 msgid "Invitation accepted"
@@ -901,10 +892,6 @@ msgstr "Last active {lastActiveDate}"
 msgid "Last used {lastUsedDate}"
 msgstr "Last used {lastUsedDate}"
 
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:89
-msgid "Leave empty for no expiration"
-msgstr "Leave empty for no expiration"
-
 #: src/features/auth/components/organization/organization-cell.tsx:96
 #: src/features/auth/components/organization/leave-organization-dialog.tsx:72
 #: src/features/auth/components/organization/leave-organization-dialog.tsx:103
@@ -914,6 +901,10 @@ msgstr "Leave Organization"
 #: src/features/auth/components/organization/leave-organization-dialog.tsx:48
 msgid "Left organization successfully"
 msgstr "Left organization successfully"
+
+#: src/features/auth/components/settings/providers/provider-cell.tsx:101
+msgid "Link"
+msgstr "Link"
 
 #: src/components/assistant-ui/thread-list.tsx:1251
 msgid "Loading threads..."
@@ -946,7 +937,7 @@ msgstr "Manage Organization"
 msgid "Manage organization members and their roles"
 msgstr "Manage organization members and their roles"
 
-#: src/features/auth/components/settings/security/sessions-card.tsx:41
+#: src/features/auth/components/settings/security/sessions-card.tsx:76
 msgid "Manage your active sessions"
 msgstr "Manage your active sessions"
 
@@ -954,9 +945,9 @@ msgstr "Manage your active sessions"
 msgid "Manage your connected accounts"
 msgstr "Manage your connected accounts"
 
-#: src/features/auth/components/settings/providers/providers-card.tsx:30
-msgid "Manage your connected social accounts and third-party providers."
-msgstr "Manage your connected social accounts and third-party providers."
+#: src/features/auth/components/settings/providers/providers-card.tsx:44
+msgid "Manage your connected social accounts and third-party providers"
+msgstr "Manage your connected social accounts and third-party providers"
 
 #: src/features/auth/components/organization/organizations-card.tsx:32
 msgid "Manage your organizations and memberships"
@@ -1018,12 +1009,13 @@ msgstr "Missing secret key"
 msgid "More options"
 msgstr "More options"
 
-#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:61
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:93
 #: src/features/auth/components/settings/account/update-name-card.tsx:26
 #: src/features/auth/components/auth/forms/sign-up-form.tsx:450
 msgid "Name"
 msgstr "Name"
 
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:29
 #: src/features/auth/components/auth/forms/sign-up-form.tsx:144
 msgid "Name is required"
 msgstr "Name is required"
@@ -1033,13 +1025,9 @@ msgid "Network error"
 msgstr "Network error"
 
 #: src/features/auth/components/settings/api-key/api-key-delete-dialog.tsx:53
-#: src/features/auth/components/settings/api-key/api-key-cell.tsx:31
+#: src/features/auth/components/settings/api-key/api-key-cell.tsx:30
 msgid "Never expires"
 msgstr "Never expires"
-
-#: src/features/auth/components/settings/security/change-email-card.tsx:61
-msgid "New Email Address"
-msgstr "New Email Address"
 
 #: src/features/auth/components/auth/forms/reset-password-form.tsx:156
 msgid "New password"
@@ -1062,18 +1050,14 @@ msgstr "New Thread"
 msgid "No active organization"
 msgstr "No active organization"
 
-#: src/features/auth/components/settings/api-key/api-keys-card.tsx:47
+#: src/features/auth/components/settings/api-key/api-keys-card.tsx:51
 msgid "No API keys found. Create one to get started."
 msgstr "No API keys found. Create one to get started."
 
-#: src/features/auth/components/settings/providers/providers-card.tsx:46
-msgid "No connected accounts found. Connect a social account to enable additional sign-in options."
-msgstr "No connected accounts found. Connect a social account to enable additional sign-in options."
-
-#: src/features/auth/components/settings/security/change-email-card.tsx:51
-#: src/features/auth/components/settings/security/change-email-card.tsx:57
-msgid "No email address set"
-msgstr "No email address set"
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:120
+#: src/features/auth/components/settings/api-key/create-api-key-dialog.tsx:125
+msgid "No expiration"
+msgstr "No expiration"
 
 #: src/features/auth/components/settings/passkey/passkeys-card.tsx:45
 msgid "No passkeys found. Add one to enable passwordless sign-in."
@@ -1295,6 +1279,10 @@ msgstr "Phone number not verified"
 msgid "Please authenticate to continue"
 msgstr "Please authenticate to continue"
 
+#: src/features/auth/components/settings/security/change-email-card.tsx:177
+msgid "Please check your email and click the verification link"
+msgstr "Please check your email and click the verification link"
+
 #: src/features/auth/components/settings/account/delete-account-dialog.tsx:83
 msgid "Please check your email to verify account deletion"
 msgstr "Please check your email to verify account deletion"
@@ -1310,6 +1298,10 @@ msgstr "Please enter your one-time password to continue"
 #: src/features/auth/components/organization/delete-organization-dialog.tsx:115
 msgid "Please type"
 msgstr "Please type"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:63
+msgid "Please verify your new email address"
+msgstr "Please verify your new email address"
 
 #: src/components/assistant-ui/thread-list.tsx:1263
 msgid "Press ? for keyboard shortcuts"
@@ -1364,6 +1356,10 @@ msgstr "Request failed"
 msgid "Resend code"
 msgstr "Resend code"
 
+#: src/features/auth/components/settings/security/change-email-card.tsx:178
+msgid "Resend Verification Email"
+msgstr "Resend Verification Email"
+
 #: src/features/auth/components/auth/forms/reset-password-form.tsx:204
 msgid "Reset password"
 msgstr "Reset password"
@@ -1372,7 +1368,6 @@ msgstr "Reset password"
 msgid "Reset Password"
 msgstr "Reset Password"
 
-#: src/features/auth/components/settings/security/sessions-card.tsx:80
 #: src/features/auth/components/settings/account/account-cell.tsx:115
 msgid "Revoke"
 msgstr "Revoke"
@@ -1402,6 +1397,7 @@ msgid "Role not found"
 msgstr "Role not found"
 
 #: src/features/auth/components/settings/security/change-password-card.tsx:222
+#: src/features/auth/components/settings/security/change-email-card.tsx:130
 #: src/features/auth/components/settings/account/update-field-card.tsx:155
 #: src/features/auth/components/organization/organization-slug-card.tsx:32
 #: src/features/auth/components/organization/organization-slug-card.tsx:135
@@ -1442,6 +1438,10 @@ msgstr "Send Magic Link"
 msgid "Send verification code"
 msgstr "Send verification code"
 
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:148
+msgid "Send Verification Code"
+msgstr "Send Verification Code"
+
 #: src/features/auth/lib/utils.ts:256
 msgid "Service unavailable"
 msgstr "Service unavailable"
@@ -1450,7 +1450,7 @@ msgstr "Service unavailable"
 msgid "Session expired. Re-authenticate to perform this action."
 msgstr "Session expired. Re-authenticate to perform this action."
 
-#: src/features/auth/components/settings/security/sessions-card.tsx:41
+#: src/features/auth/components/settings/security/sessions-card.tsx:76
 msgid "Sessions"
 msgstr "Sessions"
 
@@ -1550,10 +1550,6 @@ msgstr "Subscription not found"
 #: src/features/auth/lib/utils.ts:274
 msgid "Subscription plan not found"
 msgstr "Subscription plan not found"
-
-#: src/features/auth/components/auth/forms/email-otp-form.tsx:64
-msgid "Success"
-msgstr "Success"
 
 #: src/features/auth/components/settings/account/account-cell.tsx:99
 msgid "Switch Account"
@@ -1715,14 +1711,13 @@ msgstr "Unauthorized or invalid session"
 msgid "Unexpected error"
 msgstr "Unexpected error"
 
-#: src/features/auth/components/settings/security/sessions-card.tsx:64
 #: src/features/auth/components/settings/security/session-cell.tsx:72
 msgid "Unknown Device"
 msgstr "Unknown Device"
 
-#: src/features/auth/components/settings/security/change-email-card.tsx:86
-msgid "Update Email"
-msgstr "Update Email"
+#: src/features/auth/components/settings/providers/provider-cell.tsx:101
+msgid "Unlink"
+msgstr "Unlink"
 
 #: src/features/auth/components/organization/update-member-role-dialog.tsx:104
 #: src/features/auth/components/organization/update-member-role-dialog.tsx:141
@@ -1734,17 +1729,13 @@ msgstr "Update Role"
 msgid "Update the role for this member"
 msgstr "Update the role for this member"
 
-#: src/features/auth/components/settings/security/change-email-card.tsx:39
-msgid "Update your account email address. You'll need to verify the new email address."
-msgstr "Update your account email address. You'll need to verify the new email address."
+#: src/features/auth/components/settings/security/change-email-card.tsx:126
+msgid "Update your account email address"
+msgstr "Update your account email address"
 
 #: src/features/auth/components/settings/account/update-field-card.tsx:126
 msgid "updated successfully"
 msgstr "updated successfully"
-
-#: src/features/auth/components/settings/security/change-email-card.tsx:86
-msgid "Updating..."
-msgstr "Updating..."
 
 #: src/features/auth/components/organization/create-organization-dialog.tsx:216
 #: src/features/auth/components/auth/forms/sign-up-form.tsx:436
@@ -1831,13 +1822,37 @@ msgstr "Username is too long"
 msgid "Username is too short"
 msgstr "Username is too short"
 
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:242
+msgid "Verification Code"
+msgstr "Verification Code"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:181
+msgid "Verification code is invalid"
+msgstr "Verification code is invalid"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:178
+msgid "Verification code is required"
+msgstr "Verification code is required"
+
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:86
+msgid "Verification code sent to your email"
+msgstr "Verification code sent to your email"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:97
+msgid "Verification email sent"
+msgstr "Verification email sent"
+
 #: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:84
 msgid "Verify"
 msgstr "Verify"
 
-#: src/features/auth/components/auth/forms/email-otp-form.tsx:103
+#: src/features/auth/components/auth/forms/email-otp-form.tsx:274
 msgid "Verify Code"
 msgstr "Verify Code"
+
+#: src/features/auth/components/settings/security/change-email-card.tsx:176
+msgid "Verify Your Email"
+msgstr "Verify Your Email"
 
 #: src/features/auth/components/settings/shared/session-freshness-dialog.tsx:50
 msgid "Verify Your Identity"

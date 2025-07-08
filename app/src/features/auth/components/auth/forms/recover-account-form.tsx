@@ -1,7 +1,7 @@
 "use client";
 import { Loader2 } from "lucide-react";
 import { useContext, useEffect } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 
 import { useIsHydrated } from "../../../hooks/use-hydrated";

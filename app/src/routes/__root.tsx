@@ -121,6 +121,13 @@ const RootDocument = () => {
                             }}
                             persistClient={false}
                             Link={({ href, ...props }) => <Link to={href} {...props} />}
+                            apiKey={{
+                                prefix: "app_",
+                                metadata: {
+                                    environment: "production",
+                                    version: "v1"
+                                }
+                            }}
                         >
                             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                                 <ScreenSizeDebug />

@@ -41,12 +41,8 @@ function parseUserAgent(userAgent: string | null | undefined) {
     return {
         deviceType,
         deviceName: result.device?.model || result.device?.vendor,
-        browser: result.browser?.name && result.browser?.version
-            ? `${result.browser.name} ${result.browser.version}`
-            : result.browser?.name,
-        os: result.os?.name && result.os?.version
-            ? `${result.os.name} ${result.os.version}`
-            : result.os?.name,
+        browser: result.browser?.name && result.browser?.version ? `${result.browser.name} ${result.browser.version}` : result.browser?.name,
+        os: result.os?.name && result.os?.version ? `${result.os.name} ${result.os.version}` : result.os?.name,
     };
 }
 
@@ -73,7 +69,13 @@ export function SessionsCard({ className, classNames }: SessionsCardProps) {
     };
 
     return (
-        <SettingsCard className={clsx(className, "pb-6")} classNames={classNames} description={t`Manage your active sessions`} isPending={isPending} title={t`Sessions`}>
+        <SettingsCard
+            className={clsx(className, "pb-6")}
+            classNames={classNames}
+            description={t`Manage your active sessions`}
+            isPending={isPending}
+            title={t`Sessions`}
+        >
             <CardContent className={cn("grid gap-4", classNames?.content)}>
                 {isPending ? (
                     <div className={cn("flex items-center justify-between rounded-lg border p-4", classNames?.content)}>

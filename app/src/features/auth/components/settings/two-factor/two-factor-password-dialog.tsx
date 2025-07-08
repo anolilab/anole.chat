@@ -2,11 +2,10 @@
 
 import { Loader2 } from "lucide-react";
 import { type ComponentProps, useContext, useState } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
 import { cn } from "@/lib/utils";
 import { PasswordInput } from "../../password-input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useAppForm } from "@/components/ui/form";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { BackupCodesDialog } from "./backup-codes-dialog";
+import { getLocalizedError } from "@/features/auth/lib/utils";
 
 interface TwoFactorPasswordDialogProps extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;

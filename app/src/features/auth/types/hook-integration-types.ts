@@ -2,6 +2,7 @@ import type { BetterFetchError } from "better-auth/react";
 import type { Invitation } from "better-auth/plugins/organization";
 import type { AnyAuthClient } from "./auth-core-types";
 import type { ApiKey } from "./data-structure-types";
+import type { AuthClient } from "@/lib/auth/client";
 
 // Refetch Function Type (from refetch.ts)
 export type Refetch = () => Promise<unknown> | unknown;
@@ -35,19 +36,19 @@ type AuthHook<T> = {
 };
 
 export type AuthHooks = {
-    useSession: () => ReturnType<AnyAuthClient["useSession"]>;
+    useSession: () => ReturnType<AuthClient["useSession"]>;
     useListAccounts: () => AuthHook<{ accountId: string; provider: string }[]>;
-    useListDeviceSessions: () => AuthHook<AnyAuthClient["$Infer"]["Session"][]>;
+    useListDeviceSessions: () => AuthHook<AuthClient["$Infer"]["Session"][]>;
     useListSessions: () => AuthHook<AnyAuthSession["session"][]>;
-    useListPasskeys: () => Partial<ReturnType<AnyAuthClient["useListPasskeys"]>>;
+    useListPasskeys: () => Partial<ReturnType<AuthClient["useListPasskeys"]>>;
     useListApiKeys: () => AuthHook<ApiKey[]>;
-    useActiveOrganization: () => Partial<ReturnType<AnyAuthClient["useActiveOrganization"]>>;
-    useListOrganizations: () => Partial<ReturnType<AnyAuthClient["useListOrganizations"]>>;
-    useHasPermission: (params: Parameters<AnyAuthClient["organization"]["hasPermission"]>[0]) => AuthHook<{
+    useActiveOrganization: () => Partial<ReturnType<AuthClient["useActiveOrganization"]>>;
+    useListOrganizations: () => Partial<ReturnType<AuthClient["useListOrganizations"]>>;
+    useHasPermission: (params: Parameters<AuthClient["organization"]["hasPermission"]>[0]) => AuthHook<{
         error: null;
         success: boolean;
     }>;
-    useInvitation: (params: Parameters<AnyAuthClient["organization"]["getInvitation"]>[0]) => AuthHook<
+    useInvitation: (params: Parameters<AuthClient["organization"]["getInvitation"]>[0]) => AuthHook<
         Invitation & {
             organizationName: string;
             organizationSlug: string;

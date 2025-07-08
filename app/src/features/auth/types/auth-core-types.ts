@@ -13,6 +13,7 @@ import {
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import type { betterAuth } from "better-auth";
+import type { AuthClient } from "@/lib/auth/client";
 
 // Plugin Types
 export type ApiKeyClientPlugin = ReturnType<typeof apiKeyClient>;
@@ -28,8 +29,8 @@ export type TwoFactorClientPlugin = ReturnType<typeof twoFactorClient>;
 export type OrganizationClientPlugin = ReturnType<typeof organizationClient>;
 
 // Core Auth Types
-export type Session = AnyAuthClient["$Infer"]["Session"]["session"];
-export type User = AnyAuthClient["$Infer"]["Session"]["user"];
+export type Session = AuthClient["$Infer"]["Session"]["session"];
+export type User = AuthClient["$Infer"]["Session"]["user"];
 
 // Any Auth Client Type (from any-auth-client.ts)
 export type AnyAuthClient = Omit<ReturnType<typeof createAuthClient>, "signUp" | "getSession">;

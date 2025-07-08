@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useContext, useEffect, useRef } from "react";
-import * as z from "zod";
+import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 
 import { AuthUIContext } from "../../../lib/auth-ui-provider";

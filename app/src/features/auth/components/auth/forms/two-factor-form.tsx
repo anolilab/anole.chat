@@ -5,7 +5,7 @@ import type { Checkbox as CheckboxPrimitive } from "radix-ui";
 import { Loader2, QrCodeIcon, SendIcon } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
-import * as z from "zod";
+import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 
 import { useIsHydrated } from "../../../hooks/use-hydrated";
