@@ -22,8 +22,8 @@ export type SettingsCardClassNames = {
         footer?: string;
         header?: string;
     };
-    error?: string;
     footer?: string;
+    error?: string;
     header?: string;
     icon?: string;
     input?: string;
@@ -45,13 +45,11 @@ export interface SettingsCardProps extends Omit<ComponentProps<typeof Card>, "ti
     description?: ReactNode;
     instructions?: ReactNode;
     actionLabel?: ReactNode;
-    footer?: ReactNode;
     isSubmitting?: boolean;
     disabled?: boolean;
     isPending?: boolean;
     optimistic?: boolean;
     variant?: "default" | "destructive";
-
     action?: () => Promise<unknown> | unknown;
 }
 
@@ -64,7 +62,6 @@ export function SettingsCard({
     description,
     instructions,
     actionLabel,
-    footer,
     disabled,
     isPending,
     isSubmitting,
@@ -74,7 +71,6 @@ export function SettingsCard({
     ...props
 }: SettingsCardProps) {
     const displayTitle = header || title;
-    const displayFooter = footer || actionLabel;
 
     return (
         <Card className={cn("w-full pb-0 text-start", variant === "destructive" && "border-destructive/40", className, classNames?.base)} {...props}>
@@ -82,10 +78,10 @@ export function SettingsCard({
 
             {children}
 
-            {(displayFooter || action) && (
+            {(actionLabel || action) && (
                 <SettingsCardFooter
                     classNames={classNames}
-                    actionLabel={displayFooter}
+                    actionLabel={actionLabel}
                     disabled={disabled}
                     isPending={isPending}
                     isSubmitting={isSubmitting}

@@ -76,13 +76,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
             trustDevice: false,
         },
         validators: {
-            onChange: ({ value }) => {
-                const result = formSchema.safeParse(value);
-                if (!result.success) {
-                    return result.error.issues[0]?.message;
-                }
-                return undefined;
-            },
+            onChange: formSchema,
         },
         onSubmit: async ({ value }) => {
             try {
@@ -119,7 +113,6 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
         setIsSubmitting?.(form.state.isSubmitting || transitionPending);
     }, [form.state.isSubmitting, transitionPending, setIsSubmitting]);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies:
     useEffect(() => {
         if (method === "otp" && cooldownSeconds <= 0 && !initialSendRef.current) {
             initialSendRef.current = true;
@@ -170,10 +163,10 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                 }}
                 className={cn("grid w-full gap-6", className, classNames?.base)}
             >
-                {twoFactor?.includes("totp") && totpURI != null && (method ?? null) === "totp" && (
-                    <div className="space-y-3">
+                {twoFactor?.includes("totp") && totpURI && method === "totp" && (
+                    <div className="space-y-3 mx-auto">
                         <Label className={classNames?.label}>{t`Two-factor authentication (TOTP)`}</Label>
-                        <QRCode className={cn("shadow-xs border", classNames?.qrCode)} value={totpURI ?? ""} />
+                        <QRCode className={cn("shadow-xs border", classNames?.qrCode)} value={totpURI} />
                     </div>
                 )}
 

@@ -22,7 +22,6 @@ export function errorCodeToCamelCase(errorCode: string): string {
 export function getLocalizedError({
     error,
 }: {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     error: any;
 }) {
     // Handle string error codes directly
@@ -388,14 +387,6 @@ function getErrorTranslation(errorCode: string): string {
 
 export function getSearchParam(paramName: string) {
     return typeof window !== "undefined" ? new URLSearchParams(window.location.search).get(paramName) : null;
-}
-
-export function getAuthViewByPath(authViewPaths: AuthViewPaths, path?: string) {
-    for (const authViewPathsKey in authViewPaths) {
-        if (authViewPaths[authViewPathsKey as AuthView] === path) {
-            return authViewPathsKey as AuthView;
-        }
-    }
 }
 
 export function getKeyByValue<T extends Record<string, unknown>>(object: T, value?: T[keyof T]): keyof T | undefined {

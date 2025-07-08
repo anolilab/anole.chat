@@ -27,7 +27,10 @@ export function CreateAPIKeyDialog({ classNames, onSuccess, refetch, onOpenChang
     const { authClient, apiKey, toast } = useContext(AuthUIContext);
 
     const formSchema = z.object({
-        name: z.string().trim().min(1, t`Name is required`),
+        name: z
+            .string()
+            .trim()
+            .min(1, t`Name is required`),
         expiresInDays: z.string().optional(),
     });
 

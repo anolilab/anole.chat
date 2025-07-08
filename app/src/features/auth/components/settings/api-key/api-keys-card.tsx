@@ -35,10 +35,12 @@ export function APIKeysCard({ ...props }: APIKeysCardProps) {
                 header={t`API Keys`}
                 description={t`Create and manage API keys for programmatic access to your account.`}
                 action={() => setShowCreateDialog(true)}
-                footer={<>
-                    <PlusIcon />
-                    {t`Create API Key`}
-                </>}
+                footer={
+                    <>
+                        <PlusIcon />
+                        {t`Create API Key`}
+                    </>
+                }
             >
                 {sortedAPIKeys.length > 0 ? (
                     <div className="space-y-2">

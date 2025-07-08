@@ -9,7 +9,6 @@ import { AuthUIContext } from "../../lib/auth-ui-provider";
 const DEFAULT_CAPTCHA_ENDPOINTS = ["/sign-up/email", "/sign-in/email", "/forget-password"];
 
 interface CaptchaProps {
-    // biome-ignore lint/suspicious/noExplicitAny:
     ref: RefObject<any>;
     action?: string; // Optional action to check if it's in the endpoints list
 }

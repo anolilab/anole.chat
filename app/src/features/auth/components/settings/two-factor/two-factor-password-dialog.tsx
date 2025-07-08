@@ -25,7 +25,14 @@ const formSchema = z.object({
 });
 
 export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorEnabled, ...props }: TwoFactorPasswordDialogProps) {
-    const { authClient, toast, twoFactor } = useContext(AuthUIContext);
+    const {
+        authClient,
+        basePath,
+        viewPaths,
+        navigate,
+        toast,
+        twoFactor
+    } = useContext(AuthUIContext);
     const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
     const [totpURI, setTotpURI] = useState<string | null>(null);
@@ -174,7 +181,18 @@ export function TwoFactorPasswordDialog({ classNames, onOpenChange, isTwoFactorE
                 </DialogContent>
             </Dialog>
 
-            <BackupCodesDialog open={showBackupCodesDialog} onOpenChange={setShowBackupCodesDialog} backupCodes={backupCodes} classNames={classNames} />
+            <BackupCodesDialog open={showBackupCodesDialog} onOpenChange={(open) => {
+                    setShowBackupCodesDialog(open)
+
+                    if (!open) {
+                        const url = `${basePath}/${viewPaths.TWO_FACTOR}`
+                        navigate(
+                            twoFactor?.includes("totp") && totpURI
+                                ? `${url}?totpURI=${totpURI}`
+                                : url
+                        )
+                    }
+                }} backupCodes={backupCodes} classNames={classNames} />
         </>
     );
 }

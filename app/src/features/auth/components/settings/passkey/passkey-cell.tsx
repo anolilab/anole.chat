@@ -58,11 +58,7 @@ export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps
 
     return (
         <>
-            <SessionFreshnessDialog 
-                open={showFreshnessDialog} 
-                onOpenChange={setShowFreshnessDialog} 
-                classNames={classNames} 
-            />
+            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} />
 
             <Card className={cn("flex-row items-center p-4", className, classNames?.cell)}>
                 <div className="flex items-center gap-3">

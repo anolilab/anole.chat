@@ -8,7 +8,7 @@ import { useAuthQuery } from "./shared/use-auth-query";
 import { useAuthMutation } from "./shared/use-auth-mutation";
 
 // Account Listing Hook
-export function useListAccounts<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {
+export function useListAccounts<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {
     const { listAccountsKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthQuery({
@@ -20,7 +20,7 @@ export function useListAccounts<TAuthClient extends AnyAuthClient>(authClient: T
 }
 
 // Account Unlinking Hook
-export function useUnlinkAccount<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: AuthQueryOptions) {
+export function useUnlinkAccount<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: AuthQueryOptions) {
     const { listAccountsKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({

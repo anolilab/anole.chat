@@ -4,7 +4,6 @@ import { useContext, useEffect } from "react";
 
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import type { AuthView } from "../../lib/auth-view-paths";
-import { getAuthViewByPath } from "../../lib/utils";
 import { AuthCallback } from "./auth-callback";
 import { EmailOTPForm } from "./forms/email-otp-form";
 import { ForgotPasswordForm } from "./forms/forgot-password-form";
@@ -40,28 +39,18 @@ export interface AuthFormProps {
     classNames?: AuthFormClassNames;
     callbackURL?: string;
     isSubmitting?: boolean;
-    pathname?: string;
     redirectTo?: string;
     view?: AuthView;
     otpSeparators?: 0 | 1 | 2;
     setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
-export function AuthForm({ className, classNames, callbackURL, isSubmitting, pathname, redirectTo, view, otpSeparators = 0, setIsSubmitting }: AuthFormProps) {
+export function AuthForm({ className, classNames, callbackURL, isSubmitting, redirectTo, view, otpSeparators = 0, setIsSubmitting }: AuthFormProps) {
     const { basePath, credentials, magicLink, emailOTP, signUp, twoFactor: twoFactorEnabled, viewPaths, replace } = useContext(AuthUIContext);
 
     const signUpEnabled = !!signUp;
 
-    const path = pathname?.split("/").pop();
-
-    useEffect(() => {
-        if (path && !getAuthViewByPath(viewPaths, path)) {
-            console.error(`Invalid auth view: ${path}`);
-            replace(`${basePath}/${viewPaths.SIGN_IN}${window.location.search}`);
-        }
-    }, [path, viewPaths, basePath, replace]);
-
-    view = view || getAuthViewByPath(viewPaths, path) || "SIGN_IN";
+    view = view || "SIGN_IN";
 
     // Redirect to appropriate view based on enabled features
     useEffect(() => {

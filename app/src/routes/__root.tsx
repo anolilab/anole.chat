@@ -109,12 +109,12 @@ const RootDocument = () => {
                 <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
                     <AuthQueryProvider>
                         <AuthUIProviderTanstack
-                            authClient={authClient as unknown as AnyAuthClient}
+                            authClient={authClient}
                             navigate={(href) => {
-                                router.navigate({ to: href });
+                                router.navigate({  to: href });
                             }}
                             replace={(href) => {
-                                router.navigate({ to: href, replace: true });
+                                router.navigate({  to: href, replace: true });
                             }}
                             onSessionChange={() => {
                                 router.invalidate();
@@ -125,9 +125,10 @@ const RootDocument = () => {
                                 prefix: "app_",
                                 metadata: {
                                     environment: "production",
-                                    version: "v1"
-                                }
+                                    version: "v1",
+                                },
                             }}
+                            twoFactor={["totp"]}
                         >
                             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                                 <ScreenSizeDebug />

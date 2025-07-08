@@ -11,7 +11,6 @@ const DEFAULT_CAPTCHA_ENDPOINTS = ["/sign-up/email", "/sign-in/email", "/forget-
 export function useCaptcha() {
     const { captcha } = useContext(AuthUIContext);
 
-    // biome-ignore lint/suspicious/noExplicitAny:
     const captchaRef = useRef<any>(null);
 
     const executeCaptcha = async () => {

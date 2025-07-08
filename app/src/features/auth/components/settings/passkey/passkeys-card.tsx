@@ -58,11 +58,7 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
 
     return (
         <>
-            <SessionFreshnessDialog 
-                open={showFreshnessDialog} 
-                onOpenChange={setShowFreshnessDialog} 
-                classNames={classNames} 
-            />
+            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} />
 
             <form.AppForm>
                 <form
@@ -84,11 +80,7 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
                         {passkeys && passkeys.length > 0 && (
                             <CardContent className={cn("grid gap-4", classNames?.content)}>
                                 {passkeys?.map((passkey) => (
-                                    <PasskeyCell 
-                                        key={passkey.id} 
-                                        classNames={classNames} 
-                                        passkey={passkey} 
-                                    />
+                                    <PasskeyCell key={passkey.id} classNames={classNames} passkey={passkey} />
                                 ))}
                             </CardContent>
                         )}

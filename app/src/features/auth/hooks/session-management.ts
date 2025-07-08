@@ -8,13 +8,13 @@ import { useAuthQuery } from "./shared/use-auth-query";
 import { useAuthMutation } from "./shared/use-auth-mutation";
 
 // Session Listing Hook
-export function useListSessions<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {
+export function useListSessions<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {
     const { listSessionsKey: queryKey } = useContext(AuthQueryContext);
     return useAuthQuery({ authClient, queryKey, queryFn: authClient.listSessions, options });
 }
 
 // All Sessions Revocation Hook
-export function useRevokeSessions<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
+export function useRevokeSessions<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
     const { listSessionsKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({
@@ -25,7 +25,7 @@ export function useRevokeSessions<TAuthClient extends AnyAuthClient>(authClient:
 }
 
 // Single Session Revocation Hook
-export function useRevokeSession<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
+export function useRevokeSession<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
     const { listSessionsKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({
@@ -36,7 +36,7 @@ export function useRevokeSession<TAuthClient extends AnyAuthClient>(authClient: 
 }
 
 // Other Sessions Revocation Hook
-export function useRevokeOtherSessions<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
+export function useRevokeOtherSessions<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
     const { listSessionsKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({

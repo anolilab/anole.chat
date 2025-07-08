@@ -110,15 +110,17 @@ function RouteComponent() {
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     {breadcrumbItems.map((item, index) => (
-                                        <BreadcrumbItem key={item.href}>
-                                            <BreadcrumbLink
-                                                href={item.href}
-                                                className="text-muted-foreground hover:text-foreground text-sm capitalize dark:hover:text-white"
-                                            >
-                                                {item.label}
-                                            </BreadcrumbLink>
+                                        <>
+                                            <BreadcrumbItem key={item.href}>
+                                                <BreadcrumbLink
+                                                    href={item.href}
+                                                    className="text-muted-foreground hover:text-foreground text-sm capitalize dark:hover:text-white"
+                                                >
+                                                    {item.label}
+                                                </BreadcrumbLink>
+                                            </BreadcrumbItem>
                                             {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground" />}
-                                        </BreadcrumbItem>
+                                        </>
                                     ))}
                                 </BreadcrumbList>
                             </Breadcrumb>

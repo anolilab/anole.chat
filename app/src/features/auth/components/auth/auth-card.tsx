@@ -7,7 +7,6 @@ import { useIsHydrated } from "../../hooks/use-hydrated";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import type { AuthView } from "../../lib/auth-view-paths";
 import { socialProviders } from "../../lib/social-providers";
-import { getAuthViewByPath } from "../../lib/utils";
 import { cn } from "@/lib/utils";
 import { AcceptInvitationCard } from "../organization/accept-invitation-card";
 import { Button } from "@/components/ui/button";
@@ -47,7 +46,6 @@ export interface AuthCardProps {
     classNames?: AuthCardClassNames;
     callbackURL?: string;
     cardHeader?: ReactNode;
-    pathname?: string;
     redirectTo?: string;
     /**
      * @default "auto"
@@ -68,7 +66,6 @@ export function AuthCard({
     classNames,
     callbackURL,
     cardHeader,
-    pathname,
     redirectTo,
     socialLayout = "auto",
     view,
@@ -82,8 +79,7 @@ export function AuthCard({
         socialLayout = !credentials ? "vertical" : social?.providers && social.providers.length > 2 ? "horizontal" : "vertical";
     }
 
-    const path = pathname?.split("/").pop();
-    view = view || getAuthViewByPath(viewPaths, path) || "SIGN_IN";
+    view = view || "SIGN_IN";
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -181,7 +177,6 @@ export function AuthCard({
                             callbackURL={callbackURL}
                             isSubmitting={isSubmitting}
                             otpSeparators={otpSeparators}
-                            pathname={pathname}
                             redirectTo={redirectTo}
                             setIsSubmitting={setIsSubmitting}
                         />

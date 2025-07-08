@@ -84,7 +84,6 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
 
     const isPending = sessionPending || activeOrganizationPending || organizationPending;
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies:
     useEffect(() => {
         if (isRefetching) return;
 

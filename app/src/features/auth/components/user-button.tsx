@@ -111,7 +111,6 @@ export function UserButton({
         [setActiveSession, onSessionChange, toast],
     );
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies:
     useEffect(() => {
         if (!multiSession) return;
 
