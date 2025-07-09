@@ -48,8 +48,8 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
 
         // Save the last chat ID for this user
         try {
-            await context.convexClient.mutation(api.auth.functions.updateLastChatId, {
-                chatId: params.threadId,
+            await context.convexClient.mutation(api.auth.functions.updateUserSettings, {
+                lastChatId: params.threadId,
             });
         } catch (error) {
             // Continue loading even if saving last chat ID fails

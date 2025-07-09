@@ -73,33 +73,6 @@ export const authedAction = customAction(
     }),
 );
 
-export const publicUserProfileValidator = v.object({
-    _id: v.id("user"),
-    _creationTime: v.number(),
-    name: v.union(v.string(), v.null()),
-    robloxUsername: v.union(v.string(), v.null()),
-    robloxAvatarUrl: v.union(v.string(), v.null()),
-    role: v.string(),
-    averageRating: v.union(v.number(), v.null()),
-    vouchCount: v.number(),
-});
-
-export type PublicUserProfile = {
-    _id: Id<"user">;
-    _creationTime: number;
-    name?: string | null;
-    robloxUsername?: string | null;
-    robloxAvatarUrl?: string | null;
-    role: Role;
-    averageRating: number | null;
-    vouchCount: number;
-};
-
-type VouchStats = {
-    averageRating: number | null;
-    vouchCount: number;
-};
-
 export const initializeNewUser = internalMutation({
     args: { userId: v.id("user"), email: v.optional(v.string()) }, // email is passed but not strictly used in this version
     returns: v.null(),
@@ -117,130 +90,6 @@ export const initializeNewUser = internalMutation({
         });
         console.log(`Initialized user ${userId} with default role.`);
         return null;
-    },
-});
-
-export const getPublicUserProfile = query({
-    args: { userId: v.id("user") },
-    returns: v.union(publicUserProfileValidator, v.null()),
-    handler: async (ctx, { userId }): Promise<PublicUserProfile | null> => {
-        const user = await ctx.db.get(userId);
-
-        if (!user) {
-            return null;
-        }
-
-        const vouchStats: VouchStats = await ctx.runQuery(api.auth.functions.getUserVouchStats, { userId });
-
-        return {
-            _id: user._id,
-            _creationTime: user._creationTime,
-            name: user.name,
-            robloxUsername: user.email,
-            robloxAvatarUrl: user.image,
-            role: user.role as Role,
-            averageRating: vouchStats.averageRating,
-            vouchCount: vouchStats.vouchCount,
-        };
-    },
-});
-
-export const updateMyProfile = mutation({
-    args: {
-        robloxUsername: v.optional(v.string()),
-        robloxAvatarUrl: v.optional(v.string()),
-        bio: v.optional(v.string()),
-    },
-    returns: v.object({ success: v.boolean() }),
-    handler: async (ctx, args): Promise<{ success: boolean }> => {
-        const userId = await requireUserId(ctx);
-
-        const updates: Partial<typeof args & { name?: string; email?: string }> = { ...args };
-
-        await ctx.db.patch(userId, updates);
-
-        return { success: true };
-    },
-});
-
-export const updateSelectedModel = mutation({
-    args: {
-        model: v.string(),
-    },
-    returns: v.object({ success: v.boolean() }),
-    handler: async (ctx, { model }) => {
-        const userId = await requireUserId(ctx);
-
-        // Find userSettings by userId
-        const userSettings = await ctx.db
-            .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
-            .unique();
-
-        if (userSettings) {
-            await ctx.db.patch(userSettings._id, { selectedAgent: model });
-        } else {
-            await ctx.db.insert("userSettings", {
-                userId: userId as Id<"user">,
-                selectedAgent: model,
-            });
-        }
-
-        return { success: true };
-    },
-});
-
-export const getSelectedModel = query({
-    args: {},
-    returns: v.union(v.string(), v.null()),
-    handler: async (ctx): Promise<string | null> => {
-        const userId = await requireUserId(ctx);
-
-        const userSettings: { selectedAgent?: string } | null = await ctx.db
-            .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
-            .unique();
-        return userSettings?.selectedAgent ?? null;
-    },
-});
-
-export const updateLastChatId = mutation({
-    args: {
-        chatId: v.string(),
-    },
-    returns: v.object({ success: v.boolean() }),
-    handler: async (ctx, { chatId }) => {
-        const userId = await requireUserId(ctx);
-
-        const userSettings = await ctx.db
-            .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
-            .unique();
-
-        if (userSettings) {
-            await ctx.db.patch(userSettings._id, { lastChatId: chatId });
-        } else {
-            await ctx.db.insert("userSettings", {
-                userId: userId as Id<"user">,
-                lastChatId: chatId,
-            });
-        }
-
-        return { success: true };
-    },
-});
-
-export const getLastChatId = query({
-    args: {},
-    returns: v.union(v.string(), v.null()),
-    handler: async (ctx): Promise<string | null> => {
-        const userId = await requireUserId(ctx);
-
-        const userSettings: { lastChatId?: string } | null = await ctx.db
-            .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
-            .unique();
-        return userSettings?.lastChatId ?? null;
     },
 });
 
@@ -294,5 +143,51 @@ export const toggleUserBanStatus = mutation({
         await ctx.db.patch(userId, { role: newRole });
 
         return { success: true, message: `User ${userId} has been ${ban ? "banned" : "unbanned"}.` };
+    },
+});
+
+export const updateUserSettings = authedMutation({
+    args: {
+        notifications: v.optional(
+            v.object({
+                vouchReceived: v.optional(v.boolean()),
+            }),
+        ),
+        selectedModel: v.optional(v.string()),
+        lastChatId: v.optional(v.string()),
+        mainFont: v.optional(v.union(v.literal("inter"), v.literal("system"), v.literal("serif"), v.literal("mono"), v.literal("roboto-slab"))),
+        codeFont: v.optional(v.union(v.literal("fira-code"), v.literal("mono"), v.literal("consolas"), v.literal("jetbrains"), v.literal("source-code-pro"))),
+        sendBehavior: v.optional(v.union(v.literal("enter"), v.literal("shiftEnter"), v.literal("button"))),
+        showTimestamps: v.optional(v.boolean()),
+        isAdvancedUser: v.optional(v.boolean()),
+    },
+    handler: async (ctx, args) => {
+        const settings = await ctx.db
+            .query("userSettings")
+            .withIndex("by_userId", (q) => q.eq("userId", ctx.user.userId))
+            .unique();
+        
+        const { ...rest } = args;
+
+        if (settings) {
+            await ctx.db.patch(settings._id, rest);
+        } else {
+            await ctx.db.insert("userSettings", {
+                userId: ctx.user.userId,
+                ...rest,
+            });
+        }
+    },
+});
+
+export const getUserSettings = authedQuery({
+    args: {},
+    handler: async (ctx) => {
+        const settings = await ctx.db
+            .query("userSettings")
+            .withIndex("by_userId", (q) => q.eq("userId", ctx.user.userId))
+            .unique();
+
+        return settings;
     },
 });

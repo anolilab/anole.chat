@@ -49,7 +49,7 @@ export const createThread = mutation({
     },
 });
 
-export const listMessages = query({
+export const getThreadMessages = query({
     args: {
         threadId: v.string(),
         paginationOpts: paginationOptsValidator,

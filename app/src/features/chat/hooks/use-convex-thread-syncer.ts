@@ -50,7 +50,7 @@ export const useConvexThreadSyncer = ({ model, isRunning }: UseConvexThreadSynce
             : "skip";
     }, [currentThreadId, model]);
 
-    const { results: convexMessages, isLoading: messagesAreLoading } = useThreadMessages(api.chat.functions.listMessages, paginatedMessagesArgs, {
+    const { results: convexMessages, isLoading: messagesAreLoading } = useThreadMessages(api.chat.functions.getThreadMessages, paginatedMessagesArgs, {
         initialNumItems: 50,
     });
 

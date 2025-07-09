@@ -2,8 +2,11 @@ import { type AnyUseQueryOptions, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 
 import { AuthQueryContext, type AuthQueryOptions } from "../lib/auth-query-provider";
-import type { AnyAuthClient, AuthClient } from "../types/auth-core-types";
+import type { AnyAuthClient } from "../types/auth-core-types";
 import { useAuthMutation } from "./shared/use-auth-mutation";
+import type { AuthClient } from "@/lib/auth/client";
+import { useQuery as useConvexQuery } from "convex/react";
+import { api } from "@convex/_generated/api";
 
 // Session Management Hook
 export function useSession<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {

@@ -27,11 +27,12 @@ export const authTables = {
                 vouchReceived: v.optional(v.boolean()),
             }),
         ),
-        selectedAgent: v.optional(v.string()),
+        selectedModel: v.optional(v.string()),
         lastChatId: v.optional(v.string()),
         mainFont: v.optional(v.union(v.literal("inter"), v.literal("system"), v.literal("serif"), v.literal("mono"), v.literal("roboto-slab"))),
         codeFont: v.optional(v.union(v.literal("fira-code"), v.literal("mono"), v.literal("consolas"), v.literal("jetbrains"), v.literal("source-code-pro"))),
         sendBehavior: v.optional(v.union(v.literal("enter"), v.literal("shiftEnter"), v.literal("button"))),
         showTimestamps: v.optional(v.boolean()),
+        isAdvancedUser: v.optional(v.boolean()),
     }).index("by_userId", ["userId"]),
 };
