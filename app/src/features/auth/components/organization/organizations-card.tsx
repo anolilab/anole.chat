@@ -2,7 +2,7 @@
 import { useContext, useState } from "react";
 import { t } from "@lingui/core/macro";
 
-import { useIsHydrated } from "../../hooks/use-hydrated";
+import { useIsHydrated } from "../../../../hooks/use-hydrated";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { SettingsCard } from "../settings/shared/settings-card";

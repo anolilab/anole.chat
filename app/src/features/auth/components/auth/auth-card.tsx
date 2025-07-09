@@ -3,7 +3,7 @@
 import { ArrowLeftIcon } from "lucide-react";
 import { type ReactNode, useContext, useEffect, useState } from "react";
 
-import { useIsHydrated } from "../../hooks/use-hydrated";
+import { useIsHydrated } from "../../../../hooks/use-hydrated";
 import { AuthUIContext } from "../../lib/auth-ui-provider";
 import type { AuthView } from "../../lib/auth-view-paths";
 import { socialProviders } from "../../lib/social-providers";
@@ -74,7 +74,7 @@ export function AuthCard({
     const isHydrated = useIsHydrated();
 
     const { basePath, credentials, magicLink, emailOTP, oneTap, passkey, signUp, social, genericOAuth, viewPaths, Link } = useContext(AuthUIContext);
-    console.log(passkey);
+
     if (socialLayout === "auto") {
         socialLayout = !credentials ? "vertical" : social?.providers && social.providers.length > 2 ? "horizontal" : "vertical";
     }

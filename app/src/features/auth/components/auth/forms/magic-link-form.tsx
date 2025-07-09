@@ -8,7 +8,7 @@ import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
-import { useIsHydrated } from "../../../hooks/use-hydrated";
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../../lib/utils";

@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { z } from "zod/v4";
 import { useCaptcha } from "../../../hooks/use-captcha";
-import { useIsHydrated } from "../../../hooks/use-hydrated";
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../../lib/utils";

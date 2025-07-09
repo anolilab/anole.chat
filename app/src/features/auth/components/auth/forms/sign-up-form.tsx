@@ -9,7 +9,7 @@ import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
-import { useIsHydrated } from "../../../hooks/use-hydrated";
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";

@@ -9,7 +9,7 @@ import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
 
-import { useIsHydrated } from "../../../hooks/use-hydrated";
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { AuthUIContext } from "../../../lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
