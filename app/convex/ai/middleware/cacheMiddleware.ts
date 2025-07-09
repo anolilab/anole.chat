@@ -62,6 +62,8 @@ const createCacheMiddleware = (name: string, ctx: ActionCtx) => {
 
                 return {
                     stream: simulateReadableStream({
+                        initialDelayInMs: 0,
+                        chunkDelayInMs: 2,
                         chunks: formattedChunks,
                     }),
                     rawCall: { rawPrompt: null, rawSettings: {} },

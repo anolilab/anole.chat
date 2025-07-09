@@ -13,176 +13,170 @@ import { cn } from "@/lib/utils";
  */
 export type HighlighterProps = Omit<ShikiHighlighterProps, "children" | "theme" | "highlighter"> & Pick<AUIProps, "node" | "components" | "language" | "code">;
 
-/**
- * Create custom highlighter with optimized bundle
- * Loads languages and themes on demand
- */
-const createCustomHighlighter = async (): Promise<HighlighterCore> => {
-    return await createHighlighterCore({
-        themes: [import("@shikijs/themes/min-light"), import("@shikijs/themes/poimandres")],
-        langs: [
-            // Web Development
-            import("@shikijs/langs/javascript"),
-            import("@shikijs/langs/typescript"),
-            import("@shikijs/langs/jsx"),
-            import("@shikijs/langs/tsx"),
-            import("@shikijs/langs/html"),
-            import("@shikijs/langs/css"),
-            import("@shikijs/langs/scss"),
-            import("@shikijs/langs/sass"),
-            import("@shikijs/langs/less"),
-            import("@shikijs/langs/stylus"),
-            import("@shikijs/langs/vue"),
-            import("@shikijs/langs/svelte"),
-            import("@shikijs/langs/astro"),
-            import("@shikijs/langs/angular-ts"),
-            import("@shikijs/langs/angular-html"),
-            import("@shikijs/langs/mdx"),
-            import("@shikijs/langs/postcss"),
+const highlighterPromise = createHighlighterCore({
+    themes: [import("@shikijs/themes/min-light"), import("@shikijs/themes/poimandres")],
+    langs: [
+        // Web Development
+        import("@shikijs/langs/javascript"),
+        import("@shikijs/langs/typescript"),
+        import("@shikijs/langs/jsx"),
+        import("@shikijs/langs/tsx"),
+        import("@shikijs/langs/html"),
+        import("@shikijs/langs/css"),
+        import("@shikijs/langs/scss"),
+        import("@shikijs/langs/sass"),
+        import("@shikijs/langs/less"),
+        import("@shikijs/langs/stylus"),
+        import("@shikijs/langs/vue"),
+        import("@shikijs/langs/svelte"),
+        import("@shikijs/langs/astro"),
+        import("@shikijs/langs/angular-ts"),
+        import("@shikijs/langs/angular-html"),
+        import("@shikijs/langs/mdx"),
+        import("@shikijs/langs/postcss"),
 
-            // Backend Languages
-            import("@shikijs/langs/python"),
-            import("@shikijs/langs/java"),
-            import("@shikijs/langs/csharp"),
-            import("@shikijs/langs/go"),
-            import("@shikijs/langs/rust"),
-            import("@shikijs/langs/php"),
-            import("@shikijs/langs/ruby"),
-            import("@shikijs/langs/kotlin"),
-            import("@shikijs/langs/scala"),
-            import("@shikijs/langs/swift"),
-            import("@shikijs/langs/dart"),
-            import("@shikijs/langs/elixir"),
-            import("@shikijs/langs/erlang"),
-            import("@shikijs/langs/haskell"),
-            import("@shikijs/langs/ocaml"),
-            import("@shikijs/langs/fsharp"),
-            import("@shikijs/langs/clojure"),
-            import("@shikijs/langs/julia"),
-            import("@shikijs/langs/lua"),
-            import("@shikijs/langs/perl"),
-            import("@shikijs/langs/r"),
+        // Backend Languages
+        import("@shikijs/langs/python"),
+        import("@shikijs/langs/java"),
+        import("@shikijs/langs/csharp"),
+        import("@shikijs/langs/go"),
+        import("@shikijs/langs/rust"),
+        import("@shikijs/langs/php"),
+        import("@shikijs/langs/ruby"),
+        import("@shikijs/langs/kotlin"),
+        import("@shikijs/langs/scala"),
+        import("@shikijs/langs/swift"),
+        import("@shikijs/langs/dart"),
+        import("@shikijs/langs/elixir"),
+        import("@shikijs/langs/erlang"),
+        import("@shikijs/langs/haskell"),
+        import("@shikijs/langs/ocaml"),
+        import("@shikijs/langs/fsharp"),
+        import("@shikijs/langs/clojure"),
+        import("@shikijs/langs/julia"),
+        import("@shikijs/langs/lua"),
+        import("@shikijs/langs/perl"),
+        import("@shikijs/langs/r"),
 
-            // Systems Programming
-            import("@shikijs/langs/c"),
-            import("@shikijs/langs/cpp"),
-            import("@shikijs/langs/zig"),
-            import("@shikijs/langs/objective-c"),
-            import("@shikijs/langs/objective-cpp"),
-            import("@shikijs/langs/llvm"),
+        // Systems Programming
+        import("@shikijs/langs/c"),
+        import("@shikijs/langs/cpp"),
+        import("@shikijs/langs/zig"),
+        import("@shikijs/langs/objective-c"),
+        import("@shikijs/langs/objective-cpp"),
+        import("@shikijs/langs/llvm"),
 
-            // Shell & Scripting
-            import("@shikijs/langs/bash"),
-            import("@shikijs/langs/shell"),
-            import("@shikijs/langs/zsh"),
-            import("@shikijs/langs/fish"),
-            import("@shikijs/langs/powershell"),
-            import("@shikijs/langs/batch"),
-            import("@shikijs/langs/cmd"),
+        // Shell & Scripting
+        import("@shikijs/langs/bash"),
+        import("@shikijs/langs/shell"),
+        import("@shikijs/langs/zsh"),
+        import("@shikijs/langs/fish"),
+        import("@shikijs/langs/powershell"),
+        import("@shikijs/langs/batch"),
+        import("@shikijs/langs/cmd"),
 
-            // Data & Config
-            import("@shikijs/langs/json"),
-            import("@shikijs/langs/json5"),
-            import("@shikijs/langs/jsonc"),
-            import("@shikijs/langs/yaml"),
-            import("@shikijs/langs/toml"),
-            import("@shikijs/langs/xml"),
-            import("@shikijs/langs/csv"),
-            import("@shikijs/langs/ini"),
-            import("@shikijs/langs/properties"),
-            import("@shikijs/langs/dotenv"),
+        // Data & Config
+        import("@shikijs/langs/json"),
+        import("@shikijs/langs/json5"),
+        import("@shikijs/langs/jsonc"),
+        import("@shikijs/langs/yaml"),
+        import("@shikijs/langs/toml"),
+        import("@shikijs/langs/xml"),
+        import("@shikijs/langs/csv"),
+        import("@shikijs/langs/ini"),
+        import("@shikijs/langs/properties"),
+        import("@shikijs/langs/dotenv"),
 
-            // Database
-            import("@shikijs/langs/sql"),
-            import("@shikijs/langs/plsql"),
-            import("@shikijs/langs/cypher"),
-            import("@shikijs/langs/sparql"),
-            import("@shikijs/langs/graphql"),
+        // Database
+        import("@shikijs/langs/sql"),
+        import("@shikijs/langs/plsql"),
+        import("@shikijs/langs/cypher"),
+        import("@shikijs/langs/sparql"),
+        import("@shikijs/langs/graphql"),
 
-            // DevOps & Infrastructure
-            import("@shikijs/langs/dockerfile"),
-            import("@shikijs/langs/docker"),
-            import("@shikijs/langs/terraform"),
-            import("@shikijs/langs/hcl"),
-            import("@shikijs/langs/nginx"),
-            import("@shikijs/langs/apache"),
-            import("@shikijs/langs/systemd"),
-            import("@shikijs/langs/ssh-config"),
+        // DevOps & Infrastructure
+        import("@shikijs/langs/dockerfile"),
+        import("@shikijs/langs/docker"),
+        import("@shikijs/langs/terraform"),
+        import("@shikijs/langs/hcl"),
+        import("@shikijs/langs/nginx"),
+        import("@shikijs/langs/apache"),
+        import("@shikijs/langs/systemd"),
+        import("@shikijs/langs/ssh-config"),
 
-            // Documentation
-            import("@shikijs/langs/markdown"),
-            import("@shikijs/langs/latex"),
-            import("@shikijs/langs/tex"),
-            import("@shikijs/langs/rst"),
-            import("@shikijs/langs/asciidoc"),
-            import("@shikijs/langs/typst"),
+        // Documentation
+        import("@shikijs/langs/markdown"),
+        import("@shikijs/langs/latex"),
+        import("@shikijs/langs/tex"),
+        import("@shikijs/langs/rst"),
+        import("@shikijs/langs/asciidoc"),
+        import("@shikijs/langs/typst"),
 
-            // Game Development
-            import("@shikijs/langs/gdscript"),
-            import("@shikijs/langs/gdshader"),
-            import("@shikijs/langs/hlsl"),
-            import("@shikijs/langs/glsl"),
-            import("@shikijs/langs/wgsl"),
-            import("@shikijs/langs/shader"),
-            import("@shikijs/langs/shaderlab"),
+        // Game Development
+        import("@shikijs/langs/gdscript"),
+        import("@shikijs/langs/gdshader"),
+        import("@shikijs/langs/hlsl"),
+        import("@shikijs/langs/glsl"),
+        import("@shikijs/langs/wgsl"),
+        import("@shikijs/langs/shader"),
+        import("@shikijs/langs/shaderlab"),
 
-            // Mobile Development
-            import("@shikijs/langs/swift"),
-            import("@shikijs/langs/kotlin"),
-            import("@shikijs/langs/dart"),
+        // Mobile Development
+        import("@shikijs/langs/swift"),
+        import("@shikijs/langs/kotlin"),
+        import("@shikijs/langs/dart"),
 
-            // Functional Languages
-            import("@shikijs/langs/haskell"),
-            import("@shikijs/langs/elm"),
-            import("@shikijs/langs/purescript"),
-            import("@shikijs/langs/ocaml"),
-            import("@shikijs/langs/fsharp"),
-            import("@shikijs/langs/clojure"),
-            import("@shikijs/langs/scheme"),
-            import("@shikijs/langs/racket"),
-            import("@shikijs/langs/lisp"),
+        // Functional Languages
+        import("@shikijs/langs/haskell"),
+        import("@shikijs/langs/elm"),
+        import("@shikijs/langs/purescript"),
+        import("@shikijs/langs/ocaml"),
+        import("@shikijs/langs/fsharp"),
+        import("@shikijs/langs/clojure"),
+        import("@shikijs/langs/scheme"),
+        import("@shikijs/langs/racket"),
+        import("@shikijs/langs/lisp"),
 
-            // Emerging Languages
-            import("@shikijs/langs/zig"),
-            import("@shikijs/langs/v"),
-            import("@shikijs/langs/nim"),
-            import("@shikijs/langs/crystal"),
-            import("@shikijs/langs/gleam"),
-            import("@shikijs/langs/mojo"),
-            import("@shikijs/langs/lean"),
+        // Emerging Languages
+        import("@shikijs/langs/zig"),
+        import("@shikijs/langs/v"),
+        import("@shikijs/langs/nim"),
+        import("@shikijs/langs/crystal"),
+        import("@shikijs/langs/gleam"),
+        import("@shikijs/langs/mojo"),
+        import("@shikijs/langs/lean"),
 
-            // Specialized
-            import("@shikijs/langs/solidity"),
-            import("@shikijs/langs/vyper"),
-            import("@shikijs/langs/cairo"),
-            import("@shikijs/langs/move"),
-            import("@shikijs/langs/matlab"),
-            import("@shikijs/langs/wolfram"),
-            import("@shikijs/langs/stata"),
-            import("@shikijs/langs/sas"),
-            import("@shikijs/langs/gnuplot"),
+        // Specialized
+        import("@shikijs/langs/solidity"),
+        import("@shikijs/langs/vyper"),
+        import("@shikijs/langs/cairo"),
+        import("@shikijs/langs/move"),
+        import("@shikijs/langs/matlab"),
+        import("@shikijs/langs/wolfram"),
+        import("@shikijs/langs/stata"),
+        import("@shikijs/langs/sas"),
+        import("@shikijs/langs/gnuplot"),
 
-            // Template Languages
-            import("@shikijs/langs/handlebars"),
-            import("@shikijs/langs/jinja"),
-            import("@shikijs/langs/twig"),
-            import("@shikijs/langs/liquid"),
-            import("@shikijs/langs/erb"),
-            import("@shikijs/langs/pug"),
-            import("@shikijs/langs/haml"),
+        // Template Languages
+        import("@shikijs/langs/handlebars"),
+        import("@shikijs/langs/jinja"),
+        import("@shikijs/langs/twig"),
+        import("@shikijs/langs/liquid"),
+        import("@shikijs/langs/erb"),
+        import("@shikijs/langs/pug"),
+        import("@shikijs/langs/haml"),
 
-            // Others
-            import("@shikijs/langs/makefile"),
-            import("@shikijs/langs/cmake"),
-            import("@shikijs/langs/diff"),
-            import("@shikijs/langs/log"),
-            import("@shikijs/langs/regex"),
-            import("@shikijs/langs/http"),
-            import("@shikijs/langs/protobuf"),
-        ],
-        engine: createOnigurumaEngine(import("shiki/wasm")),
-    });
-};
+        // Others
+        import("@shikijs/langs/makefile"),
+        import("@shikijs/langs/cmake"),
+        import("@shikijs/langs/diff"),
+        import("@shikijs/langs/log"),
+        import("@shikijs/langs/regex"),
+        import("@shikijs/langs/http"),
+        import("@shikijs/langs/protobuf"),
+    ],
+    engine: createOnigurumaEngine(import("shiki/wasm")),
+});
 
 /**
  * SyntaxHighlighter component, using react-shiki with custom highlighter
@@ -211,7 +205,7 @@ export const SyntaxHighlighter: FC<HighlighterProps> = ({
     useEffect(() => {
         let isMounted = true;
 
-        createCustomHighlighter()
+        highlighterPromise
             .then((hl) => {
                 if (isMounted) {
                     setHighlighter(hl);

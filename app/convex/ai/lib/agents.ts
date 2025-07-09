@@ -177,11 +177,11 @@ export const DEFAULT_MODEL: AgentModel = "gemini-2.5-flash";
 
 export function getAgent(
     model: AgentModel,
-    options: {
+    options?: {
         middleware?: LanguageModelV1Middleware | LanguageModelV1Middleware[];
         modelId?: string;
         providerId?: string;
-    } = {},
+    },
 ) {
     const agent = agents[model];
 
@@ -189,13 +189,21 @@ export function getAgent(
         throw new Error(`Unknown agent model: ${model}`);
     }
 
-    return new Agent(components.agent, {
-        chat: wrapLanguageModel({
-            model: agent.chat,
-            middleware: [...(Array.isArray(options.middleware) ? options.middleware : [options.middleware]).filter(Boolean)] as LanguageModelV1Middleware[],
+    let chat = agent.chat;
+
+    if (options !== undefined) {
+        chat = wrapLanguageModel({
+            model: chat,
+            middleware: [
+                ...(Array.isArray(options.middleware) ? options.middleware : [options.middleware]).filter(Boolean),
+            ] as LanguageModelV1Middleware[],
             modelId: options.modelId,
             providerId: options.providerId,
-        }),
+        });
+    }
+
+    return new Agent(components.agent, {
+        chat,
         instructions: agent.instructions,
     });
 }

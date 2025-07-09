@@ -7,8 +7,9 @@ import z from "zod/v4";
 import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
 import { requireUserId } from "@convex/auth/lib/helper";
-import createCacheMiddleware from "@convex/ai/middleware/cacheMiddleware";
+import createCacheMiddleware from "../ai/middleware/cacheMiddleware";
 import { Id } from "../_generated/dataModel";
+import { ActionCtx } from "../_generated/server";
 
 export const createThread = mutation({
     args: {
@@ -109,9 +110,7 @@ export const continueThread = action({
     args: { prompt: v.string(), threadId: v.string(), model: v.string() },
     handler: async (ctx, { prompt, threadId, model }) => {
         const userId = await requireUserId(ctx);
-        const agent = getAgent(model as AgentModel, {
-            middleware: [createCacheMiddleware(model, ctx)],
-        });
+        const agent = getAgent(model as AgentModel);
 
         const { thread } = await agent.continueThread(ctx, { threadId, userId });
 
@@ -146,9 +145,7 @@ export const updateThread = action({
             throw new ConvexError("User must be logged in.");
         }
         const userId = identity.subject;
-        const agent = getAgent(model as AgentModel, {
-            middleware: [createCacheMiddleware(model, ctx)],
-        });
+        const agent = getAgent(model as AgentModel);
 
         const { thread } = await agent.continueThread(ctx, { threadId, userId });
 
@@ -158,7 +155,7 @@ export const updateThread = action({
     },
 });
 
-export const streamHttpAction = async (ctx: any, request: Request) => {
+export const streamHttpAction = async (ctx: ActionCtx, request: Request) => {
     const { threadId, prompt, model, fileIds } = (await request.json()) as {
         threadId?: string;
         prompt?: string;
@@ -166,20 +163,9 @@ export const streamHttpAction = async (ctx: any, request: Request) => {
         fileIds?: string[];
     };
 
-    try {
-        console.log("Attempting to authenticate user for streaming...");
-        const userId = await requireUserId(ctx);
-        console.log("Successfully authenticated user:", userId);
-    } catch (error) {
-        console.error("Authentication failed in streamHttpAction:", error);
-        throw error;
-    }
-
     const userId = await requireUserId(ctx);
 
-    const agent = getAgent(model as AgentModel, {
-        middleware: [createCacheMiddleware(model, ctx)],
-    });
+    const agent = getAgent(model as AgentModel);
 
     const { thread } = threadId ? await agent.continueThread(ctx, { threadId, userId }) : await agent.createThread(ctx, { userId });
 
@@ -233,13 +219,17 @@ export const streamHttpAction = async (ctx: any, request: Request) => {
 
     const result = await thread.streamText({ promptMessageId: messageId });
 
-    return result.toDataStreamResponse();
+    return result.toDataStreamResponse({
+        sendReasoning: true,
+        sendSources: true,
+        sendUsage: true,
+    });
 };
 
 export const createTitleChat = internalAction({
     args: { threadId: v.string(), prompt: v.string() },
     handler: async (ctx, args) => {
-        const model = "gemini-1.5-flash";
+        const model = "gemini-2.5-flash";
 
         const agent = getAgent(model, {
             middleware: [createCacheMiddleware(`${model}-title-chat`, ctx)],
@@ -270,7 +260,40 @@ export const createTitleChat = internalAction({
     },
 });
 
-// Thread relationship management functions
+export const createSummarizeChat = internalAction({
+    args: { threadId: v.string(), userId: v.string() },
+    handler: async (ctx, args) => {
+        const model = "gemini-2.5-flash";
+
+        const agent = getAgent(model, {
+            middleware: [createCacheMiddleware(`${model}-summarize-chat`, ctx)],
+        });
+
+        const { thread } = await agent.continueThread(ctx, { threadId: args.threadId });
+
+        const messageDocs = await agent.fetchContextMessages(ctx, {
+            threadId: thread.threadId,
+            contextOptions: {},
+            userId: args.userId,
+            messages: [],
+        });
+
+        const textResult = await thread.generateText(
+            {
+                prompt: `Summarize the key points of the following conversation in a single, concise sentence. Conversation: ${JSON.stringify(
+                    messageDocs.map((message) => message.message),
+                )}`,
+            },
+            {
+                storageOptions: {
+                    saveMessages: "none",
+                },
+            },
+        );
+
+        await thread.updateMetadata({ summary: textResult.text });
+    },
+});
 
 export const createThreadRelationship = internalMutation({
     args: {
@@ -366,41 +389,6 @@ export const deleteThreadWithRelationships = mutation({
 
         // Delete the actual thread
         return await ctx.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId });
-    },
-});
-
-export const createSummarizeChat = internalAction({
-    args: { threadId: v.string(), userId: v.string() },
-    handler: async (ctx, args) => {
-        const model = "gemini-1.5-flash";
-
-        const agent = getAgent(model, {
-            middleware: [createCacheMiddleware(`${model}-summarize-chat`, ctx)],
-        });
-
-        const { thread } = await agent.continueThread(ctx, { threadId: args.threadId });
-
-        const messageDocs = await agent.fetchContextMessages(ctx, {
-            threadId: thread.threadId,
-            contextOptions: {},
-            userId: args.userId,
-            messages: [],
-        });
-
-        const textResult = await thread.generateText(
-            {
-                prompt: `Summarize the key points of the following conversation in a single, concise sentence. Conversation: ${JSON.stringify(
-                    messageDocs.map((message) => message.message),
-                )}`,
-            },
-            {
-                storageOptions: {
-                    saveMessages: "none",
-                },
-            },
-        );
-
-        await thread.updateMetadata({ summary: textResult.text });
     },
 });
 
@@ -778,7 +766,7 @@ export const improvePrompt = internalAction({
             });
         }
 
-        const model = "gemini-1.5-flash";
+        const model = "gemini-2.5-flash";
         const agent = getAgent(model, {
             middleware: [createCacheMiddleware(`${model}-improve-prompt`, ctx)],
         });
@@ -819,7 +807,7 @@ Original prompt to improve: "${prompt.trim()}"`;
 });
 
 // HTTP action for prompt improvement (wrapper around the action)
-export const improvePromptHttpAction = async (ctx: any, request: Request) => {
+export const improvePromptHttpAction = async (ctx: ActionCtx, request: Request) => {
     // Parse the request body
     const body = await request.json();
     const { prompt, threadId, improvementInstructions } = body;
