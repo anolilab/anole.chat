@@ -130,7 +130,7 @@ touch convex/newfeature/schema.ts
 ```typescript
 // Public functions (accessible from frontend)
 api.chat.functions.createThread;
-api.user.functions.updateProfile;
+api.auth.functions.updateProfile;
 
 // Internal functions (backend only)
 internal.chat.functions.createThreadRelationship;
@@ -154,7 +154,7 @@ api.user.updateProfile;
 
 // New
 api.chat.functions.createThread;
-api.user.functions.updateProfile;
+api.auth.functions.updateProfile;
 ```
 
 #### Internal Calls (Backend):

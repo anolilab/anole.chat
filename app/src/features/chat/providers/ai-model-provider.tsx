@@ -14,9 +14,9 @@ const AiModelContext = createContext<AiModelContextType | undefined>(undefined);
 // TODO: use thread model first if provided, then user model
 export const AiModelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [selectedModel, setSelectedModelState] = useState<AgentModel>(DEFAULT_MODEL);
-    const updateSelectedModel = useMutation(api.user.functions.updateSelectedModel);
+    const updateSelectedModel = useMutation(api.auth.functions.updateSelectedModel);
 
-    const fetchedModel = useQuery(api.user.functions.getSelectedModel);
+    const fetchedModel = useQuery(api.auth.functions.getSelectedModel);
 
     useEffect(() => {
         if (fetchedModel && typeof fetchedModel === "string") {

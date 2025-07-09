@@ -30,14 +30,14 @@ export const convertImageToBase64 = async (file: File): Promise<string> => {
  */
 export const getAuthRedirectUrl = async (convex: QueryClient): Promise<string> => {
     try {
-        const lastChatId = await convex.fetchQuery(convexQuery(api.user.functions.getLastChatId, {
-
-        }));
+        const lastChatId = await convex.fetchQuery(convexQuery(api.auth.functions.getLastChatId, {}));
 
         if (lastChatId) {
-            const threadExists = await convex.fetchQuery(convexQuery(api.chat.functions.validateThreadExists, {
-                threadId: lastChatId,
-            }));
+            const threadExists = await convex.fetchQuery(
+                convexQuery(api.chat.functions.validateThreadExists, {
+                    threadId: lastChatId,
+                }),
+            );
 
             if (threadExists) {
                 return `/chat/${lastChatId}`;

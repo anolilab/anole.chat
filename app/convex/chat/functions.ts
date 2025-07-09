@@ -1,17 +1,18 @@
 import { ConvexError, v } from "convex/values";
 import { components, internal } from "../_generated/api";
-import { internalAction, internalMutation, mutation, action, query, httpAction, internalQuery } from "../_generated/server";
+import { internalAction, internalMutation, mutation, action, query, internalQuery } from "../_generated/server";
 import { AgentModel, getAgent } from "../ai/lib/agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 import z from "zod/v4";
 import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
 import { requireUserId } from "@convex/auth/lib/helper";
+import createCacheMiddleware from "@convex/ai/middleware/cacheMiddleware";
+import { Id } from "../_generated/dataModel";
 
 export const createThread = mutation({
     args: {
         model: v.string(),
-
         parentThreadId: v.optional(v.string()),
         branchPoint: v.optional(v.number()),
         branchName: v.optional(v.string()),
@@ -26,6 +27,7 @@ export const createThread = mutation({
         const createOptions = {
             userId,
             title: args.branchName || undefined,
+            agentName: "chat",
         };
 
         const { threadId }: { threadId: string } = await agent.createThread(ctx, createOptions);
@@ -107,7 +109,9 @@ export const continueThread = action({
     args: { prompt: v.string(), threadId: v.string(), model: v.string() },
     handler: async (ctx, { prompt, threadId, model }) => {
         const userId = await requireUserId(ctx);
-        const agent = getAgent(model as AgentModel);
+        const agent = getAgent(model as AgentModel, {
+            middleware: [createCacheMiddleware(model, ctx)],
+        });
 
         const { thread } = await agent.continueThread(ctx, { threadId, userId });
 
@@ -137,8 +141,14 @@ export const updateThread = action({
         model: v.string(),
     },
     handler: async (ctx, { threadId, title, model, summary, order, status }) => {
-        const userId = await requireUserId(ctx);
-        const agent = getAgent(model as AgentModel);
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new ConvexError("User must be logged in.");
+        }
+        const userId = identity.subject;
+        const agent = getAgent(model as AgentModel, {
+            middleware: [createCacheMiddleware(model, ctx)],
+        });
 
         const { thread } = await agent.continueThread(ctx, { threadId, userId });
 
@@ -148,7 +158,7 @@ export const updateThread = action({
     },
 });
 
-export const streamHttpAction = async (ctx, request) => {
+export const streamHttpAction = async (ctx: any, request: Request) => {
     const { threadId, prompt, model, fileIds } = (await request.json()) as {
         threadId?: string;
         prompt?: string;
@@ -167,7 +177,9 @@ export const streamHttpAction = async (ctx, request) => {
 
     const userId = await requireUserId(ctx);
 
-    const agent = getAgent(model as AgentModel);
+    const agent = getAgent(model as AgentModel, {
+        middleware: [createCacheMiddleware(model, ctx)],
+    });
 
     const { thread } = threadId ? await agent.continueThread(ctx, { threadId, userId }) : await agent.createThread(ctx, { userId });
 
@@ -227,7 +239,11 @@ export const streamHttpAction = async (ctx, request) => {
 export const createTitleChat = internalAction({
     args: { threadId: v.string(), prompt: v.string() },
     handler: async (ctx, args) => {
-        const agent = getAgent("gemini-1.5-flash");
+        const model = "gemini-1.5-flash";
+
+        const agent = getAgent(model, {
+            middleware: [createCacheMiddleware(`${model}-title-chat`, ctx)],
+        });
 
         const { thread } = await agent.continueThread(ctx, { threadId: args.threadId });
 
@@ -237,10 +253,9 @@ export const createTitleChat = internalAction({
             return;
         }
 
-        const o = await thread.generateObject(
+        const textResult = await thread.generateText(
             {
                 prompt: `Generate a concise, 4-5 word title for a new conversation that captures the core topic of this user's prompt. Do not use quotation marks in the title. User prompt: "${args.prompt}"`,
-                schema: z.object({ title: z.string() }),
             },
             {
                 storageOptions: {
@@ -249,9 +264,9 @@ export const createTitleChat = internalAction({
             },
         );
 
-        const jsonResponse = o.toJsonResponse();
-
-        await thread.updateMetadata(await jsonResponse.json());
+        await thread.updateMetadata({
+            title: textResult.text,
+        });
     },
 });
 
@@ -357,21 +372,26 @@ export const deleteThreadWithRelationships = mutation({
 export const createSummarizeChat = internalAction({
     args: { threadId: v.string(), userId: v.string() },
     handler: async (ctx, args) => {
-        const agent = getAgent("gemini-1.5-flash");
+        const model = "gemini-1.5-flash";
+
+        const agent = getAgent(model, {
+            middleware: [createCacheMiddleware(`${model}-summarize-chat`, ctx)],
+        });
 
         const { thread } = await agent.continueThread(ctx, { threadId: args.threadId });
 
-        const threadContext = await agent.fetchContextMessages(ctx, {
+        const messageDocs = await agent.fetchContextMessages(ctx, {
             threadId: thread.threadId,
             contextOptions: {},
             userId: args.userId,
             messages: [],
         });
 
-        const o = await thread.generateObject(
+        const textResult = await thread.generateText(
             {
-                prompt: `Summarize the key points of the following conversation in a single, concise sentence. Conversation: ${JSON.stringify(threadContext)}`,
-                schema: z.object({ summary: z.string() }),
+                prompt: `Summarize the key points of the following conversation in a single, concise sentence. Conversation: ${JSON.stringify(
+                    messageDocs.map((message) => message.message),
+                )}`,
             },
             {
                 storageOptions: {
@@ -380,9 +400,7 @@ export const createSummarizeChat = internalAction({
             },
         );
 
-        const jsonResponse = o.toJsonResponse();
-
-        await thread.updateMetadata(await jsonResponse.json());
+        await thread.updateMetadata({ summary: textResult.text });
     },
 });
 
@@ -447,7 +465,7 @@ export const pinThread = mutation({
 
         // Pin the thread
         await ctx.db.insert("pinnedThreads", {
-            userId,
+            userId: userId as Id<"user">,
             threadId: args.threadId,
             pinnedAt: Date.now(),
         });
@@ -466,7 +484,7 @@ export const unpinThread = mutation({
         // Find the pinned thread record
         const pinnedThread = await ctx.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId).eq("threadId", args.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", args.threadId))
             .unique();
 
         if (!pinnedThread) {
@@ -489,7 +507,7 @@ export const getPinnedThreads = query({
         // Get all pinned threads for the user
         const pinnedThreads = await ctx.db
             .query("pinnedThreads")
-            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"user">))
             .collect();
 
         return pinnedThreads;
@@ -507,14 +525,12 @@ export const isThreadPinned = query({
         // Check if thread is pinned
         const pinnedThread = await ctx.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId).eq("threadId", args.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", args.threadId))
             .unique();
 
         return pinnedThread !== null;
     },
 });
-
-// Thread ordering functionality
 
 export const updateThreadOrder = mutation({
     args: {
@@ -534,7 +550,7 @@ export const updateThreadOrder = mutation({
             // Check if order already exists
             const existingOrder = await ctx.db
                 .query("threadOrder")
-                .withIndex("by_user_and_thread", (q) => q.eq("userId", userId).eq("threadId", threadId))
+                .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", threadId))
                 .unique();
 
             if (existingOrder) {
@@ -546,7 +562,7 @@ export const updateThreadOrder = mutation({
             } else {
                 // Insert new order
                 await ctx.db.insert("threadOrder", {
-                    userId,
+                    userId: userId as Id<"user">,
                     threadId,
                     order,
                     updatedAt: now,
@@ -567,7 +583,7 @@ export const getThreadOrders = query({
         // Get all thread orders for the user
         const threadOrders = await ctx.db
             .query("threadOrder")
-            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"user">))
             .collect();
 
         return threadOrders;
@@ -581,7 +597,11 @@ export const searchThreads = query({
         paginationOpts: paginationOptsValidator,
     },
     handler: async (ctx, { searchQuery, paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
-        const userId = await requireUserId(ctx);
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new ConvexError("User must be logged in.");
+        }
+        const userId = identity.subject;
 
         // Get all threads for the user
         const allThreads = await ctx.runQuery(components.agent.threads.listThreadsByUserId, {
@@ -638,7 +658,11 @@ export const searchMessages = query({
         paginationOpts: paginationOptsValidator,
     },
     handler: async (ctx, { searchQuery, paginationOpts }): Promise<PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>> => {
-        const userId = await requireUserId(ctx);
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new ConvexError("User must be logged in.");
+        }
+        const userId = identity.subject;
 
         // If no search query, return empty results
         if (!searchQuery.trim()) {
@@ -712,7 +736,11 @@ export const improvePrompt = internalAction({
         improvementInstructions: v.optional(v.string()),
     },
     handler: async (ctx, { prompt, threadId, improvementInstructions }) => {
-        const userId = await requireUserId(ctx);
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new ConvexError("User must be logged in.");
+        }
+        const userId = identity.subject;
 
         if (!prompt.trim()) {
             throw new ConvexError("Prompt cannot be empty");
@@ -721,7 +749,7 @@ export const improvePrompt = internalAction({
         // Check rate limits
         const rateLimitName = getRateLimitName("promptImprovement", true);
         const rateLimitResult = await checkRateLimit(ctx, rateLimitName, {
-            key: userId || "anonymous",
+            key: userId,
             count: 1,
         });
 
@@ -750,7 +778,10 @@ export const improvePrompt = internalAction({
             });
         }
 
-        const agent = getAgent("gemini-1.5-flash");
+        const model = "gemini-1.5-flash";
+        const agent = getAgent(model, {
+            middleware: [createCacheMiddleware(`${model}-improve-prompt`, ctx)],
+        });
 
         const { thread } = await agent.continueThread(ctx, { threadId });
 
@@ -775,25 +806,20 @@ Original prompt to improve: "${prompt.trim()}"`;
             systemPrompt += `\n\nSpecific improvement instructions: ${improvementInstructions.trim()}`;
         }
 
-        const result = await thread.generateObject(
-            {
-                prompt: systemPrompt,
-                schema: z.object({ improvedPrompt: z.string() }),
+        const { object: improvedPromptObject } = await thread.generateObject({
+            prompt: systemPrompt,
+            schema: z.object({ improvedPrompt: z.string() }),
+            storageOptions: {
+                saveMessages: "none",
             },
-            {
-                storageOptions: {
-                    saveMessages: "none",
-                },
-            },
-        );
+        });
 
-        const jsonResponse = result.toJsonResponse();
-        return await jsonResponse.json();
+        return improvedPromptObject;
     },
 });
 
 // HTTP action for prompt improvement (wrapper around the action)
-export const improvePromptHttpAction = async (ctx, request) => {
+export const improvePromptHttpAction = async (ctx: any, request: Request) => {
     // Parse the request body
     const body = await request.json();
     const { prompt, threadId, improvementInstructions } = body;
@@ -835,7 +861,11 @@ export const getFullThreadForExport = query({
         model: v.string(),
     },
     async handler(ctx, { threadId, model }) {
-        const userId = await requireUserId(ctx);
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new ConvexError("User must be logged in.");
+        }
+        const userId = identity.subject;
 
         const thread = await ctx.runQuery(components.agent.threads.getThread, { threadId });
 

@@ -9,6 +9,8 @@
  */
 
 import type * as ai_lib_agents from "../ai/lib/agents.js";
+import type * as ai_middleware_cacheMiddleware from "../ai/middleware/cacheMiddleware.js";
+import type * as auth_functions from "../auth/functions.js";
 import type * as auth_lib_helper from "../auth/lib/helper.js";
 import type * as auth from "../auth.js";
 import type * as chat_functions from "../chat/functions.js";
@@ -27,7 +29,6 @@ import type * as lib_errors from "../lib/errors.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
 import type * as lib_systemFields from "../lib/systemFields.js";
 import type * as lib_types from "../lib/types.js";
-import type * as user_functions from "../user/functions.js";
 
 import type {
   ApiFromModules,
@@ -45,6 +46,8 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   "ai/lib/agents": typeof ai_lib_agents;
+  "ai/middleware/cacheMiddleware": typeof ai_middleware_cacheMiddleware;
+  "auth/functions": typeof auth_functions;
   "auth/lib/helper": typeof auth_lib_helper;
   auth: typeof auth;
   "chat/functions": typeof chat_functions;
@@ -63,7 +66,6 @@ declare const fullApi: ApiFromModules<{
   "lib/rateLimiter": typeof lib_rateLimiter;
   "lib/systemFields": typeof lib_systemFields;
   "lib/types": typeof lib_types;
-  "user/functions": typeof user_functions;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
@@ -529,6 +531,24 @@ export declare const components: {
         "internal",
         { messageId: string },
         null
+      >;
+      deleteByIds: FunctionReference<
+        "mutation",
+        "internal",
+        { messageIds: Array<string> },
+        Array<string>
+      >;
+      deleteByOrder: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          endOrder: number;
+          endStepOrder?: number;
+          startOrder: number;
+          startStepOrder?: number;
+          threadId: string;
+        },
+        { isDone: boolean; lastOrder?: number; lastStepOrder?: number }
       >;
       getMessagesByIds: FunctionReference<
         "query",
@@ -1352,6 +1372,7 @@ export declare const components: {
           messageId: string;
           patch: {
             error?: string;
+            fileIds?: Array<string>;
             message?:
               | {
                   content:
@@ -1918,32 +1939,15 @@ export declare const components: {
       searchThreadTitles: FunctionReference<
         "query",
         "internal",
-        {
-          paginationOpts?: {
-            cursor: string | null;
-            endCursor?: string | null;
-            id?: number;
-            maximumBytesRead?: number;
-            maximumRowsRead?: number;
-            numItems: number;
-          };
-          query: string;
-          userId?: string | null;
-        },
-        {
-          continueCursor: string;
-          isDone: boolean;
-          page: Array<{
-            _creationTime: number;
-            _id: string;
-            status: "active" | "archived";
-            summary?: string;
-            title?: string;
-            userId?: string;
-          }>;
-          pageStatus?: "SplitRecommended" | "SplitRequired" | null;
-          splitCursor?: string | null;
-        }
+        { limit: number; query: string; userId?: string | null },
+        Array<{
+          _creationTime: number;
+          _id: string;
+          status: "active" | "archived";
+          summary?: string;
+          title?: string;
+          userId?: string;
+        }>
       >;
       updateThread: FunctionReference<
         "mutation",
@@ -3149,6 +3153,48 @@ export declare const components: {
           to: string;
         },
         string
+      >;
+    };
+  };
+  actionCache: {
+    crons: {
+      purge: FunctionReference<
+        "mutation",
+        "internal",
+        { expiresAt?: number },
+        null
+      >;
+    };
+    lib: {
+      get: FunctionReference<
+        "query",
+        "internal",
+        { args: any; name: string; ttl: number | null },
+        { kind: "hit"; value: any } | { expiredEntry?: string; kind: "miss" }
+      >;
+      put: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          args: any;
+          expiredEntry?: string;
+          name: string;
+          ttl: number | null;
+          value: any;
+        },
+        { cacheHit: boolean; deletedExpiredEntry: boolean }
+      >;
+      remove: FunctionReference<
+        "mutation",
+        "internal",
+        { args: any; name: string },
+        null
+      >;
+      removeAll: FunctionReference<
+        "mutation",
+        "internal",
+        { batchSize?: number; before?: number; name?: string },
+        null
       >;
     };
   };

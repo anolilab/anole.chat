@@ -1,9 +1,77 @@
-import { ConvexError, v } from "convex/values";
-import { mutation, query, internalMutation } from "../_generated/server";
+import { v } from "convex/values";
+import { action, mutation, query, internalMutation, QueryCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { ROLES, type Role } from "../lib/types";
-import { api, internal } from "../_generated/api";
+import { api } from "../_generated/api";
 import { requireUserId } from "@convex/auth/lib/helper";
+import { customAction, customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions";
+import { betterAuthComponent } from "@convex/auth";
+
+const getCurrentUserInternal = async (ctx: QueryCtx) => {
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+
+    if (!userMetadata) {
+        return null;
+    }
+
+    // Get user data from your application's database (skip this if you have no
+    // fields in your users table schema)
+    const user = await ctx.db.get(userMetadata.userId as Id<"user">);
+
+    return {
+        ...user,
+        ...userMetadata,
+    };
+};
+
+export const getCurrentUser = query({
+    args: {},
+    handler: async (ctx) => {
+        return getCurrentUserInternal(ctx);
+    },
+});
+
+export const authedQuery = customQuery(query, {
+    args: {},
+    input: async (ctx, args) => {
+        const user = await getCurrentUserInternal(ctx);
+
+        return {
+            ctx: {
+                user,
+                ...ctx,
+            },
+            args,
+        };
+    },
+});
+
+export const authedMutation = customMutation(mutation, {
+    args: {},
+    input: async (ctx, args) => {
+        const user = await getCurrentUserInternal(ctx);
+
+        return {
+            ctx: {
+                user,
+                ...ctx,
+            },
+            args,
+        };
+    },
+});
+
+export const authedAction = customAction(
+    action,
+    customCtx(async (ctx) => {
+        const user = await getCurrentUserInternal(ctx);
+
+        return {
+            ...ctx,
+            user,
+        };
+    }),
+);
 
 export const publicUserProfileValidator = v.object({
     _id: v.id("user"),
@@ -62,7 +130,7 @@ export const getPublicUserProfile = query({
             return null;
         }
 
-        const vouchStats: VouchStats = await ctx.runQuery(api.user.functions.getUserVouchStats, { userId });
+        const vouchStats: VouchStats = await ctx.runQuery(api.auth.functions.getUserVouchStats, { userId });
 
         return {
             _id: user._id,
@@ -106,14 +174,14 @@ export const updateSelectedModel = mutation({
         // Find userSettings by userId
         const userSettings = await ctx.db
             .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .withIndex("by_userId", (q) => q.eq("userId", userId as Id<"user">))
             .unique();
 
         if (userSettings) {
             await ctx.db.patch(userSettings._id, { selectedAgent: model });
         } else {
             await ctx.db.insert("userSettings", {
-                userId,
+                userId: userId as Id<"user">,
                 selectedAgent: model,
             });
         }

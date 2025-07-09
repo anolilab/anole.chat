@@ -58,7 +58,7 @@ export function NavUser() {
 
     if (multiSession && useListDeviceSessions) {
         const { data, isPending } = useListDeviceSessions();
-        
+
         deviceSessions = data;
         deviceSessionsPending = isPending;
     }
@@ -98,12 +98,10 @@ export function NavUser() {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild className="fill-white text-white">
                         <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                        <Avatar className="h-8 w-8 rounded-lg">
-                            {user?.image && <AvatarImage src={user.image} alt={user?.name || "User"} />}
-                            <AvatarFallback className="rounded-lg">
-                                {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                            </AvatarFallback>
-                        </Avatar>
+                            <Avatar className="h-8 w-8 rounded-lg">
+                                {user?.image && <AvatarImage src={user.image} alt={user?.name || "User"} />}
+                                <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                            </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">{user?.name || t`User`}</span>
                                 <span className="truncate text-xs">Pro</span>
@@ -162,9 +160,7 @@ export function NavUser() {
                                     ?.filter((sessionData) => sessionData.user.id !== user?.id)
                                     .map(({ session, user: sessionUser }) => (
                                         <Fragment key={session.id}>
-                                            <DropdownMenuItem 
-                                                onClick={() => switchAccount(session.token)}
-                                            >
+                                            <DropdownMenuItem onClick={() => switchAccount(session.token)}>
                                                 <UserView user={sessionUser} />
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />

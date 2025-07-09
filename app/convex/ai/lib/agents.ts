@@ -1,6 +1,7 @@
 import { Agent, ContextOptions, StorageOptions, UsageHandler } from "@convex-dev/agent";
 import type { EmbeddingModelV1, LanguageModelV1 } from "@ai-sdk/provider";
-import type { LanguageModelRequestMetadata, LanguageModelResponseMetadata, ToolSet } from "ai";
+import type { LanguageModelRequestMetadata, LanguageModelResponseMetadata, ToolSet, LanguageModelV1Middleware } from "ai";
+import { wrapLanguageModel } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
@@ -174,7 +175,14 @@ export type AgentModel = keyof typeof agents;
 // Updated default to use the best price-performance model with thinking capabilities
 export const DEFAULT_MODEL: AgentModel = "gemini-2.5-flash";
 
-export function getAgent(model: AgentModel) {
+export function getAgent(
+    model: AgentModel,
+    options: {
+        middleware?: LanguageModelV1Middleware | LanguageModelV1Middleware[];
+        modelId?: string;
+        providerId?: string;
+    } = {},
+) {
     const agent = agents[model];
 
     if (!agent) {
@@ -182,7 +190,12 @@ export function getAgent(model: AgentModel) {
     }
 
     return new Agent(components.agent, {
-        chat: agent.chat,
+        chat: wrapLanguageModel({
+            model: agent.chat,
+            middleware: [...(Array.isArray(options.middleware) ? options.middleware : [options.middleware]).filter(Boolean)] as LanguageModelV1Middleware[],
+            modelId: options.modelId,
+            providerId: options.providerId,
+        }),
         instructions: agent.instructions,
     });
 }
