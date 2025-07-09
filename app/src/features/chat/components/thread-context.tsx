@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useState, useMemo, type ReactNode } from "react";
 import type { ThreadMessageLike } from "@assistant-ui/react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
 import { useNavigate } from "@tanstack/react-router";
 import type { AgentModel } from "@convex/ai/lib/agents";
 import type { Doc } from "@convex/_generated/dataModel";
+import { useQuery } from "convex-helpers/react/cache";
 
 type ThreadDoc = Doc<"threads">;
 

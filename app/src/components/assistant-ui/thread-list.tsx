@@ -18,7 +18,8 @@ import {
     DownloadIcon,
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useQuery, useMutation, useConvex, useAction } from "convex/react";
+import { useMutation, useConvex, useAction } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache";
 import { useNavigate } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";

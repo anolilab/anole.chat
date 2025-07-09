@@ -5,7 +5,7 @@ export const Route = createFileRoute("/(public)/")({
     beforeLoad: async ({ context }) => {
         // If user is authenticated, try to redirect to their last chat
         if (context?.user?.id) {
-            const redirectUrl = await getAuthRedirectUrl(context.convexClient);
+            const redirectUrl = await getAuthRedirectUrl(context.queryClient);
             throw redirect({ to: redirectUrl });
         }
 

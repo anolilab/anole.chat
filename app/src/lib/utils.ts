@@ -2,8 +2,9 @@ import { type ClassValue, clsx } from "clsx";
 import { customAlphabet } from "nanoid";
 import { twMerge } from "tailwind-merge";
 import { v7 } from "uuid";
-import type { ConvexReactClient } from "convex/react";
+import type { QueryClient } from "@tanstack/react-query";
 import { api } from "@convex/_generated/api";
+import { convexQuery } from "@convex-dev/react-query";
 
 export function cn(...inputs: Array<ClassValue>) {
     return twMerge(clsx(inputs));
@@ -27,16 +28,16 @@ export const convertImageToBase64 = async (file: File): Promise<string> => {
  * Checks for the user's last chat ID and validates if it still exists.
  * Falls back to /chat if no last chat is found or if it doesn't exist.
  */
-export const getAuthRedirectUrl = async (convex: ConvexReactClient): Promise<string> => {
+export const getAuthRedirectUrl = async (convex: QueryClient): Promise<string> => {
     try {
-        // Get the last chat ID from user settings
-        const lastChatId = await convex.query(api.user.functions.getLastChatId);
+        const lastChatId = await convex.fetchQuery(convexQuery(api.user.functions.getLastChatId, {
+
+        }));
 
         if (lastChatId) {
-            // Check if the chat still exists
-            const threadExists = await convex.query(api.chat.functions.validateThreadExists, {
+            const threadExists = await convex.fetchQuery(convexQuery(api.chat.functions.validateThreadExists, {
                 threadId: lastChatId,
-            });
+            }));
 
             if (threadExists) {
                 return `/chat/${lastChatId}`;

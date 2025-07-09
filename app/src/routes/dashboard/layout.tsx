@@ -9,13 +9,23 @@ import { NavItems, type NavItem } from "@/features/layout/components/nav-items";
 import { MessageSquare, Users, Key, Shield, Building, User } from "lucide-react";
 import { useContext, Fragment } from "react";
 import { AuthUIContext } from "@/features/auth/lib/auth-ui-provider";
+import { getAuthRedirectUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard")({
     component: RouteComponent,
+    beforeLoad: async ({ context }) => {
+        const chatUrl = await getAuthRedirectUrl(context.queryClient);
+
+        return {
+            chatUrl,
+        };
+    },
 });
 
 function RouteComponent() {
     const location = useLocation();
+    const context = Route.useRouteContext();
+
     const pathname = location.pathname;
 
     // Generate breadcrumb items from pathname, filtering out empty strings
@@ -38,7 +48,7 @@ function RouteComponent() {
         main: [
             {
                 name: "Chat",
-                url: "/chat",
+                url: context.chatUrl,
                 icon: MessageSquare,
             },
         ],

@@ -21,7 +21,6 @@ import ScreenSizeDebug from "@/components/screen-size-debug";
 import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
 import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
 import { Link } from "@tanstack/react-router";
-import type { AnyAuthClient } from "@/features/auth/types/auth-core-types";
 import appCss from "../styles.css?url";
 import { createAuth } from "convex/auth";
 import { env } from "@/lib/env";
