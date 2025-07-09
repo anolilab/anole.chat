@@ -10,6 +10,7 @@ import { requireUserId } from "@convex/auth/lib/helper";
 import createCacheMiddleware from "../ai/middleware/cacheMiddleware";
 import { Id } from "../_generated/dataModel";
 import { ActionCtx } from "../_generated/server";
+import { authedQuery } from "@convex/auth/functions";
 
 export const createThread = mutation({
     args: {
@@ -404,7 +405,7 @@ export const getAllThreadRelationships = query({
     },
 });
 
-export const validateThreadExists = query({
+export const validateThreadExists = authedQuery({
     args: {
         threadId: v.string(),
     },

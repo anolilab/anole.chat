@@ -183,7 +183,6 @@ export function getAgent(
         providerId?: string;
     },
 ) {
-    console.log(model)
     const agent = agents[model];
 
     if (!agent) {

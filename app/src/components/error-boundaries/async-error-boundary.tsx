@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useEffect, useMemo, useState, type DependencyList, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type DependencyList, type ReactNode } from "react";
 import { usePostHog } from "posthog-js/react";
 import { ErrorBoundary, useErrorHandler } from "../error-boundary";
 import { ErrorUtils } from "@/lib/errors";

@@ -2,6 +2,7 @@ import { redirect, createFileRoute, useRouteContext } from "@tanstack/react-rout
 import { api } from "@convex/_generated/api";
 import { DEFAULT_MODEL } from "@convex/ai/lib/agents";
 import { Assistant } from "@/features/chat/components/assistant";
+import { convexQuery } from "@convex-dev/react-query";
 
 const ChatPage = () => {
     const context = useRouteContext({ from: "/(chat)/chat/$threadId" });
@@ -34,9 +35,9 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
             });
         }
 
-        const threadExists = await context.convexClient.query(api.chat.functions.validateThreadExists, {
+        const threadExists = await context.queryClient.fetchQuery(convexQuery(api.chat.functions.validateThreadExists, {
             threadId: params.threadId,
-        });
+        }));
 
         if (!threadExists) {
             throw redirect({
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
 
         // Save the last chat ID for this user
         try {
-            await context.convexClient.mutation(api.auth.functions.updateUserSettings, {
+            await context.queryClient.setQueryData([api.auth.functions.updateUserSettings], {
                 lastChatId: params.threadId,
             });
         } catch (error) {

@@ -2,7 +2,6 @@ import { v } from "convex/values";
 import { action, mutation, query, internalMutation, QueryCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { ROLES, type Role } from "../lib/types";
-import { api } from "../_generated/api";
 import { requireUserId } from "@convex/auth/lib/helper";
 import { customAction, customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions";
 import { betterAuthComponent } from "@convex/auth";

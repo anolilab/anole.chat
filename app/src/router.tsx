@@ -22,7 +22,7 @@ import type { ReactNode } from "react";
 export const createRouter = ({ i18n }: { i18n: I18n }) => {
     const convex = new ConvexReactClient(env.VITE_CONVEX_URL, {
         unsavedChangesWarning: false,
-        verbose: import.meta.env.VITE_DEBUG,
+        //verbose: import.meta.env.VITE_DEBUG,
         logger: true,
         reportDebugInfoToConvex: import.meta.env.VITE_DEBUG,
     });
