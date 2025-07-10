@@ -35,9 +35,11 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
             });
         }
 
-        const threadExists = await context.queryClient.fetchQuery(convexQuery(api.chat.functions.validateThreadExists, {
-            threadId: params.threadId,
-        }));
+        const threadExists = await context.queryClient.fetchQuery(
+            convexQuery(api.chat.functions.validateThreadExists, {
+                threadId: params.threadId,
+            }),
+        );
 
         if (!threadExists) {
             throw redirect({

@@ -8,6 +8,7 @@ import { AppSidebar } from "@/features/layout/components/app-sidebar";
 import { ThreadProvider } from "./thread-context";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 import { useAiModelContext } from "../providers/ai-model-provider";
+import { SettingsPanelProvider, SettingsPanel } from "./settings-panel";
 
 export const Assistant = ({ threadId, jwtToken }: { threadId?: string; jwtToken: string }) => {
     const { selectedModel } = useAiModelContext();
@@ -15,13 +16,14 @@ export const Assistant = ({ threadId, jwtToken }: { threadId?: string; jwtToken:
     return (
         <ThreadProvider model={selectedModel}>
             <ConvexExternalRuntimeProvider model={selectedModel} threadId={threadId} jwtToken={jwtToken}>
-                <div className="flex h-dvh w-full">
-                    <AppSidebar header={null} content={<ThreadList />} />
-                    <SidebarInset>
-                        <ChatSiteHeader />
-                        <Thread threadId={threadId} />
-                    </SidebarInset>
-                </div>
+                <AppSidebar header={null} content={<ThreadList />} />
+                <SettingsPanelProvider>
+                <SidebarInset>
+                    <ChatSiteHeader />
+                    <Thread threadId={threadId} />
+                </SidebarInset>
+                <SettingsPanel />
+                </SettingsPanelProvider>
             </ConvexExternalRuntimeProvider>
         </ThreadProvider>
     );

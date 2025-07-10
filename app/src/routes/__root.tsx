@@ -150,7 +150,7 @@ const RootDocument = () => {
                         </AuthUIProviderTanstack>
                     </AuthQueryProvider>
                 </ConvexBetterAuthProvider>
-                {import.meta.env.VITE_DEBUG && (
+                {import.meta.env.VITE_DEBUG === "true" && (
                     <Suspense fallback={null}>
                         <TanStackRouterDevtools position="bottom-right" />
                         <ReactQueryDevtools buttonPosition="bottom-left" />

@@ -44,9 +44,9 @@ export const useConvexThreadSyncer = ({ model, isRunning }: UseConvexThreadSynce
     const paginatedMessagesArgs = useMemo(() => {
         return currentThreadId !== "default"
             ? {
-                threadId: currentThreadId,
-                model: model,
-            }
+                  threadId: currentThreadId,
+                  model: model,
+              }
             : "skip";
     }, [currentThreadId, model]);
 

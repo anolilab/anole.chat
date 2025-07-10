@@ -280,7 +280,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
         <main
             data-slot="sidebar-inset"
             className={cn(
-                "lg:shadow-xs relative grow pb-6 lg:rounded-lg bg-white lg:pb-10 lg:ring-1 lg:ring-zinc-950/5 dark:bg-zinc-900 dark:lg:ring-white/10",
+                "lg:shadow-xs relative grow bg-white pb-6 lg:rounded-lg lg:pb-10 lg:ring-1 lg:ring-zinc-950/5 dark:bg-zinc-900 dark:lg:ring-white/10",
                 "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm",
                 className,
             )}
@@ -459,7 +459,7 @@ function SidebarMenuAction({
                 "peer-data-[size=lg]/menu-button:top-2.5",
                 "group-data-[collapsible=icon]:hidden",
                 showOnHover &&
-                "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
+                    "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
                 className,
             )}
             {...props}

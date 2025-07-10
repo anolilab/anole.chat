@@ -57,30 +57,30 @@ export function UpdateFieldCard({
     if (type === "number") {
         fieldSchema = required
             ? z.preprocess(
-                (val) => (!val ? undefined : Number(val)),
-                z.number({
-                    required_error: `${label} ${t`is required`}`,
-                    invalid_type_error: `${label} ${t`is invalid`}`,
-                }),
-            )
+                  (val) => (!val ? undefined : Number(val)),
+                  z.number({
+                      required_error: `${label} ${t`is required`}`,
+                      invalid_type_error: `${label} ${t`is invalid`}`,
+                  }),
+              )
             : z.coerce
-                .number({
-                    invalid_type_error: `${label} ${t`is invalid`}`,
-                })
-                .optional();
+                  .number({
+                      invalid_type_error: `${label} ${t`is invalid`}`,
+                  })
+                  .optional();
     } else if (type === "boolean") {
         fieldSchema = required
             ? z.coerce
-                .boolean({
-                    required_error: `${label} ${t`is required`}`,
-                    invalid_type_error: `${label} ${t`is invalid`}`,
-                })
-                .refine((val) => val === true, {
-                    message: `${label} ${t`is required`}`,
-                })
+                  .boolean({
+                      required_error: `${label} ${t`is required`}`,
+                      invalid_type_error: `${label} ${t`is invalid`}`,
+                  })
+                  .refine((val) => val === true, {
+                      message: `${label} ${t`is required`}`,
+                  })
             : z.coerce.boolean({
-                invalid_type_error: `${label} ${t`is invalid`}`,
-            });
+                  invalid_type_error: `${label} ${t`is invalid`}`,
+              });
     } else {
         fieldSchema = required ? z.string().min(1, `${label} ${t`is required`}`) : z.string().optional();
     }

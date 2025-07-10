@@ -8,7 +8,7 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ title, c
     return (
         <>
             <header className="h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) relative flex shrink-0 items-center gap-2 transition-[width,height] ease-linear dark:text-white">
-                <div className="relative z-20 flex w-full items-center gap-1 pl-4 lg:gap-2 lg:pl-6 truncate">
+                <div className="relative z-20 flex w-full items-center gap-1 truncate pl-4 lg:gap-2 lg:pl-6">
                     <SidebarTrigger className="-ml-1" />
                     <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
                     {title && <h1 className="text-lg font-bold">{title}</h1>}

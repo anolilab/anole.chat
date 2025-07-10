@@ -17,17 +17,17 @@ export type ConvexMessage = {
     message?: {
         role: "user" | "assistant" | "system";
         content:
-        | string
-        | Array<
-            | {
-                type: "text";
-                text: string;
-            }
-            | {
-                type: "image";
-                image: string;
-            }
-        >;
+            | string
+            | Array<
+                  | {
+                        type: "text";
+                        text: string;
+                    }
+                  | {
+                        type: "image";
+                        image: string;
+                    }
+              >;
     };
 };
 

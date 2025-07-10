@@ -72,7 +72,12 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
     const user = sessionData?.user;
 
     const { data: organizations } = authContext.hooks.useListOrganizations();
-    const { data: activeOrganization, isPending: organizationPending, refetch: refetchActiveOrganization, isRefetching } = authContext.hooks.useActiveOrganization();
+    const {
+        data: activeOrganization,
+        isPending: organizationPending,
+        refetch: refetchActiveOrganization,
+        isRefetching,
+    } = authContext.hooks.useActiveOrganization();
 
     const isPending = sessionPending || activeOrganizationPending || organizationPending;
 
@@ -144,10 +149,10 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                                 {...props}
                             >
                                 {(!sessionData && !isPending) ||
-                                    activeOrganizationPending ||
-                                    activeOrganization ||
-                                    (user as User)?.isAnonymous ||
-                                    hidePersonal ? (
+                                activeOrganizationPending ||
+                                activeOrganization ||
+                                (user as User)?.isAnonymous ||
+                                hidePersonal ? (
                                     <OrganizationLogo
                                         key={activeOrganization?.logo}
                                         className={cn(className, classNames?.base)}
@@ -166,10 +171,10 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                         ) : (
                             <Button className={cn("!p-2", className, classNames?.trigger?.base)} size={size} {...props}>
                                 {(!sessionData && !isPending) ||
-                                    activeOrganizationPending ||
-                                    activeOrganization ||
-                                    (user as User)?.isAnonymous ||
-                                    hidePersonal ? (
+                                activeOrganizationPending ||
+                                activeOrganization ||
+                                (user as User)?.isAnonymous ||
+                                hidePersonal ? (
                                     <OrganizationView
                                         classNames={classNames?.trigger?.organization}
                                         isPending={isPending || activeOrganizationPending}
@@ -204,7 +209,9 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                                 )}
 
                                 {!isPending && (
-                                    <Link to={`${authContext.settings?.basePath || authContext.basePath}/${activeOrganization ? authContext.viewPaths.ORGANIZATION : authContext.viewPaths.SETTINGS}`}>
+                                    <Link
+                                        to={`${authContext.settings?.basePath || authContext.basePath}/${activeOrganization ? authContext.viewPaths.ORGANIZATION : authContext.viewPaths.SETTINGS}`}
+                                    >
                                         <Button size="icon" variant="outline" className="ml-auto !size-8" onClick={() => setDropdownOpen(false)}>
                                             <SettingsIcon className="size-4" />
                                         </Button>
