@@ -30,7 +30,17 @@ export type NavItem = {
 
 export type ColorMode = "light" | "dark";
 
-export function NavItems({ items, label, colorMode = "light", classes: classNames }: { items: NavItem[]; label: string; colorMode?: ColorMode, classes?: { group?: string, label?: string, button?: string, buttonActive?: string, icon?: string, iconActive?: string } }) {
+export function NavItems({
+    items,
+    label,
+    colorMode = "light",
+    classes: classNames,
+}: {
+    items: NavItem[];
+    label: string;
+    colorMode?: ColorMode;
+    classes?: { group?: string; label?: string; button?: string; buttonActive?: string; icon?: string; iconActive?: string };
+}) {
     const classes = colorModeClasses[colorMode];
 
     return (

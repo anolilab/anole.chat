@@ -51,16 +51,16 @@ export function SignInForm({ className, classNames, isSubmitting, redirectTo, se
     const formSchema = z.object({
         email: usernameEnabled
             ? z.string().min(1, {
-                message: t`Username is required`,
-            })
+                  message: t`Username is required`,
+              })
             : z
-                .string()
-                .min(1, {
-                    message: t`Email is required`,
-                })
-                .email({
-                    message: t`Email is invalid`,
-                }),
+                  .string()
+                  .min(1, {
+                      message: t`Email is required`,
+                  })
+                  .email({
+                      message: t`Email is invalid`,
+                  }),
         password: (() => {
             let schema = z.string().min(1, {
                 message: t`Password is required`,

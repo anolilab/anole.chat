@@ -55,26 +55,26 @@ export function ResetPasswordForm({ className, classNames, passwordValidation }:
             })(),
             confirmPassword: confirmPasswordEnabled
                 ? (() => {
-                    let schema = z.string().min(1, {
-                        message: t`Confirm password is required`,
-                    });
-                    if (passwordValidation?.minLength) {
-                        schema = schema.min(passwordValidation.minLength, {
-                            message: t`Password is too short`,
-                        });
-                    }
-                    if (passwordValidation?.maxLength) {
-                        schema = schema.max(passwordValidation.maxLength, {
-                            message: t`Password is too long`,
-                        });
-                    }
-                    if (passwordValidation?.regex) {
-                        schema = schema.regex(passwordValidation.regex, {
-                            message: t`Invalid password`,
-                        });
-                    }
-                    return schema;
-                })()
+                      let schema = z.string().min(1, {
+                          message: t`Confirm password is required`,
+                      });
+                      if (passwordValidation?.minLength) {
+                          schema = schema.min(passwordValidation.minLength, {
+                              message: t`Password is too short`,
+                          });
+                      }
+                      if (passwordValidation?.maxLength) {
+                          schema = schema.max(passwordValidation.maxLength, {
+                              message: t`Password is too long`,
+                          });
+                      }
+                      if (passwordValidation?.regex) {
+                          schema = schema.regex(passwordValidation.regex, {
+                              message: t`Invalid password`,
+                          });
+                      }
+                      return schema;
+                  })()
                 : z.string().optional(),
         })
         .refine((data) => !confirmPasswordEnabled || data.newPassword === data.confirmPassword, {

@@ -184,9 +184,9 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
                                                                     organization={
                                                                         logo
                                                                             ? {
-                                                                                name: name,
-                                                                                logo,
-                                                                            }
+                                                                                  name: name,
+                                                                                  logo,
+                                                                              }
                                                                             : null
                                                                     }
                                                                 />

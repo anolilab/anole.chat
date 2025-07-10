@@ -43,17 +43,17 @@ export type AuthUIContextType = {
      * API Key plugin configuration
      */
     apiKey?:
-    | {
-        /**
-         * Prefix for API Keys
-         */
-        prefix?: string;
-        /**
-         * Metadata for API Keys
-         */
-        metadata?: Record<string, unknown>;
-    }
-    | boolean;
+        | {
+              /**
+               * Prefix for API Keys
+               */
+              prefix?: string;
+              /**
+               * Metadata for API Keys
+               */
+              metadata?: Record<string, unknown>;
+          }
+        | boolean;
     /**
      * Avatar configuration
      * @default undefined

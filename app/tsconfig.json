@@ -2,26 +2,13 @@
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
         "jsx": "react-jsx",
-        "types": [
-            "vite/client"
-        ],
+        "types": ["vite/client"],
         /* Bundler mode */
         "moduleResolution": "bundler",
         "baseUrl": ".",
         "paths": {
-            "@/*": [
-                "./src/*"
-            ],
-            "@anole/convex*": [
-                "./convex/*"
-            ]
+            "@/*": ["./src/*"]
         }
     },
-    "include": [
-        "**/*.ts",
-        "**/*.tsx",
-        "eslint.config.js",
-        "prettier.config.js",
-        "vite.config.js"
-    ]
+    "include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.js"]
 }
