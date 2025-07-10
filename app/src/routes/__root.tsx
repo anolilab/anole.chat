@@ -84,6 +84,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
         }
 
+        // transform all time strings to date objects
+        if (user) {
+            user.createdAt = new Date(user.createdAt);
+            user.updatedAt = new Date(user.updatedAt);
+        }
+
+        if (session) {
+            session.createdAt = new Date(session.createdAt);
+            session.updatedAt = new Date(session.updatedAt);
+            session.expiresAt = new Date(session.expiresAt);
+        }
+
         return {
             user,
             session,

@@ -9,6 +9,8 @@ import { UpdateNameCard } from "./account/update-name-card";
 import { UpdateUsernameCard } from "./account/update-username-card";
 import { ChangeEmailCard } from "./security/change-email-card";
 import type { AuthCardProps } from "../../types/ui-configuration-types";
+import { DeleteAccountCard } from "./account/delete-account-card";
+import { t } from "@lingui/core/macro";
 
 export function AccountSettingsCards({ className, classNames }: AuthCardProps) {
     const {
@@ -62,6 +64,9 @@ export function AccountSettingsCards({ className, classNames }: AuthCardProps) {
             })}
 
             {multiSession && <AccountsCard classNames={classNames} />}
+
+            <h2 className="text-lg font-semibold">{t`Danger Zone`}</h2>
+            <DeleteAccountCard classNames={classNames} />
         </div>
     );
 }
