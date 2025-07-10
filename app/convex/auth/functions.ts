@@ -159,13 +159,15 @@ export const updateUserSettings = authedMutation({
         sendBehavior: v.optional(v.union(v.literal("enter"), v.literal("shiftEnter"), v.literal("button"))),
         showTimestamps: v.optional(v.boolean()),
         isAdvancedUser: v.optional(v.boolean()),
+        hidePersonalInfo: v.optional(v.boolean()),
+        disableExternalLinkWarning: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
         const settings = await ctx.db
             .query("userSettings")
             .withIndex("by_userId", (q) => q.eq("userId", ctx.user.userId))
             .unique();
-        
+
         const { ...rest } = args;
 
         if (settings) {

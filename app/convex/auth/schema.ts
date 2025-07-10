@@ -34,5 +34,7 @@ export const authTables = {
         sendBehavior: v.optional(v.union(v.literal("enter"), v.literal("shiftEnter"), v.literal("button"))),
         showTimestamps: v.optional(v.boolean()),
         isAdvancedUser: v.optional(v.boolean()),
+        hidePersonalInfo: v.optional(v.boolean()),
+        disableExternalLinkWarning: v.optional(v.boolean()),
     }).index("by_userId", ["userId"]),
 };
