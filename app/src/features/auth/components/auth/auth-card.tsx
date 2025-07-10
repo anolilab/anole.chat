@@ -21,6 +21,7 @@ import { PasskeyButton } from "./passkey-button";
 import { ProviderButton } from "./provider-button";
 import { SignOut } from "./sign-out";
 import { t } from "@lingui/core/macro";
+import { Link } from "@tanstack/react-router";
 
 export interface AuthCardClassNames {
     base?: string;
@@ -73,7 +74,7 @@ export function AuthCard({
 }: AuthCardProps) {
     const isHydrated = useIsHydrated();
 
-    const { basePath, credentials, magicLink, emailOTP, oneTap, passkey, signUp, social, genericOAuth, viewPaths, Link } = useContext(AuthUIContext);
+    const { basePath, credentials, magicLink, emailOTP, oneTap, passkey, signUp, social, genericOAuth, viewPaths } = useContext(AuthUIContext);
 
     if (socialLayout === "auto") {
         socialLayout = !credentials ? "vertical" : social?.providers && social.providers.length > 2 ? "horizontal" : "vertical";
@@ -269,7 +270,7 @@ export function AuthCard({
                     {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" || view === "SIGN_UP" ? (
                         <Link
                             className={cn("text-foreground underline", classNames?.footerLink)}
-                            href={`${basePath}/${viewPaths[view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? "SIGN_UP" : "SIGN_IN"]}${isHydrated ? window.location.search : ""}`}
+                            to={`${basePath}/${viewPaths[view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? "SIGN_UP" : "SIGN_IN"]}${isHydrated ? window.location.search : ""}`}
                         >
                             <Button variant="link" size="sm" className={cn("text-foreground px-0 underline", classNames?.footerLink)}>
                                 {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? t`Sign up` : t`Sign in`}

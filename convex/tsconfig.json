@@ -10,14 +10,14 @@
         "noUnusedLocals": true,
         "jsx": "react-jsx",
         "skipLibCheck": true,
-        "paths": {
-            "~/*": ["../*"],
-            "@convex/*": ["./*"]
-        },
-
         /* These compiler options are required by Convex */
         "target": "ESNext",
-        "lib": ["ES2021", "dom", "ESNext.Array", "DOM.Iterable"],
+        "lib": [
+            "ES2021",
+            "dom",
+            "ESNext.Array",
+            "DOM.Iterable"
+        ],
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
         "module": "ESNext",
@@ -25,6 +25,10 @@
         "isolatedModules": true,
         "noEmit": true
     },
-    "include": ["./**/*"],
-    "exclude": ["./_generated"]
+    "include": [
+        "./**/*"
+    ],
+    "exclude": [
+        "./_generated"
+    ]
 }

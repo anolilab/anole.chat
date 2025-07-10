@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { useGravatar } from "./use-gravatar";
 import * as gravatarUtils from "../lib/gravatar-utils";
 import type { GravatarOptions } from "../types/ui-configuration-types";

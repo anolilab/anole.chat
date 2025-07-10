@@ -2,9 +2,9 @@ import { useMemo } from "react";
 import type { ExternalStoreThreadData, ExternalStoreThreadListAdapter } from "@assistant-ui/react";
 import { useMutation, usePaginatedQuery, useAction } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
-import { api } from "@convex/_generated/api";
+import { api } from "@anole/convex/api";
 import { useThreadContext } from "@/features/chat/components/thread-context";
-import type { AgentModel } from "@convex/ai/lib/agents";
+import type { AgentModel } from "@anole/convex/ai/lib/agents";
 
 interface UseThreadListAdapterProps {
     model: AgentModel;

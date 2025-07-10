@@ -22,7 +22,7 @@ import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
 import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
 import { Link } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
-import { createAuth } from "convex/auth";
+import { createAuth } from "@anole/convex/auth";
 import { env } from "@/lib/env";
 
 const ReactQueryDevtools = lazy(() => import("@tanstack/react-query-devtools").then((m) => ({ default: m.ReactQueryDevtools })));

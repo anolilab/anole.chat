@@ -24,7 +24,7 @@ import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button
 import { useLingui } from "@lingui/react/macro";
 import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { agents, type AgentModel } from "@convex/ai/lib/agents";
+import { agents, type AgentModel } from "@anole/convex/ai/lib/agents";
 import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
 import { useSession } from "@/features/auth/hooks/session-user-management";
 

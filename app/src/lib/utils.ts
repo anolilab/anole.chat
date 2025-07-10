@@ -3,7 +3,7 @@ import { customAlphabet } from "nanoid";
 import { twMerge } from "tailwind-merge";
 import { v7 } from "uuid";
 import type { QueryClient } from "@tanstack/react-query";
-import { api } from "@convex/_generated/api";
+import { api } from "@anole/convex/api";
 import { convexQuery } from "@convex-dev/react-query";
 
 export function cn(...inputs: Array<ClassValue>) {

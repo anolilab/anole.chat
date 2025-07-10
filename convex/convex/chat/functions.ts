@@ -3,14 +3,14 @@ import { components, internal } from "../_generated/api";
 import { internalAction, internalMutation, mutation, action, query, internalQuery } from "../_generated/server";
 import { AgentModel, getAgent } from "../ai/lib/agents";
 import { paginationOptsValidator, PaginationResult } from "convex/server";
-import z from "zod/v4";
+import z from "zod";
 import { getFile, type MessageDoc, type ThreadDoc } from "@convex-dev/agent";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
-import { requireUserId } from "@convex/auth/lib/helper";
+import { requireUserId } from "../auth/lib/helper";
 import createCacheMiddleware from "../ai/middleware/cacheMiddleware";
 import { Id } from "../_generated/dataModel";
 import { ActionCtx } from "../_generated/server";
-import { authedQuery } from "@convex/auth/functions";
+import { authedQuery } from "../auth/functions";
 
 export const createThread = mutation({
     args: {

@@ -3,12 +3,12 @@
 import { useThreadMessages } from "@convex-dev/agent/react";
 import { usePaginatedQuery } from "convex/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { api } from "@convex/_generated/api";
+import { api } from "@anole/convex/api";
 import type { ThreadMessageLike } from "@assistant-ui/react";
 import { logThreadLoad, logThreadUpdate, providerLogger } from "@/lib/logger";
 import { useThreadContext } from "@/features/chat/components/thread-context";
 import { convertConvexMessage, isValidThreadMessage, type ConvexMessage } from "../providers/types";
-import type { AgentModel } from "@convex/ai/lib/agents";
+import type { AgentModel } from "@anole/convex/ai/lib/agents";
 
 interface UseConvexThreadSyncerProps {
     model: AgentModel;
@@ -44,9 +44,9 @@ export const useConvexThreadSyncer = ({ model, isRunning }: UseConvexThreadSynce
     const paginatedMessagesArgs = useMemo(() => {
         return currentThreadId !== "default"
             ? {
-                  threadId: currentThreadId,
-                  model: model,
-              }
+                threadId: currentThreadId,
+                model: model,
+            }
             : "skip";
     }, [currentThreadId, model]);
 

@@ -21,6 +21,7 @@ import { AuthUIContext } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { AnyAuthClient } from "@/features/auth/types/auth-core-types";
 import { UserView } from "@/features/auth/components/user-view";
+import { Link } from "@tanstack/react-router";
 
 export interface NavUserProps {
     className?: string;
@@ -49,7 +50,6 @@ export function NavUser() {
             SETTINGS: "settings",
         },
         onSessionChange,
-        Link,
         authClient,
     } = authContext;
 
@@ -129,7 +129,7 @@ export function NavUser() {
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
                             {settings && (
-                                <Link href={settings.url || `${settings.basePath || basePath}/${viewPaths.SETTINGS}`}>
+                                <Link to={settings.url || `${settings.basePath || basePath}/${viewPaths.SETTINGS}`}>
                                     <DropdownMenuItem>
                                         <SettingsIcon />
                                         {t`Settings`}
@@ -166,7 +166,7 @@ export function NavUser() {
                                             <DropdownMenuSeparator />
                                         </Fragment>
                                     ))}
-                                <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
+                                <Link to={`${basePath}/${viewPaths.SIGN_IN}`}>
                                     <DropdownMenuItem>
                                         <PlusCircleIcon />
                                         {t`Add Account`}

@@ -1,6 +1,6 @@
 import { v } from "convex/values"
 import { MODELS_SHARED } from "./lib/models"
-import { authedQuery } from "@convex/auth/functions"
+import { authedQuery } from "../auth/functions"
 
 const getDaysSinceEpoch = (daysAgo: number) =>
     Math.floor(Date.now() / (24 * 60 * 60 * 1000)) - daysAgo

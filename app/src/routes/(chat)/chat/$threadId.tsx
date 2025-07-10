@@ -1,6 +1,6 @@
 import { redirect, createFileRoute, useRouteContext } from "@tanstack/react-router";
-import { api } from "@convex/_generated/api";
-import { DEFAULT_MODEL } from "@convex/ai/lib/agents";
+import { api } from "@anole/convex/api";
+import { DEFAULT_MODEL } from "@anole/convex/ai/lib/agents";
 import { Assistant } from "@/features/chat/components/assistant";
 import { convexQuery } from "@convex-dev/react-query";
 

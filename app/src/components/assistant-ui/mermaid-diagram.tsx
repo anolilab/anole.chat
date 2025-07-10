@@ -1,6 +1,6 @@
 "use client";
 
-import { useContentPart } from "@assistant-ui/react";
+import { useMessagePart } from "@assistant-ui/react";
 import type { SyntaxHighlighterProps } from "@assistant-ui/react-markdown";
 import mermaid from "mermaid";
 import { useEffect, useRef } from "react";
@@ -41,7 +41,7 @@ export const MermaidDiagram: FC<MermaidDiagramProps> = ({ code, className, node:
     const ref = useRef<HTMLPreElement>(null);
 
     // Detect when this code block is complete
-    const isComplete = useContentPart((part) => {
+    const isComplete = useMessagePart((part) => {
         if (part.type !== "text") return false;
 
         // Find the position of this code block

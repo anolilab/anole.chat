@@ -21,6 +21,7 @@ import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import type { AuthFormClassNames } from "../auth-form";
 import { t } from "@lingui/core/macro";
+import { Link } from "@tanstack/react-router";
 
 export interface SignInFormProps {
     className?: string;
@@ -35,7 +36,7 @@ export function SignInForm({ className, classNames, isSubmitting, redirectTo, se
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
-    const { authClient, basePath, credentials, viewPaths, navigate, toast, Link } = useContext(AuthUIContext);
+    const { authClient, basePath, credentials, viewPaths, navigate, toast } = useContext(AuthUIContext);
 
     const rememberMeEnabled = credentials?.rememberMe;
     const usernameEnabled = credentials?.username;
@@ -50,16 +51,16 @@ export function SignInForm({ className, classNames, isSubmitting, redirectTo, se
     const formSchema = z.object({
         email: usernameEnabled
             ? z.string().min(1, {
-                  message: t`Username is required`,
-              })
+                message: t`Username is required`,
+            })
             : z
-                  .string()
-                  .min(1, {
-                      message: t`Email is required`,
-                  })
-                  .email({
-                      message: t`Email is invalid`,
-                  }),
+                .string()
+                .min(1, {
+                    message: t`Email is required`,
+                })
+                .email({
+                    message: t`Email is invalid`,
+                }),
         password: (() => {
             let schema = z.string().min(1, {
                 message: t`Password is required`,
@@ -200,7 +201,7 @@ export function SignInForm({ className, classNames, isSubmitting, redirectTo, se
                                 {credentials?.forgotPassword && (
                                     <Link
                                         className={cn("text-sm hover:underline", classNames?.forgotPasswordLink)}
-                                        href={`${basePath}/${viewPaths.FORGOT_PASSWORD}${isHydrated ? window.location.search : ""}`}
+                                        to={`${basePath}/${viewPaths.FORGOT_PASSWORD}${isHydrated ? window.location.search : ""}`}
                                     >
                                         {t`Forgot password?`}
                                     </Link>

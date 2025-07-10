@@ -1,6 +1,6 @@
-import { Id } from "@convex/_generated/dataModel";
+import { Id } from "../../_generated/dataModel";
 import { ActionCtx, QueryCtx } from "../../_generated/server";
-import { betterAuthComponent } from "@convex/auth";
+import { betterAuthComponent } from "../../auth";
 
 /**
  * Get the current user's ID from the Better Auth context.

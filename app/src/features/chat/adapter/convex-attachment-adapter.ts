@@ -1,6 +1,6 @@
 import type { AttachmentAdapter, CompleteAttachment, PendingAttachment } from "@assistant-ui/react";
 import type { ConvexReactClient } from "convex/react";
-import { api } from "@convex/_generated/api";
+import { api } from "@anole/convex/api";
 
 const getFileText = (file: File): Promise<string> =>
     new Promise<string>((resolve, reject) => {
@@ -30,7 +30,7 @@ class ConvexAttachmentAdapter implements AttachmentAdapter {
     // Accept common file types - images, text files, and documents
     public accept = "image/*,text/*,application/pdf,application/json,application/xml,.md,.csv,.txt";
 
-    public constructor(private readonly convex: ConvexReactClient) {}
+    public constructor(private readonly convex: ConvexReactClient) { }
 
     public async add(state: { file: File }): Promise<PendingAttachment> {
         // Validate file size (20MB limit as recommended by Assistant UI)

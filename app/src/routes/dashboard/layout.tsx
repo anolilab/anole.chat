@@ -91,7 +91,7 @@ function RouteComponent() {
             <SidebarProvider
                 style={
                     {
-                        "--sidebar-width": "calc(var(--spacing) * 72)",
+                        "--sidebar-width": "calc(var(--spacing) * 94)",
                         "--header-height": "calc(var(--spacing) * 8.5)",
                     } as React.CSSProperties
                 }
@@ -111,8 +111,8 @@ function RouteComponent() {
                         }
                         content={
                             <>
-                                <NavItems items={navigationItems.main} label="Main" colorMode="dark" />
-                                <NavItems items={navigationItems.settings} label="Settings" colorMode="dark" />
+                                <NavItems items={navigationItems.main} label="Main" colorMode="dark" classes={{ group: "pr-0" }} />
+                                <NavItems items={navigationItems.settings} label="Settings" colorMode="dark" classes={{ group: "pr-0" }} />
                             </>
                         }
                     />

@@ -1,6 +1,6 @@
 {
-    "name": "ai-chat",
-    "version": "0.0.1",
+    "name": "anole",
+    "version": "0.0.0",
     "private": true,
     "license": "MIT",
     "author": {
@@ -25,7 +25,7 @@
         "build:chat": "nx run chat:build",
         "build:packages": "nx run-many --target=build --parallel --projects=tag:type:package",
         "build:packages:prod": "nx run-many --target=build:prod --parallel --projects=tag:type:package",
-        "dev:chat": "pnpm run build:packages && nx run chat:dev",
+        "dev:chat": "nx run-many --target=dev --parallel --projects=chat,convex",
         "preinstall": "node -e \"if(process.env.CI == 'true') {console.info('Skipping preinstall...')} else {process.exit(1)}\" || (node verify-node-version.js && npm -y exec only-allow pnpm)",
         "lint": "pnpm run lint:prettier && pnpm run lint:eslint && lint:dedupe --check",
         "lint:dedupe": "pnpm dedupe --check",
@@ -37,7 +37,7 @@
         "lint:staged": "lint-staged --verbose --concurrent false --debug",
         "lint:types": "nx run-many --target=lint:types --all --parallel",
         "nx": "nx",
-        "sort-package-json": "sort-package-json packages/**/package.json app/package.json ./package.json"
+        "sort-package-json": "sort-package-json packages/**/package.json app/package.json convex/package.json ./package.json"
     },
     "dependencies": {
         "@anolilab/commitlint-config": "^6.0.1",
@@ -49,16 +49,16 @@
         "@secretlint/secretlint-rule-preset-recommend": "^10.2.0",
         "audit-ci": "^7.1.0",
         "commitizen": "^4.3.1",
-        "dotenv": "17.0.1",
+        "dotenv": "17.2.0",
         "husky": "^9.1.7",
         "is-ci": "^4.1.0",
         "lint-staged": "^16.1.2",
         "nx": "21.2.2",
         "prettier": "^3.6.2",
-        "prettier-plugin-tailwindcss": "0.6.13",
+        "prettier-plugin-tailwindcss": "0.6.14",
         "secretlint": "10.2.0",
         "sort-package-json": "^3.4.0",
         "typescript": "^5.8.3"
     },
-    "packageManager": "pnpm@10.12.4"
+    "packageManager": "pnpm@10.13.1"
 }

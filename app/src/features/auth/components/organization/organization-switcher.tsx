@@ -15,6 +15,7 @@ import { CreateOrganizationDialog } from "./create-organization-dialog";
 import { OrganizationLogo, type OrganizationLogoClassNames } from "./organization-logo";
 import { OrganizationView, type OrganizationViewClassNames } from "./organization-view";
 import { PersonalAccountView } from "./personal-account-view";
+import { Link } from "@tanstack/react-router";
 
 export interface OrganizationSwitcherClassNames {
     base?: string;
@@ -61,25 +62,17 @@ export interface OrganizationSwitcherProps extends Omit<ComponentProps<typeof Bu
  * - Can be customized with additional links and styling options
  */
 export function OrganizationSwitcher({ className, classNames, align, trigger, size, onSetActive, hidePersonal, ...props }: OrganizationSwitcherProps) {
-    const {
-        authClient,
-        basePath,
-        hooks: { useActiveOrganization, useSession, useListOrganizations },
-        settings,
-        toast,
-        viewPaths,
-        Link,
-    } = useContext(AuthUIContext);
+    const authContext = useContext(AuthUIContext);
 
     const [activeOrganizationPending, setActiveOrganizationPending] = useState(false);
     const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const { data: sessionData, isPending: sessionPending } = useSession();
+    const { data: sessionData, isPending: sessionPending } = authContext.hooks.useSession();
     const user = sessionData?.user;
 
-    const { data: organizations } = useListOrganizations();
-    const { data: activeOrganization, isPending: organizationPending, refetch: refetchActiveOrganization, isRefetching } = useActiveOrganization();
+    const { data: organizations } = authContext.hooks.useListOrganizations();
+    const { data: activeOrganization, isPending: organizationPending, refetch: refetchActiveOrganization, isRefetching } = authContext.hooks.useActiveOrganization();
 
     const isPending = sessionPending || activeOrganizationPending || organizationPending;
 
@@ -100,7 +93,7 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
 
             try {
                 onSetActive?.(organizationId);
-                await authClient.organization.setActive({
+                await authContext.authClient.organization.setActive({
                     organizationId: organizationId,
                     fetchOptions: {
                         throw: true,
@@ -108,7 +101,7 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                 });
                 await refetchActiveOrganization?.();
             } catch (error) {
-                toast({
+                authContext.toast({
                     variant: "error",
                     message: getLocalizedError({ error }),
                 });
@@ -116,7 +109,7 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                 setActiveOrganizationPending(false);
             }
         },
-        [authClient, toast, onSetActive, refetchActiveOrganization, hidePersonal],
+        [authContext.authClient, authContext.toast, onSetActive, refetchActiveOrganization, hidePersonal],
     );
 
     // Determine whether to show personal view based on hidePersonal prop
@@ -151,10 +144,10 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                                 {...props}
                             >
                                 {(!sessionData && !isPending) ||
-                                activeOrganizationPending ||
-                                activeOrganization ||
-                                (user as User)?.isAnonymous ||
-                                hidePersonal ? (
+                                    activeOrganizationPending ||
+                                    activeOrganization ||
+                                    (user as User)?.isAnonymous ||
+                                    hidePersonal ? (
                                     <OrganizationLogo
                                         key={activeOrganization?.logo}
                                         className={cn(className, classNames?.base)}
@@ -173,10 +166,10 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                         ) : (
                             <Button className={cn("!p-2", className, classNames?.trigger?.base)} size={size} {...props}>
                                 {(!sessionData && !isPending) ||
-                                activeOrganizationPending ||
-                                activeOrganization ||
-                                (user as User)?.isAnonymous ||
-                                hidePersonal ? (
+                                    activeOrganizationPending ||
+                                    activeOrganization ||
+                                    (user as User)?.isAnonymous ||
+                                    hidePersonal ? (
                                     <OrganizationView
                                         classNames={classNames?.trigger?.organization}
                                         isPending={isPending || activeOrganizationPending}
@@ -211,7 +204,7 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                                 )}
 
                                 {!isPending && (
-                                    <Link href={`${settings?.basePath || basePath}/${activeOrganization ? viewPaths.ORGANIZATION : viewPaths.SETTINGS}`}>
+                                    <Link to={`${authContext.settings?.basePath || authContext.basePath}/${activeOrganization ? authContext.viewPaths.ORGANIZATION : authContext.viewPaths.SETTINGS}`}>
                                         <Button size="icon" variant="outline" className="ml-auto !size-8" onClick={() => setDropdownOpen(false)}>
                                             <SettingsIcon className="size-4" />
                                         </Button>
@@ -250,7 +243,7 @@ export function OrganizationSwitcher({ className, classNames, align, trigger, si
                             {t`Create Organization`}
                         </DropdownMenuItem>
                     ) : (
-                        <Link href={`${basePath}/${viewPaths.SIGN_IN}`}>
+                        <Link to={`${authContext.basePath}/${authContext.viewPaths.SIGN_IN}`}>
                             <DropdownMenuItem className={cn(classNames?.content?.menuItem)}>
                                 <LogInIcon />
                                 {t`Sign In`}

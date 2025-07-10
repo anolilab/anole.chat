@@ -6,7 +6,7 @@ import type { AnyAuthClient } from "../types/auth-core-types";
 import { useAuthMutation } from "./shared/use-auth-mutation";
 import type { AuthClient } from "@/lib/auth/client";
 import { useQuery as useConvexQuery } from "convex/react";
-import { api } from "@convex/_generated/api";
+import { api } from "@anole/convex/api";
 
 // Session Management Hook
 export function useSession<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {

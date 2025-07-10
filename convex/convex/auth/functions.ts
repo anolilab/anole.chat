@@ -2,9 +2,9 @@ import { v } from "convex/values";
 import { action, mutation, query, internalMutation, QueryCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { ROLES, type Role } from "../lib/types";
-import { requireUserId } from "@convex/auth/lib/helper";
+import { requireUserId } from "../auth/lib/helper";
 import { customAction, customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions";
-import { betterAuthComponent } from "@convex/auth";
+import { betterAuthComponent } from "../auth";
 
 const getCurrentUserInternal = async (ctx: QueryCtx) => {
     const userMetadata = await betterAuthComponent.getAuthUser(ctx);

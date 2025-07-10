@@ -1,0 +1,70 @@
+{
+    "name": "@anole/convex",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Convex backend for AI Chat application.",
+    "license": "FSL-1.1-ALv2",
+    "author": {
+        "name": "Daniel Bannert",
+        "url": "https://github.com/anolilab/ai-chat"
+    },
+    "contributors": [
+        {
+            "name": "Daniel Bannert",
+            "url": "https://github.com/anolilab/ai-chat"
+        }
+    ],
+    "type": "module",
+    "exports": {
+        "./api": {
+            "types": "./convex/_generated/api.d.ts",
+            "default": "./convex/_generated/api.js"
+        },
+        "./server": {
+            "types": "./convex/_generated/server.d.ts",
+            "default": "./convex/_generated/server.js"
+        },
+        "./dataModel": {
+            "types": "./convex/_generated/dataModel.d.ts"
+        },
+        "./auth": "./convex/auth.ts",
+        "./ai/lib/*": "./convex/ai/lib/*",
+        "./package.json": "./package.json"
+    },
+    "scripts": {
+        "dev": "convex dev --local --typecheck=disable",
+        "lint": "eslint . --ext .ts,.tsx",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "react": "19.1.0",
+        "react-dom": "19.1.0",
+        "ai": "^4.3.17",
+        "@ai-sdk/anthropic": "^1.2.12",
+        "@ai-sdk/google": "^1.2.22",
+        "@ai-sdk/openai": "^1.3.23",
+        "@ai-sdk/provider": "^1.1.3",
+        "@ai-sdk/react": "^1.2.12",
+        "@ai-sdk/ui-utils": "^1.2.11",
+        "@convex-dev/action-cache": "^0.2.10",
+        "@convex-dev/agent": "0.1.14-alpha.4",
+        "@convex-dev/better-auth": "^0.7.0",
+        "@convex-dev/migrations": "^0.2.9",
+        "@convex-dev/rate-limiter": "^0.2.10",
+        "@convex-dev/resend": "0.1.2",
+        "@convex-dev/workflow": "^0.2.5",
+        "@react-email/render": "^1.1.3",
+        "@react-email/components": "0.2.0",
+        "better-auth": "1.2.12",
+        "convex": "^1.6.0",
+        "convex-helpers": "^0.1.99",
+        "hono": "^4.0.0",
+        "resend": "^4.6.0",
+        "zod": "3.25.76"
+    },
+    "devDependencies": {
+        "@types/react": "^19.1.8",
+        "@types/react-dom": "^19.1.6",
+        "typescript": "^5.4.0"
+    }
+}

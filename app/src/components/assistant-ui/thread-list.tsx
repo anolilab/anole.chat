@@ -42,12 +42,12 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { api } from "@convex/_generated/api";
+import { api } from "@anole/convex/api";
 import { ShortcutsProvider, KeyCombo, KeySymbol, Keys } from "@/components/ui/keyboard-shortcuts";
 import { Input } from "@/components/ui/input";
 import { useThreadContext } from "@/features/chat/components/thread-context";
 import { handleDownload, type DownloadFormat } from "@/lib/download";
-import type { Doc } from "@convex/_generated/dataModel";
+import type { Doc } from "@anole/convex/dataModel";
 import { ValidationError } from "@/lib/errors";
 import { useLingui } from "@lingui/react/macro";
 
@@ -104,9 +104,9 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchThreads,
         searchType === "threads"
             ? {
-                  searchQuery: searchQuery.trim(),
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
+                searchQuery: searchQuery.trim(),
+                paginationOpts: { numItems: 100, cursor: null },
+            }
             : "skip",
     );
 
@@ -115,9 +115,9 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchMessages,
         searchType === "messages"
             ? {
-                  searchQuery: searchQuery.trim(),
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
+                searchQuery: searchQuery.trim(),
+                paginationOpts: { numItems: 100, cursor: null },
+            }
             : "skip",
     );
 
@@ -149,7 +149,7 @@ export const ThreadList: FC = () => {
     };
 
     return (
-        <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5 text-white">
+        <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5 text-white pl-2">
             <div className="flex w-full items-center gap-2">
                 <ThreadListNew />
                 <TooltipProvider>
@@ -951,12 +951,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 group.title === "Pinned"
                     ? "pinned"
                     : group.title === "Last 7 days"
-                      ? "last7days"
-                      : group.title === "Last month"
-                        ? "lastMonth"
-                        : group.title === "Archived"
-                          ? "archived"
-                          : "older";
+                        ? "last7days"
+                        : group.title === "Last month"
+                            ? "lastMonth"
+                            : group.title === "Archived"
+                                ? "archived"
+                                : "older";
 
             // Add group header
             items.push({ type: "group", group, groupType });
@@ -1381,12 +1381,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                         group.title === "Pinned"
                                             ? "pinned"
                                             : group.title === "Last 7 days"
-                                              ? "last7days"
-                                              : group.title === "Last month"
-                                                ? "lastMonth"
-                                                : group.title === "Archived"
-                                                  ? "archived"
-                                                  : "older";
+                                                ? "last7days"
+                                                : group.title === "Last month"
+                                                    ? "lastMonth"
+                                                    : group.title === "Archived"
+                                                        ? "archived"
+                                                        : "older";
                                     toggleGroupCollapsed(groupType);
                                 }}
                             >

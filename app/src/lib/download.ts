@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import type { Doc } from "@convex/_generated/dataModel";
+import type { Doc } from "@anole/convex/dataModel";
 
 type Message = Doc<"messages"> | Doc<"toolMessages">;
 type Chat = Doc<"threads">;

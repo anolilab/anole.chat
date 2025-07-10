@@ -1,6 +1,7 @@
 import { type LucideIcon } from "lucide-react";
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 
 const colorModeClasses = {
     light: {
@@ -29,20 +30,20 @@ export type NavItem = {
 
 export type ColorMode = "light" | "dark";
 
-export function NavItems({ items, label, colorMode = "light" }: { items: NavItem[]; label: string; colorMode?: ColorMode }) {
+export function NavItems({ items, label, colorMode = "light", classes: classNames }: { items: NavItem[]; label: string; colorMode?: ColorMode, classes?: { group?: string, label?: string, button?: string, buttonActive?: string, icon?: string, iconActive?: string } }) {
     const classes = colorModeClasses[colorMode];
 
     return (
-        <SidebarGroup className={classes.group}>
-            <SidebarGroupLabel className={classes.label}>{label}</SidebarGroupLabel>
+        <SidebarGroup className={cn(classes.group, classNames?.group)}>
+            <SidebarGroupLabel className={cn(classes.label, classNames?.label)}>{label}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
                     <SidebarMenuItem key={item.name}>
-                        <SidebarMenuButton asChild className={classes.button}>
+                        <SidebarMenuButton asChild className={cn(classes.button, classNames?.button)}>
                             <Link
                                 to={item.url}
                                 activeProps={{
-                                    className: classes.buttonActive,
+                                    className: cn(classes.buttonActive, classNames?.buttonActive),
                                 }}
                                 activeOptions={{
                                     // Match exact path for main routes, and include sub-paths for settings
@@ -51,7 +52,7 @@ export function NavItems({ items, label, colorMode = "light" }: { items: NavItem
                             >
                                 {({ isActive }) => (
                                     <>
-                                        <item.icon className={isActive ? classes.iconActive : classes.icon} />
+                                        <item.icon className={cn(isActive ? classes.iconActive : classes.icon, classNames?.icon)} />
                                         <span>{item.name}</span>
                                     </>
                                 )}

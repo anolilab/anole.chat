@@ -23,7 +23,7 @@ function RouteComponent() {
                     <SidebarProvider
                         style={
                             {
-                                "--sidebar-width": "calc(var(--spacing) * 72)",
+                                "--sidebar-width": "calc(var(--spacing) * 94)",
                                 "--header-height": "calc(var(--spacing) * 8.5)",
                             } as React.CSSProperties
                         }

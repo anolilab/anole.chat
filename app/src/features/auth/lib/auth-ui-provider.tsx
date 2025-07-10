@@ -10,7 +10,6 @@ import type { AuthClient } from "@/lib/auth/client";
 import type { AdditionalFields } from "../types/form-validation-types";
 import type { AuthHooks, AuthMutators } from "../types/hook-integration-types";
 import type { AvatarOptions, CaptchaOptions } from "../types/ui-configuration-types";
-import type { Link } from "../types/data-structure-types";
 import type { RenderToast } from "../types/hook-integration-types";
 import type {
     CredentialsOptions,
@@ -44,17 +43,17 @@ export type AuthUIContextType = {
      * API Key plugin configuration
      */
     apiKey?:
-        | {
-              /**
-               * Prefix for API Keys
-               */
-              prefix?: string;
-              /**
-               * Metadata for API Keys
-               */
-              metadata?: Record<string, unknown>;
-          }
-        | boolean;
+    | {
+        /**
+         * Prefix for API Keys
+         */
+        prefix?: string;
+        /**
+         * Metadata for API Keys
+         */
+        metadata?: Record<string, unknown>;
+    }
+    | boolean;
     /**
      * Avatar configuration
      * @default undefined
@@ -177,10 +176,6 @@ export type AuthUIContextType = {
      * Replace the current URL
      */
     replace: (href: string) => void;
-    /**
-     * Custom Link component for navigation
-     */
-    Link: Link;
 };
 
 export type AuthUIProviderProps = {
@@ -506,11 +501,6 @@ export const AuthUIProvider = ({
                 replace: (href: string) => {
                     window.location.replace(href);
                 },
-                Link: ({ href, children, ...linkProps }) => (
-                    <a href={href} {...linkProps}>
-                        {children}
-                    </a>
-                ),
                 ...props,
             }}
         >

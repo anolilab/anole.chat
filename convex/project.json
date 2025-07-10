@@ -1,7 +1,7 @@
 {
-    "name": "chat",
+    "name": "convex",
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "chat",
+    "sourceRoot": "convex",
     "projectType": "app",
     "tags": [
         "chat"

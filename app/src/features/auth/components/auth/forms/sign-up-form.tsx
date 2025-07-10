@@ -25,6 +25,7 @@ import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { AuthFormClassNames } from "../auth-form";
+import { Link } from "@tanstack/react-router";
 
 export interface SignUpFormProps {
     className?: string;
@@ -144,8 +145,8 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
     if (signUpFields?.includes("name")) {
         schemaFields.name = nameRequired
             ? z.string().min(1, {
-                  message: t`Name is required`,
-              })
+                message: t`Name is required`,
+            })
             : z.string().optional();
     }
 
@@ -176,37 +177,37 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
             if (additionalField.type === "number") {
                 fieldSchema = additionalField.required
                     ? z.preprocess(
-                          (val) => (!val ? undefined : Number(val)),
-                          z.number({
-                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          }),
-                      )
+                        (val) => (!val ? undefined : Number(val)),
+                        z.number({
+                            required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        }),
+                    )
                     : z.coerce
-                          .number({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .optional();
+                        .number({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        })
+                        .optional();
             } else if (additionalField.type === "boolean") {
                 fieldSchema = additionalField.required
                     ? z.coerce
-                          .boolean({
-                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .refine((val) => val === true, {
-                              message: `${String(additionalField.label || "")} ${t`is required`}`,
-                          })
+                        .boolean({
+                            required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        })
+                        .refine((val) => val === true, {
+                            message: `${String(additionalField.label || "")} ${t`is required`}`,
+                        })
                     : z.coerce
-                          .boolean({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .optional();
+                        .boolean({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        })
+                        .optional();
             } else {
                 fieldSchema = additionalField.required
                     ? z.string().min(1, {
-                          message: `${String(additionalField.label || "")} ${t`is required`}`,
-                      })
+                        message: `${String(additionalField.label || "")} ${t`is required`}`,
+                    })
                     : z.string().optional();
             }
 
