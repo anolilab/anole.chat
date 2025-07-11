@@ -1,9 +1,10 @@
 import { defineTable } from "convex/server";
-import { v, Infer } from "convex/values";
+import type { Infer } from "convex/values";
+import { v } from "convex/values";
 
 export const CURRENCIES = {
-    USD: "usd",
     EUR: "eur",
+    USD: "usd",
 } as const;
 export const currencyValidator = v.union(v.literal(CURRENCIES.USD), v.literal(CURRENCIES.EUR));
 export type Currency = Infer<typeof currencyValidator>;
@@ -24,28 +25,28 @@ export type PlanKey = Infer<typeof planKeyValidator>;
 
 export const subscriptionTables = {
     subscription: defineTable({
-        id: v.string(),
-        createdAt: v.number(),
-        modifiedAt: v.optional(v.number()),
         amount: v.number(),
-        currency: currencyValidator,
-        recurringInterval: intervalValidator,
-        status: v.string(),
-        currentPeriodStart: v.number(),
-        currentPeriodEnd: v.number(),
         cancelAtPeriodEnd: v.boolean(),
         canceledAt: v.optional(v.number()),
-        startedAt: v.number(),
-        endsAt: v.optional(v.number()),
-        endedAt: v.optional(v.number()),
-        customerId: v.string(),
-        productId: v.string(),
-        discountId: v.optional(v.string()),
         checkoutId: v.string(),
-        customerCancellationReason: v.optional(v.string()),
+        createdAt: v.number(),
+        currency: currencyValidator,
+        currentPeriodEnd: v.number(),
+        currentPeriodStart: v.number(),
         customerCancellationComment: v.optional(v.string()),
-        metadata: v.optional(v.string()), // JSON string
+        customerCancellationReason: v.optional(v.string()),
+        customerId: v.string(),
         customFieldData: v.optional(v.string()), // JSON string
+        discountId: v.optional(v.string()),
+        endedAt: v.optional(v.number()),
+        endsAt: v.optional(v.number()),
+        id: v.string(),
+        metadata: v.optional(v.string()), // JSON string
+        modifiedAt: v.optional(v.number()),
+        productId: v.string(),
+        recurringInterval: intervalValidator,
+        startedAt: v.number(),
+        status: v.string(),
         userId: v.id("user"),
     })
         .index("by_userId", ["userId"])

@@ -1,15 +1,21 @@
 // polyfill MessageChannel without using node:events
 if (typeof MessageChannel === "undefined") {
     class MockMessagePort {
-        onmessage: ((ev: MessageEvent) => void) | undefined;
-        onmessageerror: ((ev: MessageEvent) => void) | undefined;
+        onmessage: ((event_: MessageEvent) => void) | undefined;
+
+        onmessageerror: ((event_: MessageEvent) => void) | undefined;
 
         close() {}
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         postMessage(_message: unknown, _transfer: Transferable[] = []) {}
+
         start() {}
+
         addEventListener() {}
+
         removeEventListener() {}
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         dispatchEvent(_event: Event): boolean {
             return false;
@@ -18,6 +24,7 @@ if (typeof MessageChannel === "undefined") {
 
     class MockMessageChannel {
         port1: MockMessagePort;
+
         port2: MockMessagePort;
 
         constructor() {

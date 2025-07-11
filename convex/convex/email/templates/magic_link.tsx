@@ -1,25 +1,26 @@
 import { Heading, Link, Text } from "@react-email/components";
+
 import { BaseEmail, styles } from "./components/base_email";
 
-interface MagicLinkEmailProps {
-    url: string;
+interface MagicLinkEmailProperties {
+    brandLogoUrl?: string;
     brandName?: string;
     brandTagline?: string;
-    brandLogoUrl?: string;
+    url: string;
 }
 
-export default function MagicLinkEmail({ url, brandName, brandTagline, brandLogoUrl }: MagicLinkEmailProps) {
+export default function MagicLinkEmail({ brandLogoUrl, brandName, brandTagline, url }: MagicLinkEmailProperties) {
     return (
-        <BaseEmail previewText="Sign in with this magic link" brandName={brandName} brandTagline={brandTagline} brandLogoUrl={brandLogoUrl}>
+        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Sign in with this magic link">
             <Heading style={styles.h1}>Sign in</Heading>
             <Link
                 href={url}
-                target="_blank"
                 style={{
                     ...styles.link,
                     display: "block",
                     marginBottom: "16px",
                 }}
+                target="_blank"
             >
                 Click here to sign in with this magic link
             </Link>
@@ -27,8 +28,8 @@ export default function MagicLinkEmail({ url, brandName, brandTagline, brandLogo
                 style={{
                     ...styles.text,
                     color: "#ababab",
-                    marginTop: "14px",
                     marginBottom: "16px",
+                    marginTop: "14px",
                 }}
             >
                 If you didn&apos;t try to sign in, you can safely ignore this email.

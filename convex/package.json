@@ -32,14 +32,13 @@
         "./package.json": "./package.json"
     },
     "scripts": {
-        "dev": "convex dev --local --typecheck=disable",
         "lint": "eslint . --ext .ts,.tsx",
-        "typecheck": "tsc --noEmit"
+        "dev": "convex dev --local --typecheck=disable",
+        "lint:eslint": "eslint . --cache --cache-location .eslint.cache.json",
+        "lint:eslint:fix": "eslint . --fix --cache --cache-location .eslint.cache.json",
+        "lint:types": "tsc --noEmit"
     },
     "dependencies": {
-        "react": "19.1.0",
-        "react-dom": "19.1.0",
-        "ai": "^4.3.17",
         "@ai-sdk/anthropic": "^1.2.12",
         "@ai-sdk/google": "^1.2.22",
         "@ai-sdk/openai": "^1.3.23",
@@ -53,18 +52,33 @@
         "@convex-dev/rate-limiter": "^0.2.10",
         "@convex-dev/resend": "0.1.3",
         "@convex-dev/workflow": "^0.2.5",
-        "@react-email/render": "^1.1.3",
         "@react-email/components": "0.3.1",
+        "@react-email/render": "^1.1.3",
+        "ai": "^4.3.17",
         "better-auth": "1.2.12",
         "convex": "^1.25.2",
         "convex-helpers": "^0.1.99",
         "hono": "^4.8.4",
+        "react": "19.1.0",
+        "react-dom": "19.1.0",
         "resend": "^4.6.0",
         "zod": "4.0.5"
     },
     "devDependencies": {
+        "@anolilab/eslint-config": "16.2.19",
+        "@eslint-react/eslint-plugin": "^1.52.2",
         "@types/react": "^19.1.8",
         "@types/react-dom": "^19.1.6",
+        "eslint": "9.31.0",
+        "eslint-plugin-jsx-a11y": "^6.10.2",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-compiler": "19.1.0-rc.2",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "eslint-plugin-react-perf": "^3.3.3",
+        "eslint-plugin-react-refresh": "^0.4.20",
+        "eslint-plugin-react-you-might-not-need-an-effect": "^0.4.1",
+        "eslint-plugin-validate-jsx-nesting": "^0.1.1",
+        "eslint-plugin-zod": "^1.4.0",
         "typescript": "^5.8.3"
     }
 }

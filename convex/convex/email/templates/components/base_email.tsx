@@ -1,24 +1,40 @@
-import { Body, Container, Head, Html, Link, Text, Img, Preview } from "@react-email/components";
-import { Fragment, type ReactNode } from "react";
+import { Body, Container, Head, Html, Img, Link, Preview, Text } from "@react-email/components";
+import type { ReactNode } from "react";
+import { Fragment } from "react";
 
-export interface BaseEmailProps {
-    children: ReactNode;
-    previewText: string;
-    footerLinks?: Array<{ text: string; href: string }>;
-    footerText?: string;
+export interface BaseEmailProperties {
+    brandLogoUrl?: string;
     brandName?: string;
     brandTagline?: string;
-    brandLogoUrl?: string;
+    children: ReactNode;
+    footerLinks?: { href: string; text: string }[];
+    footerText?: string;
+    previewText: string;
 }
 
 export const styles = {
-    main: {
-        backgroundColor: "#ffffff",
+    code: {
+        backgroundColor: "#f4f4f4",
+        border: "1px solid #eee",
+        borderRadius: "5px",
+        color: "#333",
+        display: "inline-block",
+        padding: "16px 4.5%",
+        width: "90.5%",
     },
     container: {
+        margin: "0 auto",
         paddingLeft: "12px",
         paddingRight: "12px",
-        margin: "0 auto",
+    },
+    footer: {
+        color: "#898989",
+        fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+        fontSize: "12px",
+        lineHeight: "22px",
+        marginBottom: "24px",
+        marginTop: "12px",
     },
     h1: {
         color: "#333",
@@ -36,6 +52,9 @@ export const styles = {
         fontSize: "14px",
         textDecoration: "underline",
     },
+    main: {
+        backgroundColor: "#ffffff",
+    },
     text: {
         color: "#333",
         fontFamily:
@@ -43,63 +62,45 @@ export const styles = {
         fontSize: "14px",
         margin: "24px 0",
     },
-    footer: {
-        color: "#898989",
-        fontFamily:
-            "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-        fontSize: "12px",
-        lineHeight: "22px",
-        marginTop: "12px",
-        marginBottom: "24px",
-    },
-    code: {
-        display: "inline-block",
-        padding: "16px 4.5%",
-        width: "90.5%",
-        backgroundColor: "#f4f4f4",
-        borderRadius: "5px",
-        border: "1px solid #eee",
-        color: "#333",
-    },
 };
 
-export function BaseEmail({
-    children,
-    previewText,
-    footerLinks = [],
-    footerText,
+export const BaseEmail = ({
+    brandLogoUrl,
     brandName = "Better Auth",
     brandTagline = "Simple, secure authentication for your applications",
-    brandLogoUrl,
-}: BaseEmailProps) {
-    return (
-        <Html>
-            <Head />
-            <Body style={styles.main}>
-                <Preview>{previewText}</Preview>
-                <Container style={styles.container}>
-                    {children}
+    children,
+    footerLinks = [],
+    footerText,
+    previewText,
+}: BaseEmailProperties) => (
+    <Html>
+        <Head />
+        <Body style={styles.main}>
+            <Preview>{previewText}</Preview>
+            <Container style={styles.container}>
+                {children}
 
-                    {brandLogoUrl && <Img src={brandLogoUrl} width="32" height="32" alt={`${brandName} Logo`} />}
+                {brandLogoUrl && <Img alt={`${brandName} Logo`} height="32" src={brandLogoUrl} width="32" />}
 
-                    <Text style={styles.footer}>
-                        {footerLinks.map((link, i) => (
-                            <Fragment key={link.href}>
-                                <Link href={link.href} target="_blank" style={{ ...styles.link, color: "#898989" }}>
-                                    {link.text}
-                                </Link>
-                                {i < footerLinks.length - 1 && " • "}
-                            </Fragment>
-                        ))}
-                        {footerLinks.length > 0 && <br />}
-                        {footerText || (
-                            <>
-                                {brandName}, {brandTagline.toLowerCase()}
-                            </>
-                        )}
-                    </Text>
-                </Container>
-            </Body>
-        </Html>
-    );
-}
+                <Text style={styles.footer}>
+                    {footerLinks.map((link, index) => (
+                        <Fragment key={link.href}>
+                            <Link href={link.href} style={{ ...styles.link, color: "#898989" }} target="_blank">
+                                {link.text}
+                            </Link>
+                            {index < footerLinks.length - 1 && " • "}
+                        </Fragment>
+                    ))}
+                    {footerLinks.length > 0 && <br />}
+                    {footerText || (
+                        <>
+                            {brandName}
+                            ,
+                            {brandTagline.toLowerCase()}
+                        </>
+                    )}
+                </Text>
+            </Container>
+        </Body>
+    </Html>
+);

@@ -1,16 +1,17 @@
 import { Heading, Text } from "@react-email/components";
+
 import { BaseEmail, styles } from "./components/base_email";
 
-interface VerifyOTPProps {
-    code: string;
+interface VerifyOTPProperties {
+    brandLogoUrl?: string;
     brandName?: string;
     brandTagline?: string;
-    brandLogoUrl?: string;
+    code: string;
 }
 
-export default function VerifyOTP({ code, brandName, brandTagline, brandLogoUrl }: VerifyOTPProps) {
+export default function VerifyOTP({ brandLogoUrl, brandName, brandTagline, code }: VerifyOTPProperties) {
     return (
-        <BaseEmail previewText="Your verification code" brandName={brandName} brandTagline={brandTagline} brandLogoUrl={brandLogoUrl}>
+        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Your verification code">
             <Heading style={styles.h1}>Verify your email</Heading>
             <Text style={styles.text}>Enter this verification code to verify your email address:</Text>
             <code style={styles.code}>{code}</code>
@@ -18,8 +19,8 @@ export default function VerifyOTP({ code, brandName, brandTagline, brandLogoUrl 
                 style={{
                     ...styles.text,
                     color: "#ababab",
-                    marginTop: "14px",
                     marginBottom: "16px",
+                    marginTop: "14px",
                 }}
             >
                 If you didn&apos;t create an account, you can safely ignore this email.

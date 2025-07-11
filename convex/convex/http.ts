@@ -1,15 +1,17 @@
+import type { HonoWithConvex } from "convex-helpers/server/hono";
+import { HttpRouterWithHono } from "convex-helpers/server/hono";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { HonoWithConvex, HttpRouterWithHono } from "convex-helpers/server/hono";
-import { streamHttpAction, improvePromptHttpAction } from "./chat/functions";
-import { createAuth } from "./auth";
 import { requestId } from "hono/request-id";
+
+import type { ActionCtx as ActionContext } from "./_generated/server";
+import { createAuth } from "./auth";
+import { improvePromptHttpAction, streamHttpAction } from "./chat/functions";
 import { resend } from "./email/functions";
-import type { ActionCtx } from "./_generated/server";
 import { CONVEX_SITE_URL } from "./env";
 
-const app: HonoWithConvex<ActionCtx> = new Hono();
+const app: HonoWithConvex<ActionContext> = new Hono();
 
 // Add logging middleware for better debugging
 app.use(
@@ -22,12 +24,12 @@ app.use("*", requestId());
 app.use(
     "*",
     cors({
-        origin: "*",
-        credentials: true,
         allowHeaders: ["Authorization", "Content-Type", "Better-Auth-Cookie"],
         allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
+        credentials: true,
         exposeHeaders: ["Content-Length", "Set-Better-Auth-Cookie"],
         maxAge: 600,
+        origin: "*",
     }),
 );
 
@@ -45,6 +47,7 @@ const authPath = "/api/auth";
 app.get("/.well-known/openid-configuration", async (c) => {
     // Since we're in an HTTP action context, we can access environment variables
     const url = `${CONVEX_SITE_URL}/api/auth/convex/.well-known/openid-configuration`;
+
     return Response.redirect(url);
 });
 
@@ -55,43 +58,34 @@ app.get(`${authPath}/*`, authRequestHandler);
 app.post(`${authPath}/*`, authRequestHandler);
 
 // Chat streaming endpoint
-app.post("/chat/stream", async (c) => {
-    return streamHttpAction(c.env, c.req.raw);
-});
+app.post("/chat/stream", async (c) => streamHttpAction(c.env, c.req.raw));
 
 // Prompt improvement endpoint
-app.post("/chat/improve-prompt", async (c) => {
-    return improvePromptHttpAction(c.env, c.req.raw);
-});
+app.post("/chat/improve-prompt", async (c) => improvePromptHttpAction(c.env, c.req.raw));
 
 // Email webhook endpoint
-app.post("/email/resend/webhook", async (c) => {
-    return await resend.handleResendEventWebhook(c.env, c.req.raw);
-});
+app.post("/email/resend/webhook", async (c) => await resend.handleResendEventWebhook(c.env, c.req.raw));
 
 // Example API endpoint demonstrating Hono's health check
-app.get("/api/health", async (c) => {
-    return c.json({
-        status: "ok",
-        timestamp: new Date().toISOString(),
-        environment: "production",
-    });
-});
+app.get("/api/health", async (c) => c.json({
+    environment: "production",
+    status: "ok",
+    timestamp: new Date().toISOString(),
+}));
 
-app.notFound((c) => {
-    return c.json(
-        {
-            error: "Endpoint not found",
-            path: c.req.path,
-            method: c.req.method,
-        },
-        404,
-    );
-});
+app.notFound((c) => c.json(
+    {
+        error: "Endpoint not found",
+        method: c.req.method,
+        path: c.req.path,
+    },
+    404,
+));
 
 // Error handling
 app.onError((error, c) => {
     console.error("HTTP Error:", error);
+
     return c.json(
         {
             error: "Internal server error",

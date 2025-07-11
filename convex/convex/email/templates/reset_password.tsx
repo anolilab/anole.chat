@@ -1,25 +1,26 @@
 import { Heading, Link, Text } from "@react-email/components";
+
 import { BaseEmail, styles } from "./components/base_email";
 
-interface ResetPasswordEmailProps {
-    url: string;
+interface ResetPasswordEmailProperties {
+    brandLogoUrl?: string;
     brandName?: string;
     brandTagline?: string;
-    brandLogoUrl?: string;
+    url: string;
 }
 
-export default function ResetPasswordEmail({ url, brandName, brandTagline, brandLogoUrl }: ResetPasswordEmailProps) {
+export default function ResetPasswordEmail({ brandLogoUrl, brandName, brandTagline, url }: ResetPasswordEmailProperties) {
     return (
-        <BaseEmail previewText="Reset your password" brandName={brandName} brandTagline={brandTagline} brandLogoUrl={brandLogoUrl}>
+        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Reset your password">
             <Heading style={styles.h1}>Reset Your Password</Heading>
             <Link
                 href={url}
-                target="_blank"
                 style={{
                     ...styles.link,
                     display: "block",
                     marginBottom: "16px",
                 }}
+                target="_blank"
             >
                 Click here to reset your password
             </Link>
@@ -27,8 +28,8 @@ export default function ResetPasswordEmail({ url, brandName, brandTagline, brand
                 style={{
                     ...styles.text,
                     color: "#ababab",
-                    marginTop: "14px",
                     marginBottom: "16px",
+                    marginTop: "14px",
                 }}
             >
                 If you didn&apos;t request a password reset, you can safely ignore this email.

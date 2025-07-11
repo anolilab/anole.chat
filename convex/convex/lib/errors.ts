@@ -1,9 +1,9 @@
 import { ConvexError } from "convex/values";
 
 type ErrorContext = {
-    message: string;
-    error?: unknown;
     [key: string]: any;
+    error?: unknown;
+    message: string;
 };
 
 export const ERRORS = {
@@ -13,29 +13,29 @@ export const ERRORS = {
 
 export class BaseError extends ConvexError<{
     code: number;
-    message: string;
     data: any;
+    message: string;
 }> {
-    constructor({ code, message, data }: { code: number; message: string; data?: any }) {
-        super({ code, message, data });
+    constructor({ code, data, message }: { code: number; data?: any; message: string }) {
+        super({ code, data, message });
     }
 }
 
 export class UnauthorizedError extends BaseError {
-    constructor({ message = "Unauthorized", data }: { message?: string; data?: any }) {
-        super({ code: 401, message, data });
+    constructor({ data, message = "Unauthorized" }: { data?: any; message?: string }) {
+        super({ code: 401, data, message });
     }
 }
 
 export class NotFoundError extends BaseError {
-    constructor({ message = "Not Found", data }: { message?: string; data?: any }) {
-        super({ code: 404, message, data });
+    constructor({ data, message = "Not Found" }: { data?: any; message?: string }) {
+        super({ code: 404, data, message });
     }
 }
 
 export class ServerError extends BaseError {
-    constructor({ message = "Server Error", data }: { message?: string; data?: any }) {
-        super({ code: 500, message, data });
+    constructor({ data, message = "Server Error" }: { data?: any; message?: string }) {
+        super({ code: 500, data, message });
     }
 }
 
@@ -175,7 +175,7 @@ export function aiAgentPersonaNotFound(context: ErrorContext) {
     } as const satisfies BackendErrorSchema;
 }
 
-export function rateLimitExceeded(context: ErrorContext & { retryAfter: number; name: string }) {
+export function rateLimitExceeded(context: ErrorContext & { name: string; retryAfter: number }) {
     return {
         _tag: "RateLimitExceeded",
         context,

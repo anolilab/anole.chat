@@ -5,6 +5,8 @@ export default createConfig({
     // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
     ignores: [
         "./eslint.config.js",
+        "./STRUCTURE.md",
+        "./convex/_generated/**",
         "./.eslint.cache.json"
         // ...globs
     ],
@@ -16,14 +18,4 @@ export default createConfig({
             "*.md"
         ],
     },
-}, {
-    files: [
-        "**/src/routes/**/*.tsx",
-        "**/src/routes/api/**/*.ts",
-    ],
-    rules: {
-        "import/exports-last": "off",
-        "import/prefer-default-export": "off",
-        "@typescript-eslint/no-use-before-define": "off",
-    }
 });

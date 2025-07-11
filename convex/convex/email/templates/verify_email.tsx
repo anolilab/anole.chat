@@ -1,25 +1,26 @@
 import { Heading, Link, Text } from "@react-email/components";
+
 import { BaseEmail, styles } from "./components/base_email";
 
-interface VerifyEmailProps {
-    url: string;
+interface VerifyEmailProperties {
+    brandLogoUrl?: string;
     brandName?: string;
     brandTagline?: string;
-    brandLogoUrl?: string;
+    url: string;
 }
 
-export default function VerifyEmail({ url, brandName, brandTagline, brandLogoUrl }: VerifyEmailProps) {
+export default function VerifyEmail({ brandLogoUrl, brandName, brandTagline, url }: VerifyEmailProperties) {
     return (
-        <BaseEmail previewText="Verify your email address" brandName={brandName} brandTagline={brandTagline} brandLogoUrl={brandLogoUrl}>
+        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Verify your email address">
             <Heading style={styles.h1}>Verify your email</Heading>
             <Link
                 href={url}
-                target="_blank"
                 style={{
                     ...styles.link,
                     display: "block",
                     marginBottom: "16px",
                 }}
+                target="_blank"
             >
                 Click here to verify your email address
             </Link>
@@ -27,8 +28,8 @@ export default function VerifyEmail({ url, brandName, brandTagline, brandLogoUrl
                 style={{
                     ...styles.text,
                     color: "#ababab",
-                    marginTop: "14px",
                     marginBottom: "16px",
+                    marginTop: "14px",
                 }}
             >
                 If you didn&apos;t create an account, you can safely ignore this email.

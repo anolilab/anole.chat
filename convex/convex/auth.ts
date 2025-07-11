@@ -1,12 +1,13 @@
-import { AuthFunctions, BetterAuth, convexAdapter, PublicAuthFunctions } from "@convex-dev/better-auth";
+import type { AuthFunctions, PublicAuthFunctions } from "@convex-dev/better-auth";
+import { BetterAuth, convexAdapter } from "@convex-dev/better-auth";
 import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
-import { api, components, internal } from "./_generated/api";
-import { sendMagicLink, sendOTPVerification } from "./email/functions";
-import { sendEmailVerification, sendResetPassword } from "./email/functions";
-import { magicLink, emailOTP, twoFactor, organization } from "better-auth/plugins";
 import { betterAuth } from "better-auth";
-import { GenericCtx } from "./_generated/server";
-import { DataModel, Id } from "./_generated/dataModel";
+import { emailOTP, magicLink, organization, twoFactor } from "better-auth/plugins";
+
+import { api, components, internal } from "./_generated/api";
+import type { DataModel, Id } from "./_generated/dataModel";
+import type { GenericCtx as GenericContext } from "./_generated/server";
+import { sendEmailVerification, sendMagicLink, sendOTPVerification, sendResetPassword } from "./email/functions";
 import { SITE_URL } from "./env";
 
 const authFunctions: AuthFunctions = internal.auth;
@@ -18,39 +19,67 @@ export const betterAuthComponent = new BetterAuth(components.betterAuth, {
     verbose: false,
 });
 
-export const createAuth = (ctx: GenericCtx) =>
+export const createAuth = (context: GenericContext) =>
     betterAuth({
-        advanced: {
-            cookiePrefix: "anole",
-        },
-        // All auth requests will be proxied through your TanStack Start server
-        baseURL: SITE_URL,
-        database: convexAdapter(ctx, betterAuthComponent),
         account: {
             accountLinking: {
                 enabled: true,
             },
         },
-        emailVerification: {
-            sendVerificationEmail: async ({ user, url }) => {
-                await sendEmailVerification({
-                    ctx,
-                    to: user.email,
-                    url,
-                });
-            },
+        advanced: {
+            cookiePrefix: "anole",
         },
+        // All auth requests will be proxied through your TanStack Start server
+        baseURL: SITE_URL,
+        database: convexAdapter(context, betterAuthComponent),
         emailAndPassword: {
             enabled: true,
             requireEmailVerification: false,
-            sendResetPassword: async ({ user, url }) => {
+            sendResetPassword: async ({ url, user }) => {
                 await sendResetPassword({
-                    ctx,
+                    ctx: context,
                     to: user.email,
                     url,
                 });
             },
         },
+        emailVerification: {
+            sendVerificationEmail: async ({ url, user }) => {
+                await sendEmailVerification({
+                    ctx: context,
+                    to: user.email,
+                    url,
+                });
+            },
+        },
+        plugins: [
+            // organization(),
+            magicLink({
+                sendMagicLink: async ({ email, url }) => {
+                    await sendMagicLink({
+                        ctx: context,
+                        to: email,
+                        url,
+                    });
+                },
+            }),
+            emailOTP({
+                async sendVerificationOTP({ email, otp }) {
+                    await sendOTPVerification({
+                        code: otp,
+                        ctx: context,
+                        to: email,
+                    });
+                },
+            }),
+            twoFactor(),
+            convex(),
+            /*
+            crossDomain({
+                siteUrl: SITE_URL,
+            }),
+            */
+        ],
         /*
         socialProviders: {
             github: {
@@ -68,41 +97,13 @@ export const createAuth = (ctx: GenericCtx) =>
                 enabled: true,
             },
         },
-        plugins: [
-            //organization(),
-            magicLink({
-                sendMagicLink: async ({ email, url }) => {
-                    await sendMagicLink({
-                        ctx,
-                        to: email,
-                        url,
-                    });
-                },
-            }),
-            emailOTP({
-                async sendVerificationOTP({ email, otp }) {
-                    await sendOTPVerification({
-                        ctx,
-                        to: email,
-                        code: otp,
-                    });
-                },
-            }),
-            twoFactor(),
-            convex(),
-            /*
-            crossDomain({
-                siteUrl: SITE_URL,
-            }),
-            */
-        ],
     });
 
-export const { createUser, deleteUser, updateUser, createSession, isAuthenticated } = betterAuthComponent.createAuthFunctions<DataModel>({
-    onCreateUser: async (ctx, user) => {
+export const { createSession, createUser, deleteUser, isAuthenticated, updateUser } = betterAuthComponent.createAuthFunctions<DataModel>({
+    onCreateUser: async (context, user) => {
         // Example: copy the user's email to the application users table.
         // We'll use onUpdateUser to keep it synced.
-        const userId = await ctx.db.insert("user", {
+        const userId = await context.db.insert("user", {
             email: user.email,
             role: "user",
         });
@@ -110,13 +111,14 @@ export const { createUser, deleteUser, updateUser, createSession, isAuthenticate
         // This function must return the user id.
         return userId;
     },
-    onDeleteUser: async (ctx, userId) => {
-        await ctx.db.delete(userId as Id<"user">);
+    onDeleteUser: async (context, userId) => {
+        await context.db.delete(userId as Id<"user">);
     },
-    onUpdateUser: async (ctx, user) => {
+    onUpdateUser: async (context, user) => {
         // Keep the user's email synced
         const userId = user.userId as Id<"user">;
-        await ctx.db.patch(userId, {
+
+        await context.db.patch(userId, {
             email: user.email,
         });
     },

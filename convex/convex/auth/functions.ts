@@ -1,13 +1,16 @@
 import { v } from "convex/values";
-import { action, mutation, query, internalMutation, QueryCtx } from "../_generated/server";
-import type { Id } from "../_generated/dataModel";
-import { ROLES, type Role } from "../lib/types";
-import { requireUserId } from "../auth/lib/helper";
 import { customAction, customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions";
-import { betterAuthComponent } from "../auth";
 
-const getCurrentUserInternal = async (ctx: QueryCtx) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+import type { Id } from "../_generated/dataModel";
+import type { QueryCtx as QueryContext } from "../_generated/server";
+import { action, internalMutation, mutation, query } from "../_generated/server";
+import { betterAuthComponent } from "../auth";
+import { requireUserId } from "../auth/lib/helper";
+import type { Role } from "../lib/types";
+import { ROLES } from "../lib/types";
+
+const getCurrentUserInternal = async (context: QueryContext) => {
+    const userMetadata = await betterAuthComponent.getAuthUser(context);
 
     if (!userMetadata) {
         return null;
@@ -15,7 +18,7 @@ const getCurrentUserInternal = async (ctx: QueryCtx) => {
 
     // Get user data from your application's database (skip this if you have no
     // fields in your users table schema)
-    const user = await ctx.db.get(userMetadata.userId as Id<"user">);
+    const user = await context.db.get(userMetadata.userId as Id<"user">);
 
     return {
         ...user,
@@ -25,84 +28,83 @@ const getCurrentUserInternal = async (ctx: QueryCtx) => {
 
 export const getCurrentUser = query({
     args: {},
-    handler: async (ctx) => {
-        return getCurrentUserInternal(ctx);
-    },
+    handler: async (context) => getCurrentUserInternal(context),
 });
 
 export const authedQuery = customQuery(query, {
     args: {},
-    input: async (ctx, args) => {
-        const user = await getCurrentUserInternal(ctx);
+    input: async (context, arguments_) => {
+        const user = await getCurrentUserInternal(context);
 
         return {
+            args: arguments_,
             ctx: {
                 user,
-                ...ctx,
+                ...context,
             },
-            args,
         };
     },
 });
 
 export const authedMutation = customMutation(mutation, {
     args: {},
-    input: async (ctx, args) => {
-        const user = await getCurrentUserInternal(ctx);
+    input: async (context, arguments_) => {
+        const user = await getCurrentUserInternal(context);
 
         return {
+            args: arguments_,
             ctx: {
                 user,
-                ...ctx,
+                ...context,
             },
-            args,
         };
     },
 });
 
 export const authedAction = customAction(
     action,
-    customCtx(async (ctx) => {
-        const user = await getCurrentUserInternal(ctx);
+    customCtx(async (context) => {
+        const user = await getCurrentUserInternal(context);
 
         return {
-            ...ctx,
+            ...context,
             user,
         };
     }),
 );
 
 export const initializeNewUser = internalMutation({
-    args: { userId: v.id("user"), email: v.optional(v.string()) }, // email is passed but not strictly used in this version
-    returns: v.null(),
-    handler: async (ctx, { userId }) => {
+    args: { email: v.optional(v.string()), userId: v.id("user") }, // email is passed but not strictly used in this version
+    handler: async (context, { userId }) => {
         // Removed unused email from destructuring
-        const existingAppUser = await ctx.db.get(userId);
+        const existingAppUser = await context.db.get(userId);
 
         if (existingAppUser?.role) {
             console.log(`User ${userId} already initialized with roles.`);
+
             return null;
         }
 
-        await ctx.db.patch(userId, {
+        await context.db.patch(userId, {
             role: ROLES.USER,
         });
         console.log(`Initialized user ${userId} with default role.`);
+
         return null;
     },
+    returns: v.null(),
 });
 
 // --- Admin Functions ---
 export const setUserRole = mutation({
     args: {
-        userId: v.id("user"),
         role: v.union(v.literal(ROLES.USER), v.literal(ROLES.BANNED), v.literal(ROLES.ADMIN)),
+        userId: v.id("user"),
     },
-    returns: v.object({ success: v.boolean() }),
-    handler: async (ctx, { userId, role }): Promise<{ success: boolean }> => {
-        const loggedInUserId = await requireUserId(ctx);
+    handler: async (context, { role, userId }): Promise<{ success: boolean }> => {
+        const loggedInUserId = await requireUserId(context);
 
-        const targetUser = await ctx.db.get(userId);
+        const targetUser = await context.db.get(userId);
 
         if (!targetUser) {
             throw new Error("User not found.");
@@ -114,17 +116,17 @@ export const setUserRole = mutation({
             throw new Error("Admin cannot remove their own admin role.");
         }
 
-        await ctx.db.patch(userId, { role: role as Role });
+        await context.db.patch(userId, { role: role as Role });
 
         return { success: true };
     },
+    returns: v.object({ success: v.boolean() }),
 });
 
 export const toggleUserBanStatus = mutation({
-    args: { userId: v.id("user"), ban: v.boolean() },
-    returns: v.object({ success: v.boolean(), message: v.string() }),
-    handler: async (ctx, { userId, ban }): Promise<{ success: boolean; message: string }> => {
-        const loggedInUserId = await requireUserId(ctx);
+    args: { ban: v.boolean(), userId: v.id("user") },
+    handler: async (context, { ban, userId }): Promise<{ message: string; success: boolean }> => {
+        const loggedInUserId = await requireUserId(context);
 
         // TODO: Check if user is admin
 
@@ -132,49 +134,51 @@ export const toggleUserBanStatus = mutation({
             throw new Error("Admins cannot ban themselves.");
         }
 
-        const user = await ctx.db.get(userId);
+        const user = await context.db.get(userId);
 
         if (!user) {
             throw new Error("User not found");
         }
 
         const newRole = ban ? ROLES.BANNED : ROLES.USER;
-        await ctx.db.patch(userId, { role: newRole });
 
-        return { success: true, message: `User ${userId} has been ${ban ? "banned" : "unbanned"}.` };
+        await context.db.patch(userId, { role: newRole });
+
+        return { message: `User ${userId} has been ${ban ? "banned" : "unbanned"}.`, success: true };
     },
+    returns: v.object({ message: v.string(), success: v.boolean() }),
 });
 
 export const updateUserSettings = authedMutation({
     args: {
+        codeFont: v.optional(v.union(v.literal("fira-code"), v.literal("mono"), v.literal("consolas"), v.literal("jetbrains"), v.literal("source-code-pro"))),
+        disableExternalLinkWarning: v.optional(v.boolean()),
+        hidePersonalInfo: v.optional(v.boolean()),
+        isAdvancedUser: v.optional(v.boolean()),
+        lastChatId: v.optional(v.string()),
+        mainFont: v.optional(v.union(v.literal("inter"), v.literal("system"), v.literal("serif"), v.literal("mono"), v.literal("roboto-slab"))),
         notifications: v.optional(
             v.object({
                 vouchReceived: v.optional(v.boolean()),
             }),
         ),
         selectedModel: v.optional(v.string()),
-        lastChatId: v.optional(v.string()),
-        mainFont: v.optional(v.union(v.literal("inter"), v.literal("system"), v.literal("serif"), v.literal("mono"), v.literal("roboto-slab"))),
-        codeFont: v.optional(v.union(v.literal("fira-code"), v.literal("mono"), v.literal("consolas"), v.literal("jetbrains"), v.literal("source-code-pro"))),
         sendBehavior: v.optional(v.union(v.literal("enter"), v.literal("shiftEnter"), v.literal("button"))),
         showTimestamps: v.optional(v.boolean()),
-        isAdvancedUser: v.optional(v.boolean()),
-        hidePersonalInfo: v.optional(v.boolean()),
-        disableExternalLinkWarning: v.optional(v.boolean()),
     },
-    handler: async (ctx, args) => {
-        const settings = await ctx.db
+    handler: async (context, arguments_) => {
+        const settings = await context.db
             .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", ctx.user.userId))
+            .withIndex("by_userId", (q) => q.eq("userId", context.user.userId))
             .unique();
 
-        const { ...rest } = args;
+        const { ...rest } = arguments_;
 
         if (settings) {
-            await ctx.db.patch(settings._id, rest);
+            await context.db.patch(settings._id, rest);
         } else {
-            await ctx.db.insert("userSettings", {
-                userId: ctx.user.userId,
+            await context.db.insert("userSettings", {
+                userId: context.user.userId,
                 ...rest,
             });
         }
@@ -183,10 +187,10 @@ export const updateUserSettings = authedMutation({
 
 export const getUserSettings = authedQuery({
     args: {},
-    handler: async (ctx) => {
-        const settings = await ctx.db
+    handler: async (context) => {
+        const settings = await context.db
             .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", ctx.user.userId))
+            .withIndex("by_userId", (q) => q.eq("userId", context.user.userId))
             .unique();
 
         return settings;

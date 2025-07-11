@@ -1,21 +1,23 @@
 import "../lib/polyfills";
+
 // TODO: fix build pipe in convex
-import { Resend /*vEmailId, vEmailEvent*/ } from "@convex-dev/resend";
-import { components, internal } from "../_generated/api";
+import { Resend /* vEmailId, vEmailEvent */ } from "@convex-dev/resend";
 import { render } from "@react-email/components";
-import VerifyEmail from "./templates/verify_email";
-import VerifyOTP from "./templates/verify_otp";
-import MagicLinkEmail from "./templates/magic_link";
-import ResetPasswordEmail from "./templates/reset_password";
 import { v } from "convex/values";
+
+import { components, internal } from "../_generated/api";
 import { internalMutation } from "../_generated/server";
 import { requireUserId } from "../auth/lib/helper";
+import MagicLinkEmail from "./templates/magic_link";
+import ResetPasswordEmail from "./templates/reset_password";
+import VerifyEmail from "./templates/verify_email";
+import VerifyOTP from "./templates/verify_otp";
 
 export const resend: Resend = new Resend(components.resend, {
     onEmailEvent: internal.email.functions.handleEmailEvent,
 });
 
-export const sendEmail = async ({ ctx, to, subject, html }: { ctx: any; to: string; subject: string; html: string }) => {
+export const sendEmail = async ({ ctx, html, subject, to }: { ctx: any; html: string; subject: string; to: string }) => {
     await resend.sendEmail(ctx, "onboarding@boboddy.business", to, subject, html);
 };
 
@@ -24,63 +26,70 @@ export const insertExpectation = internalMutation({
         email: v.string(),
         expectation: v.union(v.literal("delivered"), v.literal("bounced"), v.literal("complained")),
     },
-    returns: v.null(),
-    handler: async (ctx, args) => {
-        await ctx.db.insert("emails", {
-            email: args.email,
-            expectation: args.expectation,
+    handler: async (context, arguments_) => {
+        await context.db.insert("emails", {
+            email: arguments_.email,
+            expectation: arguments_.expectation,
         });
+
         return null;
     },
+    returns: v.null(),
 });
 
 export const handleEmailEvent = internalMutation({
     args: {
-        id: v.string(),
         event: v.string(),
+        id: v.string(),
     },
-    returns: v.null(),
-    handler: async (ctx, args) => {
-        const email = await ctx.db
+    handler: async (context, arguments_) => {
+        const email = await context.db
             .query("emails")
-            .withIndex("by_email", (q) => q.eq("email", args.id))
+            .withIndex("by_email", (q) => q.eq("email", arguments_.id))
             .unique();
 
         if (!email) {
-            console.log("No test email found for id", args.id);
+            console.log("No test email found for id", arguments_.id);
+
             return null;
         }
 
-        if (args.event.type === "email.delivered") {
+        if (arguments_.event.type === "email.delivered") {
             if (email.expectation === "bounced") {
                 throw new Error("Email was delivered but expected to be bounced");
             }
+
             if (email.expectation === "complained") {
                 console.log("Complained email was delivered, expecting complaint coming...");
+
                 return null;
             }
+
             // All good. Delivered email was delivered.
-            await ctx.db.delete(email._id);
+            await context.db.delete(email._id);
         }
 
-        if (args.event.type === "email.bounced") {
+        if (arguments_.event.type === "email.bounced") {
             if (email.expectation !== "bounced") {
                 throw new Error(`Email was bounced but expected to be ${email.expectation}`);
             }
+
             // All good. Bounced email was bounced.
-            await ctx.db.delete(email._id);
+            await context.db.delete(email._id);
         }
 
-        if (args.event.type === "email.complained") {
+        if (arguments_.event.type === "email.complained") {
             if (email.expectation !== "complained") {
                 throw new Error(`Email was complained but expected to be ${email.expectation}`);
             }
+
             // All good. Complained email was complained.
-            await ctx.db.delete(email._id);
+            await context.db.delete(email._id);
         }
 
         return null;
     },
+    returns: v.null(),
 });
 
 // Helper functions called by Better Auth - these don't need authentication
@@ -88,35 +97,35 @@ export const handleEmailEvent = internalMutation({
 export const sendEmailVerification = async ({ ctx, to, url }: { ctx: any; to: string; url: string }) => {
     await sendEmail({
         ctx,
-        to,
-        subject: "Verify your email address",
         html: await render(<VerifyEmail url={url} />),
+        subject: "Verify your email address",
+        to,
     });
 };
 
-export const sendOTPVerification = async ({ ctx, to, code }: { ctx: any; to: string; code: string }) => {
+export const sendOTPVerification = async ({ code, ctx, to }: { code: string; ctx: any; to: string }) => {
     await sendEmail({
         ctx,
-        to,
-        subject: "Verify your email address",
         html: await render(<VerifyOTP code={code} />),
+        subject: "Verify your email address",
+        to,
     });
 };
 
 export const sendMagicLink = async ({ ctx, to, url }: { ctx: any; to: string; url: string }) => {
     await sendEmail({
         ctx,
-        to,
-        subject: "Sign in to your account",
         html: await render(<MagicLinkEmail url={url} />),
+        subject: "Sign in to your account",
+        to,
     });
 };
 
 export const sendResetPassword = async ({ ctx, to, url }: { ctx: any; to: string; url: string }) => {
     await sendEmail({
         ctx,
-        to,
-        subject: "Reset your password",
         html: await render(<ResetPasswordEmail url={url} />),
+        subject: "Reset your password",
+        to,
     });
 };

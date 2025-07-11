@@ -1,4 +1,6 @@
-import { RateLimiter, RateLimitReturns } from "@convex-dev/rate-limiter";
+import type { RateLimitReturns } from "@convex-dev/rate-limiter";
+import { RateLimiter } from "@convex-dev/rate-limiter";
+
 import { components } from "../_generated/api";
 
 // Time constants for readability
@@ -15,78 +17,78 @@ const HOUR = 60 * MINUTE;
  * - Anonymous users: More restrictive limits
  */
 export const rateLimiter = new RateLimiter(components.rateLimiter, {
-    // Prompt improvement rate limits
-    promptImprovement: {
+    // API key usage (if applicable)
+    apiUsage: {
+        capacity: 200,
         kind: "token bucket",
-        rate: 10, // 10 improvements per minute
         period: MINUTE,
-        capacity: 15, // Allow burst of 15 improvements
-        shards: 5, // Use sharding for better performance
+        rate: 100, // 100 API calls per minute
+        shards: 5,
     },
 
-    // Anonymous user prompt improvement (more restrictive)
-    promptImprovementAnonymous: {
+    // Failed authentication attempts
+    authFailure: {
+        capacity: 5,
         kind: "fixed window",
-        rate: 3, // Only 3 improvements per hour for anonymous users
-        period: HOUR,
-        capacity: 3,
+        period: 15 * MINUTE,
+        rate: 5, // 5 failed attempts per 15 minutes
     },
 
     // Chat message rate limits
     chatMessage: {
-        kind: "token bucket",
-        rate: 30, // 30 messages per minute
-        period: MINUTE,
         capacity: 50, // Allow burst of 50 messages
+        kind: "token bucket",
+        period: MINUTE,
+        rate: 30, // 30 messages per minute
         shards: 10,
     },
 
     // Anonymous chat messages
     chatMessageAnonymous: {
-        kind: "fixed window",
-        rate: 10, // 10 messages per hour for anonymous users
-        period: HOUR,
         capacity: 10,
+        kind: "fixed window",
+        period: HOUR,
+        rate: 10, // 10 messages per hour for anonymous users
     },
 
     // Global system protection
     globalPromptImprovement: {
-        kind: "token bucket",
-        rate: 1000, // 1000 improvements per minute globally
-        period: MINUTE,
         capacity: 1500,
+        kind: "token bucket",
+        period: MINUTE,
+        rate: 1000, // 1000 improvements per minute globally
         shards: 20,
     },
 
-    // Failed authentication attempts
-    authFailure: {
-        kind: "fixed window",
-        rate: 5, // 5 failed attempts per 15 minutes
-        period: 15 * MINUTE,
-        capacity: 5,
+    // Prompt improvement rate limits
+    promptImprovement: {
+        capacity: 15, // Allow burst of 15 improvements
+        kind: "token bucket",
+        period: MINUTE,
+        rate: 10, // 10 improvements per minute
+        shards: 5, // Use sharding for better performance
     },
 
-    // API key usage (if applicable)
-    apiUsage: {
-        kind: "token bucket",
-        rate: 100, // 100 API calls per minute
-        period: MINUTE,
-        capacity: 200,
-        shards: 5,
+    // Anonymous user prompt improvement (more restrictive)
+    promptImprovementAnonymous: {
+        capacity: 3,
+        kind: "fixed window",
+        period: HOUR,
+        rate: 3, // Only 3 improvements per hour for anonymous users
     },
 });
 
 /**
  * Rate limit configuration types for type safety
  */
-export type RateLimitName =
-    | "promptImprovement"
-    | "promptImprovementAnonymous"
-    | "chatMessage"
-    | "chatMessageAnonymous"
-    | "globalPromptImprovement"
-    | "authFailure"
-    | "apiUsage";
+export type RateLimitName
+    = | "promptImprovement"
+        | "promptImprovementAnonymous"
+        | "chatMessage"
+        | "chatMessageAnonymous"
+        | "globalPromptImprovement"
+        | "authFailure"
+        | "apiUsage";
 
 /**
  * Helper function to get the appropriate rate limit name based on user authentication
@@ -108,27 +110,27 @@ export function getRateLimitName(operation: "promptImprovement" | "chatMessage",
  */
 export interface RateLimitResponse {
     ok: boolean;
-    retryAfter?: number;
     remaining?: number;
     resetTime?: number;
+    retryAfter?: number;
 }
 
 /**
  * Enhanced rate limit check with detailed response
  */
 export async function checkRateLimit(
-    ctx: any,
+    context: any,
     operation: RateLimitName,
     options: {
-        key?: string;
         count?: number;
+        key?: string;
         throws?: boolean;
     } = {},
 ): Promise<RateLimitResponse> {
     try {
-        const result = await rateLimiter.limit(ctx, operation, {
-            key: options.key,
+        const result = await rateLimiter.limit(context, operation, {
             count: options.count || 1,
+            key: options.key,
             throws: options.throws || false,
         });
 
@@ -153,30 +155,30 @@ export async function checkRateLimit(
 /**
  * Reset rate limit for a specific key (useful for successful operations)
  */
-export async function resetRateLimit(ctx: any, operation: RateLimitName, key?: string): Promise<void> {
-    await rateLimiter.reset(ctx, operation, { key });
+export async function resetRateLimit(context: any, operation: RateLimitName, key?: string): Promise<void> {
+    await rateLimiter.reset(context, operation, { key });
 }
 
 /**
  * Get current rate limit status without consuming tokens
  */
 export async function getRateLimitStatus(
-    ctx: any,
+    context: any,
     operation: RateLimitName,
     key?: string,
 ): Promise<{
+    config: any;
     remaining: number;
     resetTime: number;
-    config: any;
     status: RateLimitReturns;
 }> {
-    const status = await rateLimiter.check(ctx, operation, { key });
-    const value = await rateLimiter.getValue(ctx, operation, { key });
+    const status = await rateLimiter.check(context, operation, { key });
+    const value = await rateLimiter.getValue(context, operation, { key });
 
     return {
+        config: value.config,
         remaining: Math.max(0, (value.config?.capacity ?? 0) - value.value),
         resetTime: value.ts + (value.config?.period ?? 0),
-        config: value.config,
         status,
     };
 }

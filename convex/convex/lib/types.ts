@@ -1,14 +1,14 @@
-import type { Doc } from "../_generated/dataModel";
+import type { Doc as Document_ } from "../_generated/dataModel";
 
 // Base User (from auth, extended in application's `user` table)
-export type BaseUser = Doc<"user">;
+export type BaseUser = Document_<"user">;
 
 // Application-specific User Profile Data
-export type UserProfile = Doc<"user"> & {
+export type UserProfile = Document_<"user"> & {
     // Extend with any frontend-only fields here
 };
 
-export type Vouch = Doc<"vouches"> & {
+export type Vouch = Document_<"vouches"> & {
     fromUser?: UserProfile;
     toUser?: UserProfile;
 };
@@ -18,12 +18,12 @@ export type SocialLink = {
     url: string;
 };
 
-export type UserSettings = Doc<"userSettings">;
+export type UserSettings = Document_<"userSettings">;
 
 // Role definitions
 export const ROLES = {
-    USER: "user",
     ADMIN: "admin",
     BANNED: "banned",
+    USER: "user",
 } as const;
 export type Role = (typeof ROLES)[keyof typeof ROLES];

@@ -4,7 +4,7 @@ import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { i18n } from "@lingui/core";
 import type { QueryClient } from "@tanstack/react-query";
-import { createRootRouteWithContext, HeadContent, Link, Outlet, Scripts, useRouteContext, useRouter } from "@tanstack/react-router";
+import { createRootRouteWithContext, HeadContent, Outlet, Scripts, useRouteContext, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie, getWebRequest } from "@tanstack/react-start/server";
 import type { ConvexReactClient } from "convex/react";
