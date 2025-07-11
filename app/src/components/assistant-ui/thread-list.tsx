@@ -73,7 +73,7 @@ interface ThreadGroup {
     isCollapsed?: boolean;
 }
 
-type GroupType = "pinned" | "last7days" | "lastMonth" | "older" | "archived";
+type GroupType = "pinned" | "today" | "last7days" | "lastMonth" | "older" | "archived";
 
 export const ThreadList: FC = () => {
     const { t } = useLingui();
@@ -437,21 +437,27 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
         // Group threads by time periods, excluding archived threads
         const now = Date.now();
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const todayTimestamp = startOfToday.getTime();
         const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
         const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
         const pinnedThreadsList: BranchNode[] = [];
+        const todayThreads: BranchNode[] = [];
         const last7DaysThreads: BranchNode[] = [];
         const lastMonthThreads: BranchNode[] = [];
         const olderThreads: BranchNode[] = [];
         const archivedThreads: BranchNode[] = [];
 
-        allThreads.forEach((thread) => {
+        allThreads.forEach((thread: BranchNode) => {
             // Separate archived threads into their own group
             if (thread.status === "archived") {
                 archivedThreads.push(thread);
             } else if (thread.isPinned) {
                 pinnedThreadsList.push(thread);
+            } else if (thread.createdAt >= todayTimestamp) {
+                todayThreads.push(thread);
             } else if (thread.createdAt >= sevenDaysAgo) {
                 last7DaysThreads.push(thread);
             } else if (thread.createdAt >= thirtyDaysAgo) {
@@ -463,7 +469,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
         // Sort each group
         const sortThreads = (threads: BranchNode[]) => {
-            return threads.sort((a, b) => {
+            return threads.sort((a: BranchNode, b: BranchNode) => {
                 // Within groups, sort by custom order if available, then by newest first
                 if (a.order !== undefined && b.order !== undefined) {
                     return a.order - b.order;
@@ -482,6 +488,14 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 title: "Pinned",
                 threads: sortThreads(pinnedThreadsList),
                 isCollapsed: collapsedGroups.has("pinned"),
+            });
+        }
+
+        if (todayThreads.length > 0) {
+            groups.push({
+                title: "Today",
+                threads: sortThreads(todayThreads),
+                isCollapsed: collapsedGroups.has("today"),
             });
         }
 
@@ -950,13 +964,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             const groupType =
                 group.title === "Pinned"
                     ? "pinned"
-                    : group.title === "Last 7 days"
-                      ? "last7days"
-                      : group.title === "Last month"
-                        ? "lastMonth"
-                        : group.title === "Archived"
-                          ? "archived"
-                          : "older";
+                    : group.title === "Today"
+                        ? "today"
+                        : group.title === "Last 7 days"
+                            ? "last7days"
+                            : group.title === "Last month"
+                                ? "lastMonth"
+                                : group.title === "Archived"
+                                    ? "archived"
+                                    : "older";
 
             // Add group header
             items.push({ type: "group", group, groupType });
@@ -1380,13 +1396,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     const groupType =
                                         group.title === "Pinned"
                                             ? "pinned"
-                                            : group.title === "Last 7 days"
-                                              ? "last7days"
-                                              : group.title === "Last month"
-                                                ? "lastMonth"
-                                                : group.title === "Archived"
-                                                  ? "archived"
-                                                  : "older";
+                                            : group.title === "Today"
+                                                ? "today"
+                                                : group.title === "Last 7 days"
+                                                    ? "last7days"
+                                                    : group.title === "Last month"
+                                                        ? "lastMonth"
+                                                        : group.title === "Archived"
+                                                            ? "archived"
+                                                            : "older";
                                     toggleGroupCollapsed(groupType);
                                 }}
                             >
