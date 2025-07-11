@@ -56,7 +56,7 @@ export const UpdateFieldCard = ({
     const { isPending, refetch } = useSession();
 
     // Create the appropriate schema based on type
-    let fieldSchema = z.unknown() as z.ZodType<unknown>;
+    let fieldSchema = z.unknown() as z.ZodType;
 
     if (type === "number") {
         fieldSchema = required
@@ -79,7 +79,7 @@ export const UpdateFieldCard = ({
                     invalid_type_error: `${label} ${t`is invalid`}`,
                     required_error: `${label} ${t`is required`}`,
                 })
-                .refine((value_) => value_ === true, {
+                .refine((value_) => value_, {
                     message: `${label} ${t`is required`}`,
                 })
             : z.coerce.boolean({
@@ -174,7 +174,7 @@ export const UpdateFieldCard = ({
                                                     checked={field.state.value as boolean}
                                                     className={classNames?.checkbox}
                                                     disabled={isSubmitting}
-                                                    onCheckedChange={(checked) => field.handleChange(checked as boolean)}
+                                                    onCheckedChange={(checked) => { field.handleChange(checked as boolean); }}
                                                 />
                                             </field.FormControl>
 
@@ -200,7 +200,7 @@ export const UpdateFieldCard = ({
                                                         className={classNames?.input}
                                                         disabled={isSubmitting}
                                                         onBlur={field.handleBlur}
-                                                        onChange={(e) => field.handleChange(e.target.value)}
+                                                        onChange={(e) => { field.handleChange(e.target.value); }}
                                                         placeholder={placeholder}
                                                         type={type === "number" ? "number" : "text"}
                                                         value={field.state.value as string}

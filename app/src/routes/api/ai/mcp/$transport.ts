@@ -23,7 +23,7 @@ const handler = async (request: Request) => {
         {
             capabilities: {
                 tools: {
-                    ...tools.reduce(
+                    ...tools.reduce<Record<string, { description: string }>>(
                         (accumulator, tool) => {
                             accumulator[tool.name] = {
                                 description: tool.description,
@@ -31,7 +31,7 @@ const handler = async (request: Request) => {
 
                             return accumulator;
                         },
-                        {} as Record<string, { description: string }>,
+                        {},
                     ),
                 },
             },

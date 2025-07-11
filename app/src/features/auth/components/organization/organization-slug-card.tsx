@@ -157,7 +157,7 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
                                                     className={classNames?.input}
                                                     disabled={isSubmitting || !hasPermission?.success}
                                                     onBlur={field.handleBlur}
-                                                    onChange={(e) => field.handleChange(e.target.value)}
+                                                    onChange={(e) => { field.handleChange(e.target.value); }}
                                                     placeholder={t`Enter organization slug`}
                                                     value={field.state.value}
                                                 />

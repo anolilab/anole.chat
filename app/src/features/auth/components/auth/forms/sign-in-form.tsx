@@ -185,7 +185,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
+                                    onChange={(e) => { field.handleChange(e.target.value); }}
                                     placeholder={usernameEnabled ? t`Enter your username` : t`Enter your email`}
                                     type={usernameEnabled ? "text" : "email"}
                                     value={field.state.value}
@@ -220,7 +220,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
+                                    onChange={(e) => { field.handleChange(e.target.value); }}
                                     placeholder={t`Enter your password`}
                                     value={field.state.value}
                                 />
@@ -238,9 +238,9 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                             <field.FormItem className="flex">
                                 <field.FormControl>
                                     <Checkbox
-                                        checked={field.state.value === true}
+                                        checked={field.state.value}
                                         disabled={isSubmitting}
-                                        onCheckedChange={(checked) => field.handleChange(checked === true)}
+                                        onCheckedChange={(checked) => { field.handleChange(checked === true); }}
                                     />
                                 </field.FormControl>
 

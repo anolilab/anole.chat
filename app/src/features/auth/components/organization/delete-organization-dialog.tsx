@@ -129,7 +129,7 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
                                             autoComplete="off"
                                             className={classNames?.input}
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            onChange={(e) => { field.handleChange(e.target.value); }}
                                             placeholder={activeOrganization?.slug}
                                             value={field.state.value}
                                         />

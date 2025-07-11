@@ -133,7 +133,7 @@ export const TwoFactorPasswordDialog = ({ classNames, isTwoFactorEnabled, onOpen
                                                 autoComplete="current-password"
                                                 className={classNames?.input}
                                                 onBlur={field.handleBlur}
-                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                onChange={(e) => { field.handleChange(e.target.value); }}
                                                 placeholder={t`Enter your password`}
                                                 value={field.state.value}
                                             />

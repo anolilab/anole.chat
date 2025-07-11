@@ -173,7 +173,7 @@ export const ResetPasswordForm = ({ className, classNames, passwordValidation }:
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
+                                    onChange={(e) => { field.handleChange(e.target.value); }}
                                     placeholder={t`Enter new password`}
                                     value={field.state.value}
                                 />
@@ -197,7 +197,7 @@ export const ResetPasswordForm = ({ className, classNames, passwordValidation }:
                                         className={classNames?.input}
                                         disabled={isSubmitting}
                                         onBlur={field.handleBlur}
-                                        onChange={(e) => field.handleChange(e.target.value)}
+                                        onChange={(e) => { field.handleChange(e.target.value); }}
                                         placeholder={t`Confirm new password`}
                                         value={field.state.value}
                                     />

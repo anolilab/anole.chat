@@ -275,7 +275,7 @@ export const ChangePasswordCard = ({ accounts, className, classNames, isPending,
                                                         autoComplete="current-password"
                                                         className={classNames?.input}
                                                         onBlur={field.handleBlur}
-                                                        onChange={(e) => field.handleChange(e.target.value)}
+                                                        onChange={(e) => { field.handleChange(e.target.value); }}
                                                         placeholder={t`Enter current password`}
                                                         value={field.state.value}
                                                     />
@@ -298,7 +298,7 @@ export const ChangePasswordCard = ({ accounts, className, classNames, isPending,
                                                         className={classNames?.input}
                                                         enableToggle
                                                         onBlur={field.handleBlur}
-                                                        onChange={(e) => field.handleChange(e.target.value)}
+                                                        onChange={(e) => { field.handleChange(e.target.value); }}
                                                         placeholder={t`Enter new password`}
                                                         value={field.state.value}
                                                     />
@@ -318,14 +318,14 @@ export const ChangePasswordCard = ({ accounts, className, classNames, isPending,
 
                                                     <field.FormControl>
                                                         <PasswordInput
-                                autoComplete="new-password"
-                                className={classNames?.input}
-                                enableToggle
-                                onBlur={field.handleBlur}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                                placeholder={t`Confirm new password`}
-                                value={field.state.value}
-                            />
+                                                            autoComplete="new-password"
+                                                            className={classNames?.input}
+                                                            enableToggle
+                                                            onBlur={field.handleBlur}
+                                                            onChange={(e) => { field.handleChange(e.target.value); }}
+                                                            placeholder={t`Confirm new password`}
+                                                            value={field.state.value}
+                                                        />
                                                     </field.FormControl>
 
                                                     <field.FormMessage className={classNames?.error} />

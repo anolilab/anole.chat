@@ -6,8 +6,8 @@ const getFileText = (file: File): Promise<string> =>
     new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
 
-        reader.addEventListener("load", () => resolve(reader.result as string));
-        reader.onerror = (error) => reject(error);
+        reader.addEventListener("load", () => { resolve(reader.result as string); });
+        reader.onerror = (error) => { reject(error); };
         reader.readAsText(file);
     });
 
@@ -15,8 +15,8 @@ const getFileBytes = (file: File): Promise<ArrayBuffer> =>
     new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
 
-        reader.addEventListener("load", () => resolve(reader.result as ArrayBuffer));
-        reader.onerror = (error) => reject(error);
+        reader.addEventListener("load", () => { resolve(reader.result as ArrayBuffer); });
+        reader.onerror = (error) => { reject(error); };
         reader.readAsArrayBuffer(file);
     });
 
@@ -24,7 +24,7 @@ const fileToBase64DataURL = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
 
-        reader.addEventListener("load", () => resolve(reader.result as string));
+        reader.addEventListener("load", () => { resolve(reader.result as string); });
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });

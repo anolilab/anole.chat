@@ -300,7 +300,7 @@ const useCopyToClipboard = ({
 
         navigator.clipboard.writeText(value).then(() => {
             setIsCopied(true);
-            setTimeout(() => setIsCopied(false), copiedDuration);
+            setTimeout(() => { setIsCopied(false); }, copiedDuration);
         });
     };
 

@@ -145,7 +145,7 @@ export const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threa
                 onCancel: async () => {
                     providerLogger.debug("[Provider] 'onCancel' triggered.");
 
-                    return handleCancel();
+                    handleCancel();
                 },
                 onEdit: async (message) => {
                     providerLogger.debug("[Provider] 'onEdit' triggered.");

@@ -249,7 +249,7 @@ export class MessageBuffer {
 
     constructor() {
         // Periodic cleanup of old buffers
-        setInterval(() => this.cleanup(), this.cleanupInterval);
+        setInterval(() => { this.cleanup(); }, this.cleanupInterval);
     }
 
     updateBuffer(messageId: string, content: string, metadata?: any): boolean {

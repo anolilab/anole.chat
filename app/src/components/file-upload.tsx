@@ -81,9 +81,9 @@ export default function UploadComponent() {
     return (
         <div
             className="sticky top-4 flex max-h-[calc(100vh-2rem)] min-h-[200px] w-full justify-center overflow-visible"
-            onDragEnd={() => setIsDragging(false)}
-            onDragExit={() => setIsDragging(false)}
-            onDragLeave={() => setIsDragging(false)}
+            onDragEnd={() => { setIsDragging(false); }}
+            onDragExit={() => { setIsDragging(false); }}
+            onDragLeave={() => { setIsDragging(false); }}
             onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragging(true);

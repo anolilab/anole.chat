@@ -11,3 +11,4 @@ dist-ssr
 .nitro
 .history
 .nx
+.eslint.cache.json

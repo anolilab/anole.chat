@@ -22,9 +22,9 @@ const FormItem = ({ className, required, ...properties }: FormItemProperties) =>
     const id = React.useId();
 
     return (
-        <FormItemContext.Provider value={{ id, required }}>
+        <FormItemContext value={{ id, required }}>
             <div className={cn("grid gap-2", className)} data-slot="form-item" {...properties} />
-        </FormItemContext.Provider>
+        </FormItemContext>
     );
 };
 
@@ -83,7 +83,7 @@ const FormControl = ({ required, ...properties }: FormControlProperties) => {
 
     return (
         <Slot
-            aria-describedby={errors.length === 0 ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+            aria-describedby={errors.length === 0 ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
             aria-invalid={errors.length > 0}
             aria-required={isRequired}
             data-required={isRequired}

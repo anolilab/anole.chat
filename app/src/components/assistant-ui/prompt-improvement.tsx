@@ -34,7 +34,7 @@ const usePromptImprovement = (threadId: string) => {
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30_000); // 30 second timeout
+                const timeoutId = setTimeout(() => { controller.abort(); }, 30_000); // 30 second timeout
 
                 const response = await fetch("/convex-http/chat/improve-prompt", {
                     body: JSON.stringify({
@@ -226,8 +226,8 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
 
     // Monitor network status
     useEffect(() => {
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
+        const handleOnline = () => { setIsOnline(true); };
+        const handleOffline = () => { setIsOnline(false); };
 
         globalThis.addEventListener("online", handleOnline);
         globalThis.addEventListener("offline", handleOffline);
@@ -321,7 +321,7 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
                             className="min-h-20"
                             disabled={isImproving}
                             id="improvement-instructions"
-                            onChange={(e) => setImprovementInstructions(e.target.value)}
+                            onChange={(e) => { setImprovementInstructions(e.target.value); }}
                             placeholder="e.g., Make it more concise, add technical details, improve clarity..."
                             value={improvementInstructions}
                         />
@@ -334,7 +334,7 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
                                 className="min-h-32"
                                 disabled={isImproving}
                                 id="improved-prompt"
-                                onChange={(e) => setImprovedPrompt(e.target.value)}
+                                onChange={(e) => { setImprovedPrompt(e.target.value); }}
                                 placeholder="The improved prompt will appear here..."
                                 value={improvedPrompt}
                             />

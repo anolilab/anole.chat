@@ -66,7 +66,7 @@ const AttachmentPreview: FC<AttachmentPreviewProperties> = ({ src }) => {
         // eslint-disable-next-line @next/next/no-img-element
         <img
             alt="Preview"
-            onLoad={() => setIsLoaded(true)}
+            onLoad={() => { setIsLoaded(true); }}
             src={src}
             style={{
                 display: isLoaded ? "block" : "none",

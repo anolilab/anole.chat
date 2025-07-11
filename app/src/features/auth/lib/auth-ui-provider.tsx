@@ -302,11 +302,11 @@ export const AuthUIProvider = ({
     organization: organizationProperty,
     redirectTo = "/",
     settings: settingsProperty,
-    signUp: signUpProp,
-    social: socialProp,
+    signUp: signUpProperty,
+    social: socialProperty,
     toast = defaultToast,
     viewPaths: viewPathsProperty,
-    ...props
+    ...properties
 }: AuthUIProviderProps) => {
     const authClient = authClientProperty as AuthClient;
 
@@ -356,9 +356,9 @@ export const AuthUIProvider = ({
 
     const signUp = useMemo<SignUpOptions | undefined>(() => {
         return {
-            fields: signUpProp?.fields || ["name"],
+            fields: signUpProperty?.fields || ["name"],
         };
-    }, [signUpProp]);
+    }, [signUpProperty]);
 
     const organization = useMemo<OrganizationOptionsContext | undefined>(() => {
         if (!organizationProperty) {
@@ -523,10 +523,10 @@ export const AuthUIProvider = ({
                 },
                 settings,
                 signUp,
-                social: socialProp,
+                social: socialProperty,
                 toast,
                 viewPaths,
-                ...props,
+                ...properties,
             }}
         >
             {sessionData

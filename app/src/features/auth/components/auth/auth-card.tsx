@@ -300,7 +300,7 @@ export const AuthCard = ({
                         : (
                             <Button
                                 className={cn("text-foreground px-0 underline", classNames?.footerLink)}
-                                onClick={() => globalThis.history.back()}
+                                onClick={() => { globalThis.history.back(); }}
                                 size="sm"
                                 variant="link"
                             >

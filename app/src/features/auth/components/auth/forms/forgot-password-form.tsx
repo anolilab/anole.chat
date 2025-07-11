@@ -118,7 +118,7 @@ export const ForgotPasswordForm = ({ className, classNames, isSubmitting, setIsS
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
+                                    onChange={(e) => { field.handleChange(e.target.value); }}
                                     placeholder={t`Enter your email`}
                                     type="email"
                                     value={field.state.value}

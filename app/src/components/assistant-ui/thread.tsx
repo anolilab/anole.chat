@@ -155,7 +155,7 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                         {threadId && <PromptImprovement key={threadId} threadId={threadId} />}
                     </div>
                     <div className="flex w-full flex-row items-center justify-between">
-                        <Select onValueChange={(v) => setSelectedModel(v as AgentModel)} value={selectedModel}>
+                        <Select onValueChange={(v) => { setSelectedModel(v as AgentModel); }} value={selectedModel}>
                             <SelectTrigger className="dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100">
                                 <SelectValue placeholder="Select a model" />
                             </SelectTrigger>

@@ -49,7 +49,7 @@ export const SessionFreshnessDialog = ({ classNames, onOpenChange, onVerified, .
 
     return (
         <Dialog onOpenChange={onOpenChange} {...properties}>
-            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
+            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => { e.preventDefault(); }}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Verify Your Identity`}</DialogTitle>
 
@@ -64,7 +64,7 @@ export const SessionFreshnessDialog = ({ classNames, onOpenChange, onVerified, .
                         <Input
                             autoFocus
                             id="verification-password"
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => { setPassword(e.target.value); }}
                             placeholder={t`Enter your current password`}
                             required
                             type="password"

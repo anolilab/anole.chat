@@ -195,7 +195,7 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                                     </Button>
                                                 </DropdownMenuTrigger>
 
-                                                <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
+                                                <DropdownMenuContent align="start" onCloseAutoFocus={(e) => { e.preventDefault(); }}>
                                                     <DropdownMenuItem disabled={uploadingLogo} onClick={openFileDialog}>
                                                         <UploadCloudIcon />
                                                         {t`Upload Logo`}
@@ -230,7 +230,7 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                     <field.FormControl>
                                         <Input
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            onChange={(e) => { field.handleChange(e.target.value); }}
                                             placeholder={t`Enter organization name`}
                                             value={field.state.value}
                                         />
@@ -250,7 +250,7 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                     <field.FormControl>
                                         <Input
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            onChange={(e) => { field.handleChange(e.target.value); }}
                                             placeholder={t`Enter organization slug`}
                                             value={field.state.value}
                                         />

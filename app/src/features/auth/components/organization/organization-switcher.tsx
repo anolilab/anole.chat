@@ -205,10 +205,10 @@ export const OrganizationSwitcher = ({ align, className, classNames, hidePersona
                 <DropdownMenuContent
                     align={align}
                     className={cn("w-[--radix-dropdown-menu-trigger-width] min-w-56 max-w-64", classNames?.content?.base)}
-                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => { e.preventDefault(); }}
                 >
                     <div className={cn("flex items-center justify-between gap-2 p-2", classNames?.content?.menuItem)}>
-                        {(user && !(user as User).isAnonymous) || isPending
+                        {(user && !user.isAnonymous) || isPending
                             ? (
                                 <>
                                     {activeOrganizationPending || activeOrganization || hidePersonal
@@ -227,7 +227,7 @@ export const OrganizationSwitcher = ({ align, className, classNames, hidePersona
                                         <Link
                                             to={`${authContext.settings?.basePath || authContext.basePath}/${activeOrganization ? authContext.viewPaths.ORGANIZATION : authContext.viewPaths.SETTINGS}`}
                                         >
-                                            <Button className="ml-auto !size-8" onClick={() => setDropdownOpen(false)} size="icon" variant="outline">
+                                            <Button className="ml-auto !size-8" onClick={() => { setDropdownOpen(false); }} size="icon" variant="outline">
                                                 <SettingsIcon className="size-4" />
                                             </Button>
                                         </Link>
@@ -262,7 +262,7 @@ export const OrganizationSwitcher = ({ align, className, classNames, hidePersona
 
                     {!isPending && sessionData && !(user as User).isAnonymous
                         ? (
-                            <DropdownMenuItem className={cn(classNames?.content?.menuItem)} onClick={() => setIsCreateOrgDialogOpen(true)}>
+                            <DropdownMenuItem className={cn(classNames?.content?.menuItem)} onClick={() => { setIsCreateOrgDialogOpen(true); }}>
                                 <PlusCircleIcon />
                                 {t`Create Organization`}
                             </DropdownMenuItem>

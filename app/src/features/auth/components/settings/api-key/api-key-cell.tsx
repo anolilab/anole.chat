@@ -60,7 +60,7 @@ export const APIKeyCell = ({ apiKey, className, classNames, refetch }: APIKeyCel
 
                 <Button
                     className={cn("relative ms-auto", classNames?.button, classNames?.outlineButton)}
-                    onClick={() => setShowDeleteDialog(true)}
+                    onClick={() => { setShowDeleteDialog(true); }}
                     size="sm"
                     variant="outline"
                 >

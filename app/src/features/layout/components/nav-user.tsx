@@ -112,7 +112,7 @@ export const NavUser = () => {
                     <DropdownMenuContent
                         align="end"
                         className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                        onCloseAutoFocus={(e) => e.preventDefault()}
+                        onCloseAutoFocus={(e) => { e.preventDefault(); }}
                         side={isMobile ? "bottom" : "right"}
                         sideOffset={4}
                     >

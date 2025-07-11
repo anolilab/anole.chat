@@ -145,7 +145,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
             setCooldownSeconds((previous) => previous - 1);
         }, 1000);
 
-        return () => clearTimeout(timer);
+        return () => { clearTimeout(timer); };
     }, [cooldownSeconds]);
 
     const sendOtp = async () => {
@@ -319,7 +319,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                         <Button
                             className={cn(classNames?.button, classNames?.secondaryButton)}
                             disabled={isSubmitting}
-                            onClick={() => setMethod("otp")}
+                            onClick={() => { setMethod("otp"); }}
                             type="button"
                             variant="secondary"
                         >
@@ -332,7 +332,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                         <Button
                             className={cn(classNames?.button, classNames?.secondaryButton)}
                             disabled={isSubmitting}
-                            onClick={() => setMethod("totp")}
+                            onClick={() => { setMethod("totp"); }}
                             type="button"
                             variant="secondary"
                         >

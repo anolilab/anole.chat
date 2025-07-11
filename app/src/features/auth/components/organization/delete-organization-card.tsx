@@ -29,7 +29,7 @@ export const DeleteOrganizationCard = ({ className, classNames }: SettingsCardPr
     return (
         <>
             <SettingsCard
-                action={() => setShowDialog(true)}
+                action={() => { setShowDialog(true); }}
                 actionLabel={t`Delete Organization`}
                 className={className}
                 classNames={classNames}

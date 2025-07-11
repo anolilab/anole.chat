@@ -41,10 +41,10 @@ export const UserView = ({ className, isPending, size, user }: UserViewPropertie
                     <>
                         <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm")}>
                             {user?.displayUsername
-                                    || user?.username
-                                    || user?.displayName
-                                    || user?.firstName
-                || user?.name
+                                || user?.username
+                                || user?.displayName
+                                || user?.firstName
+                                || user?.name
                                 || user?.fullName
                                 || user?.email
                                 || t`User`}

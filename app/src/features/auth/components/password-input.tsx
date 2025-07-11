@@ -29,7 +29,7 @@ export const PasswordInput = ({ className, enableToggle, onChange, ...properties
                     <Button
                         className="absolute right-0 top-0 !bg-transparent"
                         disabled={disabled}
-                        onClick={() => setIsVisible(!isVisible)}
+                        onClick={() => { setIsVisible(!isVisible); }}
                         size="icon"
                         type="button"
                         variant="ghost"

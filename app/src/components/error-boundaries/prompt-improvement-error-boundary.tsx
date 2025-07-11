@@ -94,7 +94,7 @@ export const PromptImprovementErrorBoundary = ({ children, fallbackToInput = tru
                             <Button
                                 className="text-amber-700 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900"
                                 onClick={() => {
-                                    promptToast.rateLimited(error as RateLimitError);
+                                    promptToast.rateLimited(error);
                                 }}
                                 size="sm"
                                 variant="ghost"

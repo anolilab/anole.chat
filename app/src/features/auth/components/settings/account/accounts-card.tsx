@@ -28,7 +28,7 @@ export const AccountsCard = ({ className, classNames }: AccountsCardProperties) 
 
     return (
         <SettingsCard
-            action={() => navigate(`${basePath}/${viewPaths.SIGN_IN}`)}
+            action={() => { navigate(`${basePath}/${viewPaths.SIGN_IN}`); }}
             actionLabel={t`Add Account`}
             className={className}
             classNames={classNames}

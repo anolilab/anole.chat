@@ -207,7 +207,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                             invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
                             required_error: `${String(additionalField.label || "")} ${t`is required`}`,
                         })
-                        .refine((value) => value === true, {
+                        .refine((value) => value, {
                             message: `${String(additionalField.label || "")} ${t`is required`}`,
                         })
                     : z.coerce
@@ -435,7 +435,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                                 </Button>
                                             </DropdownMenuTrigger>
 
-                                            <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
+                                            <DropdownMenuContent align="start" onCloseAutoFocus={(e) => { e.preventDefault(); }}>
                                                 <DropdownMenuItem disabled={uploadingAvatar} onClick={openFileDialog}>
                                                     <UploadCloudIcon />
                                                     {t`Upload Avatar`}
@@ -475,7 +475,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                         className={classNames?.input}
                                         disabled={isSubmitting}
                                         onBlur={field.handleBlur}
-                                        onChange={(e) => field.handleChange(e.target.value)}
+                                        onChange={(e) => { field.handleChange(e.target.value); }}
                                         placeholder={t`Enter your name`}
                                         value={field.state.value}
                                     />
@@ -500,7 +500,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                         className={classNames?.input}
                                         disabled={isSubmitting}
                                         onBlur={field.handleBlur}
-                                        onChange={(e) => field.handleChange(e.target.value)}
+                                        onChange={(e) => { field.handleChange(e.target.value); }}
                                         placeholder={t`Enter your username`}
                                         value={field.state.value}
                                     />
@@ -524,7 +524,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
+                                    onChange={(e) => { field.handleChange(e.target.value); }}
                                     placeholder={t`Enter your email`}
                                     type="email"
                                     value={field.state.value}
@@ -549,7 +549,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                     disabled={isSubmitting}
                                     enableToggle
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => field.handleChange(e.target.value)}
+                                    onChange={(e) => { field.handleChange(e.target.value); }}
                                     placeholder={t`Enter your password`}
                                     value={field.state.value}
                                 />
@@ -574,7 +574,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                         disabled={isSubmitting}
                                         enableToggle
                                         onBlur={field.handleBlur}
-                                        onChange={(e) => field.handleChange(e.target.value)}
+                                        onChange={(e) => { field.handleChange(e.target.value); }}
                                         placeholder={t`Enter your password again`}
                                         value={field.state.value}
                                     />
@@ -607,7 +607,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                                 <Checkbox
                                                     checked={formField.state.value}
                                                     disabled={isSubmitting}
-                                                    onCheckedChange={(checked) => formField.handleChange(checked === true)}
+                                                    onCheckedChange={(checked) => { formField.handleChange(checked === true); }}
                                                 />
                                             </formField.FormControl>
 
@@ -631,7 +631,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                                     className={classNames?.input}
                                                     disabled={isSubmitting}
                                                     onBlur={formField.handleBlur}
-                                                    onChange={(e) => formField.handleChange(e.target.value)}
+                                                    onChange={(e) => { formField.handleChange(e.target.value); }}
                                                     placeholder={
                                                     additionalField.placeholder || (typeof additionalField.label === "string" ? additionalField.label : "")
                                                 }

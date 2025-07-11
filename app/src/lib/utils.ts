@@ -19,7 +19,7 @@ export const convertImageToBase64 = async (file: File): Promise<string> => new P
     const reader = new FileReader();
 
     reader.readAsDataURL(file);
-    reader.addEventListener("load", () => resolve(reader.result as string));
+    reader.addEventListener("load", () => { resolve(reader.result as string); });
     reader.onerror = reject;
 });
 

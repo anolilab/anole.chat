@@ -16,7 +16,7 @@ export type ConvexMessage = {
     message?: {
         content:
             | string
-            | ( | {
+            | (| {
                 text: string;
                 type: "text";
             }
@@ -54,7 +54,7 @@ export const isValidThreadMessage = (message: any): message is ThreadMessageLike
 export const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
     try {
         // Handle null/undefined message entirely - create a fallback message
-        if (!message || !message._id) {
+        if (!message?._id) {
             providerLogger.error("[Converter] Invalid message received", { message });
 
             return {
@@ -83,7 +83,7 @@ export const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike 
         }
 
         // Handle missing message content
-        if (!message.message || !message.message.role) {
+        if (!message.message?.role) {
             providerLogger.warn("[Converter] Message missing role or content", { id: message._id, messageData: message.message });
 
             return {

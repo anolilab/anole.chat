@@ -44,9 +44,9 @@ export const PersonalAccountView = ({ className, classNames, isPending, size, us
                         <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
                             {user?.displayUsername
                                 || user?.username
-                                    || user?.displayName
-                                    || user?.firstName
-                || user?.name
+                                || user?.displayName
+                                || user?.firstName
+                                || user?.name
                                 || user?.fullName
                                 || user?.email
                                 || t`User`}

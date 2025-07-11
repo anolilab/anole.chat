@@ -76,7 +76,7 @@ const OrganizationMembersContent = ({ className, classNames, ...properties }: Se
     return (
         <>
             <SettingsCard
-                action={() => setInviteDialogOpen(true)}
+                action={() => { setInviteDialogOpen(true); }}
                 actionLabel={t`Invite Member`}
                 className={className}
                 classNames={classNames}

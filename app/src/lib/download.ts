@@ -1,7 +1,7 @@
 import type { Doc } from "@anole/convex/dataModel";
 import { jsPDF } from "jspdf";
 
-type Message = Doc<"messages"> | Doc<"toolMessages">;
+type Message = Doc<"messages">;
 type Chat = Doc<"threads">;
 
 export type DownloadFormat = "json" | "txt" | "pdf";

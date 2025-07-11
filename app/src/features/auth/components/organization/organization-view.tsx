@@ -53,8 +53,8 @@ export const OrganizationView = ({ className, classNames, isPending, organizatio
 
                         {size !== "sm" && (
                             <Skeleton
-                                    className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-24" : "h-3 w-16", classNames?.subtitle, classNames?.skeleton)}
-                                />
+                                className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-24" : "h-3 w-16", classNames?.subtitle, classNames?.skeleton)}
+                            />
                         )}
                     </>
                 )

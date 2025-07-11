@@ -35,7 +35,7 @@ export const DeleteAccountCard = ({ accounts, className, classNames, isPending, 
     return (
         <div>
             <SettingsCard
-                action={() => setShowDialog(true)}
+                action={() => { setShowDialog(true); }}
                 actionLabel={t`Delete Account`}
                 className={className}
                 classNames={classNames}

@@ -100,7 +100,7 @@ export const InvitationCell = ({ className, classNames, invitation }: Invitation
                     </Button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()}>
+                <DropdownMenuContent onCloseAutoFocus={(e) => { e.preventDefault(); }}>
                     <DropdownMenuItem disabled={isLoading} onClick={handleCancelInvitation} variant="destructive">
                         <XIcon className={classNames?.icon} />
                         {t`Cancel Invitation`}

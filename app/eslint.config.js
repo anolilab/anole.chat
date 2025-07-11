@@ -4,7 +4,25 @@ import { createConfig } from "@anolilab/eslint-config";
 export default createConfig({
     // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
     ignores: [
-        "**/fixtures",
+        "./eslint.config.js",
         // ...globs
     ],
+    typescript: {
+        isTypeAware: false,
+        tsconfigPath: "./tsconfig.json",
+        ignoresTypeAware: [
+            "*.json",
+            "*.md"
+        ],
+    },
+}, {
+    files: [
+        "**/src/routes/**/*.tsx",
+        "**/src/routes/api/**/*.ts",
+    ],
+    rules: {
+        "import/exports-last": "off",
+        "import/prefer-default-export": "off",
+        "@typescript-eslint/no-use-before-define": "off",
+    }
 });

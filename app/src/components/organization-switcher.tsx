@@ -55,7 +55,7 @@ export const OrganizationSwitcher = ({
                     >
                         <DropdownMenuLabel className="text-muted-foreground text-xs">Teams</DropdownMenuLabel>
                         {organizations.map((organization, index) => (
-                            <DropdownMenuItem className="gap-2 p-2" key={organization.name} onClick={() => setActiveOrganization(organization)}>
+                            <DropdownMenuItem className="gap-2 p-2" key={organization.name} onClick={() => { setActiveOrganization(organization); }}>
                                 <div className="flex size-6 items-center justify-center rounded-md border">
                                     <organization.logo className="size-3.5 shrink-0" />
                                 </div>

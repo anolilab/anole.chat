@@ -119,7 +119,7 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
                                             autoComplete="email"
                                             className={classNames?.input}
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            onChange={(e) => { field.handleChange(e.target.value); }}
                                             placeholder={t`Enter email address`}
                                             type="email"
                                             value={field.state.value}

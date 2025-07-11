@@ -160,7 +160,7 @@ export const ThreadList: FC = () => {
                         <TooltipTrigger asChild>
                             <Button
                                 className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
-                                onClick={() => setShowSearch(!showSearch)}
+                                onClick={() => { setShowSearch(!showSearch); }}
                                 size="sm"
                                 variant="icon"
                             >
@@ -175,7 +175,7 @@ export const ThreadList: FC = () => {
                         <TooltipTrigger asChild>
                             <Button
                                 className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
-                                onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
+                                onClick={() => { setShowKeyboardHelp(!showKeyboardHelp); }}
                                 size="sm"
                                 variant="icon"
                             >
@@ -191,7 +191,7 @@ export const ThreadList: FC = () => {
                     <div className="flex items-center gap-2">
                         <Button
                             className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
-                            onClick={() => setSearchType("threads")}
+                            onClick={() => { setSearchType("threads"); }}
                             size="sm"
                             variant={searchType === "threads" ? "default" : "outline"}
                         >
@@ -199,7 +199,7 @@ export const ThreadList: FC = () => {
                         </Button>
                         <Button
                             className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
-                            onClick={() => setSearchType("messages")}
+                            onClick={() => { setSearchType("messages"); }}
                             size="sm"
                             variant={searchType === "messages" ? "default" : "outline"}
                         >
@@ -210,14 +210,14 @@ export const ThreadList: FC = () => {
                         <Input
                             autoFocus
                             className="border-white/20 bg-white/5 pr-8 text-white placeholder:text-white/60"
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => { setSearchQuery(e.target.value); }}
                             placeholder={searchType === "threads" ? t`Search thread titles...` : t`Search message content...`}
                             value={searchQuery}
                         />
                         {searchQuery && (
                             <Button
                                 className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0"
-                                onClick={() => setSearchQuery("")}
+                                onClick={() => { setSearchQuery(""); }}
                                 size="sm"
                                 variant="icon"
                             >
@@ -1230,7 +1230,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
                                             <Button
                                                 className="hover:text-primary h-6 w-6 p-0"
                                                 disabled={isDownloading}
-                                                onClick={(e) => e.stopPropagation()}
+                                                onClick={(e) => { e.stopPropagation(); }}
                                                 size="sm"
                                                 variant="icon"
                                             >
@@ -1240,7 +1240,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
                                     </TooltipTrigger>
                                     <TooltipContent>{isDownloading ? "Downloading..." : "Download thread"}</TooltipContent>
                                 </Tooltip>
-                                <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuContent onClick={(e) => { e.stopPropagation(); }}>
                                     <DropdownMenuItem onClick={() => handleDownloadThread(node, "json")}>JSON</DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleDownloadThread(node, "txt")}>TXT</DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleDownloadThread(node, "pdf")}>PDF</DropdownMenuItem>
@@ -1430,7 +1430,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-semibold">Keyboard Shortcuts</h3>
-                            <Button className="h-6 w-6 p-0" onClick={() => setShowKeyboardHelp(false)} size="sm" variant="icon">
+                            <Button className="h-6 w-6 p-0" onClick={() => { setShowKeyboardHelp(false); }} size="sm" variant="icon">
                                 ×
                             </Button>
                         </div>
@@ -1575,7 +1575,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
                                     // Group Header
                                     <div
                                         className="flex cursor-pointer items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white"
-                                        onClick={() => toggleGroupCollapsed(item.groupType)}
+                                        onClick={() => { toggleGroupCollapsed(item.groupType); }}
                                     >
                                         {item.group.isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                                         <span>{item.group.title}</span>
