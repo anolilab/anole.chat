@@ -12,11 +12,11 @@ import { useListSessions, useRevokeOtherSessions, useRevokeSession, useRevokeSes
 import { useAuthMutation } from "../hooks/shared/use-auth-mutation";
 import { type BetterFetchRequest, useAuthQuery } from "../hooks/shared/use-auth-query";
 import { useToken } from "../hooks/token/use-token";
-import type { AnyAuthClient, AuthClient } from "../types/auth-core-types";
 import { AuthQueryContext, type AuthQueryOptions } from "./auth-query-provider";
 import { prefetchSession } from "./prefetch-session";
+import type { AuthClient } from "@/lib/auth/client";
 
-export function createAuthHooks<TAuthClient extends AnyAuthClient>(authClient: TAuthClient) {
+export function createAuthHooks(authClient: AuthClient) {
     return {
         useSession: (options?: Partial<AnyUseQueryOptions>) => useSession(authClient, options),
         usePrefetchSession: (options?: Partial<AnyUseQueryOptions>) => {
@@ -44,21 +44,21 @@ export function createAuthHooks<TAuthClient extends AnyAuthClient>(authClient: T
         useRevokeSession: (options?: Partial<AuthQueryOptions>) => useRevokeSession(authClient, options),
         useRevokeSessions: (options?: Partial<AuthQueryOptions>) => useRevokeSessions(authClient, options),
         useRevokeOtherSessions: (options?: Partial<AuthQueryOptions>) => useRevokeOtherSessions(authClient, options),
-        useListDeviceSessions: (options?: Partial<AnyUseQueryOptions>) => useListDeviceSessions(authClient as AuthClient, options),
-        useRevokeDeviceSession: (options?: Partial<AuthQueryOptions>) => useRevokeDeviceSession(authClient as AuthClient, options),
-        useRevokeDeviceSessions: (options?: Partial<AuthQueryOptions>) => useRevokeDeviceSessions(authClient as AuthClient, options),
-        useSetActiveSession: (options?: Partial<AuthQueryOptions>) => useSetActiveSession(authClient as AuthClient, options),
-        useListPasskeys: (options?: Partial<AnyUseQueryOptions>) => useListPasskeys(authClient as AuthClient, options),
-        useDeletePasskey: (options?: Partial<AuthQueryOptions>) => useDeletePasskey(authClient as AuthClient, options),
-        useListApiKeys: (options?: Partial<AnyUseQueryOptions>) => useListApiKeys(authClient as AuthClient, options),
-        useCreateApiKey: (options?: Partial<AuthQueryOptions>) => useCreateApiKey(authClient as AuthClient, options),
-        useDeleteApiKey: (options?: Partial<AuthQueryOptions>) => useDeleteApiKey(authClient as AuthClient, options),
-        useActiveOrganization: (options?: Partial<AnyUseQueryOptions>) => useActiveOrganization(authClient as AuthClient, options),
-        useListOrganizations: (options?: Partial<AnyUseQueryOptions>) => useListOrganizations(authClient as AuthClient, options),
+        useListDeviceSessions: (options?: Partial<AnyUseQueryOptions>) => useListDeviceSessions(authClient, options),
+        useRevokeDeviceSession: (options?: Partial<AuthQueryOptions>) => useRevokeDeviceSession(authClient, options),
+        useRevokeDeviceSessions: (options?: Partial<AuthQueryOptions>) => useRevokeDeviceSessions(authClient, options),
+        useSetActiveSession: (options?: Partial<AuthQueryOptions>) => useSetActiveSession(authClient, options),
+        useListPasskeys: (options?: Partial<AnyUseQueryOptions>) => useListPasskeys(authClient, options),
+        useDeletePasskey: (options?: Partial<AuthQueryOptions>) => useDeletePasskey(authClient, options),
+        useListApiKeys: (options?: Partial<AnyUseQueryOptions>) => useListApiKeys(authClient, options),
+        useCreateApiKey: (options?: Partial<AuthQueryOptions>) => useCreateApiKey(authClient, options),
+        useDeleteApiKey: (options?: Partial<AuthQueryOptions>) => useDeleteApiKey(authClient, options),
+        useActiveOrganization: (options?: Partial<AnyUseQueryOptions>) => useActiveOrganization(authClient, options),
+        useListOrganizations: (options?: Partial<AnyUseQueryOptions>) => useListOrganizations(authClient, options),
         useHasPermission: (params: Parameters<AuthClient["organization"]["hasPermission"]>[0], options?: Partial<AnyUseQueryOptions>) =>
-            useHasPermission(authClient as AuthClient, params, options),
+            useHasPermission(authClient, params, options),
         useInvitation: (params: Parameters<AuthClient["organization"]["getInvitation"]>[0], options?: Partial<AnyUseQueryOptions>) =>
-            useInvitation(authClient as AuthClient, params, options),
+            useInvitation(authClient, params, options),
         useAuthMutation: useAuthMutation,
     };
 }

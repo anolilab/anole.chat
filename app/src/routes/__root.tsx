@@ -131,7 +131,6 @@ const RootDocument = () => {
                                 router.invalidate();
                             }}
                             persistClient={false}
-                            Link={({ href, ...props }) => <Link to={href} {...props} />}
                             apiKey={{
                                 prefix: "app_",
                                 metadata: {

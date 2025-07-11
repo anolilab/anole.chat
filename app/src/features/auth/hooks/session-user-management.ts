@@ -5,8 +5,6 @@ import { AuthQueryContext, type AuthQueryOptions } from "../lib/auth-query-provi
 import type { AnyAuthClient } from "../types/auth-core-types";
 import { useAuthMutation } from "./shared/use-auth-mutation";
 import type { AuthClient } from "@/lib/auth/client";
-import { useQuery as useConvexQuery } from "convex/react";
-import { api } from "@anole/convex/api";
 
 // Session Management Hook
 export function useSession<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {
@@ -23,10 +21,24 @@ export function useSession<TAuthClient extends AnyAuthClient>(authClient: TAuthC
         ...mergedOptions,
     });
 
+    let session = result.data?.session as Session | undefined;
+    let user = result.data?.user as User | undefined;
+
+    if (user) {
+        user.createdAt = new Date(user.createdAt);
+        user.updatedAt = new Date(user.updatedAt);
+    }
+
+    if (session) {
+        session.createdAt = new Date(session.createdAt);
+        session.updatedAt = new Date(session.updatedAt);
+        session.expiresAt = new Date(session.expiresAt);
+    }
+
     return {
         ...result,
-        session: result.data?.session as Session | undefined,
-        user: result.data?.user as User | undefined,
+        session,
+        user,
     };
 }
 
