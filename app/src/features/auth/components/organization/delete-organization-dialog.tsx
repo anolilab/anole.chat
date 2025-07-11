@@ -1,37 +1,39 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext } from "react";
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { Loader2 } from "lucide-react";
+import type { ComponentProps } from "react";
+import { use } from "react";
+import { z } from "zod/v4";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../lib/utils";
-import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import { getLocalizedError } from "../../lib/utils";
+import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { OrganizationView } from "./organization-view";
 
-export interface DeleteOrganizationDialogProps extends ComponentProps<typeof Dialog> {
+export interface DeleteOrganizationDialogProperties extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
 }
 
 const formSchema = z.object({
     slug: z.string().min(1, { message: t`Organization slug is required` }),
-});
+}).strict();
 
-export function DeleteOrganizationDialog({ classNames, onOpenChange, ...props }: DeleteOrganizationDialogProps) {
+export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properties }: DeleteOrganizationDialogProperties) => {
     const {
         authClient,
         hooks: { useActiveOrganization, useListOrganizations },
-        redirectTo,
         navigate,
+        redirectTo,
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -40,51 +42,55 @@ export function DeleteOrganizationDialog({ classNames, onOpenChange, ...props }:
         defaultValues: {
             slug: "",
         },
-        validators: {
-            onChange: ({ value }) => {
-                const result = formSchema.safeParse(value);
-                if (!result.success) {
-                    return result.error.issues[0]?.message;
-                }
-                if (value.slug !== activeOrganization?.slug) {
-                    return t`Slug does not match`;
-                }
-                return undefined;
-            },
-        },
         onSubmit: async ({ value }) => {
-            if (!activeOrganization) return;
+            if (!activeOrganization)
+                return;
 
             try {
                 await authClient.organization.delete({
-                    organizationId: activeOrganization.id,
                     fetchOptions: {
                         throw: true,
                     },
+                    organizationId: activeOrganization.id,
                 });
 
                 await refetchOrganizations?.();
                 await refetchActiveOrganization?.();
 
                 toast({
-                    variant: "success",
                     message: t`Organization deleted successfully`,
+                    variant: "success",
                 });
                 navigate(redirectTo);
                 onOpenChange?.(false);
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             }
         },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value);
+
+                if (!result.success) {
+                    return result.error.issues[0]?.message;
+                }
+
+                if (value.slug !== activeOrganization?.slug) {
+                    return t`Slug does not match`;
+                }
+
+                return undefined;
+            },
+        },
     });
 
-    const isSubmitting = form.state.isSubmitting;
+    const { isSubmitting } = form.state;
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
             <DialogContent className={cn("sm:max-w-md", classNames?.dialog?.content)}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Delete Organization`}</DialogTitle>
@@ -100,60 +106,64 @@ export function DeleteOrganizationDialog({ classNames, onOpenChange, ...props }:
 
                 <form.AppForm>
                     <form
+                        className="grid gap-6"
                         onSubmit={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             form.handleSubmit();
                         }}
-                        className="grid gap-6"
                     >
                         <form.AppField
-                            name="slug"
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel className={classNames?.label}>
-                                        {t`Please type`} <span className="font-bold">{activeOrganization?.slug}</span> {t`to confirm`}
+                                        {t`Please type`}
+                                        {" "}
+                                        <span className="font-bold">{activeOrganization?.slug}</span>
+                                        {" "}
+                                        {t`to confirm`}
                                     </field.FormLabel>
 
                                     <field.FormControl>
                                         <Input
-                                            placeholder={activeOrganization?.slug}
-                                            className={classNames?.input}
                                             autoComplete="off"
-                                            value={field.state.value}
+                                            className={classNames?.input}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder={activeOrganization?.slug}
+                                            value={field.state.value}
                                         />
                                     </field.FormControl>
 
                                     <field.FormMessage className={classNames?.error} />
                                 </field.FormItem>
                             )}
+                            name="slug"
                         />
 
                         <DialogFooter className={classNames?.dialog?.footer}>
                             <Button
-                                type="button"
-                                variant="secondary"
                                 className={cn(classNames?.button, classNames?.secondaryButton)}
                                 onClick={() => onOpenChange?.(false)}
+                                type="button"
+                                variant="secondary"
                             >
                                 {t`Cancel`}
                             </Button>
 
                             <form.Subscribe
-                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
                                     <Button
                                         className={cn(classNames?.button, classNames?.destructiveButton)}
                                         disabled={!canSubmit || isSubmitting}
-                                        variant="destructive"
                                         type="submit"
+                                        variant="destructive"
                                     >
                                         {isSubmitting && <Loader2 className="animate-spin" />}
                                         {t`Delete Organization`}
                                     </Button>
                                 )}
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                             />
                         </DialogFooter>
                     </form>
@@ -161,4 +171,4 @@ export function DeleteOrganizationDialog({ classNames, onOpenChange, ...props }:
             </DialogContent>
         </Dialog>
     );
-}
+};

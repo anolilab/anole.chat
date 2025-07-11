@@ -1,33 +1,35 @@
 "use client";
 
+import { t } from "@lingui/core/macro";
+import type { BetterFetchOption } from "better-auth/react";
 import { Loader2 } from "lucide-react";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { z } from "zod/v4";
-import { useCaptcha } from "../../../hooks/use-captcha";
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../../lib/utils";
-import { Captcha } from "../../captcha/captcha";
+
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import type { AuthFormClassNames } from "../auth-form";
-import type { BetterFetchOption } from "better-auth/react";
-import { t } from "@lingui/core/macro";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
 
-export interface ForgotPasswordFormProps {
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
+import { useCaptcha } from "../../../hooks/use-captcha";
+import { getLocalizedError } from "../../../lib/utils";
+import { Captcha } from "../../captcha/captcha";
+import type { AuthFormClassNames } from "../auth-form";
+
+export interface ForgotPasswordFormProperties {
     className?: string;
     classNames?: AuthFormClassNames;
     isSubmitting?: boolean;
     setIsSubmitting?: (value: boolean) => void;
 }
 
-export function ForgotPasswordForm({ className, classNames, isSubmitting, setIsSubmitting }: ForgotPasswordFormProps) {
+export const ForgotPasswordForm = ({ className, classNames, isSubmitting, setIsSubmitting }: ForgotPasswordFormProperties) => {
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
-    const { authClient, basePath, baseURL, viewPaths, navigate, toast } = useContext(AuthUIContext);
+    const { authClient, basePath, baseURL, navigate, toast, viewPaths } = useAuth();
 
     const formSchema = z.object({
         email: z
@@ -38,105 +40,108 @@ export function ForgotPasswordForm({ className, classNames, isSubmitting, setIsS
             .email({
                 message: t`Email is invalid`,
             }),
-    });
+    }).strict();
 
     const form = useAppForm({
         defaultValues: {
             email: "",
         },
-        validators: {
-            onChange: ({ value }) => {
-                const result = formSchema.safeParse(value);
-                if (!result.success) {
-                    return result.error.flatten().fieldErrors;
-                }
-                return undefined;
-            },
-        },
         onSubmit: async ({ value }) => {
             try {
                 const fetchOptions: BetterFetchOption = {
-                    throw: true,
                     headers: await getCaptchaHeaders("/forget-password"),
+                    throw: true,
                 };
 
                 await authClient.requestPasswordReset({
                     email: value.email,
-                    redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
                     fetchOptions,
+                    redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
                 });
 
                 toast({
-                    variant: "success",
                     message: t`Email sent successfully`,
+                    variant: "success",
                 });
 
-                navigate(`${basePath}/${viewPaths.SIGN_IN}${window.location.search}`);
+                navigate(`${basePath}/${viewPaths.SIGN_IN}${globalThis.location.search}`);
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             }
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value);
+
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors;
+                }
+
+                return undefined;
+            },
         },
     });
 
     useEffect(() => {
         form.Subscribe({
-            selector: (state) => state.isSubmitting,
             children: (isFormSubmitting) => {
                 setIsSubmitting?.(isFormSubmitting);
+
                 return null;
             },
+            selector: (state) => state.isSubmitting,
         });
     }, [setIsSubmitting]);
 
     return (
         <form.AppForm>
             <form
+                className={cn("grid w-full gap-6", className, classNames?.base)}
+                noValidate={isHydrated}
                 onSubmit={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     form.handleSubmit();
                 }}
-                noValidate={isHydrated}
-                className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 <form.AppField
-                    name="email"
                     children={(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
-                                    className={classNames?.input}
-                                    type="email"
                                     autoComplete="email"
-                                    placeholder={t`Enter your email`}
-                                    value={field.state.value}
+                                    className={classNames?.input}
+                                    disabled={isSubmitting}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
-                                    disabled={isSubmitting}
+                                    placeholder={t`Enter your email`}
+                                    type="email"
+                                    value={field.state.value}
                                 />
                             </field.FormControl>
 
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
+                    name="email"
                 />
 
-                <Captcha ref={captchaRef} action="/forget-password" />
+                <Captcha action="/forget-password" ref={captchaRef} />
 
                 <form.Subscribe
-                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isFormSubmitting]) => (
-                        <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
+                        <Button className={cn("w-full", classNames?.button, classNames?.primaryButton)} disabled={!canSubmit || isSubmitting} type="submit">
                             {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : t`Forgot Password`}
                         </Button>
                     )}
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                 />
             </form>
         </form.AppForm>
     );
-}
+};

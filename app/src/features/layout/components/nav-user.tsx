@@ -1,8 +1,9 @@
 "use client";
 
-import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, Sparkles, SettingsIcon, PlusCircleIcon } from "lucide-react";
-import { Fragment, useCallback, useContext, useEffect, useState } from "react";
 import { t } from "@lingui/core/macro";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, PlusCircleIcon, SettingsIcon, Sparkles } from "lucide-react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -15,43 +16,39 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { useRouter } from "@tanstack/react-router";
-import { useNavigate } from "@tanstack/react-router";
-import { AuthUIContext } from "@/features/auth/lib/auth-ui-provider";
+import { UserView } from "@/features/auth/components/user-view";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { AnyAuthClient } from "@/features/auth/types/auth-core-types";
-import { UserView } from "@/features/auth/components/user-view";
-import { Link } from "@tanstack/react-router";
 
-export interface NavUserProps {
+export interface NavUserProperties {
     className?: string;
-    trigger?: React.ReactNode;
     disableDefaultLinks?: boolean;
     size?: "default" | "sm" | "lg" | "icon";
+    trigger?: React.ReactNode;
 }
 
-export function NavUser() {
+export const NavUser = () => {
     const { isMobile } = useSidebar();
     const router = useRouter();
     const navigate = useNavigate();
 
-    const authContext = useContext(AuthUIContext);
     const {
+        authClient,
         basePath = "/auth",
-        hooks: { useSession, useListDeviceSessions },
-        mutators: { setActiveSession },
+        hooks: { useListDeviceSessions, useSession },
         multiSession = false,
+        mutators: { setActiveSession },
+        onSessionChange,
         settings,
         toast,
         viewPaths = {
-            SIGN_IN: "sign-in",
-            SIGN_UP: "sign-up",
-            SIGN_OUT: "sign-out",
             SETTINGS: "settings",
+            SIGN_IN: "sign-in",
+            SIGN_OUT: "sign-out",
+            SIGN_UP: "sign-up",
         },
-        onSessionChange,
-        authClient,
-    } = authContext;
+    } = useAuth();
 
     let deviceSessions: AnyAuthClient["$Infer"]["Session"][] | undefined | null = null;
     let deviceSessionsPending = false;
@@ -72,13 +69,14 @@ export function NavUser() {
     const switchAccount = useCallback(
         async (sessionToken: string) => {
             setActiveSessionPending(true);
+
             try {
                 await setActiveSession({ sessionToken });
                 onSessionChange?.();
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
                 setActiveSessionPending(false);
             }
@@ -87,7 +85,9 @@ export function NavUser() {
     );
 
     useEffect(() => {
-        if (!multiSession) return;
+        if (!multiSession)
+            return;
+
         setActiveSessionPending(false);
     }, [sessionData, multiSession]);
 
@@ -97,9 +97,9 @@ export function NavUser() {
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild className="fill-white text-white">
-                        <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                        <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground" size="lg">
                             <Avatar className="h-8 w-8 rounded-lg">
-                                {user?.image && <AvatarImage src={user.image} alt={user?.name || "User"} />}
+                                {user?.image && <AvatarImage alt={user?.name || "User"} src={user.image} />}
                                 <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -110,11 +110,11 @@ export function NavUser() {
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                        side={isMobile ? "bottom" : "right"}
                         align="end"
-                        sideOffset={4}
+                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
                         onCloseAutoFocus={(e) => e.preventDefault()}
+                        side={isMobile ? "bottom" : "right"}
+                        sideOffset={4}
                     >
                         <DropdownMenuLabel className="p-0 font-normal">
                             <UserView isPending={isPending} user={user} />
@@ -189,4 +189,4 @@ export function NavUser() {
             </SidebarMenuItem>
         </SidebarMenu>
     );
-}
+};

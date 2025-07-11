@@ -47,24 +47,24 @@
         "@ai-sdk/react": "^1.2.12",
         "@ai-sdk/ui-utils": "^1.2.11",
         "@convex-dev/action-cache": "^0.2.10",
-        "@convex-dev/agent": "0.1.14-alpha.4",
+        "@convex-dev/agent": "0.1.14",
         "@convex-dev/better-auth": "^0.7.0",
         "@convex-dev/migrations": "^0.2.9",
         "@convex-dev/rate-limiter": "^0.2.10",
-        "@convex-dev/resend": "0.1.2",
+        "@convex-dev/resend": "0.1.3",
         "@convex-dev/workflow": "^0.2.5",
         "@react-email/render": "^1.1.3",
-        "@react-email/components": "0.2.0",
+        "@react-email/components": "0.3.0",
         "better-auth": "1.2.12",
-        "convex": "^1.6.0",
+        "convex": "^1.25.2",
         "convex-helpers": "^0.1.99",
-        "hono": "^4.0.0",
+        "hono": "^4.8.4",
         "resend": "^4.6.0",
-        "zod": "3.25.76"
+        "zod": "4.0.5"
     },
     "devDependencies": {
         "@types/react": "^19.1.8",
         "@types/react-dom": "^19.1.6",
-        "typescript": "^5.4.0"
+        "typescript": "^5.8.3"
     }
 }

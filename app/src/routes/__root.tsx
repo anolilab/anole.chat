@@ -1,37 +1,35 @@
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext, useRouteContext, useRouter } from "@tanstack/react-router";
-import { ReactScan } from "@/components/react-scan";
-
-import type { QueryClient } from "@tanstack/react-query";
-
-import { Toaster } from "@/components/ui/sonner";
-import { seo } from "@/lib/seo";
-
-import { ThemeProvider } from "next-themes";
-import { Suspense, lazy } from "react";
-import type { ConvexReactClient } from "convex/react";
-import { getCookie, getWebRequest } from "@tanstack/react-start/server";
-import { authClient } from "@/lib/auth/client";
-import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
-import { createServerFn } from "@tanstack/react-start";
-import type { ConvexQueryClient } from "@convex-dev/react-query";
+import { createAuth } from "@anole/convex/auth";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
-import { DEFAULT_LOCALE } from "@/lib/intl/client";
+import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
+import type { ConvexQueryClient } from "@convex-dev/react-query";
 import { i18n } from "@lingui/core";
+import type { QueryClient } from "@tanstack/react-query";
+import { createRootRouteWithContext, HeadContent, Link, Outlet, Scripts, useRouteContext, useRouter } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { getCookie, getWebRequest } from "@tanstack/react-start/server";
+import type { ConvexReactClient } from "convex/react";
+import { ThemeProvider } from "next-themes";
+import { lazy, Suspense } from "react";
+
+import { ReactScan } from "@/components/react-scan";
 import ScreenSizeDebug from "@/components/screen-size-debug";
+import { Toaster } from "@/components/ui/sonner";
 import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
 import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
-import { Link } from "@tanstack/react-router";
-import appCss from "../styles.css?url";
-import { createAuth } from "@anole/convex/auth";
+import { authClient } from "@/lib/auth/client";
 import { env } from "@/lib/env";
+import { DEFAULT_LOCALE } from "@/lib/intl/client";
+import { seo } from "@/lib/seo";
 
-const ReactQueryDevtools = lazy(() => import("@tanstack/react-query-devtools").then((m) => ({ default: m.ReactQueryDevtools })));
-const TanStackRouterDevtools = lazy(() => import("@tanstack/react-router-devtools").then((m) => ({ default: m.TanStackRouterDevtools })));
+import appCss from "../styles.css?url";
+
+const ReactQueryDevtools = lazy(() => import("@tanstack/react-query-devtools").then((m) => { return { default: m.ReactQueryDevtools }; }));
+const TanStackRouterDevtools = lazy(() => import("@tanstack/react-router-devtools").then((m) => { return { default: m.TanStackRouterDevtools }; }));
 
 interface MyRouterContext {
-    queryClient: QueryClient;
     convexClient: ConvexReactClient;
     convexQueryClient: ConvexQueryClient;
+    queryClient: QueryClient;
 }
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
@@ -50,26 +48,6 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-    head: () => ({
-        meta: [
-            {
-                charSet: "utf-8",
-            },
-            {
-                name: "viewport",
-                content: "width=device-width, initial-scale=1",
-            },
-            ...seo({
-                title: "Modern Ai Chat",
-                description: "",
-                keywords: "Ai Chat",
-            }),
-        ],
-        links: [
-            { rel: "stylesheet", href: appCss },
-            { rel: "icon", href: "/favicon.ico" },
-        ],
-    }),
     beforeLoad: async (ctx) => {
         const auth = await ctx.context.queryClient.fetchQuery({
             queryKey: ["session"],
@@ -103,8 +81,28 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         };
     },
     component: () => <RootDocument />,
-    wrapInSuspense: true,
+    head: () => ({
+        meta: [
+            {
+                charSet: "utf-8",
+            },
+            {
+                name: "viewport",
+                content: "width=device-width, initial-scale=1",
+            },
+            ...seo({
+                title: "Modern Ai Chat",
+                description: "",
+                keywords: "Ai Chat",
+            }),
+        ],
+        links: [
+            { rel: "stylesheet", href: appCss },
+            { rel: "icon", href: "/favicon.ico" },
+        ],
+    }),
     ssr: true,
+    wrapInSuspense: true,
 });
 
 const RootDocument = () => {
@@ -116,27 +114,27 @@ const RootDocument = () => {
             <head>
                 <HeadContent />
             </head>
-            <body suppressHydrationWarning className="isolate min-h-svh w-full overflow-hidden">
-                <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
+            <body className="isolate min-h-svh w-full overflow-hidden" suppressHydrationWarning>
+                <ConvexBetterAuthProvider authClient={authClient} client={context.convexClient}>
                     <AuthQueryProvider>
                         <AuthUIProviderTanstack
+                            apiKey={{
+                                metadata: {
+                                    environment: "production",
+                                    version: "v1",
+                                },
+                                prefix: "app_",
+                            }}
                             authClient={authClient}
                             navigate={(href) => {
                                 router.navigate({ to: href });
-                            }}
-                            replace={(href) => {
-                                router.navigate({ to: href, replace: true });
                             }}
                             onSessionChange={() => {
                                 router.invalidate();
                             }}
                             persistClient={false}
-                            apiKey={{
-                                prefix: "app_",
-                                metadata: {
-                                    environment: "production",
-                                    version: "v1",
-                                },
+                            replace={(href) => {
+                                router.navigate({ replace: true, to: href });
                             }}
                             twoFactor={["totp"]}
                         >
@@ -149,7 +147,7 @@ const RootDocument = () => {
                         </AuthUIProviderTanstack>
                     </AuthQueryProvider>
                 </ConvexBetterAuthProvider>
-                {import.meta.env.VITE_DEBUG && (
+                {import.meta.env.VITE_DEBUG === "true" && (
                     <Suspense fallback={null}>
                         <TanStackRouterDevtools position="bottom-right" />
                         <ReactQueryDevtools buttonPosition="bottom-left" />

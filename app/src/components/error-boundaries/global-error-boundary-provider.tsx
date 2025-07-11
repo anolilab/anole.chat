@@ -1,18 +1,20 @@
 "use client";
 
-import { type ReactNode, useState, useEffect, useCallback } from "react";
-import type { ErrorInfo } from "react";
 import { usePostHog } from "posthog-js/react";
-import { ErrorBoundary } from "../error-boundary";
-import { showError, networkToast } from "@/lib/toast";
-import { NetworkError, ServerError, ErrorUtils } from "@/lib/errors";
+import type { ErrorInfo, ReactNode  } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-interface GlobalErrorBoundaryProviderProps {
+import { ErrorUtils, NetworkError, ServerError } from "@/lib/errors";
+import { networkToast, showError } from "@/lib/toast";
+
+import { ErrorBoundary } from "../error-boundary";
+
+interface GlobalErrorBoundaryProviderProperties {
     children: ReactNode;
 }
 
-export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryProviderProps) {
-    const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+export const GlobalErrorBoundaryProvider = ({ children }: GlobalErrorBoundaryProviderProperties) => {
+    const [isOnline, setIsOnline] = useState(typeof navigator === "undefined" ? true : navigator.onLine);
     const posthog = usePostHog();
 
     // Monitor network status
@@ -27,12 +29,12 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
             networkToast.offline();
         };
 
-        window.addEventListener("online", handleOnline);
-        window.addEventListener("offline", handleOffline);
+        globalThis.addEventListener("online", handleOnline);
+        globalThis.addEventListener("offline", handleOffline);
 
         return () => {
-            window.removeEventListener("online", handleOnline);
-            window.removeEventListener("offline", handleOffline);
+            globalThis.removeEventListener("online", handleOnline);
+            globalThis.removeEventListener("offline", handleOffline);
         };
     }, []);
 
@@ -51,20 +53,20 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
             posthog?.captureException(error, {
                 $level: "error",
                 errorType: "unhandled-promise-rejection",
-                url: window.location.href,
-                userAgent: navigator.userAgent,
-                timestamp: new Date().toISOString(),
                 isOnline,
+                timestamp: new Date().toISOString(),
+                url: globalThis.location.href,
+                userAgent: navigator.userAgent,
             });
 
             // Prevent default browser error handling
             event.preventDefault();
         };
 
-        window.addEventListener("unhandledrejection", handleUnhandledRejection);
+        globalThis.addEventListener("unhandledrejection", handleUnhandledRejection);
 
         return () => {
-            window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+            globalThis.removeEventListener("unhandledrejection", handleUnhandledRejection);
         };
     }, [posthog, isOnline]);
 
@@ -81,21 +83,21 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
             // Send error to PostHog
             posthog?.captureException(error, {
                 $level: "error",
+                colno: event.colno,
                 errorType: "javascript-error",
                 filename: event.filename,
-                lineno: event.lineno,
-                colno: event.colno,
-                url: window.location.href,
-                userAgent: navigator.userAgent,
-                timestamp: new Date().toISOString(),
                 isOnline,
+                lineno: event.lineno,
+                timestamp: new Date().toISOString(),
+                url: globalThis.location.href,
+                userAgent: navigator.userAgent,
             });
         };
 
-        window.addEventListener("error", handleError);
+        globalThis.addEventListener("error", handleError);
 
         return () => {
-            window.removeEventListener("error", handleError);
+            globalThis.removeEventListener("error", handleError);
         };
     }, [posthog, isOnline]);
 
@@ -109,29 +111,32 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
         // Send comprehensive error report to PostHog
         posthog?.captureException(error, {
             $level: "error",
-            errorBoundary: "global",
-            errorType: "react-error-boundary",
             componentStack: errorInfo.componentStack,
             context: {
                 isOnline,
-                url: window.location.href,
-                userAgent: navigator.userAgent,
-                timestamp: new Date().toISOString(),
                 localStorage: getLocalStorageSnapshot(),
                 sessionStorage: getSessionStorageSnapshot(),
+                timestamp: new Date().toISOString(),
+                url: globalThis.location.href,
+                userAgent: navigator.userAgent,
             },
+            errorBoundary: "global",
+            errorType: "react-error-boundary",
         });
     };
 
     const getLocalStorageSnapshot = useCallback(() => {
         try {
             const snapshot: Record<string, any> = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
+
+            for (let index = 0; index < localStorage.length; index++) {
+                const key = localStorage.key(index);
+
                 if (key && !key.includes("password") && !key.includes("token")) {
                     snapshot[key] = localStorage.getItem(key);
                 }
             }
+
             return snapshot;
         } catch {
             return {};
@@ -141,12 +146,15 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
     const getSessionStorageSnapshot = useCallback(() => {
         try {
             const snapshot: Record<string, any> = {};
-            for (let i = 0; i < sessionStorage.length; i++) {
-                const key = sessionStorage.key(i);
+
+            for (let index = 0; index < sessionStorage.length; index++) {
+                const key = sessionStorage.key(index);
+
                 if (key && !key.includes("password") && !key.includes("token")) {
                     snapshot[key] = sessionStorage.getItem(key);
                 }
             }
+
             return snapshot;
         } catch {
             return {};
@@ -164,10 +172,10 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
                         <svg className="h-8 w-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
                             />
                         </svg>
                     </div>
@@ -184,21 +192,21 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
 
                     <div className="space-y-3">
                         {ErrorUtils.isRetryable(error) && (
-                            <button onClick={retry} className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
+                            <button className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700" onClick={retry}>
                                 Try Again
                             </button>
                         )}
 
                         <button
-                            onClick={() => window.location.reload()}
                             className="w-full rounded-lg bg-gray-600 px-4 py-2 font-medium text-white hover:bg-gray-700"
+                            onClick={() => globalThis.location.reload()}
                         >
                             Reload Application
                         </button>
 
                         <button
-                            onClick={() => (window.location.href = "/")}
                             className="w-full rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                            onClick={() => (globalThis.location.href = "/")}
                         >
                             Go to Home
                         </button>
@@ -207,7 +215,9 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
                     <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
                         <p>If this problem persists, please contact support.</p>
                         <p className="mt-1">
-                            Error ID: <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">{`global_${Date.now().toString(36)}`}</code>
+                            Error ID:
+                            {" "}
+                            <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">{`global_${Date.now().toString(36)}`}</code>
                         </p>
                     </div>
                 </div>
@@ -217,13 +227,13 @@ export function GlobalErrorBoundaryProvider({ children }: GlobalErrorBoundaryPro
 
     return (
         <ErrorBoundary
-            level="page"
-            onError={handleGlobalError}
             fallback={renderGlobalFallback}
+            level="page"
             maxRetries={1}
+            onError={handleGlobalError}
             showToast={false} // We handle our own notifications
         >
             {children}
         </ErrorBoundary>
     );
-}
+};

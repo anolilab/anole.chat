@@ -1,36 +1,37 @@
 "use client";
 
+import { t } from "@lingui/core/macro";
 import type { Organization } from "better-auth/plugins/organization";
 import { EllipsisIcon, Loader2, LogOutIcon, SettingsIcon } from "lucide-react";
-import { useCallback, useContext, useState } from "react";
-import { t } from "@lingui/core/macro";
+import { use, useCallback, useState } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../lib/utils";
-import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import { getLocalizedError } from "../../lib/utils";
+import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { LeaveOrganizationDialog } from "./leave-organization-dialog";
 import { OrganizationView } from "./organization-view";
 
-export interface OrganizationCellProps {
+export interface OrganizationCellProperties {
     className?: string;
     classNames?: SettingsCardClassNames;
     organization: Organization;
 }
 
-export function OrganizationCell({ className, classNames, organization }: OrganizationCellProps) {
+export const OrganizationCell = ({ className, classNames, organization }: OrganizationCellProperties) => {
     const {
         authClient,
         basePath,
         hooks: { useActiveOrganization },
-        settings,
-        viewPaths,
         navigate,
+        settings,
         toast,
-    } = useContext(AuthUIContext);
+        viewPaths,
+    } = useAuth();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
@@ -39,6 +40,7 @@ export function OrganizationCell({ className, classNames, organization }: Organi
     const handleManageOrganization = useCallback(async () => {
         if (activeOrganization?.id === organization.id) {
             navigate(`${settings?.basePath || basePath}/${viewPaths.ORGANIZATION}`);
+
             return;
         }
 
@@ -46,10 +48,10 @@ export function OrganizationCell({ className, classNames, organization }: Organi
 
         try {
             await authClient.organization.setActive({
-                organizationId: organization.id,
                 fetchOptions: {
                     throw: true,
                 },
+                organizationId: organization.id,
             });
 
             await refetchActiveOrganization?.();
@@ -57,8 +59,8 @@ export function OrganizationCell({ className, classNames, organization }: Organi
             navigate(`${settings?.basePath || basePath}/${viewPaths.ORGANIZATION}`);
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         } finally {
             setIsManagingOrganization(false);
@@ -84,7 +86,7 @@ export function OrganizationCell({ className, classNames, organization }: Organi
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent>
-                        <DropdownMenuItem onClick={handleManageOrganization} disabled={isManagingOrganization}>
+                        <DropdownMenuItem disabled={isManagingOrganization} onClick={handleManageOrganization}>
                             <SettingsIcon className={classNames?.icon} />
 
                             {t`Manage Organization`}
@@ -99,7 +101,7 @@ export function OrganizationCell({ className, classNames, organization }: Organi
                 </DropdownMenu>
             </Card>
 
-            <LeaveOrganizationDialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen} organization={organization} />
+            <LeaveOrganizationDialog onOpenChange={setIsLeaveDialogOpen} open={isLeaveDialogOpen} organization={organization} />
         </>
     );
-}
+};

@@ -1,33 +1,36 @@
-import { type QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { QueryKey } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { BetterFetchOption } from "better-auth/react";
 import { useContext } from "react";
+
 import type { AuthQueryOptions } from "../../lib/auth-query-provider";
-import type { NonThrowableResult, ThrowableResult } from "../../types/auth-core-types";
 import { AuthQueryContext } from "../../lib/auth-query-provider";
+import type { NonThrowableResult, ThrowableResult } from "../../types/auth-core-types";
 import { useOnMutateError } from "./use-mutate-error";
 
-type AuthMutationFn<TParams> = (params: TParams) => Promise<ThrowableResult<any> | NonThrowableResult<any>>;
+type AuthMutationFunction<TParameters> = (parameters: TParameters) => Promise<ThrowableResult<any> | NonThrowableResult<any>>;
 
-export function useAuthMutation<TAuthFn extends AuthMutationFn<any>>({
-    queryKey,
+export function useAuthMutation<TAuthFunction extends AuthMutationFunction<any>>({
     mutationFn,
     optimisticData,
     options,
+    queryKey,
 }: {
-    queryKey: QueryKey;
-    mutationFn: TAuthFn;
-    optimisticData?(params: Omit<Parameters<TAuthFn>[0], "fetchOptions">, previousData: unknown): unknown;
+    mutationFn: TAuthFunction;
+    optimisticData?: (parameters: Omit<Parameters<TAuthFunction>[0], "fetchOptions">, previousData: unknown) => unknown;
     options?: Partial<AuthQueryOptions>;
+    queryKey: QueryKey;
 }) {
-    type TParams = Parameters<TAuthFn>[0];
+    type TParameters = Parameters<TAuthFunction>[0];
     const queryClient = useQueryClient();
     const context = useContext(AuthQueryContext);
     const { optimistic } = { ...context, ...options };
     const { onMutateError } = useOnMutateError();
 
     const mutation = useMutation({
-        mutationFn: ({ fetchOptions = { throw: true }, ...params }: TParams) => mutationFn({ fetchOptions, ...params }),
-        onMutate: async (params: TParams) => {
+        mutationFn: ({ fetchOptions = { throw: true }, ...parameters }: TParameters) => mutationFn({ fetchOptions, ...parameters }),
+        onError: (error, _, context) => onMutateError(error, queryKey, context),
+        onMutate: async (params: TParameters) => {
             if (!optimistic || !optimisticData) return;
             await queryClient.cancelQueries({ queryKey });
 
@@ -37,25 +40,24 @@ export function useAuthMutation<TAuthFn extends AuthMutationFn<any>>({
             queryClient.setQueryData(queryKey, () => optimisticData(params, previousData));
             return { previousData };
         },
-        onError: (error, _, context) => onMutateError(error, queryKey, context),
         onSettled: () => queryClient.invalidateQueries({ queryKey }),
     });
 
-    const { mutate, isPending, error } = mutation;
+    const { error, isPending, mutate } = mutation;
 
-    async function mutateAsync(params: Omit<TParams, "fetchOptions"> & { fetchOptions?: { throw?: true } | undefined }): Promise<ThrowableResult<any>>;
+    async function mutateAsync(parameters: Omit<TParameters, "fetchOptions"> & { fetchOptions?: { throw?: true } | undefined }): Promise<ThrowableResult<any>>;
 
-    async function mutateAsync(params: Omit<TParams, "fetchOptions"> & { fetchOptions?: BetterFetchOption }): Promise<NonThrowableResult<any>>;
+    async function mutateAsync(parameters: Omit<TParameters, "fetchOptions"> & { fetchOptions?: BetterFetchOption }): Promise<NonThrowableResult<any>>;
 
-    async function mutateAsync(params: TParams): Promise<ThrowableResult<any> | NonThrowableResult<any>> {
-        return await mutation.mutateAsync(params);
+    async function mutateAsync(parameters: TParameters): Promise<ThrowableResult<any> | NonThrowableResult<any>> {
+        return await mutation.mutateAsync(parameters);
     }
 
     return {
         ...mutation,
+        error,
+        isPending,
         mutate,
         mutateAsync,
-        isPending,
-        error,
     };
 }

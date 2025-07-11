@@ -1,24 +1,11 @@
+import { createFormHook, createFormHookContexts, useStore } from "@tanstack/react-form";
 import * as React from "react";
 
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { createFormHook, createFormHookContexts, useStore } from "@tanstack/react-form";
 import { Slot } from "@/components/ui/slot";
+import { cn } from "@/lib/utils";
 
 const { fieldContext, formContext, useFieldContext: useFormFieldContext, useFormContext } = createFormHookContexts();
-
-const { useAppForm, withForm } = createFormHook({
-    fieldContext,
-    formContext,
-    fieldComponents: {
-        FormLabel,
-        FormControl,
-        FormDescription,
-        FormMessage,
-        FormItem,
-    },
-    formComponents: {},
-});
 
 type FormItemContextValue = {
     id: string;
@@ -27,101 +14,117 @@ type FormItemContextValue = {
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
-interface FormItemProps extends React.ComponentProps<"div"> {
+interface FormItemProperties extends React.ComponentProps<"div"> {
     required?: boolean;
 }
 
-function FormItem({ className, required, ...props }: FormItemProps) {
+const FormItem = ({ className, required, ...properties }: FormItemProperties) => {
     const id = React.useId();
 
     return (
         <FormItemContext.Provider value={{ id, required }}>
-            <div data-slot="form-item" className={cn("grid gap-2", className)} {...props} />
+            <div className={cn("grid gap-2", className)} data-slot="form-item" {...properties} />
         </FormItemContext.Provider>
     );
-}
+};
 
 const useFieldContext = () => {
-    const { id, required } = React.useContext(FormItemContext);
+    const { id, required } = React.use(FormItemContext);
     const { name, store, ...fieldContext } = useFormFieldContext();
 
     const errors = useStore(store, (state) => state.meta.errors);
+
     if (!fieldContext) {
         throw new Error("useFieldContext should be used within <FormItem>");
     }
 
     return {
+        errors,
+        formDescriptionId: `${id}-form-item-description`,
+        formItemId: `${id}-form-item`,
+        formMessageId: `${id}-form-item-message`,
         id,
         name,
         required,
-        formItemId: `${id}-form-item`,
-        formDescriptionId: `${id}-form-item-description`,
-        formMessageId: `${id}-form-item-message`,
-        errors,
         store,
         ...fieldContext,
     };
 };
 
-interface FormLabelProps extends React.ComponentProps<typeof Label> {
+interface FormLabelProperties extends React.ComponentProps<typeof Label> {
     required?: boolean;
 }
 
-function FormLabel({ className, required, children, ...props }: FormLabelProps) {
-    const { formItemId, errors, required: contextRequired } = useFieldContext();
+const FormLabel = ({ children, className, required, ...properties }: FormLabelProperties) => {
+    const { errors, formItemId, required: contextRequired } = useFieldContext();
     const isRequired = required ?? contextRequired;
 
     return (
         <Label
-            data-slot="form-label"
-            data-error={!!errors.length}
             className={cn("data-[error=true]:text-destructive", className)}
+            data-error={errors.length > 0}
+            data-slot="form-label"
             htmlFor={formItemId}
-            {...props}
+            {...properties}
         >
             {children}
             {isRequired && <span className="text-destructive ml-1">*</span>}
         </Label>
     );
-}
+};
 
-interface FormControlProps extends React.ComponentProps<typeof Slot> {
+interface FormControlProperties extends React.ComponentProps<typeof Slot> {
     required?: boolean;
 }
 
-function FormControl({ required, ...props }: FormControlProps) {
-    const { errors, formItemId, formDescriptionId, formMessageId, required: contextRequired } = useFieldContext();
+const FormControl = ({ required, ...properties }: FormControlProperties) => {
+    const { errors, formDescriptionId, formItemId, formMessageId, required: contextRequired } = useFieldContext();
     const isRequired = required ?? contextRequired;
 
     return (
         <Slot
-            data-slot="form-control"
-            id={formItemId}
-            aria-describedby={!errors.length ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
-            aria-invalid={!!errors.length}
+            aria-describedby={errors.length === 0 ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+            aria-invalid={errors.length > 0}
             aria-required={isRequired}
             data-required={isRequired}
-            {...props}
+            data-slot="form-control"
+            id={formItemId}
+            {...properties}
         />
     );
-}
+};
 
-function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
+const FormDescription = ({ className, ...properties }: React.ComponentProps<"p">) => {
     const { formDescriptionId } = useFieldContext();
 
-    return <p data-slot="form-description" id={formDescriptionId} className={cn("text-muted-foreground text-sm", className)} {...props} />;
-}
+    return <p className={cn("text-muted-foreground text-sm", className)} data-slot="form-description" id={formDescriptionId} {...properties} />;
+};
 
-function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
+const FormMessage = ({ className, ...properties }: React.ComponentProps<"p">) => {
     const { errors, formMessageId } = useFieldContext();
-    const body = errors.length ? String(errors.at(0)?.message ?? "") : props.children;
-    if (!body) return null;
+    const body = errors.length > 0 ? String(errors.at(0)?.message ?? "") : properties.children;
+
+    if (!body)
+        return null;
 
     return (
-        <p data-slot="form-message" id={formMessageId} className={cn("text-destructive text-sm", className)} {...props}>
+        <p className={cn("text-destructive text-sm", className)} data-slot="form-message" id={formMessageId} {...properties}>
             {body}
         </p>
     );
-}
+};
 
-export { useAppForm, useFormContext, useFieldContext, withForm };
+const { useAppForm, withForm } = createFormHook({
+    fieldComponents: {
+        FormControl,
+        FormDescription,
+        FormItem,
+        FormLabel,
+        FormMessage,
+    },
+    fieldContext,
+    formComponents: {},
+    formContext,
+});
+
+export { useAppForm, useFieldContext, useFormContext, withForm };

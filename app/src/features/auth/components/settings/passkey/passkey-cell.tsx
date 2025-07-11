@@ -1,29 +1,30 @@
 "use client";
 
-import { FingerprintIcon, Loader2 } from "lucide-react";
-import { useContext, useState } from "react";
 import { t } from "@lingui/core/macro";
+import { FingerprintIcon, Loader2 } from "lucide-react";
+import { use, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
 import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-export interface PasskeyCellProps {
+export interface PasskeyCellProperties {
     className?: string;
     classNames?: SettingsCardClassNames;
-    passkey: { id: string; createdAt: Date };
+    passkey: { createdAt: Date; id: string };
 }
 
-export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps) {
+export const PasskeyCell = ({ className, classNames, passkey }: PasskeyCellProperties) => {
     const {
         freshAge,
-        hooks: { useSession, useListPasskeys },
+        hooks: { useListPasskeys, useSession },
         mutators: { deletePasskey },
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { refetch } = useListPasskeys();
 
@@ -38,6 +39,7 @@ export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps
         // If session isn't fresh, show the freshness dialog
         if (!isFresh) {
             setShowFreshnessDialog(true);
+
             return;
         }
 
@@ -46,19 +48,19 @@ export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps
         try {
             await deletePasskey({ id: passkey.id });
             refetch?.();
-        } catch (error) {
+        } catch {
             setIsLoading(false);
 
             toast({
-                variant: "error",
                 message: t`Failed to delete passkey`,
+                variant: "error",
             });
         }
     };
 
     return (
         <>
-            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} />
+            <SessionFreshnessDialog classNames={classNames} onOpenChange={setShowFreshnessDialog} open={showFreshnessDialog} />
 
             <Card className={cn("flex-row items-center p-4", className, classNames?.cell)}>
                 <div className="flex items-center gap-3">
@@ -69,9 +71,9 @@ export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps
                 <Button
                     className={cn("relative ms-auto", classNames?.button, classNames?.outlineButton)}
                     disabled={isLoading}
+                    onClick={handleDeletePasskey}
                     size="sm"
                     variant="outline"
-                    onClick={handleDeletePasskey}
                 >
                     {isLoading && <Loader2 className="animate-spin" />}
                     {t`Delete`}
@@ -79,4 +81,4 @@ export function PasskeyCell({ className, classNames, passkey }: PasskeyCellProps
             </Card>
         </>
     );
-}
+};

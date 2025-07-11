@@ -1,38 +1,41 @@
 "use client";
 
+import { i18n } from "@lingui/core";
+import { t } from "@lingui/core/macro";
 import { KeyRoundIcon } from "lucide-react";
 import { useState } from "react";
-import { t } from "@lingui/core/macro";
 
-import { cn } from "@/lib/utils";
-import type { ApiKey } from "../../../types/data-structure-types";
-import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DEFAULT_LOCALE } from "@/lib/intl/client";
+import { cn } from "@/lib/utils";
+
+import type { ApiKey } from "../../../types/data-structure-types";
+import type { Refetch } from "../../../types/hook-integration-types";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { ApiKeyDeleteDialog } from "./api-key-delete-dialog";
-import { i18n } from "@lingui/core";
-import { DEFAULT_LOCALE } from "@/lib/intl/client";
 
-export interface APIKeyCellProps {
+export interface APIKeyCellProperties {
+    apiKey: ApiKey;
     className?: string;
     classNames?: SettingsCardClassNames;
-    apiKey: ApiKey;
 
     refetch?: Refetch;
 }
 
-export function APIKeyCell({ className, classNames, apiKey, refetch }: APIKeyCellProps) {
+export const APIKeyCell = ({ apiKey, className, classNames, refetch }: APIKeyCellProperties) => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     // Format expiration date or show "Never expires"
     const formatExpiration = () => {
-        if (!apiKey.expiresAt) return t`Never expires`;
+        if (!apiKey.expiresAt)
+            return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
+
         return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale ?? DEFAULT_LOCALE, {
-            month: "short",
             day: "numeric",
+            month: "short",
             year: "numeric",
         })}`;
     };
@@ -48,7 +51,7 @@ export function APIKeyCell({ className, classNames, apiKey, refetch }: APIKeyCel
 
                         <span className="text-muted-foreground flex-1 truncate text-sm">
                             {apiKey.start}
-                            {"******"}
+                            ******
                         </span>
                     </div>
 
@@ -57,15 +60,15 @@ export function APIKeyCell({ className, classNames, apiKey, refetch }: APIKeyCel
 
                 <Button
                     className={cn("relative ms-auto", classNames?.button, classNames?.outlineButton)}
+                    onClick={() => setShowDeleteDialog(true)}
                     size="sm"
                     variant="outline"
-                    onClick={() => setShowDeleteDialog(true)}
                 >
                     {t`Delete`}
                 </Button>
             </Card>
 
-            <ApiKeyDeleteDialog classNames={classNames} apiKey={apiKey} open={showDeleteDialog} onOpenChange={setShowDeleteDialog} refetch={refetch} />
+            <ApiKeyDeleteDialog apiKey={apiKey} classNames={classNames} onOpenChange={setShowDeleteDialog} open={showDeleteDialog} refetch={refetch} />
         </>
     );
-}
+};

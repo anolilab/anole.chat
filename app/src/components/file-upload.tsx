@@ -1,16 +1,14 @@
 "use client";
 
-import { useState } from "react";
-
+import { useMutation } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import { FileUp, Loader2, Plus } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AnimatePresence, motion } from "framer-motion";
-
-import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
 
 export default function UploadComponent() {
     const [files, setFiles] = useState<File[]>([]);
@@ -19,16 +17,16 @@ export default function UploadComponent() {
     const [progress, setProgress] = useState(0);
     const [content, setContent] = useState<string>();
 
-    const { mutate: uploadMutation, isPending } = useMutation(
+    const { isPending, mutate: uploadMutation } = useMutation(
         api.resources.upload.mutationOptions({
+            onError: (error) => {
+                console.log(error);
+                toast.error(error.message);
+            },
             onSuccess: (data) => {
                 setProgress(100);
                 setContent(data.id);
                 toast.success(`PDF processed with ${data.pageCount} pages`);
-            },
-            onError: (error) => {
-                console.log(error);
-                toast.error(error.message);
             },
         }),
     );
@@ -38,11 +36,13 @@ export default function UploadComponent() {
 
         if (isSafari && isDragging) {
             toast.error("Safari does not support drag & drop. Please use the file picker.");
+
             return;
         }
 
-        const selectedFiles = Array.from(e.target.files || []);
+        const selectedFiles = [...e.target.files || []];
         const validFiles = selectedFiles.filter((file) => file.type === "application/pdf" && file.size <= 5 * 1024 * 1024);
+
         console.log(validFiles);
 
         if (validFiles.length !== selectedFiles.length) {
@@ -54,13 +54,17 @@ export default function UploadComponent() {
 
     const handleSubmitWithFiles = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (files.length === 0) return;
+
+        if (files.length === 0)
+            return;
 
         const file = files[0];
+
         setTitle(file.name);
         setProgress(10);
 
         const formData = new FormData();
+
         formData.append("file", file);
         formData.append("title", file.name);
         uploadMutation(formData);
@@ -77,13 +81,13 @@ export default function UploadComponent() {
     return (
         <div
             className="sticky top-4 flex max-h-[calc(100vh-2rem)] min-h-[200px] w-full justify-center overflow-visible"
+            onDragEnd={() => setIsDragging(false)}
+            onDragExit={() => setIsDragging(false)}
+            onDragLeave={() => setIsDragging(false)}
             onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragging(true);
             }}
-            onDragExit={() => setIsDragging(false)}
-            onDragEnd={() => setIsDragging(false)}
-            onDragLeave={() => setIsDragging(false)}
             onDrop={(e) => {
                 e.preventDefault();
                 setIsDragging(false);
@@ -96,13 +100,13 @@ export default function UploadComponent() {
             <AnimatePresence>
                 {isDragging && (
                     <motion.div
-                        className="pointer-events-none fixed z-10 flex h-dvh w-dvw flex-col items-center justify-center gap-1 bg-zinc-100/90 dark:bg-zinc-900/90"
-                        initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
+                        className="pointer-events-none fixed z-10 flex h-dvh w-dvw flex-col items-center justify-center gap-1 bg-zinc-100/90 dark:bg-zinc-900/90"
                         exit={{ opacity: 0 }}
+                        initial={{ opacity: 0 }}
                     >
                         <div>Drag and drop files here</div>
-                        <div className="text-sm text-zinc-500 dark:text-zinc-400">{"(PDFs only)"}</div>
+                        <div className="text-sm text-zinc-500 dark:text-zinc-400">(PDFs only)</div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -123,35 +127,35 @@ export default function UploadComponent() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmitWithFiles} className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSubmitWithFiles}>
                         <div
-                            className={
-                                "border-muted-foreground/25 hover:border-muted-foreground/50 relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors"
-                            }
+                            className="border-muted-foreground/25 hover:border-muted-foreground/50 relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors"
                         >
-                            <input type="file" onChange={handleFileChange} accept="application/pdf" className="absolute inset-0 cursor-pointer opacity-0" />
+                            <input accept="application/pdf" className="absolute inset-0 cursor-pointer opacity-0" onChange={handleFileChange} type="file" />
                             <FileUp className="text-muted-foreground mb-2 h-8 w-8" />
                             <p className="text-muted-foreground text-center text-sm">
-                                {files.length > 0 ? (
-                                    <span className="text-foreground font-medium">{files[0].name}</span>
-                                ) : (
-                                    <span>Drop your PDF here or click to browse.</span>
-                                )}
+                                {files.length > 0
+                                    ? (
+                                        <span className="text-foreground font-medium">{files[0].name}</span>
+                                    )
+                                    : (
+                                        <span>Drop your PDF here or click to browse.</span>
+                                    )}
                             </p>
                         </div>
                         <div className="flex space-x-2">
-                            <Button type="submit" className="flex-1" disabled={files.length === 0 || isPending}>
-                                {isPending ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Processing...
-                                    </>
-                                ) : (
-                                    "Upload File"
-                                )}
+                            <Button className="flex-1" disabled={files.length === 0 || isPending} type="submit">
+                                {isPending
+                                    ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Processing...
+                                        </>
+                                    )
+                                    : "Upload File"}
                             </Button>
                             {files.length > 0 && (
-                                <Button type="button" variant="outline" onClick={clearPDF} disabled={isPending}>
+                                <Button disabled={isPending} onClick={clearPDF} type="button" variant="outline">
                                     Clear
                                 </Button>
                             )}
@@ -163,9 +167,12 @@ export default function UploadComponent() {
                         <div className="w-full space-y-1">
                             <div className="text-muted-foreground flex justify-between text-sm">
                                 <span>Progress</span>
-                                <span>{Math.round(progress)}%</span>
+                                <span>
+                                    {Math.round(progress)}
+                                    %
+                                </span>
                             </div>
-                            <Progress value={progress} className="h-2" />
+                            <Progress className="h-2" value={progress} />
                         </div>
                         <div className="w-full space-y-2">
                             <div className="grid grid-cols-6 items-center space-x-2 text-sm sm:grid-cols-4">

@@ -1,6 +1,7 @@
+import type { AgentModel } from "@anole/convex/ai/lib/agents";
+import { agents } from "@anole/convex/ai/lib/agents";
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
-import type { FC } from "react";
-import { useState, useCallback } from "react";
+import { useLingui } from "@lingui/react/macro";
 import {
     ArrowDownIcon,
     CheckIcon,
@@ -13,75 +14,74 @@ import {
     ThumbsDownIcon,
     ThumbsUpIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
-import { ScrollBar } from "@/components/ui/scroll-area";
-import { ComposerAttachments, ComposerAddAttachment } from "@/components/assistant-ui/attachment";
-import { UserMessageAttachments } from "@/components/assistant-ui/attachment";
-import { Button } from "@/components/ui/button";
+import type { FC } from "react";
+import { useCallback, useState } from "react";
+
+import { ComposerAddAttachment, ComposerAttachments, UserMessageAttachments } from "@/components/assistant-ui/attachment";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
-import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { useLingui } from "@lingui/react/macro";
 import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { agents, type AgentModel } from "@anole/convex/ai/lib/agents";
-import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
+import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { Button } from "@/components/ui/button";
+import { ScrollBar } from "@/components/ui/scroll-area";
 import { useSession } from "@/features/auth/hooks/session-user-management";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
+import { cn } from "@/lib/utils";
 
-export const Thread: FC<{ threadId?: string }> = ({ threadId }) => {
-    return (
-        <ScrollAreaPrimitive.Root asChild>
-            <ThreadPrimitive.Root
-                className="box-border flex h-full flex-col overflow-hidden"
-                style={{
-                    ["--thread-max-width" as string]: "42rem",
-                }}
-            >
-                <ScrollAreaPrimitive.Viewport className="thread-viewport h-full" asChild>
-                    <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-8">
-                        <ThreadWelcome />
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-                        <ThreadPrimitive.Messages
-                            components={{
-                                UserMessage: UserMessage,
-                                EditComposer: EditComposer,
-                                AssistantMessage: AssistantMessage,
-                            }}
-                        />
+export const Thread: FC<{ threadId?: string }> = ({ threadId }) => (
+    <ScrollAreaPrimitive.Root asChild>
+        <ThreadPrimitive.Root
+            className="box-border flex h-full flex-col overflow-hidden"
+            style={{
+                ["--thread-max-width" as string]: "42rem",
+            }}
+        >
+            <ScrollAreaPrimitive.Viewport asChild className="thread-viewport h-full">
+                <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-8">
+                    <ThreadWelcome />
 
-                        <ThreadPrimitive.If empty={false}>
-                            <div className="min-h-8 flex-grow" />
-                        </ThreadPrimitive.If>
+                    <ThreadPrimitive.Messages
+                        components={{
+                            AssistantMessage,
+                            EditComposer,
+                            UserMessage,
+                        }}
+                    />
 
-                        <div className="sticky bottom-0 flex w-full max-w-[var(--thread-max-width)] flex-col items-center justify-end rounded-t-lg bg-inherit">
-                            <ThreadScrollToBottom />
-                            <Composer threadId={threadId} />
-                        </div>
-                    </ThreadPrimitive.Viewport>
-                </ScrollAreaPrimitive.Viewport>
-                <ScrollBar />
-            </ThreadPrimitive.Root>
-        </ScrollAreaPrimitive.Root>
-    );
-};
+                    <ThreadPrimitive.If empty={false}>
+                        <div className="min-h-8 flex-grow" />
+                    </ThreadPrimitive.If>
 
-const ThreadScrollToBottom: FC = () => {
-    return (
-        <ThreadPrimitive.ScrollToBottom asChild>
-            <TooltipIconButton tooltip="Scroll to bottom" variant="outline" className="absolute -top-8 rounded-full disabled:invisible">
-                <ArrowDownIcon />
-            </TooltipIconButton>
-        </ThreadPrimitive.ScrollToBottom>
-    );
-};
+                    <div className="sticky bottom-0 flex w-full max-w-[var(--thread-max-width)] flex-col items-center justify-end rounded-t-lg bg-inherit">
+                        <ThreadScrollToBottom />
+                        <Composer threadId={threadId} />
+                    </div>
+                </ThreadPrimitive.Viewport>
+            </ScrollAreaPrimitive.Viewport>
+            <ScrollBar />
+        </ThreadPrimitive.Root>
+    </ScrollAreaPrimitive.Root>
+);
+
+const ThreadScrollToBottom: FC = () => (
+    <ThreadPrimitive.ScrollToBottom asChild>
+        <TooltipIconButton className="absolute -top-8 rounded-full disabled:invisible" tooltip="Scroll to bottom" variant="outline">
+            <ArrowDownIcon />
+        </TooltipIconButton>
+    </ThreadPrimitive.ScrollToBottom>
+);
 
 const ThreadWelcome: FC = () => {
     const { t } = useLingui();
-    const { data: session } = useSession();
+    const { hooks } = useAuth();
+    const { data: sessionData } = hooks.useSession();
 
     const getWelcomeMessage = () => {
-        if (session?.user?.name) {
-            return t`Hello ${session.user.name}! What would you like to do today?`;
+        if (sessionData?.user?.name) {
+            return t`Hello ${sessionData.user.name}! What would you like to do today?`;
         }
 
         return t`How can I help you today?`;
@@ -104,9 +104,9 @@ const ThreadWelcomeSuggestions: FC = () => {
 
     const suggestions = [
         {
-            prompt: t`Generate creative ideas for my project`,
-            icon: "💡",
             category: t`Creativity`,
+            icon: "💡",
+            prompt: t`Generate creative ideas for my project`,
         },
     ];
 
@@ -114,11 +114,11 @@ const ThreadWelcomeSuggestions: FC = () => {
         <div className="mb-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {suggestions.map((suggestion, index) => (
                 <ThreadPrimitive.Suggestion
-                    key={index}
-                    className="border-border/50 from-background/80 to-muted/30 hover:border-border hover:shadow-primary/10 group relative flex flex-col items-start justify-between rounded-xl border bg-gradient-to-br p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-                    prompt={suggestion.prompt}
-                    method="replace"
                     autoSend
+                    className="border-border/50 from-background/80 to-muted/30 hover:border-border hover:shadow-primary/10 group relative flex flex-col items-start justify-between rounded-xl border bg-gradient-to-br p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+                    key={index}
+                    method="replace"
+                    prompt={suggestion.prompt}
                 >
                     <div className="mb-2 flex items-center gap-2">
                         <span className="text-lg">{suggestion.icon}</span>
@@ -146,22 +146,22 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                 <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-col items-start rounded-lg border bg-white/60 px-2.5 shadow-sm backdrop-blur-lg dark:border-neutral-700 dark:bg-neutral-900/60">
                     <div className="flex w-full flex-row items-center justify-between">
                         <ComposerPrimitive.Input
-                            data-composer-input
-                            rows={1}
                             autoFocus
-                            placeholder={t`Type your message here...`}
                             className="placeholder:text-muted-foreground min-h-10 w-full flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed dark:text-neutral-100 dark:placeholder:text-neutral-400"
+                            data-composer-input
+                            placeholder={t`Type your message here...`}
+                            rows={1}
                         />
                         {threadId && <PromptImprovement key={threadId} threadId={threadId} />}
                     </div>
                     <div className="flex w-full flex-row items-center justify-between">
-                        <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as AgentModel)}>
+                        <Select onValueChange={(v) => setSelectedModel(v as AgentModel)} value={selectedModel}>
                             <SelectTrigger className="dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100">
                                 <SelectValue placeholder="Select a model" />
                             </SelectTrigger>
                             <SelectContent className="dark:border-neutral-600 dark:bg-neutral-800">
                                 {Object.keys(agents).map((model) => (
-                                    <SelectItem key={model} value={model} className="dark:text-neutral-100 dark:focus:bg-neutral-700">
+                                    <SelectItem className="dark:text-neutral-100 dark:focus:bg-neutral-700" key={model} value={model}>
                                         {model}
                                     </SelectItem>
                                 ))}
@@ -172,129 +172,116 @@ const Composer: FC<{ threadId?: string }> = ({ threadId }) => {
                     </div>
                 </ComposerPrimitive.Root>
             </div>
-            <div id="composer-placeholder" className="-mt-2 h-4 w-full lg:bg-white dark:lg:bg-neutral-900" />
+            <div className="-mt-2 h-4 w-full lg:bg-white dark:lg:bg-neutral-900" id="composer-placeholder" />
         </>
     );
 };
 
-const ComposerAction: FC = () => {
-    return (
-        <>
-            <ThreadPrimitive.If running={false}>
-                <ComposerPrimitive.Send asChild>
-                    <TooltipIconButton tooltip="Send" variant="default" className="my-2.5 size-8 p-2 transition-opacity ease-in">
-                        <SendHorizontalIcon />
-                    </TooltipIconButton>
-                </ComposerPrimitive.Send>
-            </ThreadPrimitive.If>
-            <ThreadPrimitive.If running>
-                <ComposerPrimitive.Cancel asChild>
-                    <TooltipIconButton tooltip="Cancel" variant="default" className="my-2.5 size-8 p-2 transition-opacity ease-in">
-                        <CircleStopIcon />
-                    </TooltipIconButton>
-                </ComposerPrimitive.Cancel>
-            </ThreadPrimitive.If>
-        </>
-    );
-};
-
-const UserMessage: FC = () => {
-    return (
-        <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 [&:where(>*)]:col-start-2">
-            <UserMessageAttachments />
-            <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[var(--thread-max-width)] break-words rounded-3xl px-5 py-2.5">
-                <MessagePrimitive.Content components={{ Text: MarkdownText }} />
-            </div>
-            <UserActionBar />
-
-            <BranchPicker className="col-span-full col-start-1 row-start-3 -mr-1 justify-end" />
-        </MessagePrimitive.Root>
-    );
-};
-
-const UserActionBar: FC = () => {
-    return (
-        <ActionBarPrimitive.Root hideWhenRunning autohide="not-last" className="mr-3 flex flex-col items-end">
-            <ActionBarPrimitive.Edit asChild>
-                <TooltipIconButton tooltip="Edit">
-                    <PencilIcon />
+const ComposerAction: FC = () => (
+    <>
+        <ThreadPrimitive.If running={false}>
+            <ComposerPrimitive.Send asChild>
+                <TooltipIconButton className="my-2.5 size-8 p-2 transition-opacity ease-in" tooltip="Send" variant="default">
+                    <SendHorizontalIcon />
                 </TooltipIconButton>
-            </ActionBarPrimitive.Edit>
-            <ActionBarPrimitive.Copy asChild>
-                <TooltipIconButton tooltip="Copy">
+            </ComposerPrimitive.Send>
+        </ThreadPrimitive.If>
+        <ThreadPrimitive.If running>
+            <ComposerPrimitive.Cancel asChild>
+                <TooltipIconButton className="my-2.5 size-8 p-2 transition-opacity ease-in" tooltip="Cancel" variant="default">
+                    <CircleStopIcon />
+                </TooltipIconButton>
+            </ComposerPrimitive.Cancel>
+        </ThreadPrimitive.If>
+    </>
+);
+
+const UserMessage: FC = () => (
+    <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 [&:where(>*)]:col-start-2">
+        <UserMessageAttachments />
+        <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[var(--thread-max-width)] break-words rounded-3xl px-5 py-2.5">
+            <MessagePrimitive.Content components={{ Text: MarkdownText }} />
+        </div>
+        <UserActionBar />
+
+        <BranchPicker className="col-span-full col-start-1 row-start-3 -mr-1 justify-end" />
+    </MessagePrimitive.Root>
+);
+
+const UserActionBar: FC = () => (
+    <ActionBarPrimitive.Root autohide="not-last" className="mr-3 flex flex-col items-end" hideWhenRunning>
+        <ActionBarPrimitive.Edit asChild>
+            <TooltipIconButton tooltip="Edit">
+                <PencilIcon />
+            </TooltipIconButton>
+        </ActionBarPrimitive.Edit>
+        <ActionBarPrimitive.Copy asChild>
+            <TooltipIconButton tooltip="Copy">
+                <CopyIcon />
+            </TooltipIconButton>
+        </ActionBarPrimitive.Copy>
+    </ActionBarPrimitive.Root>
+);
+
+const EditComposer: FC = () => (
+    <ComposerPrimitive.Root className="bg-muted my-4 flex w-full max-w-[var(--thread-max-width)] flex-col gap-2">
+        <ComposerPrimitive.Input className="text-foreground flex h-8 w-full resize-none bg-transparent p-4 pb-0 outline-none" />
+
+        <div className="mx-3 mb-3 flex items-center justify-center gap-2 self-end">
+            <ComposerPrimitive.Cancel asChild>
+                <Button variant="ghost">Cancel</Button>
+            </ComposerPrimitive.Cancel>
+            <ComposerPrimitive.Send asChild>
+                <Button>Send</Button>
+            </ComposerPrimitive.Send>
+        </div>
+    </ComposerPrimitive.Root>
+);
+
+const AssistantMessage: FC = () => (
+    <MessagePrimitive.Root className="relative grid w-full max-w-[var(--thread-max-width)] grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] py-4">
+        <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 max-w-[var(--thread-max-width)] break-words leading-7 dark:text-white">
+            <MessagePrimitive.Content components={{ Text: MarkdownText }} />
+            <MessageError />
+        </div>
+
+        <AssistantActionBar />
+
+        <BranchPicker className="col-start-2 row-start-2 -ml-2 mr-2" />
+    </MessagePrimitive.Root>
+);
+
+const MessageError: FC = () => (
+    <MessagePrimitive.Error>
+        <ErrorPrimitive.Root className="border-destructive bg-destructive/10 dark:bg-destructive/5 text-destructive mt-2 rounded-md border p-3 text-sm dark:text-red-200">
+            <ErrorPrimitive.Message className="line-clamp-2" />
+        </ErrorPrimitive.Root>
+    </MessagePrimitive.Error>
+);
+
+const AssistantActionBar: FC = () => (
+    <ActionBarPrimitive.Root
+        autohide="not-last"
+        autohideFloat="single-branch"
+        className="text-muted-foreground data-[floating]:bg-background col-start-3 row-start-2 -ml-1 flex gap-1 data-[floating]:absolute data-[floating]:rounded-md data-[floating]:border data-[floating]:p-1 data-[floating]:shadow-sm"
+        hideWhenRunning
+    >
+        <ActionBarPrimitive.Copy asChild>
+            <TooltipIconButton tooltip="Copy">
+                <MessagePrimitive.If copied>
+                    <CheckIcon />
+                </MessagePrimitive.If>
+                <MessagePrimitive.If copied={false}>
                     <CopyIcon />
-                </TooltipIconButton>
-            </ActionBarPrimitive.Copy>
-        </ActionBarPrimitive.Root>
-    );
-};
-
-const EditComposer: FC = () => {
-    return (
-        <ComposerPrimitive.Root className="bg-muted my-4 flex w-full max-w-[var(--thread-max-width)] flex-col gap-2">
-            <ComposerPrimitive.Input className="text-foreground flex h-8 w-full resize-none bg-transparent p-4 pb-0 outline-none" />
-
-            <div className="mx-3 mb-3 flex items-center justify-center gap-2 self-end">
-                <ComposerPrimitive.Cancel asChild>
-                    <Button variant="ghost">Cancel</Button>
-                </ComposerPrimitive.Cancel>
-                <ComposerPrimitive.Send asChild>
-                    <Button>Send</Button>
-                </ComposerPrimitive.Send>
-            </div>
-        </ComposerPrimitive.Root>
-    );
-};
-
-const AssistantMessage: FC = () => {
-    return (
-        <MessagePrimitive.Root className="relative grid w-full max-w-[var(--thread-max-width)] grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] py-4">
-            <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 max-w-[var(--thread-max-width)] break-words leading-7 dark:text-white">
-                <MessagePrimitive.Content components={{ Text: MarkdownText }} />
-                <MessageError />
-            </div>
-
-            <AssistantActionBar />
-
-            <BranchPicker className="col-start-2 row-start-2 -ml-2 mr-2" />
-        </MessagePrimitive.Root>
-    );
-};
-
-const MessageError: FC = () => {
-    return (
-        <MessagePrimitive.Error>
-            <ErrorPrimitive.Root className="border-destructive bg-destructive/10 dark:bg-destructive/5 text-destructive mt-2 rounded-md border p-3 text-sm dark:text-red-200">
-                <ErrorPrimitive.Message className="line-clamp-2" />
-            </ErrorPrimitive.Root>
-        </MessagePrimitive.Error>
-    );
-};
-
-const AssistantActionBar: FC = () => {
-    return (
-        <ActionBarPrimitive.Root
-            hideWhenRunning
-            autohide="not-last"
-            autohideFloat="single-branch"
-            className="text-muted-foreground data-[floating]:bg-background col-start-3 row-start-2 -ml-1 flex gap-1 data-[floating]:absolute data-[floating]:rounded-md data-[floating]:border data-[floating]:p-1 data-[floating]:shadow-sm"
-        >
-            <ActionBarPrimitive.Copy asChild>
-                <TooltipIconButton tooltip="Copy">
-                    <MessagePrimitive.If copied>
-                        <CheckIcon />
-                    </MessagePrimitive.If>
-                    <MessagePrimitive.If copied={false}>
-                        <CopyIcon />
-                    </MessagePrimitive.If>
-                </TooltipIconButton>
-            </ActionBarPrimitive.Copy>
-            <ActionBarPrimitive.Reload asChild>
-                <TooltipIconButton tooltip="Refresh">
-                    <RefreshCwIcon />
-                </TooltipIconButton>
-            </ActionBarPrimitive.Reload>
-            {/* TODO: Improve the message feedback
+                </MessagePrimitive.If>
+            </TooltipIconButton>
+        </ActionBarPrimitive.Copy>
+        <ActionBarPrimitive.Reload asChild>
+            <TooltipIconButton tooltip="Refresh">
+                <RefreshCwIcon />
+            </TooltipIconButton>
+        </ActionBarPrimitive.Reload>
+        {/* TODO: Improve the message feedback
             <ActionBarPrimitive.FeedbackPositive asChild>
                 <TooltipIconButton tooltip="Positive Feedback">
                     <ThumbsUpIcon />
@@ -306,34 +293,32 @@ const AssistantActionBar: FC = () => {
                 </TooltipIconButton>
             </ActionBarPrimitive.FeedbackNegative>
              */}
-        </ActionBarPrimitive.Root>
-    );
-};
+    </ActionBarPrimitive.Root>
+);
 
-const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({ className, ...rest }) => {
-    return (
-        <BranchPickerPrimitive.Root hideWhenSingleBranch className={cn("text-muted-foreground inline-flex items-center text-xs", className)} {...rest}>
-            <BranchPickerPrimitive.Previous asChild>
-                <TooltipIconButton tooltip="Previous">
-                    <ChevronLeftIcon />
-                </TooltipIconButton>
-            </BranchPickerPrimitive.Previous>
-            <span className="font-medium">
-                <BranchPickerPrimitive.Number /> / <BranchPickerPrimitive.Count />
-            </span>
-            <BranchPickerPrimitive.Next asChild>
-                <TooltipIconButton tooltip="Next">
-                    <ChevronRightIcon />
-                </TooltipIconButton>
-            </BranchPickerPrimitive.Next>
-        </BranchPickerPrimitive.Root>
-    );
-};
+const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({ className, ...rest }) => (
+    <BranchPickerPrimitive.Root className={cn("text-muted-foreground inline-flex items-center text-xs", className)} hideWhenSingleBranch {...rest}>
+        <BranchPickerPrimitive.Previous asChild>
+            <TooltipIconButton tooltip="Previous">
+                <ChevronLeftIcon />
+            </TooltipIconButton>
+        </BranchPickerPrimitive.Previous>
+        <span className="font-medium">
+            <BranchPickerPrimitive.Number />
+            {" "}
+            /
+            <BranchPickerPrimitive.Count />
+        </span>
+        <BranchPickerPrimitive.Next asChild>
+            <TooltipIconButton tooltip="Next">
+                <ChevronRightIcon />
+            </TooltipIconButton>
+        </BranchPickerPrimitive.Next>
+    </BranchPickerPrimitive.Root>
+);
 
-const CircleStopIcon = () => {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
-            <rect width="10" height="10" x="3" y="3" rx="2" />
-        </svg>
-    );
-};
+const CircleStopIcon = () => (
+    <svg fill="currentColor" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+        <rect height="10" rx="2" width="10" x="3" y="3" />
+    </svg>
+);

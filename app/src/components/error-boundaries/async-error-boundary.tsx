@@ -1,59 +1,66 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type DependencyList, type ReactNode } from "react";
 import { usePostHog } from "posthog-js/react";
-import { ErrorBoundary, useErrorHandler } from "../error-boundary";
+import type { DependencyList, ReactNode } from "react";
+import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+
 import { ErrorUtils } from "@/lib/errors";
 
-interface AsyncErrorBoundaryProps {
+import { ErrorBoundary, useErrorHandler } from "../error-boundary";
+
+interface AsyncErrorBoundaryProperties {
     children: ReactNode;
-    onError?: (error: Error) => void;
     fallback?: (error: Error, retry: () => void) => ReactNode;
+    onError?: (error: Error) => void;
 }
 
 /**
  * Enhanced error boundary that can catch async errors
  * Uses the useErrorHandler hook to bridge async errors to error boundaries
  */
-export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBoundaryProps) {
+export const AsyncErrorBoundary = ({ children, fallback, onError }: AsyncErrorBoundaryProperties) => {
     const handleError = useErrorHandler();
     const posthog = usePostHog();
 
     // Create a context to provide error handling to child components
     const errorContext = useMemo(
-        () => ({
-            handleAsyncError: (error: Error) => {
-                onError?.(error);
+        () => {
+            return {
+                handleAsyncError: (error: Error) => {
+                    onError?.(error);
 
-                // Send error to PostHog
-                posthog?.captureException(error, {
-                    $level: "error",
-                    errorBoundary: "async",
-                    context: "async-operation",
-                    url: window.location.href,
-                    timestamp: new Date().toISOString(),
-                });
+                    // Send error to PostHog
+                    posthog?.captureException(error, {
+                        $level: "error",
+                        context: "async-operation",
+                        errorBoundary: "async",
+                        timestamp: new Date().toISOString(),
+                        url: globalThis.location.href,
+                    });
 
-                handleError(error);
-            },
-        }),
+                    handleError(error);
+                },
+            };
+        },
         [handleError, onError, posthog],
     );
 
     return (
-        <AsyncErrorContext.Provider value={errorContext}>
+        <AsyncErrorContext value={errorContext}>
             <ErrorBoundary
+                fallback={fallback}
                 level="component"
+                maxRetries={3}
                 onError={(error, errorInfo) => {
                     onError?.(error);
 
                     // Send error to PostHog
                     posthog?.captureException(error, {
                         $level: "error",
-                        errorBoundary: "async",
                         componentStack: errorInfo.componentStack,
-                        url: window.location.href,
+                        errorBoundary: "async",
                         timestamp: new Date().toISOString(),
+                        url: globalThis.location.href,
                     });
 
                     console.group("🔄 Async Error Boundary");
@@ -61,14 +68,12 @@ export function AsyncErrorBoundary({ children, onError, fallback }: AsyncErrorBo
                     console.error("Error Info:", errorInfo);
                     console.groupEnd();
                 }}
-                fallback={fallback}
-                maxRetries={3}
             >
                 {children}
             </ErrorBoundary>
-        </AsyncErrorContext.Provider>
+        </AsyncErrorContext>
     );
-}
+};
 
 /**
  * Context for async error handling
@@ -81,7 +86,7 @@ const AsyncErrorContext = createContext(defaultValue)<{
  * Hook to handle async errors within an AsyncErrorBoundary
  */
 export function useAsyncErrorHandler() {
-    const context = useContext(AsyncErrorContext);
+    const context = use(AsyncErrorContext);
 
     if (!context) {
         throw new Error("useAsyncErrorHandler must be used within an AsyncErrorBoundary");
@@ -93,12 +98,13 @@ export function useAsyncErrorHandler() {
 /**
  * Higher-order component that wraps async functions with error handling
  */
-export function withAsyncErrorHandling<T extends (...args: any[]) => Promise<any>>(asyncFn: T, onError?: (error: Error) => void): T {
-    return (async (...args: Parameters<T>) => {
+export function withAsyncErrorHandling<T extends (...arguments_: any[]) => Promise<any>>(asyncFunction: T, onError?: (error: Error) => void): T {
+    return (async (...arguments_: Parameters<T>) => {
         try {
-            return await asyncFn(...args);
+            return await asyncFunction(...arguments_);
         } catch (error) {
             const appError = error instanceof Error ? error : new Error(String(error));
+
             onError?.(appError);
             throw appError;
         }
@@ -108,7 +114,7 @@ export function withAsyncErrorHandling<T extends (...args: any[]) => Promise<any
 /**
  * Hook for safe async operations with automatic error boundary integration
  */
-export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList = []) {
+export function useSafeAsync<T>(asyncFunction: () => Promise<T>, deps: DependencyList = []) {
     const [state, setState] = useState<{
         data: T | null;
         error: Error | null;
@@ -122,14 +128,17 @@ export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList 
     const handleAsyncError = useAsyncErrorHandler();
 
     const execute = useCallback(async () => {
-        setState((prev) => ({ ...prev, loading: true, error: null }));
+        setState((previous) => { return { ...previous, error: null, loading: true }; });
 
         try {
-            const result = await asyncFn();
+            const result = await asyncFunction();
+
             setState({ data: result, error: null, loading: false });
+
             return result;
         } catch (error) {
             const appError = error instanceof Error ? error : new Error(String(error));
+
             setState({ data: null, error: appError, loading: false });
 
             // Only throw to error boundary if it's a critical error
@@ -157,12 +166,12 @@ export function useSafeAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList 
 /**
  * Component wrapper for async operations
  */
-interface AsyncComponentProps {
-    children: (props: { handleAsyncError: (error: Error) => void }) => ReactNode;
+interface AsyncComponentProperties {
+    children: (properties: { handleAsyncError: (error: Error) => void }) => ReactNode;
 }
 
-export function AsyncComponent({ children }: AsyncComponentProps) {
+export const AsyncComponent = ({ children }: AsyncComponentProperties) => {
     const handleAsyncError = useAsyncErrorHandler();
 
     return <>{children({ handleAsyncError })}</>;
-}
+};

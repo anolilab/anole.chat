@@ -1,27 +1,29 @@
 "use client";
 
-import type { Organization } from "better-auth/plugins/organization";
 import { t } from "@lingui/core/macro";
+import type { Organization } from "better-auth/plugins/organization";
 
-import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OrganizationLogo, type OrganizationLogoClassNames } from "./organization-logo";
+import { cn } from "@/lib/utils";
+
+import type { OrganizationLogoClassNames } from "./organization-logo";
+import { OrganizationLogo } from "./organization-logo";
 
 export interface OrganizationViewClassNames {
-    base?: string;
     avatar?: OrganizationLogoClassNames;
+    base?: string;
     content?: string;
-    title?: string;
-    subtitle?: string;
     skeleton?: string;
+    subtitle?: string;
+    title?: string;
 }
 
-export interface OrganizationViewProps {
+export interface OrganizationViewProperties {
     className?: string;
     classNames?: OrganizationViewClassNames;
     isPending?: boolean;
-    size?: "sm" | "default" | "lg" | null;
     organization?: Organization | null;
+    size?: "sm" | "default" | "lg" | null;
 }
 
 /**
@@ -33,29 +35,30 @@ export interface OrganizationViewProps {
  * - Falls back to generic "Organization" text when neither name nor slug is available
  * - Supports customization through classNames prop
  */
-export function OrganizationView({ className, classNames, isPending, size, organization }: OrganizationViewProps) {
-    return (
-        <div className={cn("flex items-center gap-2 truncate", className, classNames?.base)}>
-            <OrganizationLogo
-                className={cn(size !== "sm" && "my-0.5")}
-                classNames={classNames?.avatar}
-                isPending={isPending}
-                organization={organization}
-                size={size}
-            />
+export const OrganizationView = ({ className, classNames, isPending, organization, size }: OrganizationViewProperties) => (
+    <div className={cn("flex items-center gap-2 truncate", className, classNames?.base)}>
+        <OrganizationLogo
+            className={cn(size !== "sm" && "my-0.5")}
+            classNames={classNames?.avatar}
+            isPending={isPending}
+            organization={organization}
+            size={size}
+        />
 
-            <div className={cn("flex flex-col truncate text-left leading-tight", classNames?.content)}>
-                {isPending ? (
+        <div className={cn("flex flex-col truncate text-left leading-tight", classNames?.content)}>
+            {isPending
+                ? (
                     <>
                         <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
 
                         {size !== "sm" && (
                             <Skeleton
-                                className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-24" : "h-3 w-16", classNames?.subtitle, classNames?.skeleton)}
-                            />
+                                    className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-24" : "h-3 w-16", classNames?.subtitle, classNames?.skeleton)}
+                                />
                         )}
                     </>
-                ) : (
+                )
+                : (
                     <>
                         <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
                             {organization?.name || t`Organization`}
@@ -66,7 +69,6 @@ export function OrganizationView({ className, classNames, isPending, size, organ
                         )}
                     </>
                 )}
-            </div>
         </div>
-    );
-}
+    </div>
+);

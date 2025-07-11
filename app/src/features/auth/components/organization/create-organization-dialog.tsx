@@ -1,41 +1,42 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import { Trash2Icon, UploadCloudIcon } from "lucide-react";
-import { type ComponentProps, useContext, useRef, useState } from "react";
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { Loader2, Trash2Icon, UploadCloudIcon } from "lucide-react";
+import type { ComponentProps } from "react";
+import { use, useRef, useState } from "react";
+import { z } from "zod/v4";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../lib/utils";
-import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
+import { getLocalizedError } from "../../lib/utils";
+import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { OrganizationLogo } from "./organization-logo";
 
-export interface CreateOrganizationDialogProps extends ComponentProps<typeof Dialog> {
+export interface CreateOrganizationDialogProperties extends ComponentProps<typeof Dialog> {
     className?: string;
     classNames?: SettingsCardClassNames;
 }
 
-export function CreateOrganizationDialog({ className, classNames, onOpenChange, ...props }: CreateOrganizationDialogProps) {
+export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, ...properties }: CreateOrganizationDialogProperties) => {
     const {
         authClient,
         hooks: { useActiveOrganization, useListOrganizations },
         organization,
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const [logo, setLogo] = useState<string | null>(null);
     const [uploadingLogo, setUploadingLogo] = useState(false);
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const openFileDialog = () => fileInputRef.current?.click();
+    const fileInputReference = useRef<HTMLInputElement>(null);
+    const openFileDialog = () => fileInputReference.current?.click();
 
     const { refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -53,7 +54,7 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
             .regex(/^[a-z0-9-]+$/, {
                 message: t`Organization slug is invalid`,
             }),
-    });
+    }).strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -61,16 +62,13 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
             name: "",
             slug: "",
         },
-        validators: {
-            onChange: ({ value }) => formSchema.safeParse(value),
-        },
         onSubmit: async ({ value }) => {
             try {
                 const organization = await authClient.organization.create({
+                    fetchOptions: { throw: true },
+                    logo: value.logo,
                     name: value.name,
                     slug: value.slug,
-                    logo: value.logo,
-                    fetchOptions: { throw: true },
                 });
 
                 await authClient.organization.setActive({
@@ -84,20 +82,24 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
                 setLogo(null);
 
                 toast({
-                    variant: "success",
                     message: t`Organization created successfully`,
+                    variant: "success",
                 });
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             }
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value),
         },
     });
 
     const handleLogoChange = async (file: File) => {
-        if (!organization?.logo) return;
+        if (!organization?.logo)
+            return;
 
         setUploadingLogo(true);
 
@@ -106,18 +108,14 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
 
             let image: string | undefined | null;
 
-            if (organization?.logo.upload) {
-                image = await organization.logo.upload(resizedFile);
-            } else {
-                image = await fileToBase64(resizedFile);
-            }
+            image = await (organization?.logo.upload ? organization.logo.upload(resizedFile) : fileToBase64(resizedFile));
 
             setLogo(image || null);
             form.setFieldValue("logo", image || "");
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
 
@@ -130,7 +128,7 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
     };
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
             <DialogContent className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Create Organization`}</DialogTitle>
@@ -142,29 +140,31 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
 
                 <form.AppForm>
                     <form
+                        className="space-y-6"
                         onSubmit={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             form.handleSubmit();
                         }}
-                        className="space-y-6"
                     >
                         {organization?.logo && (
                             <form.AppField
-                                name="logo"
                                 children={() => (
                                     <div className="space-y-2">
                                         <input
-                                            ref={fileInputRef}
                                             accept="image/*"
                                             disabled={uploadingLogo}
                                             hidden
-                                            type="file"
                                             onChange={(e) => {
                                                 const file = e.target.files?.item(0);
-                                                if (file) handleLogoChange(file);
+
+                                                if (file)
+                                                    handleLogoChange(file);
+
                                                 e.target.value = "";
                                             }}
+                                            ref={fileInputReference}
+                                            type="file"
                                         />
 
                                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -176,7 +176,6 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
                                                 <DropdownMenuTrigger asChild>
                                                     <Button className="size-fit rounded-full" size="icon" type="button" variant="ghost">
                                                         <form.Subscribe
-                                                            selector={(state) => state.values.name}
                                                             children={(name) => (
                                                                 <OrganizationLogo
                                                                     className="size-16"
@@ -184,25 +183,26 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
                                                                     organization={
                                                                         logo
                                                                             ? {
-                                                                                  name: name,
-                                                                                  logo,
-                                                                              }
+                                                                                logo,
+                                                                                name,
+                                                                            }
                                                                             : null
                                                                     }
                                                                 />
                                                             )}
+                                                            selector={(state) => state.values.name}
                                                         />
                                                     </Button>
                                                 </DropdownMenuTrigger>
 
                                                 <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
-                                                    <DropdownMenuItem onClick={openFileDialog} disabled={uploadingLogo}>
+                                                    <DropdownMenuItem disabled={uploadingLogo} onClick={openFileDialog}>
                                                         <UploadCloudIcon />
                                                         {t`Upload Logo`}
                                                     </DropdownMenuItem>
 
                                                     {logo && (
-                                                        <DropdownMenuItem onClick={deleteLogo} disabled={uploadingLogo} variant="destructive">
+                                                        <DropdownMenuItem disabled={uploadingLogo} onClick={deleteLogo} variant="destructive">
                                                             <Trash2Icon />
                                                             {t`Delete Logo`}
                                                         </DropdownMenuItem>
@@ -210,7 +210,7 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
 
-                                            <Button disabled={uploadingLogo} variant="outline" onClick={openFileDialog} type="button">
+                                            <Button disabled={uploadingLogo} onClick={openFileDialog} type="button" variant="outline">
                                                 {uploadingLogo && <Loader2 className="animate-spin" />}
 
                                                 {t`Upload`}
@@ -218,68 +218,69 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
                                         </div>
                                     </div>
                                 )}
+                                name="logo"
                             />
                         )}
 
                         <form.AppField
-                            name="name"
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel>{t`Organization Name`}</field.FormLabel>
 
                                     <field.FormControl>
                                         <Input
-                                            placeholder={t`Enter organization name`}
-                                            value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder={t`Enter organization name`}
+                                            value={field.state.value}
                                         />
                                     </field.FormControl>
 
                                     <field.FormMessage />
                                 </field.FormItem>
                             )}
+                            name="name"
                         />
 
                         <form.AppField
-                            name="slug"
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel>{t`Organization Slug`}</field.FormLabel>
 
                                     <field.FormControl>
                                         <Input
-                                            placeholder={t`Enter organization slug`}
-                                            value={field.state.value}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder={t`Enter organization slug`}
+                                            value={field.state.value}
                                         />
                                     </field.FormControl>
 
                                     <field.FormMessage />
                                 </field.FormItem>
                             )}
+                            name="slug"
                         />
 
                         <DialogFooter className={classNames?.dialog?.footer}>
                             <Button
+                                className={cn(classNames?.button, classNames?.outlineButton)}
+                                onClick={() => onOpenChange?.(false)}
                                 type="button"
                                 variant="outline"
-                                onClick={() => onOpenChange?.(false)}
-                                className={cn(classNames?.button, classNames?.outlineButton)}
                             >
                                 {t`Cancel`}
                             </Button>
 
                             <form.Subscribe
-                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
-                                    <Button type="submit" className={cn(classNames?.button, classNames?.primaryButton)} disabled={!canSubmit}>
+                                    <Button className={cn(classNames?.button, classNames?.primaryButton)} disabled={!canSubmit} type="submit">
                                         {isSubmitting && <Loader2 className="animate-spin" />}
 
                                         {t`Create Organization`}
                                     </Button>
                                 )}
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                             />
                         </DialogFooter>
                     </form>
@@ -287,4 +288,4 @@ export function CreateOrganizationDialog({ className, classNames, onOpenChange, 
             </DialogContent>
         </Dialog>
     );
-}
+};

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+
 import { useAuthenticate } from "../hooks/use-authenticate";
 
 /**
@@ -10,7 +11,8 @@ import { useAuthenticate } from "../hooks/use-authenticate";
  * sign-in page. Useful for protecting routes that require authentication or
  * redirecting users to sign in from various parts of the application.
  */
-export function RedirectToSignIn(): ReactNode {
+export const RedirectToSignIn = (): ReactNode => {
     useAuthenticate({ authView: "SIGN_IN" });
+
     return null;
-}
+};

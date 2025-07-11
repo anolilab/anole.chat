@@ -1,47 +1,48 @@
-import type { SocialProvider } from "better-auth/social-providers";
-import { useCallback, useContext } from "react";
 import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
+import type { SocialProvider } from "better-auth/social-providers";
+import { use, useCallback } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import type { Provider } from "../../lib/social-providers";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import type { Provider } from "../../lib/social-providers";
+import { getLocalizedError } from "../../lib/utils";
 import type { AuthCardClassNames } from "./auth-card";
 
-interface ProviderButtonProps {
+interface ProviderButtonProperties {
+    callbackURL?: string;
     className?: string;
     classNames?: AuthCardClassNames;
-    callbackURL?: string;
     isSubmitting: boolean;
     other?: boolean;
     provider: Provider;
     redirectTo?: string;
-    socialLayout: "auto" | "horizontal" | "grid" | "vertical";
     setIsSubmitting: (isSubmitting: boolean) => void;
+    socialLayout: "auto" | "horizontal" | "grid" | "vertical";
 }
 
-export function ProviderButton({
+export const ProviderButton = ({
+    callbackURL: callbackURLProperty,
     className,
     classNames,
-    callbackURL: callbackURLProp,
     isSubmitting,
     other,
     provider,
-    redirectTo: redirectToProp,
-    socialLayout,
+    redirectTo: redirectToProperty,
     setIsSubmitting,
-}: ProviderButtonProps) {
-    const { authClient, basePath, baseURL, persistClient, redirectTo: contextRedirectTo, viewPaths, social, genericOAuth, toast } = useContext(AuthUIContext);
+    socialLayout,
+}: ProviderButtonProperties) => {
+    const { authClient, basePath, baseURL, genericOAuth, persistClient, redirectTo: contextRedirectTo, social, toast, viewPaths } = useAuth();
 
     const search = useSearch({ strict: false });
 
-    const getRedirectTo = useCallback(() => redirectToProp || search.redirectTo || contextRedirectTo, [redirectToProp, search.redirectTo, contextRedirectTo]);
+    const getRedirectTo = useCallback(() => redirectToProperty || search.redirectTo || contextRedirectTo, [redirectToProperty, search.redirectTo, contextRedirectTo]);
 
     const getCallbackURL = useCallback(
-        () => `${baseURL}${callbackURLProp || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,
-        [callbackURLProp, persistClient, basePath, viewPaths, baseURL, getRedirectTo],
+        () => `${baseURL}${callbackURLProperty || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,
+        [callbackURLProperty, persistClient, basePath, viewPaths, baseURL, getRedirectTo],
     );
 
     const doSignInSocial = async () => {
@@ -49,42 +50,42 @@ export function ProviderButton({
 
         try {
             if (other) {
-                const oauth2Params = {
-                    providerId: provider.provider,
+                const oauth2Parameters = {
                     callbackURL: getCallbackURL(),
                     fetchOptions: { throw: true },
+                    providerId: provider.provider,
                 };
 
                 if (genericOAuth?.signIn) {
-                    await genericOAuth.signIn(oauth2Params);
+                    await genericOAuth.signIn(oauth2Parameters);
 
                     setTimeout(() => {
                         setIsSubmitting(false);
-                    }, 10000);
+                    }, 10_000);
                 } else {
-                    await authClient.signIn.oauth2(oauth2Params);
+                    await authClient.signIn.oauth2(oauth2Parameters);
                 }
             } else {
-                const socialParams = {
-                    provider: provider.provider as SocialProvider,
+                const socialParameters = {
                     callbackURL: getCallbackURL(),
                     fetchOptions: { throw: true },
+                    provider: provider.provider as SocialProvider,
                 };
 
                 if (social?.signIn) {
-                    await social.signIn(socialParams);
+                    await social.signIn(socialParameters);
 
                     setTimeout(() => {
                         setIsSubmitting(false);
-                    }, 10000);
+                    }, 10_000);
                 } else {
-                    await authClient.signIn.social(socialParams);
+                    await authClient.signIn.social(socialParameters);
                 }
             }
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
 
             setIsSubmitting(false);
@@ -101,8 +102,8 @@ export function ProviderButton({
                 classNames?.form?.providerButton,
             )}
             disabled={isSubmitting}
-            variant="outline"
             onClick={doSignInSocial}
+            variant="outline"
         >
             {provider.icon && <provider.icon className={classNames?.form?.icon} />}
 
@@ -110,4 +111,4 @@ export function ProviderButton({
             {socialLayout === "vertical" && `${t`Sign in with`} ${provider.name}`}
         </Button>
     );
-}
+};

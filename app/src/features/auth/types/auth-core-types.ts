@@ -1,4 +1,5 @@
-import {
+import type { betterAuth } from "better-auth";
+import type {
     anonymousClient,
     apiKeyClient,
     emailOTPClient,
@@ -11,8 +12,8 @@ import {
     twoFactorClient,
     usernameClient,
 } from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/react";
-import type { betterAuth } from "better-auth";
+import type { createAuthClient } from "better-auth/react";
+
 import type { AuthClient } from "@/lib/auth/client";
 
 export type ApiKeyClientPlugin = ReturnType<typeof apiKeyClient>;

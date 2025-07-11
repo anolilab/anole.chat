@@ -1,29 +1,30 @@
 "use client";
 
-import { useContext, useState } from "react";
 import { t } from "@lingui/core/macro";
+import { use, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 import { CardContent } from "@/components/ui/card";
 import { useAppForm } from "@/components/ui/form";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
 import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
-import { SettingsCard } from "../shared/settings-card";
 import type { SettingsCardClassNames } from "../shared/settings-card";
+import { SettingsCard } from "../shared/settings-card";
 import { PasskeyCell } from "./passkey-cell";
 
-export interface PasskeysCardProps {
+export interface PasskeysCardProperties {
     className?: string;
     classNames?: SettingsCardClassNames;
 }
 
-export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
+export const PasskeysCard = ({ className, classNames }: PasskeysCardProperties) => {
     const {
         authClient,
         freshAge,
         hooks: { useListPasskeys, useSession },
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { data: passkeys, isPending, refetch } = useListPasskeys();
 
@@ -39,6 +40,7 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
             // If session isn't fresh, show the freshness dialog
             if (!isFresh) {
                 setShowFreshnessDialog(true);
+
                 return;
             }
 
@@ -47,10 +49,10 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
                     fetchOptions: { throw: true },
                 });
                 await refetch?.();
-            } catch (error) {
+            } catch {
                 toast({
-                    variant: "error",
                     message: t`Failed to add passkey`,
+                    variant: "error",
                 });
             }
         },
@@ -58,7 +60,7 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
 
     return (
         <>
-            <SessionFreshnessDialog open={showFreshnessDialog} onOpenChange={setShowFreshnessDialog} classNames={classNames} />
+            <SessionFreshnessDialog classNames={classNames} onOpenChange={setShowFreshnessDialog} open={showFreshnessDialog} />
 
             <form.AppForm>
                 <form
@@ -69,9 +71,9 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
                     }}
                 >
                     <SettingsCard
+                        actionLabel={t`Add Passkey`}
                         className={className}
                         classNames={classNames}
-                        actionLabel={t`Add Passkey`}
                         description={t`Passkeys allow you to sign in securely using your device's biometric authentication or security key.`}
                         instructions={t`Click the button below to register a new passkey with your device.`}
                         isPending={isPending}
@@ -80,7 +82,7 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
                         {passkeys && passkeys.length > 0 && (
                             <CardContent className={cn("grid gap-4", classNames?.content)}>
                                 {passkeys?.map((passkey) => (
-                                    <PasskeyCell key={passkey.id} classNames={classNames} passkey={passkey} />
+                                    <PasskeyCell classNames={classNames} key={passkey.id} passkey={passkey} />
                                 ))}
                             </CardContent>
                         )}
@@ -89,4 +91,4 @@ export function PasskeysCard({ className, classNames }: PasskeysCardProps) {
             </form.AppForm>
         </>
     );
-}
+};

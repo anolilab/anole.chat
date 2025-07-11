@@ -1,38 +1,40 @@
 "use client";
 
-import { useContext } from "react";
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { use } from "react";
+import { z } from "zod/v4";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
+import { CardContent } from "@/components/ui/card";
+import { useAppForm } from "@/components/ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
+
+import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { PasswordInput } from "../../password-input";
-import { CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAppForm } from "@/components/ui/form";
-import { SettingsCard, type SettingsCardClassNames } from "../shared/settings-card";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { SettingsCard } from "../shared/settings-card";
 
-export interface ChangePasswordCardProps {
+export interface ChangePasswordCardProperties {
+    accounts?: { provider: string }[] | null;
     className?: string;
     classNames?: SettingsCardClassNames;
-    accounts?: { provider: string }[] | null;
     isPending?: boolean;
-    skipHook?: boolean;
     passwordValidation?: PasswordValidation;
+    skipHook?: boolean;
 }
 
-export function ChangePasswordCard({ className, classNames, accounts, isPending, skipHook, passwordValidation }: ChangePasswordCardProps) {
+export const ChangePasswordCard = ({ accounts, className, classNames, isPending, passwordValidation, skipHook }: ChangePasswordCardProperties) => {
     const {
         authClient,
         basePath,
         baseURL,
         credentials,
-        hooks: { useSession, useListAccounts },
-        viewPaths,
+        hooks: { useListAccounts, useSession },
         toast,
-    } = useContext(AuthUIContext);
+        viewPaths,
+    } = useAuth();
 
     const confirmPasswordEnabled = credentials?.confirmPassword;
     const contextPasswordValidation = credentials?.passwordValidation;
@@ -43,77 +45,90 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
 
     if (!skipHook) {
         const result = useListAccounts();
+
         accounts = result.data;
         isPending = result.isPending;
     }
 
     const formSchema = z
         .object({
+            confirmPassword: confirmPasswordEnabled
+                ? (() => {
+                    let schema = z.string().min(1, {
+                        message: t`Confirm password is required`,
+                    });
+
+                    if (passwordValidation?.minLength) {
+                        schema = schema.min(passwordValidation.minLength, {
+                            message: t`Password is too short`,
+                        });
+                    }
+
+                    if (passwordValidation?.maxLength) {
+                        schema = schema.max(passwordValidation.maxLength, {
+                            message: t`Password is too long`,
+                        });
+                    }
+
+                    if (passwordValidation?.regex) {
+                        schema = schema.regex(passwordValidation.regex, {
+                            message: t`Invalid password`,
+                        });
+                    }
+
+                    return schema;
+                })()
+                : z.string().optional(),
             currentPassword: (() => {
                 let schema = z.string().min(1, {
                     message: t`Current password is required`,
                 });
+
                 if (passwordValidation?.minLength) {
                     schema = schema.min(passwordValidation.minLength, {
                         message: t`Password is too short`,
                     });
                 }
+
                 if (passwordValidation?.maxLength) {
                     schema = schema.max(passwordValidation.maxLength, {
                         message: t`Password is too long`,
                     });
                 }
+
                 if (passwordValidation?.regex) {
                     schema = schema.regex(passwordValidation.regex, {
                         message: t`Invalid password`,
                     });
                 }
+
                 return schema;
             })(),
             newPassword: (() => {
                 let schema = z.string().min(1, {
                     message: t`New password is required`,
                 });
+
                 if (passwordValidation?.minLength) {
                     schema = schema.min(passwordValidation.minLength, {
                         message: t`Password is too short`,
                     });
                 }
+
                 if (passwordValidation?.maxLength) {
                     schema = schema.max(passwordValidation.maxLength, {
                         message: t`Password is too long`,
                     });
                 }
+
                 if (passwordValidation?.regex) {
                     schema = schema.regex(passwordValidation.regex, {
                         message: t`Invalid password`,
                     });
                 }
+
                 return schema;
             })(),
-            confirmPassword: confirmPasswordEnabled
-                ? (() => {
-                      let schema = z.string().min(1, {
-                          message: t`Confirm password is required`,
-                      });
-                      if (passwordValidation?.minLength) {
-                          schema = schema.min(passwordValidation.minLength, {
-                              message: t`Password is too short`,
-                          });
-                      }
-                      if (passwordValidation?.maxLength) {
-                          schema = schema.max(passwordValidation.maxLength, {
-                              message: t`Password is too long`,
-                          });
-                      }
-                      if (passwordValidation?.regex) {
-                          schema = schema.regex(passwordValidation.regex, {
-                              message: t`Invalid password`,
-                          });
-                      }
-                      return schema;
-                  })()
-                : z.string().optional(),
         })
         .refine((data) => !confirmPasswordEnabled || data.newPassword === data.confirmPassword, {
             message: t`Passwords do not match`,
@@ -122,67 +137,69 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
 
     const form = useAppForm({
         defaultValues: {
+            confirmPassword: "",
             currentPassword: "",
             newPassword: "",
-            confirmPassword: "",
-        },
-        validators: {
-            onChange: ({ value }) => formSchema.safeParse(value),
         },
         onSubmit: async ({ value }) => {
             try {
                 await authClient.changePassword({
                     currentPassword: value.currentPassword,
+                    fetchOptions: { throw: true },
                     newPassword: value.newPassword,
                     revokeOtherSessions: true,
-                    fetchOptions: { throw: true },
                 });
 
                 toast({
-                    variant: "success",
                     message: t`Password changed successfully`,
+                    variant: "success",
                 });
 
                 form.reset();
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             }
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value),
         },
     });
 
     const setPasswordForm = useAppForm({
         defaultValues: {},
-        validators: {
-            onChange: () => ({ success: true, data: {} }),
-        },
         onSubmit: async () => {
-            if (!sessionData) return;
+            if (!sessionData)
+                return;
+
             const email = sessionData?.user.email;
 
             try {
                 await authClient.requestPasswordReset({
                     email,
-                    redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
                     fetchOptions: { throw: true },
+                    redirectTo: `${baseURL}${basePath}/${viewPaths.RESET_PASSWORD}`,
                 });
 
                 toast({
-                    variant: "success",
                     message: t`Password reset email sent`,
+                    variant: "success",
                 });
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             }
         },
+        validators: {
+            onChange: () => { return { data: {}, success: true }; },
+        },
     });
 
-    const credentialsLinked = accounts?.some((acc) => acc.provider === "credential");
+    const credentialsLinked = accounts?.some((accumulator) => accumulator.provider === "credential");
 
     if (!isPending && !credentialsLinked) {
         return (
@@ -195,12 +212,12 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
                     }}
                 >
                     <SettingsCard
-                        title={t`Set Password`}
-                        description={t`Set a password for your account`}
                         actionLabel={t`Set Password`}
-                        isPending={isPending}
                         className={className}
                         classNames={classNames}
+                        description={t`Set a password for your account`}
+                        isPending={isPending}
+                        title={t`Set Password`}
                     />
                 </form>
             </setPasswordForm.AppForm>
@@ -217,109 +234,111 @@ export function ChangePasswordCard({ className, classNames, accounts, isPending,
                 }}
             >
                 <SettingsCard
+                    actionLabel={t`Save`}
                     className={className}
                     classNames={classNames}
-                    actionLabel={t`Save`}
                     description={t`Change your account password`}
                     instructions={t`Enter your current password and choose a new one`}
                     isPending={isPending}
                     title={t`Change Password`}
                 >
                     <CardContent className={cn("grid gap-6", classNames?.content)}>
-                        {isPending || !accounts ? (
-                            <>
-                                <div className="flex flex-col gap-1.5">
-                                    <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
-                                    <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
-                                    <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
-                                </div>
-
-                                {confirmPasswordEnabled && (
+                        {isPending || !accounts
+                            ? (
+                                <>
                                     <div className="flex flex-col gap-1.5">
                                         <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
                                         <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
                                     </div>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                <form.AppField
-                                    name="currentPassword"
-                                    children={(field) => (
-                                        <field.FormItem>
-                                            <field.FormLabel className={classNames?.label}>{t`Current Password`}</field.FormLabel>
+                                    <div className="flex flex-col gap-1.5">
+                                        <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
+                                        <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                                    </div>
 
-                                            <field.FormControl>
-                                                <PasswordInput
-                                                    className={classNames?.input}
-                                                    autoComplete="current-password"
-                                                    placeholder={t`Enter current password`}
-                                                    value={field.state.value}
-                                                    onBlur={field.handleBlur}
-                                                    onChange={(e) => field.handleChange(e.target.value)}
-                                                />
-                                            </field.FormControl>
-
-                                            <field.FormMessage className={classNames?.error} />
-                                        </field.FormItem>
+                                    {confirmPasswordEnabled && (
+                                        <div className="flex flex-col gap-1.5">
+                                            <Skeleton className={cn("h-4 w-32", classNames?.skeleton)} />
+                                            <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                                        </div>
                                     )}
-                                />
-
-                                <form.AppField
-                                    name="newPassword"
-                                    children={(field) => (
-                                        <field.FormItem>
-                                            <field.FormLabel className={classNames?.label}>{t`New Password`}</field.FormLabel>
-
-                                            <field.FormControl>
-                                                <PasswordInput
-                                                    className={classNames?.input}
-                                                    autoComplete="new-password"
-                                                    placeholder={t`Enter new password`}
-                                                    enableToggle
-                                                    value={field.state.value}
-                                                    onBlur={field.handleBlur}
-                                                    onChange={(e) => field.handleChange(e.target.value)}
-                                                />
-                                            </field.FormControl>
-
-                                            <field.FormMessage className={classNames?.error} />
-                                        </field.FormItem>
-                                    )}
-                                />
-
-                                {confirmPasswordEnabled && (
+                                </>
+                            )
+                            : (
+                                <>
                                     <form.AppField
-                                        name="confirmPassword"
                                         children={(field) => (
                                             <field.FormItem>
-                                                <field.FormLabel className={classNames?.label}>{t`Confirm Password`}</field.FormLabel>
+                                                <field.FormLabel className={classNames?.label}>{t`Current Password`}</field.FormLabel>
 
                                                 <field.FormControl>
                                                     <PasswordInput
+                                                        autoComplete="current-password"
                                                         className={classNames?.input}
-                                                        autoComplete="new-password"
-                                                        placeholder={t`Confirm new password`}
-                                                        enableToggle
-                                                        value={field.state.value}
                                                         onBlur={field.handleBlur}
                                                         onChange={(e) => field.handleChange(e.target.value)}
+                                                        placeholder={t`Enter current password`}
+                                                        value={field.state.value}
                                                     />
                                                 </field.FormControl>
 
                                                 <field.FormMessage className={classNames?.error} />
                                             </field.FormItem>
                                         )}
+                                        name="currentPassword"
                                     />
-                                )}
-                            </>
-                        )}
+
+                                    <form.AppField
+                                        children={(field) => (
+                                            <field.FormItem>
+                                                <field.FormLabel className={classNames?.label}>{t`New Password`}</field.FormLabel>
+
+                                                <field.FormControl>
+                                                    <PasswordInput
+                                                        autoComplete="new-password"
+                                                        className={classNames?.input}
+                                                        enableToggle
+                                                        onBlur={field.handleBlur}
+                                                        onChange={(e) => field.handleChange(e.target.value)}
+                                                        placeholder={t`Enter new password`}
+                                                        value={field.state.value}
+                                                    />
+                                                </field.FormControl>
+
+                                                <field.FormMessage className={classNames?.error} />
+                                            </field.FormItem>
+                                        )}
+                                        name="newPassword"
+                                    />
+
+                                    {confirmPasswordEnabled && (
+                                        <form.AppField
+                                            children={(field) => (
+                                                <field.FormItem>
+                                                    <field.FormLabel className={classNames?.label}>{t`Confirm Password`}</field.FormLabel>
+
+                                                    <field.FormControl>
+                                                        <PasswordInput
+                                autoComplete="new-password"
+                                className={classNames?.input}
+                                enableToggle
+                                onBlur={field.handleBlur}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                                placeholder={t`Confirm new password`}
+                                value={field.state.value}
+                            />
+                                                    </field.FormControl>
+
+                                                    <field.FormMessage className={classNames?.error} />
+                                                </field.FormItem>
+                                            )}
+                                            name="confirmPassword"
+                                        />
+                                    )}
+                                </>
+                            )}
                     </CardContent>
                 </SettingsCard>
             </form>
         </form.AppForm>
     );
-}
+};

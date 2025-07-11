@@ -4,43 +4,17 @@ import { createPail } from "@visulima/pail";
 export const logger = createPail({
     scope: "ai-chat",
     types: {
-        // Streaming performance loggers
-        stream: {
-            badge: "🚀",
-            color: "cyan",
-            label: "stream",
-            logLevel: "debug",
-        },
-        performance: {
-            badge: "⚡",
-            color: "yellow",
-            label: "perf",
-            logLevel: "debug",
-        },
-        update: {
-            badge: "📝",
-            color: "blue",
-            label: "update",
-            logLevel: "debug",
+        abort: {
+            badge: "⏹️",
+            color: "red",
+            label: "abort",
+            logLevel: "warning",
         },
         connection: {
             badge: "🔄",
             color: "magenta",
             label: "connection",
             logLevel: "debug",
-        },
-        thread: {
-            badge: "📥",
-            color: "green",
-            label: "thread",
-            logLevel: "debug",
-        },
-        // UI interaction loggers
-        user: {
-            badge: "👤",
-            color: "white",
-            label: "user",
-            logLevel: "info",
         },
         message: {
             badge: "💬",
@@ -55,11 +29,37 @@ export const logger = createPail({
             label: "network",
             logLevel: "warning",
         },
-        abort: {
-            badge: "⏹️",
-            color: "red",
-            label: "abort",
-            logLevel: "warning",
+        performance: {
+            badge: "⚡",
+            color: "yellow",
+            label: "perf",
+            logLevel: "debug",
+        },
+        // Streaming performance loggers
+        stream: {
+            badge: "🚀",
+            color: "cyan",
+            label: "stream",
+            logLevel: "debug",
+        },
+        thread: {
+            badge: "📥",
+            color: "green",
+            label: "thread",
+            logLevel: "debug",
+        },
+        update: {
+            badge: "📝",
+            color: "blue",
+            label: "update",
+            logLevel: "debug",
+        },
+        // UI interaction loggers
+        user: {
+            badge: "👤",
+            color: "white",
+            label: "user",
+            logLevel: "info",
         },
     },
 });
@@ -85,6 +85,7 @@ export const configureLogging = (isDevelopment: boolean) => {
 
 // Initialize logging based on environment
 const isDevelopment = import.meta.env?.DEV || process.env.NODE_ENV === "development";
+
 configureLogging(isDevelopment);
 
 // Helper functions for common logging patterns
@@ -95,11 +96,11 @@ export const logStreamStart = (threadId: string) => {
 export const logStreamComplete = (
     threadId: string,
     stats: {
-        duration: number;
-        updates: number;
         avgUpdateInterval: number;
         charsPerSecond: number;
+        duration: number;
         finalTextLength: number;
+        updates: number;
     },
 ) => {
     streamLogger.performance(`Ultra-fast stream completed: ${threadId}

@@ -1,72 +1,74 @@
 "use client";
 
-import { Trash2Icon, UploadCloudIcon } from "lucide-react";
-import { type ComponentProps, useContext, useRef, useState } from "react";
 import { t } from "@lingui/core/macro";
+import { Trash2Icon, UploadCloudIcon } from "lucide-react";
+import type { ComponentProps } from "react";
+import { use, useRef, useState } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
+
+import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { SettingsCardFooter } from "../settings/shared/settings-card-footer";
 import { SettingsCardHeader } from "../settings/shared/settings-card-header";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OrganizationLogo } from "./organization-logo";
 
-export interface OrganizationLogoCardProps extends ComponentProps<typeof Card> {
+export interface OrganizationLogoCardProperties extends ComponentProps<typeof Card> {
     className?: string;
     classNames?: SettingsCardClassNames;
 }
 
-export function OrganizationLogoCard({ className, classNames, ...props }: OrganizationLogoCardProps) {
+export const OrganizationLogoCard = ({ className, classNames, ...properties }: OrganizationLogoCardProperties) => {
     const {
         hooks: { useActiveOrganization },
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { data: activeOrganization } = useActiveOrganization();
 
     if (!activeOrganization) {
         return (
-            <Card className={cn("w-full pb-0 text-start", className, classNames?.base)} {...props}>
+            <Card className={cn("w-full pb-0 text-start", className, classNames?.base)} {...properties}>
                 <div className="flex justify-between">
                     <SettingsCardHeader
                         className="grow self-start"
-                        title={t`Logo`}
-                        description={t`Upload your organization's logo`}
-                        isPending={true}
                         classNames={classNames}
+                        description={t`Upload your organization's logo`}
+                        isPending
+                        title={t`Logo`}
                     />
 
-                    <Button type="button" className="me-6 size-fit rounded-full" size="icon" variant="ghost" disabled>
-                        <OrganizationLogo isPending={true} className="size-20 text-2xl" classNames={classNames?.avatar} />
+                    <Button className="me-6 size-fit rounded-full" disabled size="icon" type="button" variant="ghost">
+                        <OrganizationLogo className="size-20 text-2xl" classNames={classNames?.avatar} isPending />
                     </Button>
                 </div>
 
                 <SettingsCardFooter
                     className="!py-5"
-                    instructions={t`Click on the logo to upload a new image`}
                     classNames={classNames}
-                    isPending={true}
+                    instructions={t`Click on the logo to upload a new image`}
+                    isPending
                     isSubmitting={false}
                 />
             </Card>
         );
     }
 
-    return <OrganizationLogoForm className={className} classNames={classNames} {...props} />;
-}
+    return <OrganizationLogoForm className={className} classNames={classNames} {...properties} />;
+};
 
-function OrganizationLogoForm({ className, classNames, ...props }: OrganizationLogoCardProps) {
+const OrganizationLogoForm = ({ className, classNames, ...properties }: OrganizationLogoCardProperties) => {
     const {
         authClient,
-        hooks: { useActiveOrganization, useListOrganizations, useHasPermission },
+        hooks: { useActiveOrganization, useHasPermission, useListOrganizations },
         optimistic,
         organization,
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -78,29 +80,28 @@ function OrganizationLogoForm({ className, classNames, ...props }: OrganizationL
 
     const isPending = !activeOrganization || permissionPending;
 
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const fileInputReference = useRef<HTMLInputElement | null>(null);
     const [loading, setLoading] = useState(false);
 
     const handleLogoChange = async (file: File) => {
-        if (!activeOrganization || !organization?.logo || !hasPermission?.success) return;
+        if (!activeOrganization || !organization?.logo || !hasPermission?.success)
+            return;
 
         setLoading(true);
         const resizedFile = await resizeAndCropImage(file, crypto.randomUUID(), organization.logo.size, organization.logo.extension);
 
         let image: string | undefined | null;
 
-        if (organization.logo.upload) {
-            image = await organization.logo.upload(resizedFile);
-        } else {
-            image = await fileToBase64(resizedFile);
-        }
+        image = await (organization.logo.upload ? organization.logo.upload(resizedFile) : fileToBase64(resizedFile));
 
         if (!image) {
             setLoading(false);
+
             return;
         }
 
-        if (optimistic && !organization.logo.upload) setLoading(false);
+        if (optimistic && !organization.logo.upload)
+            setLoading(false);
 
         try {
             await authClient.organization.update({
@@ -112,8 +113,8 @@ function OrganizationLogoForm({ className, classNames, ...props }: OrganizationL
             await refetchOrganizations?.();
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
 
@@ -121,7 +122,8 @@ function OrganizationLogoForm({ className, classNames, ...props }: OrganizationL
     };
 
     const handleDeleteLogo = async () => {
-        if (!activeOrganization || !hasPermission?.success) return;
+        if (!activeOrganization || !hasPermission?.success)
+            return;
 
         setLoading(true);
 
@@ -135,8 +137,8 @@ function OrganizationLogoForm({ className, classNames, ...props }: OrganizationL
             await refetchOrganizations?.();
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
 
@@ -145,55 +147,57 @@ function OrganizationLogoForm({ className, classNames, ...props }: OrganizationL
 
     const openFileDialog = () => {
         if (hasPermission?.success) {
-            fileInputRef.current?.click();
+            fileInputReference.current?.click();
         }
     };
 
     return (
-        <Card className={cn("w-full pb-0 text-start", className, classNames?.base)} {...props}>
+        <Card className={cn("w-full pb-0 text-start", className, classNames?.base)} {...properties}>
             <input
-                ref={fileInputRef}
                 accept="image/*"
                 disabled={loading || !hasPermission?.success}
                 hidden
-                type="file"
                 onChange={(e) => {
                     const file = e.target.files?.item(0);
-                    if (file) handleLogoChange(file);
+
+                    if (file)
+                        handleLogoChange(file);
 
                     e.target.value = "";
                 }}
+                ref={fileInputReference}
+                type="file"
             />
 
             <div className="flex justify-between">
                 <SettingsCardHeader
                     className="grow self-start"
-                    title={t`Logo`}
+                    classNames={classNames}
                     description={t`Upload your organization's logo`}
                     isPending={isPending}
-                    classNames={classNames}
+                    title={t`Logo`}
                 />
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button type="button" className="me-6 size-fit rounded-full" size="icon" variant="ghost" disabled={!hasPermission?.success}>
+                        <Button className="me-6 size-fit rounded-full" disabled={!hasPermission?.success} size="icon" type="button" variant="ghost">
                             <OrganizationLogo
-                                isPending={isPending || loading}
-                                key={activeOrganization?.logo}
                                 className="size-20 text-2xl"
                                 classNames={classNames?.avatar}
+                                isPending={isPending || loading}
+                                key={activeOrganization?.logo}
                                 organization={activeOrganization}
                             />
                         </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
-                        <DropdownMenuItem onClick={openFileDialog} disabled={loading || !hasPermission?.success}>
+                        <DropdownMenuItem disabled={loading || !hasPermission?.success} onClick={openFileDialog}>
                             <UploadCloudIcon />
                             {t`Upload Logo`}
                         </DropdownMenuItem>
                         {activeOrganization?.logo && (
-                            <DropdownMenuItem onClick={handleDeleteLogo} disabled={loading || !hasPermission?.success} variant="destructive">
+                            <DropdownMenuItem disabled={loading || !hasPermission?.success} onClick={handleDeleteLogo} variant="destructive">
                                 <Trash2Icon />
                                 {t`Delete Logo`}
                             </DropdownMenuItem>
@@ -204,11 +208,11 @@ function OrganizationLogoForm({ className, classNames, ...props }: OrganizationL
 
             <SettingsCardFooter
                 className="!py-5"
-                instructions={t`Click on the logo to upload a new image`}
                 classNames={classNames}
+                instructions={t`Click on the logo to upload a new image`}
                 isPending={isPending}
                 isSubmitting={loading}
             />
         </Card>
     );
-}
+};

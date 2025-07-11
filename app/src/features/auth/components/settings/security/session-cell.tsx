@@ -1,48 +1,53 @@
 "use client";
 
-import { MonitorIcon, SmartphoneIcon, TabletIcon, MoreHorizontalIcon } from "lucide-react";
-import { useState } from "react";
 import { t } from "@lingui/core/macro";
+import { MonitorIcon, MoreHorizontalIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
+import { useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
 interface Session {
-    id: string;
-    deviceType: "mobile" | "tablet" | "desktop";
-    deviceName?: string;
     browser?: string;
-    os?: string;
-    location?: string;
+    createdAt: string;
+    deviceName?: string;
+    deviceType: "mobile" | "tablet" | "desktop";
+    id: string;
     ipAddress?: string;
     isCurrent: boolean;
-    createdAt: string;
     lastActiveAt: string;
+    location?: string;
+    os?: string;
 }
 
-interface SessionCellProps {
+interface SessionCellProperties {
     classNames?: SettingsCardClassNames;
 
-    session: Session;
     onRevokeSession?: (sessionId: string) => void;
+    session: Session;
 }
 
 function getDeviceIcon(deviceType: Session["deviceType"]) {
     switch (deviceType) {
-        case "mobile":
+        case "desktop": {
+            return MonitorIcon;
+        }
+        case "mobile": {
             return SmartphoneIcon;
-        case "tablet":
+        }
+        case "tablet": {
             return TabletIcon;
-        case "desktop":
+        }
+        default: {
             return MonitorIcon;
-        default:
-            return MonitorIcon;
+        }
     }
 }
 
-export function SessionCell({ classNames, session, onRevokeSession }: SessionCellProps) {
+export const SessionCell = ({ classNames, onRevokeSession, session }: SessionCellProperties) => {
     const [isRevoking, setIsRevoking] = useState(false);
 
     const DeviceIcon = getDeviceIcon(session.deviceType);
@@ -50,9 +55,11 @@ export function SessionCell({ classNames, session, onRevokeSession }: SessionCel
     const lastActiveDate = new Date(session.lastActiveAt).toLocaleDateString();
 
     const handleRevoke = async () => {
-        if (!onRevokeSession || session.isCurrent) return;
+        if (!onRevokeSession || session.isCurrent)
+            return;
 
         setIsRevoking(true);
+
         try {
             await onRevokeSession(session.id);
         } finally {
@@ -83,14 +90,14 @@ export function SessionCell({ classNames, session, onRevokeSession }: SessionCel
             {!session.isCurrent && (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isRevoking}>
+                        <Button className="h-8 w-8" disabled={isRevoking} size="icon" variant="ghost">
                             <MoreHorizontalIcon className="h-4 w-4" />
                             <span className="sr-only">{t`More options`}</span>
                         </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={handleRevoke} disabled={isRevoking} className="text-destructive">
+                        <DropdownMenuItem className="text-destructive" disabled={isRevoking} onClick={handleRevoke}>
                             {isRevoking ? t`Revoking...` : t`Revoke Session`}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -98,4 +105,4 @@ export function SessionCell({ classNames, session, onRevokeSession }: SessionCel
             )}
         </div>
     );
-}
+};

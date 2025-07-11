@@ -3,35 +3,34 @@
 import { Loader2 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 import type { SettingsCardClassNames } from "./settings-card";
 
-interface SettingsActionButtonProps extends ComponentProps<typeof Button> {
-    classNames?: SettingsCardClassNames;
+interface SettingsActionButtonProperties extends ComponentProps<typeof Button> {
     actionLabel: ReactNode;
+    classNames?: SettingsCardClassNames;
     disabled?: boolean;
     isSubmitting?: boolean;
 }
 
-export function SettingsActionButton({ classNames, actionLabel, disabled, isSubmitting = false, variant, onClick, ...props }: SettingsActionButtonProps) {
-    return (
-        <Button
-            className={cn(
-                "md:ms-auto",
-                classNames?.button,
-                variant === "default" && classNames?.primaryButton,
-                variant === "destructive" && classNames?.destructiveButton,
-            )}
-            disabled={isSubmitting || disabled}
-            size="sm"
-            type={onClick ? "button" : "submit"}
-            variant={variant}
-            onClick={onClick}
-            {...props}
-        >
-            {isSubmitting && <Loader2 className="animate-spin" />}
-            {actionLabel}
-        </Button>
-    );
-}
+export const SettingsActionButton = ({ actionLabel, classNames, disabled, isSubmitting = false, onClick, variant, ...properties }: SettingsActionButtonProperties) => (
+    <Button
+        className={cn(
+            "md:ms-auto",
+            classNames?.button,
+            variant === "default" && classNames?.primaryButton,
+            variant === "destructive" && classNames?.destructiveButton,
+        )}
+        disabled={isSubmitting || disabled}
+        onClick={onClick}
+        size="sm"
+        type={onClick ? "button" : "submit"}
+        variant={variant}
+        {...properties}
+    >
+        {isSubmitting && <Loader2 className="animate-spin" />}
+        {actionLabel}
+    </Button>
+);

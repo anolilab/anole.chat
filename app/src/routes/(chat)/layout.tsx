@@ -1,37 +1,36 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
-import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
+
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { RedirectToSignIn } from "@/features/auth/components/redirect-to-sign-in";
+import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
 
 export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,
 });
 
-function RouteComponent() {
-    return (
-        <>
-            <AuthLoading>
-                <div>Loading...</div>
-            </AuthLoading>
-            <Unauthenticated>
-                <RedirectToSignIn />
-            </Unauthenticated>
-            <Authenticated>
-                <AiModelProvider>
-                    {/* TODO: check why the bg-sidebar with inset variant is not working */}
-                    <SidebarProvider
-                        style={
+const RouteComponent = () => (
+    <>
+        <AuthLoading>
+            <div>Loading...</div>
+        </AuthLoading>
+        <Unauthenticated>
+            <RedirectToSignIn />
+        </Unauthenticated>
+        <Authenticated>
+            <AiModelProvider>
+                {/* TODO: check why the bg-sidebar with inset variant is not working */}
+                <SidebarProvider
+                    style={
                             {
-                                "--sidebar-width": "calc(var(--spacing) * 94)",
                                 "--header-height": "calc(var(--spacing) * 8.5)",
+                                "--sidebar-width": "calc(var(--spacing) * 94)",
                             } as React.CSSProperties
                         }
-                    >
-                        <Outlet />
-                    </SidebarProvider>
-                </AiModelProvider>
-            </Authenticated>
-        </>
-    );
-}
+                >
+                    <Outlet />
+                </SidebarProvider>
+            </AiModelProvider>
+        </Authenticated>
+    </>
+);

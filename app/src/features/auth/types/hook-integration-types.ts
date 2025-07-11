@@ -1,8 +1,10 @@
-import type { BetterFetchError } from "better-auth/react";
 import type { Invitation } from "better-auth/plugins/organization";
+import type { BetterFetchError } from "better-auth/react";
+
+import type { AuthClient } from "@/lib/auth/client";
+
 import type { AnyAuthClient } from "./auth-core-types";
 import type { ApiKey } from "./data-structure-types";
-import type { AuthClient } from "@/lib/auth/client";
 
 // Refetch Function Type (from refetch.ts)
 export type Refetch = () => Promise<unknown> | unknown;
@@ -10,50 +12,50 @@ export type Refetch = () => Promise<unknown> | unknown;
 // Toast Rendering Types (from render-toast.ts)
 type ToastVariant = "default" | "success" | "error" | "info" | "warning";
 
-export type RenderToast = ({ variant, message }: { variant?: ToastVariant; message?: string }) => void;
+export type RenderToast = ({ message, variant }: { message?: string; variant?: ToastVariant }) => void;
 
 // Auth Mutators Types (from auth-mutators.ts)
-type MutateFn<T = Record<string, unknown>> = (params: T) => Promise<unknown> | Promise<void>;
+type MutateFunction<T = Record<string, unknown>> = (parameters: T) => Promise<unknown> | Promise<void>;
 
 export interface AuthMutators {
-    deleteApiKey: MutateFn<{ keyId: string }>;
-    deletePasskey: MutateFn<{ id: string }>;
-    revokeDeviceSession: MutateFn<{ sessionToken: string }>;
-    revokeSession: MutateFn<{ token: string }>;
-    setActiveSession: MutateFn<{ sessionToken: string }>;
-    updateUser: MutateFn;
-    unlinkAccount: MutateFn<{ providerId: string; accountId?: string }>;
+    deleteApiKey: MutateFunction<{ keyId: string }>;
+    deletePasskey: MutateFunction<{ id: string }>;
+    revokeDeviceSession: MutateFunction<{ sessionToken: string }>;
+    revokeSession: MutateFunction<{ token: string }>;
+    setActiveSession: MutateFunction<{ sessionToken: string }>;
+    unlinkAccount: MutateFunction<{ accountId?: string; providerId: string }>;
+    updateUser: MutateFunction;
 }
 
 // Auth Hooks Types (from auth-hooks.ts)
 type AnyAuthSession = AnyAuthClient["$Infer"]["Session"];
 
 type AuthHook<T> = {
-    isPending: boolean;
     data?: T | null;
     error?: BetterFetchError | null;
+    isPending: boolean;
     refetch?: Refetch;
 };
 
 export type AuthHooks = {
-    useSession: () => ReturnType<AuthClient["useSession"]>;
-    useListAccounts: () => AuthHook<{ accountId: string; provider: string }[]>;
-    useListDeviceSessions: () => AuthHook<AuthClient["$Infer"]["Session"][]>;
-    useListSessions: () => AuthHook<AnyAuthSession["session"][]>;
-    useListPasskeys: () => Partial<ReturnType<AuthClient["useListPasskeys"]>>;
-    useListApiKeys: () => AuthHook<ApiKey[]>;
     useActiveOrganization: () => Partial<ReturnType<AuthClient["useActiveOrganization"]>>;
-    useListOrganizations: () => Partial<ReturnType<AuthClient["useListOrganizations"]>>;
-    useHasPermission: (params: Parameters<AuthClient["organization"]["hasPermission"]>[0]) => AuthHook<{
+    useHasPermission: (parameters: Parameters<AuthClient["organization"]["hasPermission"]>[0]) => AuthHook<{
         error: null;
         success: boolean;
     }>;
-    useInvitation: (params: Parameters<AuthClient["organization"]["getInvitation"]>[0]) => AuthHook<
+    useInvitation: (parameters: Parameters<AuthClient["organization"]["getInvitation"]>[0]) => AuthHook<
         Invitation & {
+            organizationLogo?: string;
             organizationName: string;
             organizationSlug: string;
-            organizationLogo?: string;
         }
     >;
     useIsRestoring?: () => boolean;
+    useListAccounts: () => AuthHook<{ accountId: string; provider: string }[]>;
+    useListApiKeys: () => AuthHook<ApiKey[]>;
+    useListDeviceSessions: () => AuthHook<AuthClient["$Infer"]["Session"][]>;
+    useListOrganizations: () => Partial<ReturnType<AuthClient["useListOrganizations"]>>;
+    useListPasskeys: () => Partial<ReturnType<AuthClient["useListPasskeys"]>>;
+    useListSessions: () => AuthHook<AnyAuthSession["session"][]>;
+    useSession: () => ReturnType<AuthClient["useSession"]>;
 };

@@ -1,18 +1,20 @@
 "use client";
-import { useContext } from "react";
-import { t } from "@lingui/core/macro";
-import { UAParser } from "my-ua-parser";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
+import { t } from "@lingui/core/macro";
+import clsx from "clsx";
+import { UAParser } from "my-ua-parser";
+import { use } from "react";
+
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SettingsCard } from "../shared/settings-card";
-import type { SettingsCardClassNames } from "../shared/settings-card";
-import { SessionCell } from "./session-cell";
-import clsx from "clsx";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
 
-export interface SessionsCardProps {
+import type { SettingsCardClassNames } from "../shared/settings-card";
+import { SettingsCard } from "../shared/settings-card";
+import { SessionCell } from "./session-cell";
+
+export interface SessionsCardProperties {
     className?: string;
     classNames?: SettingsCardClassNames;
 }
@@ -20,9 +22,9 @@ export interface SessionsCardProps {
 function parseUserAgent(userAgent: string | null | undefined) {
     if (!userAgent) {
         return {
-            deviceType: "desktop" as const,
-            deviceName: undefined,
             browser: undefined,
+            deviceName: undefined,
+            deviceType: "desktop" as const,
             os: undefined,
         };
     }
@@ -32,6 +34,7 @@ function parseUserAgent(userAgent: string | null | undefined) {
 
     // Determine device type based on parsed data
     let deviceType: "mobile" | "tablet" | "desktop" = "desktop";
+
     if (result.device?.type === "mobile") {
         deviceType = "mobile";
     } else if (result.device?.type === "tablet") {
@@ -39,19 +42,19 @@ function parseUserAgent(userAgent: string | null | undefined) {
     }
 
     return {
-        deviceType,
-        deviceName: result.device?.model || result.device?.vendor,
         browser: result.browser?.name && result.browser?.version ? `${result.browser.name} ${result.browser.version}` : result.browser?.name,
+        deviceName: result.device?.model || result.device?.vendor,
+        deviceType,
         os: result.os?.name && result.os?.version ? `${result.os.name} ${result.os.version}` : result.os?.name,
     };
 }
 
-export function SessionsCard({ className, classNames }: SessionsCardProps) {
+export const SessionsCard = ({ className, classNames }: SessionsCardProperties) => {
     const {
         hooks: { useListSessions, useSession },
         mutators: { revokeSession },
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { data: sessions, isPending, refetch } = useListSessions();
     const { data: currentSession } = useSession();
@@ -60,10 +63,10 @@ export function SessionsCard({ className, classNames }: SessionsCardProps) {
         try {
             await revokeSession({ token: sessionToken });
             refetch?.();
-        } catch (error) {
+        } catch {
             toast({
-                variant: "error",
                 message: t`Failed to revoke session`,
+                variant: "error",
             });
         }
     };
@@ -88,35 +91,34 @@ export function SessionsCard({ className, classNames }: SessionsCardProps) {
                         </div>
                         <Skeleton className={cn("h-8 w-8 rounded", classNames?.skeleton)} />
                     </div>
-                ) : (
-                    sessions?.map((session) => {
+                )
+                    : sessions?.map((session) => {
                         const isCurrent = session.id === currentSession?.session?.id;
                         const parsedUA = parseUserAgent(session.userAgent);
 
                         // Transform the session data to match SessionCell's expected format
                         const sessionData = {
-                            id: session.id,
-                            deviceType: parsedUA.deviceType,
-                            deviceName: parsedUA.deviceName,
                             browser: parsedUA.browser,
-                            os: parsedUA.os,
+                            createdAt: session.createdAt.toISOString(),
+                            deviceName: parsedUA.deviceName,
+                            deviceType: parsedUA.deviceType,
+                            id: session.id,
                             ipAddress: session.ipAddress || undefined,
                             isCurrent,
-                            createdAt: session.createdAt.toISOString(),
                             lastActiveAt: session.createdAt.toISOString(), // Using createdAt as fallback since lastActiveAt might not be available
+                            os: parsedUA.os,
                         };
 
                         return (
                             <SessionCell
-                                key={session.id}
                                 classNames={classNames}
-                                session={sessionData}
+                                key={session.id}
                                 onRevokeSession={() => handleRevokeSession(session.token)}
+                                session={sessionData}
                             />
                         );
-                    })
-                )}
+                    })}
             </CardContent>
         </SettingsCard>
     );
-}
+};

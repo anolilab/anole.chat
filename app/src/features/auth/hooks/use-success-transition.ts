@@ -1,26 +1,28 @@
-import { useCallback, useContext, useEffect, useState, useTransition } from "react";
 import { useSearch } from "@tanstack/react-router";
-import { AuthUIContext } from "../lib/auth-ui-provider";
+import { useCallback, useContext, useEffect, useState, useTransition } from "react";
 
-export function useOnSuccessTransition({ redirectTo: redirectToProp }: { redirectTo?: string }) {
-    const { redirectTo: contextRedirectTo } = useContext(AuthUIContext);
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+
+export function useOnSuccessTransition({ redirectTo: redirectToProperty }: { redirectTo?: string }) {
+    const { redirectTo: contextRedirectTo } = useAuth();
     const search = useSearch({ strict: false }) as any;
 
-    const getRedirectTo = useCallback(() => redirectToProp || search?.redirectTo || contextRedirectTo, [redirectToProp, search?.redirectTo, contextRedirectTo]);
+    const getRedirectTo = useCallback(() => redirectToProperty || search?.redirectTo || contextRedirectTo, [redirectToProperty, search?.redirectTo, contextRedirectTo]);
 
     const [isPending, startTransition] = useTransition();
     const [success, setSuccess] = useState(false);
 
     const {
-        navigate,
         hooks: { useSession },
+        navigate,
         onSessionChange,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { refetch: refetchSession } = useSession();
 
     useEffect(() => {
-        if (!success || isPending) return;
+        if (!success || isPending)
+            return;
 
         startTransition(() => {
             navigate(getRedirectTo());
@@ -31,8 +33,9 @@ export function useOnSuccessTransition({ redirectTo: redirectToProp }: { redirec
         await refetchSession?.();
         setSuccess(true);
 
-        if (onSessionChange) startTransition(onSessionChange);
+        if (onSessionChange)
+            startTransition(onSessionChange);
     }, [refetchSession, onSessionChange]);
 
-    return { onSuccess, isPending };
+    return { isPending, onSuccess };
 }

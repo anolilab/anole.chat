@@ -1,33 +1,35 @@
 "use client";
 
-import { KeyRoundIcon, Loader2 } from "lucide-react";
-import { type ComponentProps, useContext, useState } from "react";
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
+import { KeyRoundIcon, Loader2 } from "lucide-react";
+import type { ComponentProps } from "react";
+import { use, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
-import { cn } from "@/lib/utils";
-import type { ApiKey } from "../../../types/data-structure-types";
-import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { SettingsCardClassNames } from "../shared/settings-card";
-import { i18n } from "@lingui/core";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { DEFAULT_LOCALE } from "@/lib/intl/client";
+import { cn } from "@/lib/utils";
 
-interface ApiKeyDeleteDialogProps extends ComponentProps<typeof Dialog> {
-    classNames?: SettingsCardClassNames;
+import { getLocalizedError } from "../../../lib/utils";
+import type { ApiKey } from "../../../types/data-structure-types";
+import type { Refetch } from "../../../types/hook-integration-types";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+
+interface ApiKeyDeleteDialogProperties extends ComponentProps<typeof Dialog> {
     apiKey: ApiKey;
+    classNames?: SettingsCardClassNames;
 
     refetch?: Refetch;
 }
 
-export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, ...props }: ApiKeyDeleteDialogProps) {
+export const ApiKeyDeleteDialog = ({ apiKey, classNames, onOpenChange, refetch, ...properties }: ApiKeyDeleteDialogProperties) => {
     const {
         mutators: { deleteApiKey },
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -40,8 +42,8 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, 
             onOpenChange?.(false);
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
 
@@ -50,27 +52,33 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, 
 
     // Format expiration date or show "Never expires"
     const formatExpiration = () => {
-        if (!apiKey.expiresAt) return t`Never expires`;
+        if (!apiKey.expiresAt)
+            return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
+
         return `${t`Expires`} ${expiresDate.toLocaleDateString(i18n.locale ?? DEFAULT_LOCALE, {
-            month: "short",
             day: "numeric",
+            month: "short",
             year: "numeric",
         })}`;
     };
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
-            <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
+            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>
-                        {t`Delete`} {t`API Key`}
+                        {t`Delete`}
+                        {" "}
+                        {t`API Key`}
                     </DialogTitle>
 
                     <DialogDescription
                         className={cn("text-xs md:text-sm", classNames?.description)}
-                    >{t`Are you sure you want to delete this API key? This action cannot be undone.`}</DialogDescription>
+                    >
+                        {t`Are you sure you want to delete this API key? This action cannot be undone.`}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <Card className={cn("my-2 flex-row items-center gap-3 px-4 py-3", classNames?.cell)}>
@@ -82,7 +90,7 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, 
 
                             <span className="text-muted-foreground text-sm">
                                 {apiKey.start}
-                                {"******"}
+                                ******
                             </span>
                         </div>
 
@@ -92,21 +100,21 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, 
 
                 <DialogFooter className={classNames?.dialog?.footer}>
                     <Button
+                        className={cn(classNames?.button, classNames?.secondaryButton)}
+                        disabled={isLoading}
+                        onClick={() => onOpenChange?.(false)}
                         type="button"
                         variant="secondary"
-                        onClick={() => onOpenChange?.(false)}
-                        disabled={isLoading}
-                        className={cn(classNames?.button, classNames?.secondaryButton)}
                     >
                         {t`Cancel`}
                     </Button>
 
                     <Button
+                        className={cn(classNames?.button, classNames?.destructiveButton)}
+                        disabled={isLoading}
+                        onClick={handleDelete}
                         type="button"
                         variant="destructive"
-                        onClick={handleDelete}
-                        disabled={isLoading}
-                        className={cn(classNames?.button, classNames?.destructiveButton)}
                     >
                         {isLoading && <Loader2 className="animate-spin" />}
                         {t`Delete`}
@@ -115,4 +123,4 @@ export function ApiKeyDeleteDialog({ classNames, apiKey, refetch, onOpenChange, 
             </DialogContent>
         </Dialog>
     );
-}
+};

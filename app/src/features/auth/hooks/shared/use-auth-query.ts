@@ -1,5 +1,7 @@
-import { type QueryKey, skipToken } from "@tanstack/query-core";
-import { type AnyUseQueryOptions, useQuery } from "@tanstack/react-query";
+import type { QueryKey } from "@tanstack/query-core";
+import { skipToken } from "@tanstack/query-core";
+import type { AnyUseQueryOptions } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { BetterFetchOption, BetterFetchResponse } from "better-auth/react";
 import { useContext } from "react";
 
@@ -9,26 +11,26 @@ import { useSession } from "../session-user-management";
 
 export type BetterFetchRequest<TData> = ({ fetchOptions }: { fetchOptions: BetterFetchOption }) => Promise<BetterFetchResponse<TData>>;
 
-type UseAuthQueryProps<TData, TAuthClient> = {
+type UseAuthQueryProperties<TData, TAuthClient> = {
     authClient: TAuthClient;
-    queryKey: QueryKey;
-    queryFn: BetterFetchRequest<TData>;
     options?: Partial<AnyUseQueryOptions>;
+    queryFn: BetterFetchRequest<TData>;
+    queryKey: QueryKey;
 };
 
 export function useAuthQuery<TData, TAuthClient extends AnyAuthClient = AnyAuthClient>({
     authClient,
-    queryKey,
-    queryFn,
     options,
-}: UseAuthQueryProps<TData, TAuthClient>) {
+    queryFn,
+    queryKey,
+}: UseAuthQueryProperties<TData, TAuthClient>) {
     const { data: sessionData } = useSession(authClient);
     const { queryOptions } = useContext(AuthQueryContext);
     const mergedOptions = { ...queryOptions, ...options };
 
     return useQuery<TData>({
-        queryKey,
         queryFn: sessionData ? () => queryFn({ fetchOptions: { throw: true } }) : skipToken,
+        queryKey,
         ...mergedOptions,
     });
 }

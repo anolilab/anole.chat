@@ -1,44 +1,45 @@
 "use client";
 
+import { t } from "@lingui/core/macro";
 import type { Invitation } from "better-auth/plugins/organization";
 import { EllipsisIcon, Loader2, XIcon } from "lucide-react";
-import { useContext, useState } from "react";
-import { t } from "@lingui/core/macro";
+import { use, useState } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../lib/utils";
-import type { SettingsCardClassNames } from "../settings/shared/settings-card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
 
-export interface InvitationCellProps {
+import { getLocalizedError } from "../../lib/utils";
+import type { SettingsCardClassNames } from "../settings/shared/settings-card";
+
+export interface InvitationCellProperties {
     className?: string;
     classNames?: SettingsCardClassNames;
     invitation: Invitation;
 }
 
-export function InvitationCell({ className, classNames, invitation }: InvitationCellProps) {
+export const InvitationCell = ({ className, classNames, invitation }: InvitationCellProperties) => {
     const {
         authClient,
-        organization,
         hooks: { useActiveOrganization },
+        organization,
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const [isLoading, setIsLoading] = useState(false);
 
     const { refetch } = useActiveOrganization();
 
     const builtInRoles = [
-        { role: "owner", label: t`Owner` },
-        { role: "admin", label: t`Admin` },
-        { role: "member", label: t`Member` },
+        { label: t`Owner`, role: "owner" },
+        { label: t`Admin`, role: "admin" },
+        { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
     const role = roles.find((r) => r.role === invitation.role);
 
     const handleCancelInvitation = async () => {
@@ -46,20 +47,20 @@ export function InvitationCell({ className, classNames, invitation }: Invitation
 
         try {
             await authClient.organization.cancelInvitation({
-                invitationId: invitation.id,
                 fetchOptions: { throw: true },
+                invitationId: invitation.id,
             });
 
             await refetch?.();
 
             toast({
-                variant: "success",
                 message: t`Invitation cancelled`,
+                variant: "success",
             });
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
 
@@ -77,7 +78,9 @@ export function InvitationCell({ className, classNames, invitation }: Invitation
                     <span className="truncate text-sm font-semibold">{invitation.email}</span>
 
                     <span className="text-muted-foreground truncate text-xs">
-                        {t`Expires`} {invitation.expiresAt.toLocaleDateString()}
+                        {t`Expires`}
+                        {" "}
+                        {invitation.expiresAt.toLocaleDateString()}
                     </span>
                 </div>
             </div>
@@ -98,7 +101,7 @@ export function InvitationCell({ className, classNames, invitation }: Invitation
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent onCloseAutoFocus={(e) => e.preventDefault()}>
-                    <DropdownMenuItem onClick={handleCancelInvitation} disabled={isLoading} variant="destructive">
+                    <DropdownMenuItem disabled={isLoading} onClick={handleCancelInvitation} variant="destructive">
                         <XIcon className={classNames?.icon} />
                         {t`Cancel Invitation`}
                     </DropdownMenuItem>
@@ -106,4 +109,4 @@ export function InvitationCell({ className, classNames, invitation }: Invitation
             </DropdownMenu>
         </Card>
     );
-}
+};

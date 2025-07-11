@@ -1,43 +1,48 @@
-import { useCallback } from "react";
-import type { AppendMessage, ThreadMessageLike } from "@assistant-ui/react";
-import { useMutation } from "convex/react";
-import { useNavigate } from "@tanstack/react-router";
-import { api } from "@anole/convex/api";
-import { useThreadContext } from "@/features/chat/components/thread-context";
 import type { AgentModel } from "@anole/convex/ai/lib/agents";
-import { generateId, isValidThreadMessage } from "../providers/types";
-import { useStreamManager } from "./use-stream-manager";
+import { api } from "@anole/convex/api";
+import type { AppendMessage, ThreadMessageLike } from "@assistant-ui/react";
+import { useNavigate } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { useCallback } from "react";
+
+import { useThreadContext } from "@/features/chat/components/thread-context";
 import { providerLogger } from "@/lib/logger";
 
-interface UseMessageHandlersProps {
-    model: AgentModel;
+import { generateId, isValidThreadMessage } from "../providers/types";
+import { useStreamManager } from "./use-stream-manager";
+
+interface UseMessageHandlersProperties {
     jwtToken: string;
+    model: AgentModel;
 }
 
-export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps) => {
+export const useMessageHandlers = ({ jwtToken, model }: UseMessageHandlersProperties) => {
     const navigate = useNavigate();
     const threadContext = useThreadContext();
-    const { currentThreadId, setCurrentThreadId, threads, setThreads, threadMetadata, setThreadMetadata } = threadContext;
+    const { currentThreadId, setCurrentThreadId, setThreadMetadata, setThreads, threadMetadata, threads } = threadContext;
     const createThreadMutation = useMutation(api.chat.functions.createThread);
 
     const onStreamStart = useCallback(
         (threadId: string, messageId: string) => {
             const assistantMessage: ThreadMessageLike = {
-                role: "assistant",
+                content: [{ text: "", type: "text" }],
                 id: messageId,
-                content: [{ type: "text", text: "" }],
+                role: "assistant",
             };
 
             if (!isValidThreadMessage(assistantMessage)) {
                 providerLogger.error("[Handlers] Invalid optimistic assistant message created", { assistantMessage });
+
                 return;
             }
 
-            providerLogger.debug("[Handlers] Adding optimistic assistant message", { threadId, messageId });
-            setThreads((prev) => {
-                const newThreads = new Map(prev);
+            providerLogger.debug("[Handlers] Adding optimistic assistant message", { messageId, threadId });
+            setThreads((previous) => {
+                const newThreads = new Map(previous);
                 const currentMessages = newThreads.get(threadId) || [];
+
                 newThreads.set(threadId, [...currentMessages, assistantMessage]);
+
                 return newThreads;
             });
         },
@@ -46,27 +51,33 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
 
     const onStreamUpdate = useCallback(
         (threadId: string, messageId: string, content: ThreadMessageLike["content"]) => {
-            setThreads((prev) => {
-                const newThreads = new Map(prev);
+            setThreads((previous) => {
+                const newThreads = new Map(previous);
                 const currentMessages = newThreads.get(threadId) || [];
                 const messageIndex = currentMessages.findIndex((m) => m.id === messageId);
+
                 if (messageIndex === -1) {
                     console.warn("Message to update not found", messageId);
-                    return prev;
+
+                    return previous;
                 }
 
                 const updatedMessage = {
                     ...currentMessages[messageIndex],
                     content,
                 };
+
                 if (!isValidThreadMessage(updatedMessage)) {
                     console.warn("Invalid updated message:", updatedMessage);
-                    return prev;
+
+                    return previous;
                 }
 
                 const updatedMessages = [...currentMessages];
+
                 updatedMessages[messageIndex] = updatedMessage;
                 newThreads.set(threadId, updatedMessages);
+
                 return newThreads;
             });
         },
@@ -75,11 +86,11 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
 
     const onStreamError = useCallback(
         (threadId: string, messageId: string, error: Error) => {
-            providerLogger.error("[Handlers] Stream error", { threadId, messageId, error: error.message, stack: error.stack });
+            providerLogger.error("[Handlers] Stream error", { error: error.message, messageId, stack: error.stack, threadId });
             onStreamUpdate(threadId, messageId, [
                 {
-                    type: "text",
                     text: `Error: ${error.message}`,
+                    type: "text",
                 },
             ]);
         },
@@ -87,39 +98,39 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
     );
 
     const onStreamSuccess = useCallback((threadId: string, messageId: string) => {
-        providerLogger.info("[Handlers] Stream completed successfully", { threadId, messageId });
+        providerLogger.info("[Handlers] Stream completed successfully", { messageId, threadId });
     }, []);
 
-    const { streamMessage, cancelStream, isRunning } = useStreamManager({
-        model,
+    const { cancelStream, isRunning, streamMessage } = useStreamManager({
         jwtToken,
-        onStreamStart,
-        onStreamUpdate,
+        model,
         onStreamError,
+        onStreamStart,
         onStreamSuccess,
+        onStreamUpdate,
     });
 
     const handleNewMessage = useCallback(
         async (message: AppendMessage, convexThreads: { results: any[] }) => {
             let textContent = "";
             const fileIds: string[] = [];
-            const messageContent: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [];
+            const messageContent: ({ text: string; type: "text" } | { image: string; type: "image" })[] = [];
 
             for (const content of message.content) {
                 if (content.type === "text" && content.text) {
                     textContent += content.text;
-                    messageContent.push({ type: "text", text: content.text });
+                    messageContent.push({ text: content.text, type: "text" });
                 }
             }
 
             if (message.attachments) {
                 for (const attachment of message.attachments) {
                     if (
-                        attachment &&
-                        "metadata" in attachment &&
-                        attachment.metadata &&
-                        (attachment.metadata as any).fileId &&
-                        !fileIds.includes((attachment.metadata as any).fileId)
+                        attachment
+                        && "metadata" in attachment
+                        && attachment.metadata
+                        && (attachment.metadata as any).fileId
+                        && !fileIds.includes((attachment.metadata as any).fileId)
                     ) {
                         fileIds.push((attachment.metadata as any).fileId);
                     }
@@ -132,42 +143,47 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             });
 
             let actualThreadId = currentThreadId;
+
             if (currentThreadId === "default" || !convexThreads.results.some((t: any) => t._id === currentThreadId)) {
                 try {
                     providerLogger.info("[Handlers] No active thread found or current is 'default'. Creating new thread.");
                     actualThreadId = await createThreadMutation({
-                        model,
                         branchName: "New Chat",
+                        model,
                     });
 
                     const currentMessages = threads.get(currentThreadId) || [];
                     const currentMetadata = threadMetadata.get(currentThreadId) || {
-                        title: "New Chat",
-                        status: "active" as const,
                         createdAt: new Date(),
                         lastActivity: new Date(),
+                        status: "active" as const,
+                        title: "New Chat",
                     };
 
-                    setThreads((prev) => {
-                        const next = new Map(prev);
+                    setThreads((previous) => {
+                        const next = new Map(previous);
+
                         next.delete(currentThreadId);
                         next.set(actualThreadId, currentMessages);
+
                         return next;
                     });
 
-                    setThreadMetadata((prev) => {
-                        const next = new Map(prev);
+                    setThreadMetadata((previous) => {
+                        const next = new Map(previous);
+
                         next.delete(currentThreadId);
                         next.set(actualThreadId, currentMetadata);
+
                         return next;
                     });
 
                     setCurrentThreadId(actualThreadId);
                     navigate({
-                        to: "/chat/$threadId",
                         params: { threadId: actualThreadId },
                         replace: true,
                         search: { initialMessage: undefined },
+                        to: "/chat/$threadId",
                     });
                     providerLogger.info("[Handlers] Created new thread and navigated", { newThreadId: actualThreadId });
                 } catch (error) {
@@ -176,22 +192,24 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             }
 
             const userMessage: ThreadMessageLike = {
-                role: "user",
-                id: generateId(),
-                content: messageContent.length ? messageContent : [{ type: "text", text: textContent }],
-                createdAt: new Date(),
                 attachments: message.attachments,
+                content: messageContent.length > 0 ? messageContent : [{ text: textContent, type: "text" }],
+                createdAt: new Date(),
+                id: generateId(),
+                role: "user",
             };
 
             if (!isValidThreadMessage(userMessage)) {
                 providerLogger.error("[Handlers] Invalid user message created", { userMessage });
+
                 return;
             }
 
             providerLogger.debug("[Handlers] Adding user message", { actualThreadId, userMessage });
-            setThreads((prev) => {
-                const currentThreadMessages = prev.get(actualThreadId) || [];
-                return new Map(prev).set(actualThreadId, [...currentThreadMessages, userMessage]);
+            setThreads((previous) => {
+                const currentThreadMessages = previous.get(actualThreadId) || [];
+
+                return new Map(previous).set(actualThreadId, [...currentThreadMessages, userMessage]);
             });
 
             await streamMessage(textContent, actualThreadId, fileIds);
@@ -212,20 +230,21 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
             const newMessages = [...currentThreadMessages.slice(0, index)];
 
             const editedMessage: ThreadMessageLike = {
-                role: "user",
                 content: message.content,
-                id: generateId(),
                 createdAt: new Date(),
+                id: generateId(),
+                role: "user",
             };
 
             if (!isValidThreadMessage(editedMessage)) {
                 providerLogger.error("[Handlers] Invalid edited message created", { editedMessage });
+
                 return;
             }
 
             providerLogger.debug("[Handlers] Adding edited message", { currentThreadId, editedMessage });
             newMessages.push(editedMessage);
-            setThreads((prev) => new Map(prev).set(currentThreadId, newMessages));
+            setThreads((previous) => new Map(previous).set(currentThreadId, newMessages));
 
             await streamMessage(message.content[0].text, currentThreadId);
         },
@@ -235,21 +254,29 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
     const handleReloadMessage = useCallback(
         async (parentId: string | null) => {
             providerLogger.debug("[Handlers] handleReloadMessage called", { parentId });
+
             if (!parentId) {
                 const currentThreadMessages = threads.get(currentThreadId);
-                if (!currentThreadMessages || currentThreadMessages.length === 0) return;
+
+                if (!currentThreadMessages || currentThreadMessages.length === 0)
+                    return;
+
                 const lastUserMessage = [...currentThreadMessages].reverse().find((m) => m.role === "user");
-                if (!lastUserMessage) return;
+
+                if (!lastUserMessage)
+                    return;
 
                 const newMessages = [...currentThreadMessages.slice(0, currentThreadMessages.indexOf(lastUserMessage) + 1)];
 
-                providerLogger.debug("[Handlers] Reloading from message", { parentId, lastUserMessage });
-                setThreads((prev) => new Map(prev).set(currentThreadId, newMessages));
+                providerLogger.debug("[Handlers] Reloading from message", { lastUserMessage, parentId });
+                setThreads((previous) => new Map(previous).set(currentThreadId, newMessages));
 
-                const content = lastUserMessage.content;
+                const { content } = lastUserMessage;
                 let textContent = "";
+
                 if (Array.isArray(content)) {
                     const textPart = content.find((c) => c.type === "text");
+
                     if (textPart && "text" in textPart) {
                         textContent = textPart.text;
                     }
@@ -269,10 +296,10 @@ export const useMessageHandlers = ({ model, jwtToken }: UseMessageHandlersProps)
     }, [cancelStream]);
 
     return {
-        handleNewMessage,
-        handleEditMessage,
-        handleReloadMessage,
         handleCancel,
+        handleEditMessage,
+        handleNewMessage,
+        handleReloadMessage,
         isRunning,
     };
 };

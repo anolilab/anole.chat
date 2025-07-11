@@ -1,32 +1,34 @@
 "use client";
 
+import { t } from "@lingui/core/macro";
 import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext, useState } from "react";
-import { t } from "@lingui/core/macro";
+import type { ComponentProps } from "react";
+import { use, useState } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../lib/utils";
-import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import { getLocalizedError } from "../../lib/utils";
+import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { MemberCell } from "./member-cell";
 
-export interface UpdateMemberRoleDialogProps extends ComponentProps<typeof Dialog> {
+export interface UpdateMemberRoleDialogProperties extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
     member: Member & { user: Partial<User> };
 }
 
-export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...props }: UpdateMemberRoleDialogProps) {
+export const UpdateMemberRoleDialog = ({ classNames, member, onOpenChange, ...properties }: UpdateMemberRoleDialogProperties) => {
     const {
         authClient,
         hooks: { useActiveOrganization, useSession },
         organization,
         toast,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { refetch } = useActiveOrganization();
     const { data: sessionData } = useSession();
@@ -36,12 +38,12 @@ export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...pr
     const [selectedRole, setSelectedRole] = useState(member.role);
 
     const builtInRoles = [
-        { role: "owner", label: t`Owner` },
-        { role: "admin", label: t`Admin` },
-        { role: "member", label: t`Member` },
+        { label: t`Owner`, role: "owner" },
+        { label: t`Admin`, role: "admin" },
+        { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
 
     const currentUserRole = activeOrganization?.members.find((m) => m.user.id === sessionData?.user.id)?.role;
 
@@ -60,8 +62,8 @@ export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...pr
     const updateMemberRole = async () => {
         if (selectedRole === member.role) {
             toast({
-                variant: "error",
                 message: t`Role is the same`,
+                variant: "error",
             });
 
             return;
@@ -71,26 +73,26 @@ export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...pr
 
         try {
             await authClient.organization.updateMemberRole({
-                memberId: member.id,
-                // @ts-ignore - role is a string but the type expects specific values
-                role: selectedRole,
-                organizationId: member.organizationId,
                 fetchOptions: {
                     throw: true,
                 },
+                memberId: member.id,
+                organizationId: member.organizationId,
+                // @ts-ignore - role is a string but the type expects specific values
+                role: selectedRole,
             });
 
             toast({
-                variant: "success",
                 message: t`Member role updated`,
+                variant: "success",
             });
 
             await refetch?.();
             onOpenChange?.(false);
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
 
@@ -98,7 +100,7 @@ export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...pr
     };
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
             <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Update Role`}</DialogTitle>
@@ -107,9 +109,9 @@ export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...pr
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
-                    <MemberCell className={classNames?.cell} member={member} hideActions />
+                    <MemberCell className={classNames?.cell} hideActions member={member} />
 
-                    <Select value={selectedRole} onValueChange={setSelectedRole}>
+                    <Select onValueChange={setSelectedRole} value={selectedRole}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder={t`Select role`} />
                         </SelectTrigger>
@@ -126,16 +128,16 @@ export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...pr
 
                 <DialogFooter className={classNames?.dialog?.footer}>
                     <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange?.(false)}
                         className={cn(classNames?.button, classNames?.outlineButton)}
                         disabled={isUpdating}
+                        onClick={() => onOpenChange?.(false)}
+                        type="button"
+                        variant="outline"
                     >
                         {t`Cancel`}
                     </Button>
 
-                    <Button type="button" onClick={updateMemberRole} className={cn(classNames?.button, classNames?.primaryButton)} disabled={isUpdating}>
+                    <Button className={cn(classNames?.button, classNames?.primaryButton)} disabled={isUpdating} onClick={updateMemberRole} type="button">
                         {isUpdating && <Loader2 className="animate-spin" />}
 
                         {t`Update Role`}
@@ -144,4 +146,4 @@ export function UpdateMemberRoleDialog({ member, classNames, onOpenChange, ...pr
             </DialogContent>
         </Dialog>
     );
-}
+};

@@ -1,18 +1,19 @@
-import { AppSidebar } from "@/features/layout/components/app-sidebar";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { Authenticated } from "convex/react";
+import { Building, Key, MessageSquare, Shield, User, Users } from "lucide-react";
+import { Fragment } from "react";
+
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Outlet, useLocation, createFileRoute } from "@tanstack/react-router";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { AppSidebar } from "@/features/layout/components/app-sidebar";
+import type { NavItem } from "@/features/layout/components/nav-items";
+import { NavItems } from "@/features/layout/components/nav-items";
 import { SiteHeader } from "@/features/layout/components/site-header";
-import { Authenticated } from "convex/react";
-import { NavItems, type NavItem } from "@/features/layout/components/nav-items";
-import { MessageSquare, Users, Key, Shield, Building, User } from "lucide-react";
-import { useContext, Fragment } from "react";
-import { AuthUIContext } from "@/features/auth/lib/auth-ui-provider";
 import { getAuthRedirectUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/dashboard")({
-    component: RouteComponent,
     beforeLoad: async ({ context }) => {
         const chatUrl = await getAuthRedirectUrl(context.queryClient);
 
@@ -20,68 +21,69 @@ export const Route = createFileRoute("/dashboard")({
             chatUrl,
         };
     },
+    component: RouteComponent,
 });
 
-function RouteComponent() {
+const RouteComponent = () => {
     const location = useLocation();
     const context = Route.useRouteContext();
 
-    const pathname = location.pathname;
+    const { pathname } = location;
 
     // Generate breadcrumb items from pathname, filtering out empty strings
     const pathSegments = pathname.split("/").filter(Boolean);
 
     const breadcrumbItems = pathSegments.map((segment, index) => {
         // Build the href by joining all segments up to current index
-        const href = "/" + pathSegments.slice(0, index + 1).join("/");
+        const href = `/${pathSegments.slice(0, index + 1).join("/")}`;
 
         return {
-            label: segment.charAt(0).toUpperCase() + segment.slice(1), // Capitalize first letter
-            href: href,
+            href,
             isLast: index === pathSegments.length - 1,
+            label: segment.charAt(0).toUpperCase() + segment.slice(1), // Capitalize first letter
         };
     });
 
-    const { apiKey, organization } = useContext(AuthUIContext);
+    const { apiKey, organization } = useAuth();
 
     const navigationItems = {
         main: [
             {
+                icon: MessageSquare,
                 name: "Chat",
                 url: context.chatUrl,
-                icon: MessageSquare,
             },
         ],
         settings: [
             {
+                icon: User,
                 name: "Account",
                 url: "/dashboard/settings/account",
-                icon: User,
             },
             {
+                icon: Shield,
                 name: "Security",
                 url: "/dashboard/settings/security",
-                icon: Shield,
             },
             apiKey && {
+                icon: Key,
                 name: "API Keys",
                 url: "/dashboard/settings/api-keys",
-                icon: Key,
             },
             organization && {
+                icon: Building,
                 name: "Organizations",
                 url: "/dashboard/settings/organizations",
-                icon: Building,
             },
             organization && {
+                icon: Building,
                 name: "Organization",
                 url: "/dashboard/settings/organization",
-                icon: Building,
             },
             organization && {
+                icon: Users,
                 name: "Members",
                 url: "/dashboard/settings/members",
-                icon: Users,
             },
         ].filter(Boolean) as NavItem[],
     };
@@ -91,14 +93,20 @@ function RouteComponent() {
             <SidebarProvider
                 style={
                     {
-                        "--sidebar-width": "calc(var(--spacing) * 94)",
                         "--header-height": "calc(var(--spacing) * 8.5)",
+                        "--sidebar-width": "calc(var(--spacing) * 94)",
                     } as React.CSSProperties
                 }
             >
                 <div className="flex h-dvh w-full">
                     <AppSidebar
-                        header={
+                        content={(
+                            <>
+                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.main} label="Main" />
+                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
+                            </>
+                        )}
+                        header={(
                             <div className="flex items-center gap-2 px-4 py-2">
                                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <MessageSquare className="size-4" />
@@ -108,13 +116,7 @@ function RouteComponent() {
                                     <span className="truncate text-xs">Dashboard</span>
                                 </div>
                             </div>
-                        }
-                        content={
-                            <>
-                                <NavItems items={navigationItems.main} label="Main" colorMode="dark" classes={{ group: "pr-0" }} />
-                                <NavItems items={navigationItems.settings} label="Settings" colorMode="dark" classes={{ group: "pr-0" }} />
-                            </>
-                        }
+                        )}
                     />
                     <SidebarInset>
                         <SiteHeader>
@@ -123,16 +125,18 @@ function RouteComponent() {
                                     {breadcrumbItems.map((item, index) => (
                                         <Fragment key={item.href}>
                                             <BreadcrumbItem>
-                                                {item.isLast ? (
-                                                    <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
-                                                ) : (
-                                                    <BreadcrumbLink
-                                                        href={item.href}
-                                                        className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
-                                                    >
-                                                        {item.label}
-                                                    </BreadcrumbLink>
-                                                )}
+                                                {item.isLast
+                                                    ? (
+                                                        <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
+                                                    )
+                                                    : (
+                                                        <BreadcrumbLink
+                                                            className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
+                                                            href={item.href}
+                                                        >
+                                                            {item.label}
+                                                        </BreadcrumbLink>
+                                                    )}
                                             </BreadcrumbItem>
                                             {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
                                         </Fragment>
@@ -151,4 +155,4 @@ function RouteComponent() {
             </SidebarProvider>
         </Authenticated>
     );
-}
+};

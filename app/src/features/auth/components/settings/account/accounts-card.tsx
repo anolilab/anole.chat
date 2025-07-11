@@ -1,47 +1,49 @@
 "use client";
-import { useContext } from "react";
-import { t } from "@lingui/core/macro";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
+import { t } from "@lingui/core/macro";
+import { use } from "react";
+
 import { CardContent } from "@/components/ui/card";
-import { SettingsCard } from "../shared/settings-card";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
 import type { SettingsCardClassNames } from "../shared/settings-card";
+import { SettingsCard } from "../shared/settings-card";
 import { AccountCell } from "./account-cell";
 
-export interface AccountsCardProps {
+export interface AccountsCardProperties {
     className?: string;
     classNames?: SettingsCardClassNames;
 }
 
-export function AccountsCard({ className, classNames }: AccountsCardProps) {
+export const AccountsCard = ({ className, classNames }: AccountsCardProperties) => {
     const {
         basePath,
         hooks: { useListDeviceSessions },
-        viewPaths,
         navigate,
-    } = useContext(AuthUIContext);
+        viewPaths,
+    } = useAuth();
 
     const { data: deviceSessions, isPending, refetch } = useListDeviceSessions();
 
     return (
         <SettingsCard
+            action={() => navigate(`${basePath}/${viewPaths.SIGN_IN}`)}
+            actionLabel={t`Add Account`}
             className={className}
             classNames={classNames}
-            title={t`Accounts`}
             description={t`Manage your connected accounts`}
-            actionLabel={t`Add Account`}
             instructions={t`View and manage all your active sessions`}
             isPending={isPending}
-            action={() => navigate(`${basePath}/${viewPaths.SIGN_IN}`)}
+            title={t`Accounts`}
         >
             {deviceSessions?.length && (
                 <CardContent className={cn("grid gap-4", classNames?.content)}>
                     {deviceSessions?.map((deviceSession) => (
-                        <AccountCell key={deviceSession.session.id} classNames={classNames} deviceSession={deviceSession} refetch={refetch} />
+                        <AccountCell classNames={classNames} deviceSession={deviceSession} key={deviceSession.session.id} refetch={refetch} />
                     ))}
                 </CardContent>
             )}
         </SettingsCard>
     );
-}
+};

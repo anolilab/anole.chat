@@ -1,26 +1,26 @@
-export function seo({ title, description, keywords, image }: { title: string; description?: string; image?: string; keywords?: string }) {
+export function seo({ description, image, keywords, title }: { description?: string; image?: string; keywords?: string; title: string }) {
     const tags = [
         { title },
-        { name: "description", content: description },
-        { name: "keywords", content: keywords },
-        { name: "author", content: "Noah Trần" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-        { name: "twitter:creator", content: "@not_sh1ro" },
-        { name: "twitter:site", content: "@not_sh1ro" },
-        { name: "og:type", content: "website" },
-        { name: "og:site_name", content: title },
-        { name: "og:title", content: title },
-        { name: "og:description", content: description },
-        { name: "og:url", content: "https://carbon-daily.vercel.app" },
-        { name: "og:locale", content: "vi_VN" },
-        ...(image
+        { content: description, name: "description" },
+        { content: keywords, name: "keywords" },
+        { content: "Noah Trần", name: "author" },
+        { content: title, name: "twitter:title" },
+        { content: description, name: "twitter:description" },
+        { content: "@not_sh1ro", name: "twitter:creator" },
+        { content: "@not_sh1ro", name: "twitter:site" },
+        { content: "website", name: "og:type" },
+        { content: title, name: "og:site_name" },
+        { content: title, name: "og:title" },
+        { content: description, name: "og:description" },
+        { content: "https://carbon-daily.vercel.app", name: "og:url" },
+        { content: "vi_VN", name: "og:locale" },
+        ...image
             ? [
-                  { name: "twitter:image", content: image },
-                  { name: "twitter:card", content: "summary_large_image" },
-                  { name: "og:image", content: image },
-              ]
-            : []),
+                { content: image, name: "twitter:image" },
+                { content: "summary_large_image", name: "twitter:card" },
+                { content: image, name: "og:image" },
+            ]
+            : [],
     ];
 
     return tags;

@@ -1,33 +1,37 @@
 import type HCaptcha from "@hcaptcha/react-hcaptcha";
-import type { TurnstileInstance } from "@marsidev/react-turnstile";
-import { type RefObject, useContext, useRef } from "react";
-
-import { AuthUIContext } from "../lib/auth-ui-provider";
 import { t } from "@lingui/core/macro";
+import type { TurnstileInstance } from "@marsidev/react-turnstile";
+import type { RefObject } from "react";
+import { use, useRef } from "react";
+
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 // Default captcha endpoints
 const DEFAULT_CAPTCHA_ENDPOINTS = ["/sign-up/email", "/sign-in/email", "/forget-password"];
 
 export function useCaptcha() {
-    const { captcha } = useContext(AuthUIContext);
+    const { captcha } = useAuth();
 
-    const captchaRef = useRef<any>(null);
+    const captchaReference = useRef<any>(null);
 
     const executeCaptcha = async () => {
-        if (!captcha) throw new Error(t`Missing captcha response`);
+        if (!captcha)
+            throw new Error(t`Missing captcha response`);
 
         // Sanitize the action name for reCAPTCHA
         let response: string | undefined | null;
 
         switch (captcha.provider) {
             case "cloudflare-turnstile": {
-                const turnstileRef = captchaRef as RefObject<TurnstileInstance>;
-                response = turnstileRef.current.getResponse();
+                const turnstileReference = captchaReference as RefObject<TurnstileInstance>;
+
+                response = turnstileReference.current.getResponse();
                 break;
             }
             case "hcaptcha": {
-                const hcaptchaRef = captchaRef as RefObject<HCaptcha>;
-                response = hcaptchaRef.current.getResponse();
+                const hcaptchaReference = captchaReference as RefObject<HCaptcha>;
+
+                response = hcaptchaReference.current.getResponse();
                 break;
             }
         }
@@ -40,7 +44,8 @@ export function useCaptcha() {
     };
 
     const getCaptchaHeaders = async (action: string) => {
-        if (!captcha) return undefined;
+        if (!captcha)
+            return undefined;
 
         // Use custom endpoints if provided, otherwise use defaults
         const endpoints = captcha.endpoints || DEFAULT_CAPTCHA_ENDPOINTS;
@@ -54,7 +59,7 @@ export function useCaptcha() {
     };
 
     return {
-        captchaRef,
+        captchaRef: captchaReference,
         getCaptchaHeaders,
     };
 }

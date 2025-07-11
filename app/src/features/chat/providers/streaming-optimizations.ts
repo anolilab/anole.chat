@@ -5,37 +5,41 @@
 
 // Performance monitoring for streaming operations
 export class StreamingPerformanceMonitor {
-    private metrics: Map<
+    private metrics = new Map<
         string,
         {
-            startTime: number;
-            updates: number;
-            totalChars: number;
             avgUpdateInterval: number;
             lastUpdateTime: number;
+            startTime: number;
+            totalChars: number;
+            updates: number;
         }
-    > = new Map();
+    >();
 
     startSession(sessionId: string): void {
         this.metrics.set(sessionId, {
-            startTime: performance.now(),
-            updates: 0,
-            totalChars: 0,
             avgUpdateInterval: 0,
             lastUpdateTime: performance.now(),
+            startTime: performance.now(),
+            totalChars: 0,
+            updates: 0,
         });
     }
 
     recordUpdate(sessionId: string, textLength: number): void {
         const session = this.metrics.get(sessionId);
-        if (!session) return;
+
+        if (!session)
+            return;
 
         const now = performance.now();
+
         session.updates++;
         session.totalChars = textLength;
 
         if (session.updates > 1) {
             const interval = now - session.lastUpdateTime;
+
             session.avgUpdateInterval = (session.avgUpdateInterval * (session.updates - 2) + interval) / (session.updates - 1);
         }
 
@@ -43,33 +47,38 @@ export class StreamingPerformanceMonitor {
     }
 
     endSession(sessionId: string): {
+        avgUpdateInterval: number;
+        charsPerSecond: number;
         duration: number;
         updates: number;
-        charsPerSecond: number;
-        avgUpdateInterval: number;
     } | null {
         const session = this.metrics.get(sessionId);
-        if (!session) return null;
+
+        if (!session)
+            return null;
 
         const duration = performance.now() - session.startTime;
         const charsPerSecond = (session.totalChars / duration) * 1000;
 
         const result = {
+            avgUpdateInterval: session.avgUpdateInterval,
+            charsPerSecond,
             duration,
             updates: session.updates,
-            charsPerSecond,
-            avgUpdateInterval: session.avgUpdateInterval,
         };
 
         this.metrics.delete(sessionId);
+
         return result;
     }
 }
 
 // Connection recovery with exponential backoff
 export class ConnectionRecoveryManager {
-    private retryAttempts: Map<string, number> = new Map();
+    private retryAttempts = new Map<string, number>();
+
     private maxRetries = 3;
+
     private baseDelay = 1000; // 1 second
 
     async withRetry<T>(operation: () => Promise<T>, operationId: string, onRetry?: (attempt: number, error: Error) => void): Promise<T> {
@@ -79,14 +88,17 @@ export class ConnectionRecoveryManager {
         for (let attempt = currentAttempts; attempt < this.maxRetries; attempt++) {
             try {
                 const result = await operation();
+
                 this.retryAttempts.delete(operationId); // Reset on success
+
                 return result;
             } catch (error) {
                 lastError = error as Error;
                 this.retryAttempts.set(operationId, attempt + 1);
 
                 if (attempt < this.maxRetries - 1) {
-                    const delay = this.baseDelay * Math.pow(2, attempt);
+                    const delay = this.baseDelay * 2 ** attempt;
+
                     // Note: onRetry callback handles the logging via Pail
                     onRetry?.(attempt + 1, lastError);
                     await new Promise((resolve) => setTimeout(resolve, delay));
@@ -110,33 +122,39 @@ export class ConnectionRecoveryManager {
 
 // Progressive text loader for large messages
 export class ProgressiveTextLoader {
-    private loadedChunks: Map<string, string[]> = new Map();
+    private loadedChunks = new Map<string, string[]>();
+
     private chunkSize = 500; // Characters per chunk
 
     addChunk(messageId: string, text: string): boolean {
         const chunks = this.loadedChunks.get(messageId) || [];
         const newChunk = text.slice(chunks.join("").length);
 
-        if (newChunk.length === 0) return false; // No new content
+        if (newChunk.length === 0)
+            return false; // No new content
 
         // Split into chunks if needed
         if (newChunk.length > this.chunkSize) {
             const newChunks = [];
-            for (let i = 0; i < newChunk.length; i += this.chunkSize) {
-                newChunks.push(newChunk.slice(i, i + this.chunkSize));
+
+            for (let index = 0; index < newChunk.length; index += this.chunkSize) {
+                newChunks.push(newChunk.slice(index, index + this.chunkSize));
             }
+
             chunks.push(...newChunks);
         } else {
             chunks.push(newChunk);
         }
 
         this.loadedChunks.set(messageId, chunks);
+
         return true;
     }
 
     getProgressiveText(messageId: string, maxChunks?: number): string {
         const chunks = this.loadedChunks.get(messageId) || [];
         const chunksToShow = maxChunks ? chunks.slice(0, maxChunks) : chunks;
+
         return chunksToShow.join("");
     }
 
@@ -152,8 +170,11 @@ export class ProgressiveTextLoader {
 // Advanced throttle with adaptive timing
 export class AdaptiveThrottle {
     private lastExecution = 0;
+
     private averageInterval = 16; // Start with 16ms (60fps)
+
     private performanceHistory: number[] = [];
+
     private maxHistoryLength = 10;
 
     constructor(
@@ -161,7 +182,7 @@ export class AdaptiveThrottle {
         private maxInterval = 50,
     ) {}
 
-    execute<T extends any[]>(func: (...args: T) => void, ...args: T): void {
+    execute<T extends any[]>(function_: (...arguments_: T) => void, ...arguments_: T): void {
         const now = performance.now();
         const timeSinceLastExecution = now - this.lastExecution;
 
@@ -170,11 +191,13 @@ export class AdaptiveThrottle {
 
         if (shouldExecute) {
             const startTime = performance.now();
-            func(...args);
+
+            function_(...arguments_);
             const executionTime = performance.now() - startTime;
 
             // Track performance
             this.performanceHistory.push(executionTime);
+
             if (this.performanceHistory.length > this.maxHistoryLength) {
                 this.performanceHistory.shift();
             }
@@ -210,18 +233,19 @@ export class AdaptiveThrottle {
 
 // Memory-efficient message buffer
 export class MessageBuffer {
-    private buffers: Map<
+    private buffers = new Map<
         string,
         {
             content: string;
-            lastUpdate: number;
             isDirty: boolean;
+            lastUpdate: number;
             metadata: any;
         }
-    > = new Map();
+    >();
 
     private maxBufferSize = 50; // Maximum number of buffered messages
-    private cleanupInterval = 30000; // 30 seconds
+
+    private cleanupInterval = 30_000; // 30 seconds
 
     constructor() {
         // Periodic cleanup of old buffers
@@ -238,8 +262,8 @@ export class MessageBuffer {
 
         this.buffers.set(messageId, {
             content,
-            lastUpdate: Date.now(),
             isDirty: true,
+            lastUpdate: Date.now(),
             metadata: metadata || existing?.metadata,
         });
 
@@ -253,11 +277,13 @@ export class MessageBuffer {
 
     getBuffer(messageId: string): string | null {
         const buffer = this.buffers.get(messageId);
+
         return buffer ? buffer.content : null;
     }
 
     markClean(messageId: string): void {
         const buffer = this.buffers.get(messageId);
+
         if (buffer) {
             buffer.isDirty = false;
         }
@@ -285,7 +311,7 @@ export class MessageBuffer {
 
     private cleanup(): void {
         const now = Date.now();
-        const maxAge = 300000; // 5 minutes
+        const maxAge = 300_000; // 5 minutes
 
         for (const [id, buffer] of this.buffers) {
             if (now - buffer.lastUpdate > maxAge) {

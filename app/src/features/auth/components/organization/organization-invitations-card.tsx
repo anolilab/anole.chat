@@ -1,19 +1,20 @@
 "use client";
 
-import { useContext } from "react";
 import { t } from "@lingui/core/macro";
+import { use } from "react";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { SettingsCard } from "../settings/shared/settings-card";
-import type { SettingsCardProps } from "../settings/shared/settings-card";
 import { CardContent } from "@/components/ui/card";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import type { SettingsCardProps as SettingsCardProperties } from "../settings/shared/settings-card";
+import { SettingsCard } from "../settings/shared/settings-card";
 import { InvitationCell } from "./invitation-cell";
 
-export function OrganizationInvitationsCard({ className, classNames, ...props }: SettingsCardProps) {
+export const OrganizationInvitationsCard = ({ className, classNames, ...properties }: SettingsCardProperties) => {
     const {
         hooks: { useActiveOrganization },
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { data: activeOrganization } = useActiveOrganization();
     const invitations = activeOrganization?.invitations;
@@ -22,22 +23,23 @@ export function OrganizationInvitationsCard({ className, classNames, ...props }:
 
     const isPending = !activeOrganization;
 
-    if (!pendingInvitations?.length) return null;
+    if (!pendingInvitations?.length)
+        return null;
 
     return (
         <SettingsCard
             className={className}
             classNames={classNames}
-            title={t`Pending Invitations`}
             description={t`Invitations waiting for a response`}
             isPending={isPending}
-            {...props}
+            title={t`Pending Invitations`}
+            {...properties}
         >
             <CardContent className={cn("grid gap-4", classNames?.content)}>
                 {pendingInvitations.map((invitation) => (
-                    <InvitationCell key={invitation.id} classNames={classNames} invitation={invitation} />
+                    <InvitationCell classNames={classNames} invitation={invitation} key={invitation.id} />
                 ))}
             </CardContent>
         </SettingsCard>
     );
-}
+};

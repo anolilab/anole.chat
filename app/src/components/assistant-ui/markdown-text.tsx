@@ -1,236 +1,235 @@
 "use client";
 
 import "@assistant-ui/react-markdown/styles/dot.css";
-import { MermaidDiagram } from "@/components/assistant-ui/mermaid-diagram";
+import "katex/dist/katex.min.css";
 
+import type { CodeHeaderProps } from "@assistant-ui/react-markdown";
 import {
-    type CodeHeaderProps,
     MarkdownTextPrimitive,
     unstable_memoizeMarkdownComponents as memoizeMarkdownComponents,
     useIsMarkdownCodeBlock,
 } from "@assistant-ui/react-markdown";
+import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
+import type { FC } from "react";
+import { memo, useState } from "react";
+import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
+import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { type FC, memo, useState } from "react";
-import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
-import { SyntaxHighlighter } from "./shiki-highlighter";
-import rehypeKatex from "rehype-katex";
-import remarkDirective from "remark-directive";
-import rehypeRaw from "rehype-raw";
 
+import { MermaidDiagram } from "@/components/assistant-ui/mermaid-diagram";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 
-import "katex/dist/katex.min.css";
+import { SyntaxHighlighter } from "./shiki-highlighter";
 
 // Get file extension based on language
 const getFileExtension = (lang: string): string => {
     const extensionMap: Record<string, string> = {
-        // Web Development
-        javascript: "js",
-        js: "js",
-        typescript: "ts",
-        ts: "ts",
-        jsx: "jsx",
-        tsx: "tsx",
-        html: "html",
-        css: "css",
-        scss: "scss",
-        sass: "sass",
-        less: "less",
-        stylus: "styl",
-        vue: "vue",
-        svelte: "svelte",
-        astro: "astro",
-        "angular-ts": "ts",
+        adoc: "adoc",
         "angular-html": "html",
-        mdx: "mdx",
-        postcss: "pcss",
-
-        // Backend Languages
-        python: "py",
-        py: "py",
-        java: "java",
-        csharp: "cs",
-        cs: "cs",
-        go: "go",
-        rust: "rs",
-        rs: "rs",
-        php: "php",
-        ruby: "rb",
-        rb: "rb",
-        kotlin: "kt",
-        kt: "kt",
-        kts: "kts",
-        scala: "scala",
-        swift: "swift",
-        dart: "dart",
-        elixir: "ex",
-        exs: "exs",
-        erlang: "erl",
-        erl: "erl",
-        haskell: "hs",
-        hs: "hs",
-        ocaml: "ml",
-        fsharp: "fs",
-        fs: "fs",
-        clojure: "clj",
-        clj: "clj",
-        julia: "jl",
-        jl: "jl",
-        lua: "lua",
-        perl: "pl",
-        r: "r",
-
+        "angular-ts": "ts",
+        apache: "conf",
+        asciidoc: "adoc",
+        astro: "astro",
+        bash: "sh",
+        bat: "bat",
+        batch: "bat",
         // Systems Programming
         c: "c",
-        cpp: "cpp",
         "c++": "cpp",
-        cxx: "cpp",
+        cairo: "cairo",
         cc: "cpp",
-        zig: "zig",
-        "objective-c": "m",
-        objc: "m",
-        "objective-cpp": "mm",
-        llvm: "ll",
-
-        // Shell & Scripting
-        shell: "sh",
-        sh: "sh",
-        bash: "sh",
-        zsh: "zsh",
-        fish: "fish",
-        powershell: "ps1",
-        ps1: "ps1",
-        batch: "bat",
-        bat: "bat",
+        clj: "clj",
+        clojure: "clj",
+        cmake: "cmake",
         cmd: "cmd",
+        cpp: "cpp",
+        crystal: "cr",
 
+        cs: "cs",
+        csharp: "cs",
+        css: "css",
+        csv: "csv",
+        cxx: "cpp",
+        cypher: "cyp",
+        dart: "dart",
+        diff: "diff",
+        docker: "dockerfile",
+        // DevOps & Infrastructure
+        dockerfile: "dockerfile",
+        dotenv: ".env",
+        elixir: "ex",
+        // Functional Languages
+        elm: "elm",
+        env: ".env",
+        erb: "erb",
+        erl: "erl",
+        erlang: "erl",
+        exs: "exs",
+        fish: "fish",
+        fs: "fs",
+        fsharp: "fs",
+        // Game Development
+        gdscript: "gd",
+        gdshader: "gdshader",
+        gleam: "gleam",
+        glsl: "glsl",
+        gnuplot: "gp",
+        go: "go",
+        gql: "gql",
+        graphql: "graphql",
+        haml: "haml",
+        // Template Languages
+        handlebars: "hbs",
+        haskell: "hs",
+        hbs: "hbs",
+
+        hcl: "hcl",
+        hlsl: "hlsl",
+        hs: "hs",
+        html: "html",
+        http: "http",
+        ini: "ini",
+        jade: "jade",
+        java: "java",
+        // Web Development
+        javascript: "js",
+        jinja: "j2",
+
+        jinja2: "j2",
+        jl: "jl",
+        js: "js",
         // Data & Config
         json: "json",
         json5: "json5",
         jsonc: "jsonc",
-        yaml: "yaml",
-        yml: "yml",
-        toml: "toml",
-        xml: "xml",
-        csv: "csv",
-        ini: "ini",
-        properties: "properties",
-        dotenv: ".env",
-        env: ".env",
+        jsx: "jsx",
+        julia: "jl",
+        kotlin: "kt",
+        kt: "kt",
 
-        // Database
-        sql: "sql",
-        plsql: "sql",
-        cypher: "cyp",
-        sparql: "rq",
-        graphql: "graphql",
-        gql: "gql",
-
-        // DevOps & Infrastructure
-        dockerfile: "dockerfile",
-        docker: "dockerfile",
-        terraform: "tf",
-        tf: "tf",
-        hcl: "hcl",
-        nginx: "conf",
-        apache: "conf",
-        systemd: "service",
-        "ssh-config": "config",
-
-        // Documentation
-        markdown: "md",
-        md: "md",
+        kts: "kts",
         latex: "tex",
-        tex: "tex",
-        rst: "rst",
-        asciidoc: "adoc",
-        adoc: "adoc",
-        typst: "typ",
-
-        // Game Development
-        gdscript: "gd",
-        gdshader: "gdshader",
-        hlsl: "hlsl",
-        glsl: "glsl",
-        wgsl: "wgsl",
-        shader: "shader",
-        shaderlab: "shader",
-
-        // Functional Languages
-        elm: "elm",
-        purescript: "purs",
-        scheme: "scm",
-        racket: "rkt",
-        lisp: "lisp",
-
-        // Emerging Languages
-        v: "v",
-        nim: "nim",
-        crystal: "cr",
-        gleam: "gleam",
-        mojo: "mojo",
         lean: "lean",
-
-        // Specialized
-        solidity: "sol",
-        vyper: "vy",
-        cairo: "cairo",
-        move: "move",
-        matlab: "m",
-        wolfram: "wl",
-        stata: "do",
-        sas: "sas",
-        gnuplot: "gp",
-
-        // Template Languages
-        handlebars: "hbs",
-        hbs: "hbs",
-        jinja: "j2",
-        jinja2: "j2",
-        twig: "twig",
+        less: "less",
         liquid: "liquid",
-        erb: "erb",
-        pug: "pug",
-        jade: "jade",
-        haml: "haml",
-
+        lisp: "lisp",
+        llvm: "ll",
+        log: "log",
+        lua: "lua",
+        make: "makefile",
         // Others
         makefile: "makefile",
-        make: "makefile",
-        cmake: "cmake",
-        diff: "diff",
+        // Documentation
+        markdown: "md",
+
+        matlab: "m",
+        md: "md",
+        mdx: "mdx",
+        mojo: "mojo",
+        move: "move",
+        nginx: "conf",
+
+        nim: "nim",
+        objc: "m",
+        "objective-c": "m",
+        "objective-cpp": "mm",
+        ocaml: "ml",
         patch: "patch",
-        log: "log",
+        perl: "pl",
+        php: "php",
+        plsql: "sql",
+
+        postcss: "pcss",
+        powershell: "ps1",
+        properties: "properties",
+        proto: "proto",
+        protobuf: "proto",
+        ps1: "ps1",
+        pug: "pug",
+        purescript: "purs",
+
+        py: "py",
+        // Backend Languages
+        python: "py",
+        r: "r",
+        racket: "rkt",
+        rb: "rb",
         regex: "regex",
         regexp: "regex",
-        http: "http",
-        protobuf: "proto",
-        proto: "proto",
+
+        rs: "rs",
+        rst: "rst",
+        ruby: "rb",
+        rust: "rs",
+        sas: "sas",
+
+        sass: "sass",
+        scala: "scala",
+        scheme: "scm",
+        scss: "scss",
+        sh: "sh",
+        shader: "shader",
+
+        shaderlab: "shader",
+        // Shell & Scripting
+        shell: "sh",
+        // Specialized
+        solidity: "sol",
+        sparql: "rq",
+        // Database
+        sql: "sql",
+        "ssh-config": "config",
+        stata: "do",
+        stylus: "styl",
+        svelte: "svelte",
+
+        swift: "swift",
+        systemd: "service",
+        terraform: "tf",
+        tex: "tex",
+        tf: "tf",
+        toml: "toml",
+        ts: "ts",
+        tsx: "tsx",
+        twig: "twig",
+        typescript: "ts",
+
+        typst: "typ",
+        // Emerging Languages
+        v: "v",
+        vue: "vue",
+        vyper: "vy",
+        wgsl: "wgsl",
+        wolfram: "wl",
+        xml: "xml",
+        yaml: "yaml",
+        yml: "yml",
+        zig: "zig",
+        zsh: "zsh",
     };
 
     return extensionMap[lang.toLowerCase()] || "txt";
 };
 
-const MarkdownTextImpl = () => {
-    return (
-        <MarkdownTextPrimitive
-            remarkPlugins={[remarkGfm, remarkMath, remarkDirective]}
-            rehypePlugins={[rehypeKatex, rehypeRaw]}
-            className="aui-md"
-            components={defaultComponents}
-            componentsByLanguage={{
-                mermaid: {
-                    SyntaxHighlighter: MermaidDiagram,
-                },
-            }}
-        />
-    );
-};
+const MarkdownTextImpl = () => (
+    <MarkdownTextPrimitive
+        className="aui-md"
+        components={defaultComponents}
+        componentsByLanguage={{
+            mermaid: {
+                SyntaxHighlighter: MermaidDiagram,
+            },
+        }}
+        rehypePlugins={[rehypeKatex, rehypeRaw]}
+        remarkPlugins={[remarkGfm, remarkMath, remarkDirective]}
+    />
+);
 
-const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
-    const { isCopied, copyToClipboard } = useCopyToClipboard();
+const CodeHeader: FC<CodeHeaderProps> = ({ code, language }) => {
+    const { copyToClipboard, isCopied } = useCopyToClipboard();
 
     const onCopy = () => {
         if (!code || isCopied) {
@@ -256,10 +255,10 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
         link.href = url;
         link.download = filename;
 
-        document.body.appendChild(link);
+        document.body.append(link);
         link.click();
 
-        document.body.removeChild(link);
+        link.remove();
 
         URL.revokeObjectURL(url);
     };
@@ -269,16 +268,16 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
             <span className="lowercase [&>span]:text-xs">{language}</span>
             <div className="flex items-center gap-2">
                 <TooltipIconButton
-                    tooltip="Download"
-                    onClick={onDownload}
                     className="size-6 rounded-md border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600 dark:hover:text-zinc-100"
+                    onClick={onDownload}
+                    tooltip="Download"
                 >
                     <DownloadIcon className="h-4 w-4" />
                 </TooltipIconButton>
                 <TooltipIconButton
-                    tooltip="Copy"
-                    onClick={onCopy}
                     className="size-6 rounded-md border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600 dark:hover:text-zinc-100"
+                    onClick={onCopy}
+                    tooltip="Copy"
                 >
                     {!isCopied && <CopyIcon className="h-4 w-4" />}
                     {isCopied && <CheckIcon className="h-4 w-4" />}
@@ -296,7 +295,8 @@ const useCopyToClipboard = ({
     const [isCopied, setIsCopied] = useState<boolean>(false);
 
     const copyToClipboard = (value: string) => {
-        if (!value) return;
+        if (!value)
+            return;
 
         navigator.clipboard.writeText(value).then(() => {
             setIsCopied(true);
@@ -304,60 +304,61 @@ const useCopyToClipboard = ({
         });
     };
 
-    return { isCopied, copyToClipboard };
+    return { copyToClipboard, isCopied };
 };
 
 const defaultComponents = memoizeMarkdownComponents({
-    h1: ({ className, ...props }) => <h1 className={cn("mb-8 scroll-m-20 text-4xl font-extrabold tracking-tight last:mb-0", className)} {...props} />,
-    h2: ({ className, ...props }) => (
-        <h2 className={cn("mb-4 mt-8 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...props} />
+    a: ({ className, ...properties }) => <a className={cn("text-primary font-medium underline underline-offset-4", className)} {...properties} />,
+    blockquote: ({ className, ...properties }) => <blockquote className={cn("border-l-2 pl-6 italic", className)} {...properties} />,
+    code: function Code({ className, ...properties }) {
+        const isCodeBlock = useIsMarkdownCodeBlock();
+
+        return <code className={cn(!isCodeBlock && "bg-muted rounded border font-semibold", className)} {...properties} />;
+    },
+    CodeHeader,
+    h1: ({ className, ...properties }) => <h1 className={cn("mb-8 scroll-m-20 text-4xl font-extrabold tracking-tight last:mb-0", className)} {...properties} />,
+    h2: ({ className, ...properties }) => (
+        <h2 className={cn("mb-4 mt-8 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
     ),
-    h3: ({ className, ...props }) => (
-        <h3 className={cn("mb-4 mt-6 scroll-m-20 text-2xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...props} />
+    h3: ({ className, ...properties }) => (
+        <h3 className={cn("mb-4 mt-6 scroll-m-20 text-2xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
     ),
-    h4: ({ className, ...props }) => (
-        <h4 className={cn("mb-4 mt-6 scroll-m-20 text-xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...props} />
+    h4: ({ className, ...properties }) => (
+        <h4 className={cn("mb-4 mt-6 scroll-m-20 text-xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
     ),
-    h5: ({ className, ...props }) => <h5 className={cn("my-4 text-lg font-semibold first:mt-0 last:mb-0", className)} {...props} />,
-    h6: ({ className, ...props }) => <h6 className={cn("my-4 font-semibold first:mt-0 last:mb-0", className)} {...props} />,
-    p: ({ className, ...props }) => <p className={cn("mb-5 mt-5 leading-7 first:mt-0 last:mb-0", className)} {...props} />,
-    a: ({ className, ...props }) => <a className={cn("text-primary font-medium underline underline-offset-4", className)} {...props} />,
-    blockquote: ({ className, ...props }) => <blockquote className={cn("border-l-2 pl-6 italic", className)} {...props} />,
-    ul: ({ className, ...props }) => <ul className={cn("my-5 ml-6 list-disc [&>li]:mt-2", className)} {...props} />,
-    ol: ({ className, ...props }) => <ol className={cn("my-5 ml-6 list-decimal [&>li]:mt-2", className)} {...props} />,
-    hr: ({ className, ...props }) => <hr className={cn("my-5 border-b", className)} {...props} />,
-    table: ({ className, ...props }) => <table className={cn("my-5 w-full border-separate border-spacing-0 overflow-y-auto", className)} {...props} />,
-    th: ({ className, ...props }) => (
+    h5: ({ className, ...properties }) => <h5 className={cn("my-4 text-lg font-semibold first:mt-0 last:mb-0", className)} {...properties} />,
+    h6: ({ className, ...properties }) => <h6 className={cn("my-4 font-semibold first:mt-0 last:mb-0", className)} {...properties} />,
+    hr: ({ className, ...properties }) => <hr className={cn("my-5 border-b", className)} {...properties} />,
+    ol: ({ className, ...properties }) => <ol className={cn("my-5 ml-6 list-decimal [&>li]:mt-2", className)} {...properties} />,
+    p: ({ className, ...properties }) => <p className={cn("mb-5 mt-5 leading-7 first:mt-0 last:mb-0", className)} {...properties} />,
+    pre: ({ className, ...properties }) => (
+        <pre className={cn("overflow-x-auto rounded-b-lg bg-zinc-50 p-4 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100", className)} {...properties} />
+    ),
+    sup: ({ className, ...properties }) => <sup className={cn("[&>a]:text-xs [&>a]:no-underline", className)} {...properties} />,
+    SyntaxHighlighter,
+    table: ({ className, ...properties }) => <table className={cn("my-5 w-full border-separate border-spacing-0 overflow-y-auto", className)} {...properties} />,
+    td: ({ className, ...properties }) => (
+        <td
+            className={cn("border-b border-l px-4 py-2 text-left last:border-r [&[align=center]]:text-center [&[align=right]]:text-right", className)}
+            {...properties}
+        />
+    ),
+    th: ({ className, ...properties }) => (
         <th
             className={cn(
                 "bg-muted px-4 py-2 text-left font-bold first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right",
                 className,
             )}
-            {...props}
+            {...properties}
         />
     ),
-    td: ({ className, ...props }) => (
-        <td
-            className={cn("border-b border-l px-4 py-2 text-left last:border-r [&[align=center]]:text-center [&[align=right]]:text-right", className)}
-            {...props}
-        />
-    ),
-    tr: ({ className, ...props }) => (
+    tr: ({ className, ...properties }) => (
         <tr
             className={cn("m-0 border-b p-0 first:border-t [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg", className)}
-            {...props}
+            {...properties}
         />
     ),
-    sup: ({ className, ...props }) => <sup className={cn("[&>a]:text-xs [&>a]:no-underline", className)} {...props} />,
-    pre: ({ className, ...props }) => (
-        <pre className={cn("overflow-x-auto rounded-b-lg bg-zinc-50 p-4 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100", className)} {...props} />
-    ),
-    code: function Code({ className, ...props }) {
-        const isCodeBlock = useIsMarkdownCodeBlock();
-        return <code className={cn(!isCodeBlock && "bg-muted rounded border font-semibold", className)} {...props} />;
-    },
-    CodeHeader,
-    SyntaxHighlighter,
+    ul: ({ className, ...properties }) => <ul className={cn("my-5 ml-6 list-disc [&>li]:mt-2", className)} {...properties} />,
 });
 
 export const MarkdownText = memo(MarkdownTextImpl);

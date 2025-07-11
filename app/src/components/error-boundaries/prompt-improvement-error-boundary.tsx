@@ -1,38 +1,40 @@
 "use client";
 
-import React from "react";
-import type { ErrorInfo } from "react";
-import { Sparkles, AlertTriangle, RefreshCw } from "lucide-react";
+import { AlertTriangle, RefreshCw, Sparkles } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
-import { ErrorBoundary } from "../error-boundary";
+import type { ErrorInfo } from "react";
+import React from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RateLimitError, ValidationError, NetworkError, ErrorUtils } from "@/lib/errors";
+import { ErrorUtils, NetworkError, RateLimitError, ValidationError } from "@/lib/errors";
 import { promptToast } from "@/lib/toast";
 
-interface PromptImprovementErrorBoundaryProps {
+import { ErrorBoundary } from "../error-boundary";
+
+interface PromptImprovementErrorBoundaryProperties {
     children: React.ReactNode;
-    onRetry?: () => void;
     fallbackToInput?: boolean;
+    onRetry?: () => void;
 }
 
 /**
  * Specialized error boundary for prompt improvement features
  * Provides context-aware error handling and recovery options
  */
-export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToInput = true }: PromptImprovementErrorBoundaryProps) {
+export const PromptImprovementErrorBoundary = ({ children, fallbackToInput = true, onRetry }: PromptImprovementErrorBoundaryProperties) => {
     const posthog = usePostHog();
 
     const handleError = (error: Error, errorInfo: ErrorInfo) => {
         // Send error to PostHog
         posthog?.captureException(error, {
             $level: "error",
-            errorBoundary: "prompt-improvement",
-            feature: "prompt-improvement",
             componentStack: errorInfo.componentStack,
-            url: window.location.href,
-            timestamp: new Date().toISOString(),
+            errorBoundary: "prompt-improvement",
             errorType: error.constructor.name,
+            feature: "prompt-improvement",
+            timestamp: new Date().toISOString(),
+            url: globalThis.location.href,
         });
     };
 
@@ -47,21 +49,23 @@ export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToIn
                 <CardHeader>
                     <div className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
-                            {isRateLimit ? (
-                                <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                            ) : (
-                                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                            )}
+                            {isRateLimit
+                                ? (
+                                    <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                )
+                                : (
+                                    <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                )}
                         </div>
                         <div>
                             <CardTitle className="text-base text-amber-800 dark:text-amber-200">
                                 {isRateLimit
                                     ? "Rate Limit Reached"
                                     : isValidation
-                                      ? "Invalid Input"
-                                      : isNetwork
-                                        ? "Connection Issue"
-                                        : "Improvement Unavailable"}
+                                        ? "Invalid Input"
+                                        : isNetwork
+                                            ? "Connection Issue"
+                                            : "Improvement Unavailable"}
                             </CardTitle>
                             <CardDescription className="text-amber-700 dark:text-amber-300">{userMessage}</CardDescription>
                         </div>
@@ -72,13 +76,13 @@ export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToIn
                         {/* Retry button for retryable errors */}
                         {ErrorUtils.isRetryable(error) && (
                             <Button
-                                size="sm"
-                                variant="outline"
+                                className="border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900"
                                 onClick={() => {
                                     retry();
                                     onRetry?.();
                                 }}
-                                className="border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900"
+                                size="sm"
+                                variant="outline"
                             >
                                 <RefreshCw className="mr-1 h-3 w-3" />
                                 Try Again
@@ -88,12 +92,12 @@ export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToIn
                         {/* Rate limit specific actions */}
                         {isRateLimit && (
                             <Button
-                                size="sm"
-                                variant="ghost"
+                                className="text-amber-700 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900"
                                 onClick={() => {
                                     promptToast.rateLimited(error as RateLimitError);
                                 }}
-                                className="text-amber-700 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900"
+                                size="sm"
+                                variant="ghost"
                             >
                                 Learn More
                             </Button>
@@ -102,17 +106,18 @@ export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToIn
                         {/* Fallback to manual editing */}
                         {fallbackToInput && (
                             <Button
-                                size="sm"
-                                variant="ghost"
+                                className="text-amber-700 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900"
                                 onClick={() => {
                                     // Focus the input field for manual editing
                                     const inputElement = document.querySelector("[data-composer-input]") as HTMLTextAreaElement;
+
                                     if (inputElement) {
                                         inputElement.focus();
                                         promptToast.validationError("prompt", "You can edit your prompt manually");
                                     }
                                 }}
-                                className="text-amber-700 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900"
+                                size="sm"
+                                variant="ghost"
                             >
                                 Edit Manually
                             </Button>
@@ -133,14 +138,14 @@ export function PromptImprovementErrorBoundary({ children, onRetry, fallbackToIn
 
     return (
         <ErrorBoundary
-            level="feature"
-            onError={handleError}
             fallback={renderFallback}
+            level="feature"
             maxRetries={2}
-            showToast={false} // We handle toasts in the fallback
+            onError={handleError}
             resetKeys={onRetry ? [onRetry.toString()] : []} // Reset when retry function changes
+            showToast={false} // We handle toasts in the fallback
         >
             {children}
         </ErrorBoundary>
     );
-}
+};

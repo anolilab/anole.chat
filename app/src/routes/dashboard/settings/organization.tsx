@@ -1,5 +1,6 @@
-import { OrganizationSettingsCards } from "@/features/auth/components/organization/organization-settings-cards";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+
+import { OrganizationSettingsCards } from "@/features/auth/components/organization/organization-settings-cards";
 
 export const Route = createFileRoute("/dashboard/settings/organization")({
     beforeLoad: ({ context }) => {
@@ -10,6 +11,4 @@ export const Route = createFileRoute("/dashboard/settings/organization")({
     component: RouteComponent,
 });
 
-function RouteComponent() {
-    return <OrganizationSettingsCards />;
-}
+const RouteComponent = () => <OrganizationSettingsCards />;

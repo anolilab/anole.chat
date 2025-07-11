@@ -1,28 +1,30 @@
 import { useCallback, useMemo } from "react";
-import { AuthUIProvider, type AuthUIProviderProps } from "../auth-ui-provider";
+
+import type { AuthUIProviderProps as AuthUIProviderProperties } from "../auth-ui-provider";
+import { AuthUIProvider } from "../auth-ui-provider";
 import { useTanstackOptions } from "./use-tanstack-options";
 
-export function AuthUIProviderTanstack({
-    children,
+export const AuthUIProviderTanstack = ({
     authClient,
-    hooks: hooksProp,
-    mutators: mutatorsProp,
-    onSessionChange: onSessionChangeProp,
-    ...props
-}: AuthUIProviderProps) {
+    children,
+    hooks: hooksProperty,
+    mutators: mutatorsProperty,
+    onSessionChange: onSessionChangeProperty,
+    ...properties
+}: AuthUIProviderProperties) => {
     const { hooks: contextHooks, mutators: contextMutators, onSessionChange, optimistic } = useTanstackOptions({ authClient });
 
-    const hooks = useMemo(() => ({ ...contextHooks, ...hooksProp }), [contextHooks, hooksProp]);
-    const mutators = useMemo(() => ({ ...contextMutators, ...mutatorsProp }), [contextMutators, mutatorsProp]);
+    const hooks = useMemo(() => { return { ...contextHooks, ...hooksProperty }; }, [contextHooks, hooksProperty]);
+    const mutators = useMemo(() => { return { ...contextMutators, ...mutatorsProperty }; }, [contextMutators, mutatorsProperty]);
 
     const onSessionChangeCallback = useCallback(async () => {
         await onSessionChange();
-        await onSessionChangeProp?.();
-    }, [onSessionChangeProp, onSessionChange]);
+        await onSessionChangeProperty?.();
+    }, [onSessionChangeProperty, onSessionChange]);
 
     return (
-        <AuthUIProvider authClient={authClient} hooks={hooks} mutators={mutators} onSessionChange={onSessionChangeCallback} optimistic={optimistic} {...props}>
+        <AuthUIProvider authClient={authClient} hooks={hooks} mutators={mutators} onSessionChange={onSessionChangeCallback} optimistic={optimistic} {...properties}>
             {children}
         </AuthUIProvider>
     );
-}
+};

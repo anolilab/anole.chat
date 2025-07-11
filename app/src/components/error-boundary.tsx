@@ -1,63 +1,64 @@
 "use client";
 
-import React, { Component } from "react";
-import type { ErrorInfo, ReactNode } from "react";
-import { AlertTriangle, RefreshCw, Home, Bug, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertTriangle, Bug, ChevronDown, ChevronUp, Home, RefreshCw } from "lucide-react";
 import posthog from "posthog-js";
+import type { ErrorInfo, ReactNode } from "react";
+import React, { Component } from "react";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
 import { AppError, ErrorUtils } from "@/lib/errors";
 import { showError } from "@/lib/toast";
 
 interface ErrorBoundaryState {
-    hasError: boolean;
     error: Error | null;
-    errorInfo: ErrorInfo | null;
     errorId: string | null;
-    retryCount: number;
+    errorInfo: ErrorInfo | null;
+    hasError: boolean;
     isDetailsOpen: boolean;
+    retryCount: number;
 }
 
-interface ErrorBoundaryProps {
+interface ErrorBoundaryProperties {
     children: ReactNode;
     fallback?: (error: Error, retry: () => void) => ReactNode;
-    onError?: (error: Error, errorInfo: ErrorInfo) => void;
     level?: "page" | "component" | "feature";
-    showToast?: boolean;
     maxRetries?: number;
+    onError?: (error: Error, errorInfo: ErrorInfo) => void;
+    resetKeys?: (string | number)[];
     resetOnPropsChange?: boolean;
-    resetKeys?: Array<string | number>;
+    showToast?: boolean;
 }
 
 /**
  * Enhanced Error Boundary with multiple fallback strategies and error reporting
  */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<ErrorBoundaryProperties, ErrorBoundaryState> {
     private resetTimeoutId: number | null = null;
 
-    constructor(props: ErrorBoundaryProps) {
-        super(props);
+    constructor(properties: ErrorBoundaryProperties) {
+        super(properties);
 
         this.state = {
-            hasError: false,
             error: null,
-            errorInfo: null,
             errorId: null,
-            retryCount: 0,
+            errorInfo: null,
+            hasError: false,
             isDetailsOpen: false,
+            retryCount: 0,
         };
     }
 
     static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
         // Generate unique error ID for tracking
-        const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const errorId = `error_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 
         return {
-            hasError: true,
             error,
             errorId,
+            hasError: true,
         };
     }
 
@@ -77,13 +78,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         this.logError(error, errorInfo);
     }
 
-    componentDidUpdate(prevProps: ErrorBoundaryProps) {
-        const { resetOnPropsChange, resetKeys } = this.props;
+    componentDidUpdate(previousProperties: ErrorBoundaryProperties) {
+        const { resetKeys, resetOnPropsChange } = this.props;
         const { hasError } = this.state;
 
         // Reset error boundary when specified props change
         if (hasError && resetOnPropsChange && resetKeys) {
-            const hasResetKeyChanged = resetKeys.some((key, index) => key !== prevProps.resetKeys?.[index]);
+            const hasResetKeyChanged = resetKeys.some((key, index) => key !== previousProperties.resetKeys?.[index]);
 
             if (hasResetKeyChanged) {
                 this.resetErrorBoundary();
@@ -103,21 +104,21 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
         // Enhanced error logging
         const errorReport = {
-            id: errorId,
-            level,
-            timestamp: new Date().toISOString(),
             error: {
-                name: error.name,
                 message: error.message,
+                name: error.name,
                 stack: error.stack,
             },
             errorInfo: {
                 componentStack: errorInfo.componentStack,
             },
-            userAgent: navigator.userAgent,
-            url: window.location.href,
-            userId: this.getUserId(),
+            id: errorId,
+            level,
             sessionId: this.getSessionId(),
+            timestamp: new Date().toISOString(),
+            url: globalThis.location.href,
+            userAgent: navigator.userAgent,
+            userId: this.getUserId(),
         };
 
         // Log to console in development
@@ -159,16 +160,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             // Send to PostHog error tracking
             posthog?.captureException(errorReport.error, {
                 $level: "error",
-                errorBoundary: "main",
-                level: errorReport.level,
-                errorId: errorReport.id,
                 componentStack: errorReport.errorInfo.componentStack,
+                errorBoundary: "main",
+                errorId: errorReport.id,
+                errorType: errorReport.error.name,
+                level: errorReport.level,
+                sessionId: errorReport.sessionId,
+                timestamp: errorReport.timestamp,
                 url: errorReport.url,
                 userAgent: errorReport.userAgent,
                 userId: errorReport.userId,
-                sessionId: errorReport.sessionId,
-                timestamp: errorReport.timestamp,
-                errorType: errorReport.error.name,
             });
         } catch (reportingError) {
             console.error("Failed to send error report to PostHog:", reportingError);
@@ -177,12 +178,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     private resetErrorBoundary = () => {
         this.setState({
-            hasError: false,
             error: null,
-            errorInfo: null,
             errorId: null,
-            retryCount: 0,
+            errorInfo: null,
+            hasError: false,
             isDetailsOpen: false,
+            retryCount: 0,
         });
     };
 
@@ -192,13 +193,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
         if (retryCount < maxRetries) {
             this.setState(
-                (prevState) => ({
-                    ...prevState,
-                    retryCount: prevState.retryCount + 1,
-                }),
+                (previousState) => {
+                    return {
+                        ...previousState,
+                        retryCount: previousState.retryCount + 1,
+                    };
+                },
                 () => {
                     // Reset after a short delay to allow state to update
-                    this.resetTimeoutId = window.setTimeout(() => {
+                    this.resetTimeoutId = globalThis.setTimeout(() => {
                         this.resetErrorBoundary();
                     }, 100);
                 },
@@ -207,28 +210,31 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     };
 
     private handleGoHome = () => {
-        window.location.href = "/";
+        globalThis.location.href = "/";
     };
 
     private handleReload = () => {
-        window.location.reload();
+        globalThis.location.reload();
     };
 
     private toggleDetails = () => {
-        this.setState((prevState) => ({
-            isDetailsOpen: !prevState.isDetailsOpen,
-        }));
+        this.setState((previousState) => {
+            return {
+                isDetailsOpen: !previousState.isDetailsOpen,
+            };
+        });
     };
 
     private renderErrorDetails = () => {
-        const { error, errorInfo, errorId } = this.state;
+        const { error, errorId, errorInfo } = this.state;
 
-        if (!error) return null;
+        if (!error)
+            return null;
 
         return (
-            <Collapsible open={this.state.isDetailsOpen} onOpenChange={this.toggleDetails}>
+            <Collapsible onOpenChange={this.toggleDetails} open={this.state.isDetailsOpen}>
                 <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="mt-4">
+                    <Button className="mt-4" size="sm" variant="ghost">
                         <Bug className="mr-2 h-4 w-4" />
                         Technical Details
                         {this.state.isDetailsOpen ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
@@ -238,13 +244,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     <div className="bg-muted rounded-lg p-4">
                         <div className="space-y-2 text-sm">
                             <div>
-                                <strong>Error ID:</strong> <code className="bg-background rounded px-1">{errorId}</code>
+                                <strong>Error ID:</strong>
+                                {" "}
+                                <code className="bg-background rounded px-1">{errorId}</code>
                             </div>
                             <div>
-                                <strong>Error Type:</strong> <Badge variant="destructive">{error.name}</Badge>
+                                <strong>Error Type:</strong>
+                                {" "}
+                                <Badge variant="destructive">{error.name}</Badge>
                             </div>
                             <div>
-                                <strong>Message:</strong> {error.message}
+                                <strong>Message:</strong>
+                                {" "}
+                                {error.message}
                             </div>
                             {error.stack && (
                                 <div>
@@ -269,7 +281,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         const { error, retryCount } = this.state;
         const { level = "component", maxRetries = 3 } = this.props;
 
-        if (!error) return null;
+        if (!error)
+            return null;
 
         const canRetry = retryCount < maxRetries;
         const isAppError = error instanceof AppError;
@@ -277,41 +290,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
         // Different UI based on error level
         switch (level) {
-            case "page":
-                return (
-                    <div className="flex min-h-screen items-center justify-center p-4">
-                        <Card className="w-full max-w-md">
-                            <CardHeader className="text-center">
-                                <div className="bg-destructive/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
-                                    <AlertTriangle className="text-destructive h-6 w-6" />
-                                </div>
-                                <CardTitle>Something went wrong</CardTitle>
-                                <CardDescription>{userMessage}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex flex-col gap-2">
-                                    {canRetry && (
-                                        <Button onClick={this.handleRetry} className="w-full">
-                                            <RefreshCw className="mr-2 h-4 w-4" />
-                                            Try Again {retryCount > 0 && `(${retryCount}/${maxRetries})`}
-                                        </Button>
-                                    )}
-                                    <Button variant="outline" onClick={this.handleGoHome} className="w-full">
-                                        <Home className="mr-2 h-4 w-4" />
-                                        Go Home
-                                    </Button>
-                                    <Button variant="ghost" onClick={this.handleReload} className="w-full">
-                                        <RefreshCw className="mr-2 h-4 w-4" />
-                                        Reload Page
-                                    </Button>
-                                </div>
-                                {this.renderErrorDetails()}
-                            </CardContent>
-                        </Card>
-                    </div>
-                );
-
-            case "feature":
+            case "feature": {
                 return (
                     <Card className="w-full">
                         <CardHeader>
@@ -328,12 +307,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <CardContent>
                             <div className="flex gap-2">
                                 {canRetry && (
-                                    <Button size="sm" onClick={this.handleRetry}>
+                                    <Button onClick={this.handleRetry} size="sm">
                                         <RefreshCw className="mr-1 h-3 w-3" />
-                                        Retry {retryCount > 0 && `(${retryCount})`}
+                                        Retry
+                                        {" "}
+                                        {retryCount > 0 && `(${retryCount})`}
                                     </Button>
                                 )}
-                                <Button size="sm" variant="outline" onClick={this.handleReload}>
+                                <Button onClick={this.handleReload} size="sm" variant="outline">
                                     Refresh
                                 </Button>
                             </div>
@@ -341,9 +322,47 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         </CardContent>
                     </Card>
                 );
+            }
+
+            case "page": {
+                return (
+                    <div className="flex min-h-screen items-center justify-center p-4">
+                        <Card className="w-full max-w-md">
+                            <CardHeader className="text-center">
+                                <div className="bg-destructive/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+                                    <AlertTriangle className="text-destructive h-6 w-6" />
+                                </div>
+                                <CardTitle>Something went wrong</CardTitle>
+                                <CardDescription>{userMessage}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex flex-col gap-2">
+                                    {canRetry && (
+                                        <Button className="w-full" onClick={this.handleRetry}>
+                                            <RefreshCw className="mr-2 h-4 w-4" />
+                                            Try Again
+                                            {" "}
+                                            {retryCount > 0 && `(${retryCount}/${maxRetries})`}
+                                        </Button>
+                                    )}
+                                    <Button className="w-full" onClick={this.handleGoHome} variant="outline">
+                                        <Home className="mr-2 h-4 w-4" />
+                                        Go Home
+                                    </Button>
+                                    <Button className="w-full" onClick={this.handleReload} variant="ghost">
+                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                        Reload Page
+                                    </Button>
+                                </div>
+                                {this.renderErrorDetails()}
+                            </CardContent>
+                        </Card>
+                    </div>
+                );
+            }
 
             case "component":
-            default:
+            default: {
                 return (
                     <div className="border-destructive/20 bg-destructive/5 rounded-lg border p-4">
                         <div className="flex items-start gap-3">
@@ -353,7 +372,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                                 <p className="text-muted-foreground mt-1 text-sm">{userMessage}</p>
                                 <div className="mt-3 flex gap-2">
                                     {canRetry && (
-                                        <Button size="sm" variant="outline" onClick={this.handleRetry}>
+                                        <Button onClick={this.handleRetry} size="sm" variant="outline">
                                             <RefreshCw className="mr-1 h-3 w-3" />
                                             Retry
                                         </Button>
@@ -364,6 +383,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         </div>
                     </div>
                 );
+            }
         }
     };
 
@@ -388,10 +408,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 /**
  * Higher-order component for wrapping components with error boundaries
  */
-export function withErrorBoundary<P extends object>(Component: React.ComponentType<P>, errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">) {
-    const WrappedComponent = (props: P) => (
-        <ErrorBoundary {...errorBoundaryProps}>
-            <Component {...props} />
+export function withErrorBoundary<P extends object>(Component: React.ComponentType<P>, errorBoundaryProperties?: Omit<ErrorBoundaryProperties, "children">) {
+    const WrappedComponent = (properties: P) => (
+        <ErrorBoundary {...errorBoundaryProperties}>
+            <Component {...properties} />
         </ErrorBoundary>
     );
 

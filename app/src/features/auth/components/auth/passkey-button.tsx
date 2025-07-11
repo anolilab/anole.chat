@@ -1,23 +1,24 @@
-import { FingerprintIcon } from "lucide-react";
-import { useContext } from "react";
 import { t } from "@lingui/core/macro";
+import { FingerprintIcon } from "lucide-react";
+import { use } from "react";
+
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
 
 import { useOnSuccessTransition } from "../../hooks/use-success-transition";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 import { getLocalizedError } from "../../lib/utils";
-import { Button } from "@/components/ui/button";
 import type { AuthCardClassNames } from "./auth-card";
 
-interface PasskeyButtonProps {
+interface PasskeyButtonProperties {
     classNames?: AuthCardClassNames;
     isSubmitting?: boolean;
     redirectTo?: string;
     setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
-export function PasskeyButton({ classNames, isSubmitting, redirectTo, setIsSubmitting }: PasskeyButtonProps) {
-    const { authClient, toast } = useContext(AuthUIContext);
+export const PasskeyButton = ({ classNames, isSubmitting, redirectTo, setIsSubmitting }: PasskeyButtonProperties) => {
+    const { authClient, toast } = useAuth();
 
     const { onSuccess } = useOnSuccessTransition({ redirectTo });
 
@@ -31,10 +32,10 @@ export function PasskeyButton({ classNames, isSubmitting, redirectTo, setIsSubmi
 
             if (response?.error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({
                         error: response.error,
                     }),
+                    variant: "error",
                 });
 
                 setIsSubmitting?.(false);
@@ -43,8 +44,8 @@ export function PasskeyButton({ classNames, isSubmitting, redirectTo, setIsSubmi
             }
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
 
             setIsSubmitting?.(false);
@@ -57,12 +58,12 @@ export function PasskeyButton({ classNames, isSubmitting, redirectTo, setIsSubmi
             disabled={isSubmitting}
             formNoValidate
             name="passkey"
+            onClick={signInPassKey}
             value="true"
             variant="secondary"
-            onClick={signInPassKey}
         >
             <FingerprintIcon />
             {t`Sign in with passkey`}
         </Button>
     );
-}
+};

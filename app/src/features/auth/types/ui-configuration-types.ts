@@ -1,74 +1,84 @@
 import type { SocialProvider } from "better-auth/social-providers";
+
+import type { AuthCardClassNames } from "../components/auth/auth-card";
 import type { Provider } from "../lib/social-providers";
 import type { CaptchaProvider, PasswordValidation } from "./form-validation-types";
-import type { AuthCardClassNames } from "../components/auth/auth-card";
 
 // Avatar Configuration Types (from avatar-options.ts)
 export type AvatarOptions = {
-    /**
-     * Upload an avatar image and return the URL string
-     * @remarks `(file: File) => Promise<string>`
-     */
-    upload?: (file: File) => Promise<string | undefined | null>;
-    /**
-     * Avatar size for resizing
-     * @default 128 (or 256 if upload is provided)
-     */
-    size: number;
     /**
      * File extension for avatar uploads
      * @default "png"
      */
     extension: string;
+
+    /**
+     * Avatar size for resizing
+     * @default 128 (or 256 if upload is provided)
+     */
+    size: number;
+
+    /**
+     * Upload an avatar image and return the URL string
+     * @remarks `(file: File) => Promise&lt;string>`
+     */
+    upload?: (file: File) => Promise<string | undefined | null>;
 };
 
 // Settings Configuration Types (from settings-options.ts)
 export type SettingsOptions = {
     /**
-     * Custom Settings URL
-     */
-    url?: string;
-    /**
      * Base path for settings views
      */
     basePath?: string;
+
     /**
-     * Array of fields to show in `<SettingsCards />`
+     * Array of fields to show in `&lt;SettingsCards />`
      * @default ["image", "name"]
      */
     fields: string[];
+
+    /**
+     * Custom Settings URL
+     */
+    url?: string;
 };
 
 // Captcha Configuration Types (from captcha-options.ts)
 export type CaptchaOptions = {
     /**
-     * Captcha site key
+     * Overrides the default array of paths where captcha validation is enforced
+     * @default ["/sign-up/email", "/sign-in/email", "/forget-password"]
      */
-    siteKey: string;
-    /**
-     * Captcha provider type
-     */
-    provider: CaptchaProvider;
-    /**
-     * Hide the captcha badge
-     * @default false
-     */
-    hideBadge?: boolean;
-    /**
-     * Use recaptcha.net domain instead of google.com
-     * @default false
-     */
-    recaptchaNet?: boolean;
+    endpoints?: string[];
+
     /**
      * Enable enterprise mode for Google reCAPTCHA
      * @default false
      */
     enterprise?: boolean;
+
     /**
-     * Overrides the default array of paths where captcha validation is enforced
-     * @default ["/sign-up/email", "/sign-in/email", "/forget-password"]
+     * Hide the captcha badge
+     * @default false
      */
-    endpoints?: string[];
+    hideBadge?: boolean;
+
+    /**
+     * Captcha provider type
+     */
+    provider: CaptchaProvider;
+
+    /**
+     * Use recaptcha.net domain instead of google.com
+     * @default false
+     */
+    recaptchaNet?: boolean;
+
+    /**
+     * Captcha site key
+     */
+    siteKey: string;
 };
 
 // Social Configuration Types (from social-options.ts)
@@ -78,10 +88,11 @@ export type SocialOptions = {
      * @remarks `SocialProvider[]`
      */
     providers: SocialProvider[];
+
     /**
      * Custom social sign in function
      */
-    signIn?: (params: Parameters<AuthClient["signIn"]["social"]>[0]) => Promise<unknown>;
+    signIn?: (parameters: Parameters<AuthClient["signIn"]["social"]>[0]) => Promise<unknown>;
 };
 
 // Sign Up Configuration Types (from sign-up-options.ts)
@@ -96,46 +107,50 @@ export type SignUpOptions = {
 // Organization Configuration Types (from organization-options.ts)
 export type OrganizationLogoOptions = {
     /**
-     * Upload a logo image and return the URL string
-     * @remarks `(file: File) => Promise<string>`
+     * File extension for logo uploads
+     * @default "png"
      */
-    upload?: (file: File) => Promise<string | undefined | null>;
+    extension: string;
+
     /**
      * Logo size for resizing
      * @default 256 if upload is provided, 128 otherwise
      */
     size: number;
+
     /**
-     * File extension for logo uploads
-     * @default "png"
+     * Upload a logo image and return the URL string
+     * @remarks `(file: File) => Promise&lt;string>`
      */
-    extension: string;
+    upload?: (file: File) => Promise<string | undefined | null>;
 };
 
 export type OrganizationOptions = {
+    /**
+     * Custom roles to add to the built-in roles (owner, admin, member)
+     * @default []
+     */
+    customRoles?: { label: string; role: string }[];
+
     /**
      * Logo configuration
      * @default undefined
      */
     logo?: boolean | Partial<OrganizationLogoOptions>;
+};
+
+export type OrganizationOptionsContext = {
     /**
      * Custom roles to add to the built-in roles (owner, admin, member)
      * @default []
      */
-    customRoles?: Array<{ role: string; label: string }>;
-};
+    customRoles: { label: string; role: string }[];
 
-export type OrganizationOptionsContext = {
     /**
      * Logo configuration
      * @default undefined
      */
     logo?: OrganizationLogoOptions;
-    /**
-     * Custom roles to add to the built-in roles (owner, admin, member)
-     * @default []
-     */
-    customRoles: Array<{ role: string; label: string }>;
 };
 
 // Gravatar Configuration Types (from gravatar-options.ts)
@@ -145,20 +160,23 @@ export type GravatarOptions = {
      * Options: '404', 'mp', 'identicon', 'monsterid', 'wavatar', 'retro', 'robohash', 'blank', or custom URL
      */
     d?: string;
-    /**
-     * Image size in pixels (1-2048)
-     */
-    size?: number;
-    /**
-     * Whether to append .jpg extension to the hash
-     * @default false
-     */
-    jpg?: boolean;
+
     /**
      * Force default image even if user has Gravatar
      * @default false
      */
     forceDefault?: boolean;
+
+    /**
+     * Whether to append .jpg extension to the hash
+     * @default false
+     */
+    jpg?: boolean;
+
+    /**
+     * Image size in pixels (1-2048)
+     */
+    size?: number;
 };
 
 // Generic OAuth Configuration Types (from generic-oauth-options.ts)
@@ -168,10 +186,11 @@ export type GenericOAuthOptions = {
      * @default []
      */
     providers: Provider[];
+
     /**
      * Custom generic OAuth sign in function
      */
-    signIn?: (params: Parameters<AuthClient["signIn"]["oauth2"]>[0]) => Promise<unknown>;
+    signIn?: (parameters: Parameters<AuthClient["signIn"]["oauth2"]>[0]) => Promise<unknown>;
 };
 
 // Credentials Configuration Types (from credentials-options.ts)

@@ -1,12 +1,13 @@
-import { tools } from "@/lib/ai/mcp-tools";
 import { createServerFileRoute } from "@tanstack/react-start/server";
-
 import { createMcpHandler } from "@vercel/mcp-adapter";
 
-const handler = async (req: Request) => {
+import { tools } from "@/lib/ai/mcp-tools";
+
+const handler = async (request: Request) => {
     // If commented this will register my MCP server to Cursor
     if (!true) {
         console.log("🔑 No session");
+
         return new Response(null, {
             status: 401,
         });
@@ -23,11 +24,12 @@ const handler = async (req: Request) => {
             capabilities: {
                 tools: {
                     ...tools.reduce(
-                        (acc, tool) => {
-                            acc[tool.name] = {
+                        (accumulator, tool) => {
+                            accumulator[tool.name] = {
                                 description: tool.description,
                             };
-                            return acc;
+
+                            return accumulator;
                         },
                         {} as Record<string, { description: string }>,
                     ),
@@ -36,25 +38,19 @@ const handler = async (req: Request) => {
         },
         {
             basePath: "/api/ai/mcp",
-            verboseLogs: true,
             maxDuration: 60,
             onEvent(event) {
                 console.log("🔑 Event", event);
             },
+            verboseLogs: true,
         },
-    )(req);
+    )(request);
 };
 
 export const ServerRoute = createServerFileRoute("/api/ai/mcp/$transport").methods({
-    POST: async ({ request }) => {
-        return handler(request);
-    },
-    GET: async ({ request }) => {
-        return handler(request);
-    },
-    DELETE: async ({ request }) => {
-        return handler(request);
-    },
+    DELETE: async ({ request }) => handler(request),
+    GET: async ({ request }) => handler(request),
+    POST: async ({ request }) => handler(request),
 });
 
 // usage in Cursor:

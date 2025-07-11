@@ -1,43 +1,45 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext } from "react";
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { Loader2 } from "lucide-react";
+import type { ComponentProps } from "react";
+import { use } from "react";
+import { z } from "zod/v4";
 
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../lib/utils";
-import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
 
-export interface InviteMemberDialogProps extends ComponentProps<typeof Dialog> {
+import { getLocalizedError } from "../../lib/utils";
+import type { SettingsCardClassNames } from "../settings/shared/settings-card";
+
+export interface InviteMemberDialogProperties extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
 }
 
-export function InviteMemberDialog({ classNames, onOpenChange, ...props }: InviteMemberDialogProps) {
+export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: InviteMemberDialogProperties) => {
     const {
         authClient,
         hooks: { useActiveOrganization, useSession },
-        toast,
         organization,
-    } = useContext(AuthUIContext);
+        toast,
+    } = useAuth();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { data: sessionData } = useSession();
     const membership = activeOrganization?.members.find((m) => m.userId === sessionData?.user.id);
 
     const builtInRoles = [
-        { role: "owner", label: t`Owner` },
-        { role: "admin", label: t`Admin` },
-        { role: "member", label: t`Member` },
+        { label: t`Owner`, role: "owner" },
+        { label: t`Admin`, role: "admin" },
+        { label: t`Member`, role: "member" },
     ] as const;
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
     const availableRoles = roles.filter((role) => membership?.role === "owner" || role.role !== "owner");
 
     const formSchema = z.object({
@@ -50,23 +52,20 @@ export function InviteMemberDialog({ classNames, onOpenChange, ...props }: Invit
         role: z.string().min(1, {
             message: t`Role is required`,
         }),
-    });
+    }).strict();
 
     const form = useAppForm({
         defaultValues: {
             email: "",
             role: "member",
         },
-        validators: {
-            onChange: ({ value }) => formSchema.safeParse(value),
-        },
         onSubmit: async ({ value }) => {
             try {
                 await authClient.organization.inviteMember({
                     email: value.email,
-                    role: value.role as (typeof builtInRoles)[number]["role"],
-                    organizationId: activeOrganization?.id,
                     fetchOptions: { throw: true },
+                    organizationId: activeOrganization?.id,
+                    role: value.role as (typeof builtInRoles)[number]["role"],
                 });
 
                 await refetchActiveOrganization?.();
@@ -75,20 +74,23 @@ export function InviteMemberDialog({ classNames, onOpenChange, ...props }: Invit
                 form.reset();
 
                 toast({
-                    variant: "success",
                     message: t`Invitation sent successfully`,
+                    variant: "success",
                 });
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             }
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value),
         },
     });
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
             <DialogContent className={classNames?.dialog?.content}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Invite Member`}</DialogTitle>
@@ -100,38 +102,37 @@ export function InviteMemberDialog({ classNames, onOpenChange, ...props }: Invit
 
                 <form.AppForm>
                     <form
+                        className="space-y-6"
                         onSubmit={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             form.handleSubmit();
                         }}
-                        className="space-y-6"
                     >
                         <form.AppField
-                            name="email"
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                                     <field.FormControl>
                                         <Input
-                                            placeholder={t`Enter email address`}
-                                            type="email"
                                             autoComplete="email"
-                                            value={field.state.value}
+                                            className={classNames?.input}
                                             onBlur={field.handleBlur}
                                             onChange={(e) => field.handleChange(e.target.value)}
-                                            className={classNames?.input}
+                                            placeholder={t`Enter email address`}
+                                            type="email"
+                                            value={field.state.value}
                                         />
                                     </field.FormControl>
 
                                     <field.FormMessage />
                                 </field.FormItem>
                             )}
+                            name="email"
                         />
 
                         <form.AppField
-                            name="role"
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel className={classNames?.label}>{t`Role`}</field.FormLabel>
@@ -155,17 +156,18 @@ export function InviteMemberDialog({ classNames, onOpenChange, ...props }: Invit
                                     <field.FormMessage />
                                 </field.FormItem>
                             )}
+                            name="role"
                         />
 
                         <DialogFooter className={classNames?.dialog?.footer}>
                             <form.Subscribe
-                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
-                                    <Button type="submit" disabled={!canSubmit} className={classNames?.button}>
+                                    <Button className={classNames?.button} disabled={!canSubmit} type="submit">
                                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                         {t`Send Invitation`}
                                     </Button>
                                 )}
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                             />
                         </DialogFooter>
                     </form>
@@ -173,4 +175,4 @@ export function InviteMemberDialog({ classNames, onOpenChange, ...props }: Invit
             </DialogContent>
         </Dialog>
     );
-}
+};

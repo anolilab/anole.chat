@@ -1,18 +1,18 @@
 import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 export const ModeToggle = ({ className }: { className?: string }) => {
-    const { theme, setTheme } = useTheme();
+    const { setTheme, theme } = useTheme();
 
     const toggleTheme = () => {
         setTheme(theme === "dark" ? "light" : "dark");
     };
 
     return (
-        <Button variant="icon" size="icon" className={cn("relative overflow-hidden", className)} onClick={toggleTheme}>
+        <Button className={cn("relative overflow-hidden", className)} onClick={toggleTheme} size="icon" variant="icon">
             <Sun
                 className={cn("absolute rotate-0 scale-100 transform opacity-100 transition-all duration-200 ease-in-out", {
                     "rotate-90 scale-0 opacity-0": theme === "dark",

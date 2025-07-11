@@ -1,77 +1,79 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import { type ComponentProps, useContext } from "react";
-import { z } from "zod/v4";
-import { t } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
+import { t } from "@lingui/core/macro";
+import { Loader2 } from "lucide-react";
+import type { ComponentProps } from "react";
+import { use } from "react";
+import { z } from "zod/v4";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { SettingsCardClassNames } from "../shared/settings-card";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { DEFAULT_LOCALE } from "@/lib/intl/client";
+import { cn } from "@/lib/utils";
 
-interface CreateAPIKeyDialogProps extends ComponentProps<typeof Dialog> {
+import type { Refetch } from "../../../types/hook-integration-types";
+import type { SettingsCardClassNames } from "../shared/settings-card";
+
+interface CreateAPIKeyDialogProperties extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
     onSuccess: (key: string) => void;
     refetch?: Refetch;
 }
 
-export function CreateAPIKeyDialog({ classNames, onSuccess, refetch, onOpenChange, ...props }: CreateAPIKeyDialogProps) {
-    const { authClient, apiKey, toast } = useContext(AuthUIContext);
+export const CreateAPIKeyDialog = ({ classNames, onOpenChange, onSuccess, refetch, ...properties }: CreateAPIKeyDialogProperties) => {
+    const { apiKey, authClient, toast } = useAuth();
 
     const formSchema = z.object({
+        expiresInDays: z.string().optional(),
         name: z
             .string()
             .trim()
             .min(1, t`Name is required`),
-        expiresInDays: z.string().optional(),
-    });
+    }).strict();
 
     const form = useAppForm({
         defaultValues: {
-            name: "",
             expiresInDays: "none",
-        },
-        validators: {
-            onChange: formSchema,
+            name: "",
         },
         onSubmit: async ({ value }) => {
             try {
                 const expiresIn = value.expiresInDays && value.expiresInDays !== "none" ? Number.parseInt(value.expiresInDays) * 60 * 60 * 24 : undefined;
 
                 const result = await authClient.apiKey.create({
-                    name: value.name,
                     expiresIn,
-                    prefix: typeof apiKey === "object" ? apiKey.prefix : undefined,
-                    metadata: typeof apiKey === "object" ? apiKey.metadata : undefined,
                     fetchOptions: { throw: true },
+                    metadata: typeof apiKey === "object" ? apiKey.metadata : undefined,
+                    name: value.name,
+                    prefix: typeof apiKey === "object" ? apiKey.prefix : undefined,
                 });
 
                 await refetch?.();
                 onSuccess(result.key);
                 onOpenChange?.(false);
                 form.reset();
-            } catch (error) {
+            } catch {
                 toast({
-                    variant: "error",
                     message: t`Failed to create API key`,
+                    variant: "error",
                 });
             }
+        },
+        validators: {
+            onChange: formSchema,
         },
     });
 
     const rtf = new Intl.RelativeTimeFormat(i18n.locale ?? DEFAULT_LOCALE);
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
-            <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
+            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Create API Key`}</DialogTitle>
 
@@ -82,39 +84,38 @@ export function CreateAPIKeyDialog({ classNames, onSuccess, refetch, onOpenChang
 
                 <form.AppForm>
                     <form
+                        className="space-y-6"
                         onSubmit={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             form.handleSubmit();
                         }}
-                        className="space-y-6"
                     >
                         <div className="flex gap-4">
                             <form.AppField
-                                name="name"
                                 children={(field) => (
                                     <field.FormItem className="flex-1">
                                         <field.FormLabel className={classNames?.label} required>{t`Name`}</field.FormLabel>
 
                                         <field.FormControl>
                                             <Input
-                                                className={classNames?.input}
-                                                placeholder={t`Enter a name for your API key`}
                                                 autoFocus
-                                                value={field.state.value}
+                                                className={classNames?.input}
                                                 onBlur={field.handleBlur}
                                                 onChange={(e) => field.handleChange(e.target.value)}
+                                                placeholder={t`Enter a name for your API key`}
                                                 required
+                                                value={field.state.value}
                                             />
                                         </field.FormControl>
 
                                         <field.FormMessage />
                                     </field.FormItem>
                                 )}
+                                name="name"
                             />
 
                             <form.AppField
-                                name="expiresInDays"
                                 children={(field) => (
                                     <field.FormItem>
                                         <field.FormLabel className={classNames?.label}>{t`Expires`}</field.FormLabel>
@@ -144,18 +145,19 @@ export function CreateAPIKeyDialog({ classNames, onSuccess, refetch, onOpenChang
                                         <field.FormMessage />
                                     </field.FormItem>
                                 )}
+                                name="expiresInDays"
                             />
                         </div>
 
                         <DialogFooter className={classNames?.dialog?.footer}>
                             <form.Subscribe
-                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                                 children={([canSubmit, isSubmitting]) => (
-                                    <Button type="submit" disabled={!canSubmit} className={classNames?.button}>
+                                    <Button className={classNames?.button} disabled={!canSubmit} type="submit">
                                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                         {t`Create API Key`}
                                     </Button>
                                 )}
+                                selector={(state) => [state.canSubmit, state.isSubmitting]}
                             />
                         </DialogFooter>
                     </form>
@@ -163,4 +165,4 @@ export function CreateAPIKeyDialog({ classNames, onSuccess, refetch, onOpenChang
             </DialogContent>
         </Dialog>
     );
-}
+};

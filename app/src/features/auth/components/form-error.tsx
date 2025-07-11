@@ -2,24 +2,26 @@
 
 import { AlertCircle } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import type { AuthFormClassNames } from "./auth/auth-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
-export interface FormErrorProps {
-    title?: string;
+import type { AuthFormClassNames } from "./auth/auth-form";
+
+export interface FormErrorProperties {
     classNames?: AuthFormClassNames;
     error?: string;
+    title?: string;
 }
 
-export function FormError({ title, classNames, error }: FormErrorProps) {
-    if (!error) return null;
+export const FormError = ({ classNames, error, title }: FormErrorProperties) => {
+    if (!error)
+        return null;
 
     return (
-        <Alert variant="destructive" className={cn(classNames?.error)}>
+        <Alert className={cn(classNames?.error)} variant="destructive">
             <AlertCircle className="self-center" />
             <AlertTitle>{title || "Error"}</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
         </Alert>
     );
-}
+};

@@ -1,38 +1,41 @@
-import { useContext, useEffect, useRef } from "react";
 import { t } from "@lingui/core/macro";
+import { useEffect, useRef } from "react";
+
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 import { useOnSuccessTransition } from "../../hooks/use-success-transition";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../lib/utils";
 
-interface OneTapProps {
+interface OneTapProperties {
     redirectTo?: string;
 }
 
-export function OneTap({ redirectTo }: OneTapProps) {
-    const { authClient, toast } = useContext(AuthUIContext);
+export const OneTap = ({ redirectTo }: OneTapProperties) => {
+    const { authClient, toast } = useAuth();
     const oneTapFetched = useRef(false);
 
     const { onSuccess } = useOnSuccessTransition({ redirectTo });
 
     useEffect(() => {
-        if (oneTapFetched.current) return;
+        if (oneTapFetched.current) {
+            return;
+        }
+
         oneTapFetched.current = true;
 
         try {
             authClient.oneTap({
                 fetchOptions: {
-                    throw: true,
                     onSuccess,
+                    throw: true,
                 },
             });
-        } catch (error) {
+        } catch {
             toast({
-                variant: "error",
                 message: t`An error occurred during One Tap sign in`,
+                variant: "error",
             });
         }
     }, [authClient, onSuccess, toast]);
 
     return null;
-}
+};

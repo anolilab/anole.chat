@@ -1,25 +1,27 @@
 "use client";
 
-import React from "react";
-import type { ErrorInfo } from "react";
-import { Home, RefreshCw, ArrowLeft, AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Home, RefreshCw } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
-import { ErrorBoundary } from "../error-boundary";
+import type { ErrorInfo } from "react";
+import React from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AuthenticationError, NetworkError, ErrorUtils } from "@/lib/errors";
+import { AuthenticationError, ErrorUtils, NetworkError } from "@/lib/errors";
 
-interface RouteErrorBoundaryProps {
+import { ErrorBoundary } from "../error-boundary";
+
+interface RouteErrorBoundaryProperties {
     children: React.ReactNode;
-    routeName?: string;
     fallbackRoute?: string;
+    routeName?: string;
 }
 
 /**
  * Route-level error boundary for page-level error handling
  * Provides navigation recovery and route-specific error handling
  */
-export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute = "/" }: RouteErrorBoundaryProps) {
+export const RouteErrorBoundary = ({ children, fallbackRoute = "/", routeName = "page" }: RouteErrorBoundaryProperties) => {
     const posthog = usePostHog();
 
     const handleError = (error: Error, errorInfo: ErrorInfo) => {
@@ -27,40 +29,40 @@ export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute
         console.group(`🛣️ Route Error (${routeName})`);
         console.error("Error:", error);
         console.error("Error Info:", errorInfo);
-        console.error("Route:", window.location.pathname);
+        console.error("Route:", globalThis.location.pathname);
         console.error("Referrer:", document.referrer);
         console.groupEnd();
 
         // Send error report with route context to PostHog
         posthog?.captureException(error, {
             $level: "error",
-            errorBoundary: "route",
-            feature: "route",
-            routeName,
-            route: window.location.pathname,
-            referrer: document.referrer,
             componentStack: errorInfo.componentStack,
-            url: window.location.href,
-            userAgent: navigator.userAgent,
-            timestamp: new Date().toISOString(),
+            errorBoundary: "route",
             errorType: error.constructor.name,
+            feature: "route",
+            referrer: document.referrer,
+            route: globalThis.location.pathname,
+            routeName,
+            timestamp: new Date().toISOString(),
+            url: globalThis.location.href,
+            userAgent: navigator.userAgent,
         });
     };
 
     const handleGoBack = () => {
-        if (window.history.length > 1) {
-            window.history.back();
+        if (globalThis.history.length > 1) {
+            globalThis.history.back();
         } else {
-            window.location.href = fallbackRoute;
+            globalThis.location.href = fallbackRoute;
         }
     };
 
     const handleGoHome = () => {
-        window.location.href = fallbackRoute;
+        globalThis.location.href = fallbackRoute;
     };
 
     const handleReload = () => {
-        window.location.reload();
+        globalThis.location.reload();
     };
 
     const renderFallback = (error: Error, retry: () => void) => {
@@ -88,37 +90,41 @@ export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute
                                 {isAuth
                                     ? "You need to sign in to access this page."
                                     : isNetwork
-                                      ? "There's a problem with your internet connection or our servers."
-                                      : `An error occurred while loading the ${routeName} page.`}
+                                        ? "There's a problem with your internet connection or our servers."
+                                        : `An error occurred while loading the ${routeName} page.`}
                             </p>
                         </div>
 
                         {/* Action buttons */}
                         <div className="flex flex-col gap-2">
                             {/* Primary action based on error type */}
-                            {isAuth ? (
-                                <Button onClick={() => (window.location.href = "/auth/signin")} className="w-full">
-                                    Sign In
-                                </Button>
-                            ) : ErrorUtils.isRetryable(error) ? (
-                                <Button onClick={retry} className="w-full">
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                    Try Again
-                                </Button>
-                            ) : (
-                                <Button onClick={handleReload} className="w-full">
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                    Reload Page
-                                </Button>
-                            )}
+                            {isAuth
+                                ? (
+                                    <Button className="w-full" onClick={() => (globalThis.location.href = "/auth/signin")}>
+                                        Sign In
+                                    </Button>
+                                )
+                                : ErrorUtils.isRetryable(error)
+                                    ? (
+                                        <Button className="w-full" onClick={retry}>
+                                            <RefreshCw className="mr-2 h-4 w-4" />
+                                            Try Again
+                                        </Button>
+                                    )
+                                    : (
+                                        <Button className="w-full" onClick={handleReload}>
+                                            <RefreshCw className="mr-2 h-4 w-4" />
+                                            Reload Page
+                                        </Button>
+                                    )}
 
                             {/* Secondary actions */}
                             <div className="grid grid-cols-2 gap-2">
-                                <Button variant="outline" onClick={handleGoBack}>
+                                <Button onClick={handleGoBack} variant="outline">
                                     <ArrowLeft className="mr-2 h-4 w-4" />
                                     Go Back
                                 </Button>
-                                <Button variant="outline" onClick={handleGoHome}>
+                                <Button onClick={handleGoHome} variant="outline">
                                     <Home className="mr-2 h-4 w-4" />
                                     Home
                                 </Button>
@@ -131,7 +137,9 @@ export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute
                             {isAuth && <p>💡 You'll be redirected back here after signing in.</p>}
                             {!isNetwork && !isAuth && <p>💡 If this problem persists, please contact support.</p>}
                             <p className="mt-2">
-                                Error ID: <code className="bg-muted rounded px-1 text-xs">{`${routeName}_${Date.now().toString(36)}`}</code>
+                                Error ID:
+                                {" "}
+                                <code className="bg-muted rounded px-1 text-xs">{`${routeName}_${Date.now().toString(36)}`}</code>
                             </p>
                         </div>
                     </CardContent>
@@ -142,14 +150,14 @@ export function RouteErrorBoundary({ children, routeName = "page", fallbackRoute
 
     return (
         <ErrorBoundary
-            level="page"
-            onError={handleError}
             fallback={renderFallback}
+            level="page"
             maxRetries={2}
-            showToast={true}
+            onError={handleError}
             resetKeys={[routeName]} // Reset when route changes
+            showToast
         >
             {children}
         </ErrorBoundary>
     );
-}
+};

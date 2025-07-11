@@ -1,21 +1,22 @@
-import { useMemo } from "react";
-import type { ExternalStoreThreadData, ExternalStoreThreadListAdapter } from "@assistant-ui/react";
-import { useMutation, usePaginatedQuery, useAction } from "convex/react";
-import { useNavigate } from "@tanstack/react-router";
-import { api } from "@anole/convex/api";
-import { useThreadContext } from "@/features/chat/components/thread-context";
 import type { AgentModel } from "@anole/convex/ai/lib/agents";
+import { api } from "@anole/convex/api";
+import type { ExternalStoreThreadData, ExternalStoreThreadListAdapter } from "@assistant-ui/react";
+import { useNavigate } from "@tanstack/react-router";
+import { useAction, useMutation, usePaginatedQuery } from "convex/react";
+import { useMemo } from "react";
 
-interface UseThreadListAdapterProps {
-    model: AgentModel;
+import { useThreadContext } from "@/features/chat/components/thread-context";
+
+interface UseThreadListAdapterProperties {
     currentThreadId: string;
+    model: AgentModel;
 }
 
-export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAdapterProps): ExternalStoreThreadListAdapter => {
+export const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAdapterProperties): ExternalStoreThreadListAdapter => {
     const navigate = useNavigate();
     const threadContext = useThreadContext();
 
-    const { setCurrentThreadId, threads, setThreads, threadMetadata, setThreadMetadata } = threadContext;
+    const { setCurrentThreadId, setThreadMetadata, setThreads, threadMetadata, threads } = threadContext;
 
     const convexThreads = usePaginatedQuery(api.chat.functions.getThreads, {}, { initialNumItems: 10 });
     const updateThreadMutation = useAction(api.chat.functions.updateThread);
@@ -24,11 +25,13 @@ export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAd
 
     return useMemo(() => {
         // Combine Convex threads with local thread metadata
-        const convexThreadList: ExternalStoreThreadData<"regular" | "archived">[] = convexThreads.results.map((t) => ({
-            threadId: t._id,
-            status: t.status === "active" ? "regular" : "archived",
-            title: t.title || "New Chat",
-        }));
+        const convexThreadList: ExternalStoreThreadData<"regular" | "archived">[] = convexThreads.results.map((t) => {
+            return {
+                status: t.status === "active" ? "regular" : "archived",
+                threadId: t._id,
+                title: t.title || "New Chat",
+            };
+        });
 
         // Add local threads that might not be in Convex yet
         const localThreadList: ExternalStoreThreadData<"regular" | "archived">[] = [];
@@ -36,8 +39,8 @@ export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAd
         for (const [threadId, metadata] of threadMetadata.entries()) {
             if (!convexThreadList.find((t) => t.threadId === threadId)) {
                 localThreadList.push({
-                    threadId,
                     status: metadata.status === "active" ? "regular" : "archived",
+                    threadId,
                     title: metadata.title,
                 });
             }
@@ -46,138 +49,44 @@ export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAd
         const allThreads = [...convexThreadList, ...localThreadList];
 
         return {
-            threadId: currentThreadId,
-            threads: allThreads.filter((t) => t.status === "regular") as ExternalStoreThreadData<"regular">[],
             archivedThreads: allThreads.filter((t) => t.status === "archived") as ExternalStoreThreadData<"archived">[],
-
-            onSwitchToNewThread: async () => {
-                console.log("Creating new thread in Convex immediately...");
-
-                // Create the real Convex thread immediately
-                const newThreadId = await createThreadMutation({
-                    model,
-                    branchName: "New Chat",
-                });
-
-                console.log("Created new thread:", newThreadId);
-
-                // Initialize new thread in local context
-                setThreads((prev) => new Map(prev).set(newThreadId, []));
-                setThreadMetadata((prev) =>
-                    new Map(prev).set(newThreadId, {
-                        title: "New Chat",
-                        status: "active",
-                        createdAt: new Date(),
-                        lastActivity: new Date(),
-                    }),
-                );
-                setCurrentThreadId(newThreadId);
-
-                // Navigate to the new thread
-                navigate({ to: "/chat/$threadId", params: { threadId: newThreadId }, replace: true, search: { initialMessage: undefined } });
-            },
-
-            onSwitchToThread: async (switchThreadId) => {
-                console.log("Switching to thread:", switchThreadId);
-
-                if (!threads.has(switchThreadId)) {
-                    setThreads((prev) => new Map(prev).set(switchThreadId, []));
-                }
-
-                if (!threadMetadata.has(switchThreadId)) {
-                    setThreadMetadata((prev) =>
-                        new Map(prev).set(switchThreadId, {
-                            title: "Chat",
-                            status: "active",
-                            createdAt: new Date(),
-                            lastActivity: new Date(),
-                        }),
-                    );
-                }
-
-                setCurrentThreadId(switchThreadId);
-                navigate({ to: "/chat/$threadId", params: { threadId: switchThreadId }, search: { initialMessage: undefined } });
-            },
-
-            onRename: async (renameThreadId, newTitle) => {
-                setThreadMetadata((prev) => {
-                    const current = prev.get(renameThreadId) || {
-                        title: "Chat",
-                        status: "active",
-                        createdAt: new Date(),
-                        lastActivity: new Date(),
-                    };
-
-                    return new Map(prev).set(renameThreadId, {
-                        ...current,
-                        title: newTitle,
-                        lastActivity: new Date(),
-                    });
-                });
-
-                await updateThreadMutation({
-                    threadId: renameThreadId,
-                    title: newTitle,
-                    model,
-                });
-            },
-
             onArchive: async (archiveThreadId) => {
                 // Update local metadata immediately
-                setThreadMetadata((prev) => {
-                    const current = prev.get(archiveThreadId) || {
-                        title: "Chat",
-                        status: "active",
+                setThreadMetadata((previous) => {
+                    const current = previous.get(archiveThreadId) || {
                         createdAt: new Date(),
                         lastActivity: new Date(),
+                        status: "active",
+                        title: "Chat",
                     };
-                    return new Map(prev).set(archiveThreadId, {
+
+                    return new Map(previous).set(archiveThreadId, {
                         ...current,
-                        status: "archived",
                         lastActivity: new Date(),
+                        status: "archived",
                     });
                 });
 
                 await updateThreadMutation({
-                    threadId: archiveThreadId,
+                    model,
                     status: "archived",
-                    model,
+                    threadId: archiveThreadId,
                 });
             },
-
-            onUnarchive: async (unarchiveThreadId) => {
-                // Update local metadata immediately
-                setThreadMetadata((prev) => {
-                    const current = prev.get(unarchiveThreadId) || {
-                        title: "Chat",
-                        status: "archived",
-                        createdAt: new Date(),
-                        lastActivity: new Date(),
-                    };
-                    return new Map(prev).set(unarchiveThreadId, {
-                        ...current,
-                        status: "active",
-                        lastActivity: new Date(),
-                    });
-                });
-
-                await updateThreadMutation({
-                    threadId: unarchiveThreadId,
-                    status: "active",
-                    model,
-                });
-            },
-
             onDelete: async (deleteThreadId) => {
                 // Remove from local context
-                setThreads((prev) => {
-                    const next = new Map(prev);
+                setThreads((previous) => {
+                    const next = new Map(previous);
+
                     next.delete(deleteThreadId);
+
                     return next;
                 });
-                setThreadMetadata((prev) => {
-                    const next = new Map(prev);
+                setThreadMetadata((previous) => {
+                    const next = new Map(previous);
+
                     next.delete(deleteThreadId);
+
                     return next;
                 });
 
@@ -191,6 +100,106 @@ export const useThreadListAdapter = ({ model, currentThreadId }: UseThreadListAd
                     threadId: deleteThreadId,
                 });
             },
+
+            onRename: async (renameThreadId, newTitle) => {
+                setThreadMetadata((previous) => {
+                    const current = previous.get(renameThreadId) || {
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                        status: "active",
+                        title: "Chat",
+                    };
+
+                    return new Map(previous).set(renameThreadId, {
+                        ...current,
+                        lastActivity: new Date(),
+                        title: newTitle,
+                    });
+                });
+
+                await updateThreadMutation({
+                    model,
+                    threadId: renameThreadId,
+                    title: newTitle,
+                });
+            },
+
+            onSwitchToNewThread: async () => {
+                console.log("Creating new thread in Convex immediately...");
+
+                // Create the real Convex thread immediately
+                const newThreadId = await createThreadMutation({
+                    branchName: "New Chat",
+                    model,
+                });
+
+                console.log("Created new thread:", newThreadId);
+
+                // Initialize new thread in local context
+                setThreads((previous) => new Map(previous).set(newThreadId, []));
+                setThreadMetadata((previous) =>
+                    new Map(previous).set(newThreadId, {
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                        status: "active",
+                        title: "New Chat",
+                    }),
+                );
+                setCurrentThreadId(newThreadId);
+
+                // Navigate to the new thread
+                navigate({ params: { threadId: newThreadId }, replace: true, search: { initialMessage: undefined }, to: "/chat/$threadId" });
+            },
+
+            onSwitchToThread: async (switchThreadId) => {
+                console.log("Switching to thread:", switchThreadId);
+
+                if (!threads.has(switchThreadId)) {
+                    setThreads((previous) => new Map(previous).set(switchThreadId, []));
+                }
+
+                if (!threadMetadata.has(switchThreadId)) {
+                    setThreadMetadata((previous) =>
+                        new Map(previous).set(switchThreadId, {
+                            createdAt: new Date(),
+                            lastActivity: new Date(),
+                            status: "active",
+                            title: "Chat",
+                        }),
+                    );
+                }
+
+                setCurrentThreadId(switchThreadId);
+                navigate({ params: { threadId: switchThreadId }, search: { initialMessage: undefined }, to: "/chat/$threadId" });
+            },
+
+            onUnarchive: async (unarchiveThreadId) => {
+                // Update local metadata immediately
+                setThreadMetadata((previous) => {
+                    const current = previous.get(unarchiveThreadId) || {
+                        createdAt: new Date(),
+                        lastActivity: new Date(),
+                        status: "archived",
+                        title: "Chat",
+                    };
+
+                    return new Map(previous).set(unarchiveThreadId, {
+                        ...current,
+                        lastActivity: new Date(),
+                        status: "active",
+                    });
+                });
+
+                await updateThreadMutation({
+                    model,
+                    status: "active",
+                    threadId: unarchiveThreadId,
+                });
+            },
+
+            threadId: currentThreadId,
+
+            threads: allThreads.filter((t) => t.status === "regular") as ExternalStoreThreadData<"regular">[],
         };
     }, [
         convexThreads.results,

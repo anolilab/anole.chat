@@ -1,19 +1,21 @@
 import type { AnyUseQueryOptions } from "@tanstack/react-query";
 import { useContext } from "react";
 
-import { AuthQueryContext, type AuthQueryOptions } from "../lib/auth-query-provider";
 import type { AuthClient } from "@/lib/auth/client";
-import { useAuthQuery } from "./shared/use-auth-query";
+
+import type { AuthQueryOptions } from "../lib/auth-query-provider";
+import { AuthQueryContext } from "../lib/auth-query-provider";
 import { useAuthMutation } from "./shared/use-auth-mutation";
+import { useAuthQuery } from "./shared/use-auth-query";
 
 // API Key Creation Hook
 export function useCreateApiKey<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
     const { listApiKeysKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({
-        queryKey,
         mutationFn: authClient.apiKey.create,
         options,
+        queryKey,
     });
 }
 
@@ -22,9 +24,9 @@ export function useDeleteApiKey<TAuthClient extends AuthClient>(authClient: TAut
     const { listApiKeysKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({
-        queryKey,
         mutationFn: authClient.apiKey.delete,
         options,
+        queryKey,
     });
 }
 
@@ -34,8 +36,8 @@ export function useListApiKeys<TAuthClient extends AuthClient>(authClient: TAuth
 
     return useAuthQuery({
         authClient,
-        queryKey,
-        queryFn: authClient.apiKey.list,
         options,
+        queryFn: authClient.apiKey.list,
+        queryKey,
     });
 }

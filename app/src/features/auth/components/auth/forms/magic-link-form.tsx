@@ -1,52 +1,53 @@
 "use client";
 
-import type { BetterFetchOption } from "better-auth/react";
-import { Loader2 } from "lucide-react";
-import { useCallback, useContext, useEffect } from "react";
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
+import type { BetterFetchOption } from "better-auth/react";
+import { Loader2 } from "lucide-react";
+import { useCallback, useEffect } from "react";
+import { z } from "zod/v4";
 
-import { useCaptcha } from "../../../hooks/use-captcha";
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../../lib/utils";
-import { Captcha } from "../../captcha/captcha";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
+import { useCaptcha } from "../../../hooks/use-captcha";
+import { getLocalizedError } from "../../../lib/utils";
+import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";
 
-export interface MagicLinkFormProps {
+export interface MagicLinkFormProperties {
+    callbackURL?: string;
     className?: string;
     classNames?: AuthFormClassNames;
-    callbackURL?: string;
     isSubmitting?: boolean;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
 }
 
-export function MagicLinkForm({
+export const MagicLinkForm = ({
+    callbackURL: callbackURLProperty,
     className,
     classNames,
-    callbackURL: callbackURLProp,
     isSubmitting,
-    redirectTo: redirectToProp,
+    redirectTo: redirectToProperty,
     setIsSubmitting,
-}: MagicLinkFormProps) {
+}: MagicLinkFormProperties) => {
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
-    const { authClient, basePath, baseURL, persistClient, redirectTo: contextRedirectTo, viewPaths, toast } = useContext(AuthUIContext);
+    const { authClient, basePath, baseURL, persistClient, redirectTo: contextRedirectTo, toast, viewPaths } = useAuth();
 
     const search = useSearch({ strict: false });
 
-    const getRedirectTo = useCallback(() => redirectToProp || search.redirectTo || contextRedirectTo, [redirectToProp, search.redirectTo, contextRedirectTo]);
+    const getRedirectTo = useCallback(() => redirectToProperty || search.redirectTo || contextRedirectTo, [redirectToProperty, search.redirectTo, contextRedirectTo]);
 
     const getCallbackURL = useCallback(
-        () => `${baseURL}${callbackURLProp || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,
-        [callbackURLProp, persistClient, basePath, viewPaths, baseURL, getRedirectTo],
+        () => `${baseURL}${callbackURLProperty || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,
+        [callbackURLProperty, persistClient, basePath, viewPaths, baseURL, getRedirectTo],
     );
 
     const formSchema = z.object({
@@ -58,105 +59,108 @@ export function MagicLinkForm({
             .email({
                 message: t`Email is invalid`,
             }),
-    });
+    }).strict();
 
     const form = useAppForm({
         defaultValues: {
             email: "",
         },
-        validators: {
-            onChange: ({ value }: { value: { email: string } }) => {
-                const result = formSchema.safeParse(value);
-                if (!result.success) {
-                    return result.error.flatten().fieldErrors;
-                }
-                return undefined;
-            },
-        },
         onSubmit: async ({ value }: { value: { email: string } }) => {
             try {
                 const fetchOptions: BetterFetchOption = {
-                    throw: true,
                     headers: await getCaptchaHeaders("/sign-in/magic-link"),
+                    throw: true,
                 };
 
                 await authClient.signIn.magicLink({
-                    email: value.email,
                     callbackURL: getCallbackURL(),
+                    email: value.email,
                     fetchOptions,
                 });
 
                 toast({
-                    variant: "success",
                     message: t`Magic link email sent`,
+                    variant: "success",
                 });
 
                 form.reset();
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             }
+        },
+        validators: {
+            onChange: ({ value }: { value: { email: string } }) => {
+                const result = formSchema.safeParse(value);
+
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors;
+                }
+
+                return undefined;
+            },
         },
     });
 
     useEffect(() => {
         form.Subscribe({
-            selector: (state) => state.isSubmitting,
             children: (isFormSubmitting) => {
                 setIsSubmitting?.(isFormSubmitting);
+
                 return null;
             },
+            selector: (state) => state.isSubmitting,
         });
     }, [setIsSubmitting]);
 
     return (
         <form.AppForm>
             <form
+                className={cn("grid w-full gap-6", className, classNames?.base)}
+                noValidate={isHydrated}
                 onSubmit={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     form.handleSubmit();
                 }}
-                noValidate={isHydrated}
-                className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 <form.AppField
-                    name="email"
                     children={(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
-                                    className={classNames?.input}
-                                    type="email"
                                     autoComplete="email"
-                                    placeholder={t`Enter your email`}
-                                    value={field.state.value}
+                                    className={classNames?.input}
+                                    disabled={isSubmitting}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
-                                    disabled={isSubmitting}
+                                    placeholder={t`Enter your email`}
+                                    type="email"
+                                    value={field.state.value}
                                 />
                             </field.FormControl>
 
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
+                    name="email"
                 />
 
-                <Captcha ref={captchaRef} action="/sign-in/magic-link" />
+                <Captcha action="/sign-in/magic-link" ref={captchaRef} />
 
                 <form.Subscribe
-                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isFormSubmitting]) => (
-                        <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
+                        <Button className={cn("w-full", classNames?.button, classNames?.primaryButton)} disabled={!canSubmit || isSubmitting} type="submit">
                             {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : t`Send Magic Link`}
                         </Button>
                     )}
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                 />
             </form>
         </form.AppForm>
     );
-}
+};

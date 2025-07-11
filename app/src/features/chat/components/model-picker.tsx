@@ -1,51 +1,54 @@
 "use client";
 
 import type { FC } from "react";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { useAiModelContext } from "../-provider/ai-model-provider";
 
 const models = [
     {
+        icon: openai,
         name: "GPT 4o-mini",
         value: "gpt-4o-mini",
-        icon: openai,
     },
     {
+        icon: deepseek,
         name: "Deepseek R1",
         value: "deepseek-r1",
-        icon: deepseek,
     },
     {
+        icon: anthropic,
         name: "Claude 3.5 Sonnet",
         value: "claude-3.5-sonnet",
-        icon: anthropic,
     },
     {
+        icon: google,
         name: "Gemini 2.0 Flash",
         value: "gemini-2.0-flash",
-        icon: google,
     },
     {
+        icon: meta,
         name: "Llama 3 8b",
         value: "llama-3-8b",
-        icon: meta,
     },
     {
+        icon: fireworks,
         name: "Firefunction V2",
         value: "firefunction-v2",
-        icon: fireworks,
     },
     {
+        icon: mistral,
         name: "Mistral 7b",
         value: "mistral-7b",
-        icon: mistral,
     },
 ];
 
 export const ModelPicker: FC = () => {
     const { selectedModel, setSelectedModel } = useAiModelContext();
+
     return (
-        <Select value={selectedModel} onValueChange={setSelectedModel}>
+        <Select onValueChange={setSelectedModel} value={selectedModel}>
             <SelectTrigger className="max-w-[300px]">
                 <SelectValue />
             </SelectTrigger>
@@ -53,7 +56,7 @@ export const ModelPicker: FC = () => {
                 {models.map((model) => (
                     <SelectItem key={model.value} value={model.value}>
                         <span className="flex items-center gap-2">
-                            <Image src={model.icon} alt={model.name} className="inline size-4" />
+                            <Image alt={model.name} className="inline size-4" src={model.icon} />
                             <span>{model.name}</span>
                         </span>
                     </SelectItem>

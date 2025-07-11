@@ -1,7 +1,9 @@
-import { type FC, type ReactNode, createContext, useContext, useState, useCallback, useEffect } from "react";
-import { useMutation, useQuery as useConvexQuery } from "convex/react";
+import type { AgentModel } from "@anole/convex/ai/lib/agents";
+import { DEFAULT_MODEL } from "@anole/convex/ai/lib/agents";
 import { api } from "@anole/convex/api";
-import { DEFAULT_MODEL, type AgentModel } from "@anole/convex/ai/lib/agents";
+import { useMutation, useQuery as useConvexQuery } from "convex/react";
+import type { FC, ReactNode } from "react";
+import { createContext, use, useCallback, useEffect, useState } from "react";
 
 interface AiModelContextType {
     selectedModel: AgentModel;
@@ -32,15 +34,15 @@ export const AiModelProvider: FC<{ children: ReactNode }> = ({ children }) => {
         [updateUserSettings],
     );
 
-    return <AiModelContext.Provider value={{ selectedModel, setSelectedModel }}>{children}</AiModelContext.Provider>;
+    return <AiModelContext value={{ selectedModel, setSelectedModel }}>{children}</AiModelContext>;
 };
 
 export const useAiModelContext = () => {
-    const ctx = useContext(AiModelContext);
+    const context = use(AiModelContext);
 
-    if (!ctx) {
+    if (!context) {
         throw new Error("useAiModelContext must be used within a AiModelProvider");
     }
 
-    return ctx;
+    return context;
 };

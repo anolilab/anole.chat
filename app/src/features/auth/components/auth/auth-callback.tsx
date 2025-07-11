@@ -1,16 +1,16 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useContext, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
-import { useOnSuccessTransition } from "../../hooks/use-success-transition";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
-export function AuthCallback({ redirectTo }: { redirectTo?: string }) {
+export const AuthCallback = ({ redirectTo }: { redirectTo?: string }) => {
     const {
         hooks: { useIsRestoring },
         persistClient,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const isRestoring = useIsRestoring?.();
     const isRedirecting = useRef(false);
@@ -18,19 +18,22 @@ export function AuthCallback({ redirectTo }: { redirectTo?: string }) {
     const { onSuccess } = useOnSuccessTransition({ redirectTo });
 
     useEffect(() => {
-        if (isRedirecting.current) return;
+        if (isRedirecting.current)
+            return;
 
         if (!persistClient) {
             isRedirecting.current = true;
             onSuccess();
+
             return;
         }
 
-        if (isRestoring) return;
+        if (isRestoring)
+            return;
 
         isRedirecting.current = true;
         onSuccess();
     }, [isRestoring, persistClient, onSuccess]);
 
     return <Loader2 className="animate-spin" />;
-}
+};

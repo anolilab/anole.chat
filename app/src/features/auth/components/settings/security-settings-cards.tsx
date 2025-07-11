@@ -1,24 +1,26 @@
 "use client";
 
-import { useContext } from "react";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
+import { use } from "react";
+
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
+
+import type { AuthCardProps as AuthCardProperties } from "../../types/ui-configuration-types";
 import { DeleteAccountCard } from "./account/delete-account-card";
 import { PasskeysCard } from "./passkey/passkeys-card";
 import { ProvidersCard } from "./providers/providers-card";
 import { ChangePasswordCard } from "./security/change-password-card";
 import { SessionsCard } from "./security/sessions-card";
-import type { AuthCardProps } from "../../types/ui-configuration-types";
 import { TwoFactorCard } from "./two-factor/two-factor-card";
 
-export function SecuritySettingsCards({ className, classNames }: AuthCardProps) {
-    const { credentials, deleteUser, hooks, passkey, social, genericOAuth, twoFactor } = useContext(AuthUIContext);
+export const SecuritySettingsCards = ({ className, classNames }: AuthCardProperties) => {
+    const { credentials, deleteUser, genericOAuth, hooks, passkey, social, twoFactor } = useAuth();
 
     const { useListAccounts } = hooks;
 
     const { data: accounts, isPending: accountsPending, refetch: refetchAccounts } = useListAccounts();
 
-    const credentialsLinked = accounts?.some((acc) => acc.provider === "credential");
+    const credentialsLinked = accounts?.some((accumulator) => accumulator.provider === "credential");
 
     return (
         <div className={cn("flex w-full flex-col gap-4 md:gap-6", className, classNames?.card)}>
@@ -37,4 +39,4 @@ export function SecuritySettingsCards({ className, classNames }: AuthCardProps) 
             {deleteUser && <DeleteAccountCard accounts={accounts} classNames={classNames} isPending={accountsPending} skipHook />}
         </div>
     );
-}
+};

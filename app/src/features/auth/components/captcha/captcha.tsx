@@ -1,25 +1,29 @@
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { type RefObject, useContext } from "react";
-
 import { useTheme } from "next-themes";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
+import type { RefObject } from "react";
+import { use } from "react";
+
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 // Default captcha endpoints
 const DEFAULT_CAPTCHA_ENDPOINTS = ["/sign-up/email", "/sign-in/email", "/forget-password"];
 
-interface CaptchaProps {
-    ref: RefObject<any>;
+interface CaptchaProperties {
     action?: string; // Optional action to check if it's in the endpoints list
+    ref: RefObject<any>;
 }
 
-export function Captcha({ ref, action }: CaptchaProps) {
-    const { captcha } = useContext(AuthUIContext);
-    if (!captcha) return null;
+export const Captcha = ({ action, ref }: CaptchaProperties) => {
+    const { captcha } = useAuth();
+
+    if (!captcha)
+        return null;
 
     // If action is provided, check if it's in the list of captcha-enabled endpoints
     if (action) {
         const endpoints = captcha.endpoints || DEFAULT_CAPTCHA_ENDPOINTS;
+
         if (!endpoints.includes(action)) {
             return null;
         }
@@ -37,12 +41,12 @@ export function Captcha({ ref, action }: CaptchaProps) {
             {showTurnstile && (
                 <Turnstile
                     className="mx-auto"
+                    options={{
+                        size: "flexible",
+                        theme,
+                    }}
                     ref={ref}
                     siteKey={captcha.siteKey}
-                    options={{
-                        theme: theme,
-                        size: "flexible",
-                    }}
                 />
             )}
             {showHCaptcha && (
@@ -52,4 +56,4 @@ export function Captcha({ ref, action }: CaptchaProps) {
             )}
         </>
     );
-}
+};

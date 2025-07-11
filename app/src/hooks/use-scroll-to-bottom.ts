@@ -4,8 +4,8 @@ import useSWR from "swr";
 type ScrollFlag = ScrollBehavior | false;
 
 export function useScrollToBottom() {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const endRef = useRef<HTMLDivElement>(null);
+    const containerReference = useRef<HTMLDivElement>(null);
+    const endReference = useRef<HTMLDivElement>(null);
 
     const { data: isAtBottom = false, mutate: setIsAtBottom } = useSWR("messages:is-at-bottom", null, { fallbackData: false });
 
@@ -13,7 +13,7 @@ export function useScrollToBottom() {
 
     useEffect(() => {
         if (scrollBehavior) {
-            endRef.current?.scrollIntoView({ behavior: scrollBehavior });
+            endReference.current?.scrollIntoView({ behavior: scrollBehavior });
             setScrollBehavior(false);
         }
     }, [setScrollBehavior, scrollBehavior]);
@@ -34,11 +34,11 @@ export function useScrollToBottom() {
     }
 
     return {
-        containerRef,
-        endRef,
+        containerRef: containerReference,
+        endRef: endReference,
         isAtBottom,
-        scrollToBottom,
         onViewportEnter,
         onViewportLeave,
+        scrollToBottom,
     };
 }

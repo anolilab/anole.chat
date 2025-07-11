@@ -2,10 +2,12 @@ import type { AnyUseQueryOptions } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 
-import { AuthQueryContext, type AuthQueryOptions } from "../lib/auth-query-provider";
 import type { AuthClient } from "@/lib/auth/client";
-import { useAuthQuery } from "./shared/use-auth-query";
+
+import type { AuthQueryOptions } from "../lib/auth-query-provider";
+import { AuthQueryContext } from "../lib/auth-query-provider";
 import { useAuthMutation } from "./shared/use-auth-mutation";
+import { useAuthQuery } from "./shared/use-auth-query";
 import { useOnMutateError } from "./shared/use-mutate-error";
 
 // Device Session Listing Hook
@@ -14,9 +16,9 @@ export function useListDeviceSessions<TAuthClient extends AuthClient>(authClient
 
     return useAuthQuery({
         authClient,
-        queryKey,
-        queryFn: authClient.multiSession.listDeviceSessions,
         options,
+        queryFn: authClient.multiSession.listDeviceSessions,
+        queryKey,
     });
 }
 
@@ -25,9 +27,9 @@ export function useRevokeDeviceSession<TAuthClient extends AuthClient>(authClien
     const { listDeviceSessionsKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({
-        queryKey,
         mutationFn: authClient.multiSession.revoke,
         options,
+        queryKey,
     });
 }
 
@@ -36,15 +38,15 @@ export function useRevokeDeviceSessions<TAuthClient extends AuthClient>(authClie
     const { listDeviceSessionsKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({
-        queryKey,
         mutationFn: authClient.revokeSessions,
         options,
+        queryKey,
     });
 }
 
 // Active Session Setting Hook
 export function useSetActiveSession<TAuthClient extends AuthClient>(authClient: TAuthClient, options?: Partial<AuthQueryOptions>) {
-    type SetActiveSessionParams = Parameters<TAuthClient["multiSession"]["setActive"]>[0];
+    type SetActiveSessionParameters = Parameters<TAuthClient["multiSession"]["setActive"]>[0];
 
     const queryClient = useQueryClient();
     const { onMutateError } = useOnMutateError();
@@ -52,18 +54,18 @@ export function useSetActiveSession<TAuthClient extends AuthClient>(authClient: 
     const { listDeviceSessionsKey: queryKey } = { ...context, ...options };
 
     const mutation = useMutation({
-        mutationFn: ({ fetchOptions = { throw: true }, ...params }: SetActiveSessionParams) => authClient.multiSession.setActive({ fetchOptions, ...params }),
+        mutationFn: ({ fetchOptions = { throw: true }, ...parameters }: SetActiveSessionParameters) => authClient.multiSession.setActive({ fetchOptions, ...parameters }),
         onError: (error) => onMutateError(error, queryKey),
         onSettled: () => queryClient.clear(),
     });
 
-    const { mutate: setActiveSession, mutateAsync: setActiveSessionAsync, isPending: setActiveSessionPending, error: setActiveSessionError } = mutation;
+    const { error: setActiveSessionError, isPending: setActiveSessionPending, mutate: setActiveSession, mutateAsync: setActiveSessionAsync } = mutation;
 
     return {
         ...mutation,
         setActiveSession,
         setActiveSessionAsync,
-        setActiveSessionPending,
         setActiveSessionError,
+        setActiveSessionPending,
     };
 }

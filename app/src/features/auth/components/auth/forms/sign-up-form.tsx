@@ -1,62 +1,61 @@
 "use client";
 
-import type { BetterFetchOption } from "better-auth/react";
-import { Loader2 } from "lucide-react";
-import { Trash2Icon, UploadCloudIcon } from "lucide-react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
-import { useSearch } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
+import type { BetterFetchOption } from "better-auth/react";
+import { Loader2, Trash2Icon, UploadCloudIcon } from "lucide-react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
+import { z } from "zod/v4";
 
-import { useCaptcha } from "../../../hooks/use-captcha";
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../../lib/utils";
-import type { PasswordValidation } from "../../../types/form-validation-types";
-import { Captcha } from "../../captcha/captcha";
-import { PasswordInput } from "../../password-input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import type { AuthFormClassNames } from "../auth-form";
-import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
 
-export interface SignUpFormProps {
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
+import { useCaptcha } from "../../../hooks/use-captcha";
+import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
+import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
+import { getLocalizedError } from "../../../lib/utils";
+import type { PasswordValidation } from "../../../types/form-validation-types";
+import { Captcha } from "../../captcha/captcha";
+import { PasswordInput } from "../../password-input";
+import type { AuthFormClassNames } from "../auth-form";
+
+export interface SignUpFormProperties {
+    callbackURL?: string;
     className?: string;
     classNames?: AuthFormClassNames;
-    callbackURL?: string;
     isSubmitting?: boolean;
+    passwordValidation?: PasswordValidation;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
-    passwordValidation?: PasswordValidation;
 }
 
-export function SignUpForm({ className, classNames, callbackURL, isSubmitting, redirectTo, setIsSubmitting, passwordValidation }: SignUpFormProps) {
+export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, passwordValidation, redirectTo, setIsSubmitting }: SignUpFormProperties) => {
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
     const {
         additionalFields,
         authClient,
+        avatar,
         basePath,
         baseURL,
         credentials,
         emailVerification,
         nameRequired,
+        navigate,
         persistClient,
         redirectTo: contextRedirectTo,
         signUp: signUpOptions,
-        viewPaths,
-        navigate,
         toast,
-        avatar,
-    } = useContext(AuthUIContext);
+        viewPaths,
+    } = useAuth();
 
     const search = useSearch({ strict: false }) as any;
 
@@ -68,7 +67,7 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
     passwordValidation = { ...contextPasswordValidation, ...passwordValidation };
 
     // Avatar upload state
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const fileInputReference = useRef<HTMLInputElement>(null);
     const [avatarImage, setAvatarImage] = useState<string | null>(null);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -79,7 +78,7 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
         [callbackURL, persistClient, basePath, viewPaths, baseURL, getRedirectTo],
     );
 
-    const { onSuccess, isPending: transitionPending } = useOnSuccessTransition({
+    const { isPending: transitionPending, onSuccess } = useOnSuccessTransition({
         redirectTo,
     });
 
@@ -97,21 +96,25 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
             let schema = z.string().min(1, {
                 message: t`Password is required`,
             });
+
             if (passwordValidation?.minLength) {
                 schema = schema.min(passwordValidation.minLength, {
                     message: t`Password is too short`,
                 });
             }
+
             if (passwordValidation?.maxLength) {
                 schema = schema.max(passwordValidation.maxLength, {
                     message: t`Password is too long`,
                 });
             }
+
             if (passwordValidation?.regex) {
                 schema = schema.regex(passwordValidation.regex, {
                     message: t`Invalid password`,
                 });
             }
+
             return schema;
         })(),
     };
@@ -122,21 +125,25 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
             let schema = z.string().min(1, {
                 message: t`Confirm password is required`,
             });
+
             if (passwordValidation?.minLength) {
                 schema = schema.min(passwordValidation.minLength, {
                     message: t`Password is too short`,
                 });
             }
+
             if (passwordValidation?.maxLength) {
                 schema = schema.max(passwordValidation.maxLength, {
                     message: t`Password is too long`,
                 });
             }
+
             if (passwordValidation?.regex) {
                 schema = schema.regex(passwordValidation.regex, {
                     message: t`Invalid password`,
                 });
             }
+
             return schema;
         })();
     }
@@ -145,8 +152,8 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
     if (signUpFields?.includes("name")) {
         schemaFields.name = nameRequired
             ? z.string().min(1, {
-                  message: t`Name is required`,
-              })
+                message: t`Name is required`,
+            })
             : z.string().optional();
     }
 
@@ -165,11 +172,16 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
     // Add additional fields from signUpFields
     if (signUpFields) {
         for (const field of signUpFields) {
-            if (field === "name") continue; // Already handled above
-            if (field === "image") continue; // Already handled above
+            if (field === "name")
+                continue; // Already handled above
+
+            if (field === "image")
+                continue; // Already handled above
 
             const additionalField = additionalFields?.[field];
-            if (!additionalField) continue;
+
+            if (!additionalField)
+                continue;
 
             let fieldSchema: z.ZodTypeAny;
 
@@ -177,37 +189,37 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
             if (additionalField.type === "number") {
                 fieldSchema = additionalField.required
                     ? z.preprocess(
-                          (val) => (!val ? undefined : Number(val)),
-                          z.number({
-                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          }),
-                      )
+                        (value) => (value ? Number(value) : undefined),
+                        z.number({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                            required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                        }),
+                    )
                     : z.coerce
-                          .number({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .optional();
+                        .number({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        })
+                        .optional();
             } else if (additionalField.type === "boolean") {
                 fieldSchema = additionalField.required
                     ? z.coerce
-                          .boolean({
-                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .refine((val) => val === true, {
-                              message: `${String(additionalField.label || "")} ${t`is required`}`,
-                          })
+                        .boolean({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                            required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                        })
+                        .refine((value) => value === true, {
+                            message: `${String(additionalField.label || "")} ${t`is required`}`,
+                        })
                     : z.coerce
-                          .boolean({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .optional();
+                        .boolean({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        })
+                        .optional();
             } else {
                 fieldSchema = additionalField.required
                     ? z.string().min(1, {
-                          message: `${String(additionalField.label || "")} ${t`is required`}`,
-                      })
+                        message: `${String(additionalField.label || "")} ${t`is required`}`,
+                    })
                     : z.string().optional();
             }
 
@@ -225,18 +237,22 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
     const defaultValues: Record<string, any> = {
         email: "",
         password: "",
-        ...(confirmPasswordEnabled && { confirmPassword: "" }),
-        ...(signUpFields?.includes("name") && { name: "" }),
-        ...(usernameEnabled && { username: "" }),
-        ...(signUpFields?.includes("image") && avatar && { image: "" }),
+        ...confirmPasswordEnabled && { confirmPassword: "" },
+        ...signUpFields?.includes("name") && { name: "" },
+        ...usernameEnabled && { username: "" },
+        ...signUpFields?.includes("image") && avatar && { image: "" },
     };
 
     // Add default values for additional fields
     if (signUpFields) {
         for (const field of signUpFields) {
-            if (field === "name" || field === "image") continue;
+            if (field === "name" || field === "image")
+                continue;
+
             const additionalField = additionalFields?.[field];
-            if (!additionalField) continue;
+
+            if (!additionalField)
+                continue;
 
             if (additionalField.type === "boolean") {
                 defaultValues[field] = false;
@@ -250,48 +266,49 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
 
     const form = useAppForm({
         defaultValues,
-        validators: {
-            onChange: ({ value }) => formSchema.safeParse(value),
-        },
         onSubmit: async ({ value }) => {
             try {
                 // Validate additional fields with custom validators if provided
                 for (const [field, fieldValue] of Object.entries(value)) {
                     if (
-                        field === "email" ||
-                        field === "password" ||
-                        field === "confirmPassword" ||
-                        field === "name" ||
-                        field === "username" ||
-                        field === "image"
-                    )
+                        field === "email"
+                        || field === "password"
+                        || field === "confirmPassword"
+                        || field === "name"
+                        || field === "username"
+                        || field === "image"
+                    ) {
                         continue;
+                    }
 
                     const additionalField = additionalFields?.[field];
-                    if (!additionalField?.validate) continue;
 
-                    if (typeof fieldValue === "string" && !(await additionalField.validate(fieldValue))) {
+                    if (!additionalField?.validate)
+                        continue;
+
+                    if (typeof fieldValue === "string" && !await additionalField.validate(fieldValue)) {
                         toast({
-                            variant: "error",
                             message: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                            variant: "error",
                         });
+
                         return;
                     }
                 }
 
                 const fetchOptions: BetterFetchOption = {
-                    throw: true,
                     headers: await getCaptchaHeaders("/sign-up/email"),
+                    throw: true,
                 };
 
-                const { email, password, name, username, image, confirmPassword, ...additionalFieldValues } = value;
+                const { confirmPassword, email, image, name, password, username, ...additionalFieldValues } = value;
 
                 const data = await authClient.signUp.email({
                     email,
-                    password,
                     name: name || "",
-                    ...(username !== undefined && { username }),
-                    ...(image !== undefined && { image }),
+                    password,
+                    ...username !== undefined && { username },
+                    ...image !== undefined && { image },
                     ...additionalFieldValues,
                     callbackURL: getCallbackURL(),
                     fetchOptions,
@@ -302,26 +319,29 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                 } else {
                     if (emailVerification) {
                         toast({
-                            variant: "success",
                             message: t`Email verification sent`,
+                            variant: "success",
                         });
                     } else {
                         toast({
-                            variant: "success",
                             message: t`Sign up successful`,
+                            variant: "success",
                         });
                     }
 
-                    navigate(`${basePath}/${viewPaths.SIGN_IN}${window.location.search}`);
+                    navigate(`${basePath}/${viewPaths.SIGN_IN}${globalThis.location.search}`);
                 }
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
 
                 form.reset();
             }
+        },
+        validators: {
+            onChange: ({ value }) => formSchema.safeParse(value),
         },
     });
 
@@ -332,7 +352,8 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
     }, [form.state.isSubmitting, transitionPending, setIsSubmitting]);
 
     const handleAvatarChange = async (file: File) => {
-        if (!file) return;
+        if (!file)
+            return;
 
         setUploadingAvatar(true);
 
@@ -342,10 +363,10 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
 
             setAvatarImage(base64);
             form.setFieldValue("image", base64);
-        } catch (error) {
+        } catch {
             toast({
-                variant: "error",
                 message: "Failed to upload avatar",
+                variant: "error",
             });
         } finally {
             setUploadingAvatar(false);
@@ -357,36 +378,38 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
         form.setFieldValue("image", "");
     };
 
-    const openFileDialog = () => fileInputRef.current?.click();
+    const openFileDialog = () => fileInputReference.current?.click();
 
     return (
         <form.AppForm>
             <form
+                className={cn("grid w-full gap-6", className, classNames?.base)}
+                noValidate={isHydrated}
                 onSubmit={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     form.handleSubmit();
                 }}
-                noValidate={isHydrated}
-                className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 {signUpFields?.includes("image") && avatar && (
                     <>
                         <input
-                            ref={fileInputRef}
                             accept="image/*"
                             disabled={uploadingAvatar}
                             hidden
-                            type="file"
                             onChange={(e) => {
                                 const file = e.target.files?.item(0);
-                                if (file) handleAvatarChange(file);
+
+                                if (file)
+                                    handleAvatarChange(file);
+
                                 e.target.value = "";
                             }}
+                            ref={fileInputReference}
+                            type="file"
                         />
 
                         <form.AppField
-                            name="image"
                             children={() => (
                                 <div className="space-y-2">
                                     <label className={cn("text-sm font-medium", classNames?.label)}>{t`Avatar`}</label>
@@ -394,30 +417,32 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                                     <div className="flex items-center gap-4">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button className="size-fit rounded-full" size="icon" variant="ghost" type="button">
+                                                <Button className="size-fit rounded-full" size="icon" type="button" variant="ghost">
                                                     <form.Subscribe
-                                                        selector={(state) => ({
-                                                            name: state.values.name || "",
-                                                            email: state.values.email || "",
-                                                        })}
-                                                        children={({ name, email }) => (
+                                                        children={({ email, name }) => (
                                                             <Avatar className="size-16">
-                                                                {avatarImage && <AvatarImage src={avatarImage} alt={name || "User"} />}
+                                                                {avatarImage && <AvatarImage alt={name || "User"} src={avatarImage} />}
                                                                 <AvatarFallback className="rounded-lg">{name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
                                                             </Avatar>
                                                         )}
+                                                        selector={(state) => {
+                                                            return {
+                                                                email: state.values.email || "",
+                                                                name: state.values.name || "",
+                                                            };
+                                                        }}
                                                     />
                                                 </Button>
                                             </DropdownMenuTrigger>
 
                                             <DropdownMenuContent align="start" onCloseAutoFocus={(e) => e.preventDefault()}>
-                                                <DropdownMenuItem onClick={openFileDialog} disabled={uploadingAvatar}>
+                                                <DropdownMenuItem disabled={uploadingAvatar} onClick={openFileDialog}>
                                                     <UploadCloudIcon />
                                                     {t`Upload Avatar`}
                                                 </DropdownMenuItem>
 
                                                 {avatarImage && (
-                                                    <DropdownMenuItem onClick={handleDeleteAvatar} disabled={uploadingAvatar} variant="destructive">
+                                                    <DropdownMenuItem disabled={uploadingAvatar} onClick={handleDeleteAvatar} variant="destructive">
                                                         <Trash2Icon />
                                                         {t`Delete Avatar`}
                                                     </DropdownMenuItem>
@@ -425,7 +450,7 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                                             </DropdownMenuContent>
                                         </DropdownMenu>
 
-                                        <Button type="button" variant="outline" onClick={openFileDialog} disabled={uploadingAvatar}>
+                                        <Button disabled={uploadingAvatar} onClick={openFileDialog} type="button" variant="outline">
                                             {uploadingAvatar && <Loader2 className="animate-spin" />}
 
                                             {t`Upload`}
@@ -433,86 +458,86 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                                     </div>
                                 </div>
                             )}
+                            name="image"
                         />
                     </>
                 )}
 
                 {signUpFields?.includes("name") && (
                     <form.AppField
-                        name="name"
                         children={(field) => (
                             <field.FormItem>
                                 <field.FormLabel className={classNames?.label}>{t`Name`}</field.FormLabel>
 
                                 <field.FormControl>
                                     <Input
-                                        className={classNames?.input}
-                                        placeholder={t`Enter your name`}
                                         autoComplete="name"
+                                        className={classNames?.input}
                                         disabled={isSubmitting}
-                                        value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(e) => field.handleChange(e.target.value)}
+                                        placeholder={t`Enter your name`}
+                                        value={field.state.value}
                                     />
                                 </field.FormControl>
 
                                 <field.FormMessage className={classNames?.error} />
                             </field.FormItem>
                         )}
+                        name="name"
                     />
                 )}
 
                 {usernameEnabled && (
                     <form.AppField
-                        name="username"
                         children={(field) => (
                             <field.FormItem>
                                 <field.FormLabel className={classNames?.label}>{t`Username`}</field.FormLabel>
 
                                 <field.FormControl>
                                     <Input
-                                        className={classNames?.input}
-                                        placeholder={t`Enter your username`}
                                         autoComplete="username"
+                                        className={classNames?.input}
                                         disabled={isSubmitting}
-                                        value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(e) => field.handleChange(e.target.value)}
+                                        placeholder={t`Enter your username`}
+                                        value={field.state.value}
                                     />
                                 </field.FormControl>
 
                                 <field.FormMessage className={classNames?.error} />
                             </field.FormItem>
                         )}
+                        name="username"
                     />
                 )}
 
                 <form.AppField
-                    name="email"
                     children={(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
-                                    className={classNames?.input}
-                                    type="email"
-                                    placeholder={t`Enter your email`}
                                     autoComplete="email"
+                                    className={classNames?.input}
                                     disabled={isSubmitting}
-                                    value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
+                                    placeholder={t`Enter your email`}
+                                    type="email"
+                                    value={field.state.value}
                                 />
                             </field.FormControl>
 
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
+                    name="email"
                 />
 
                 <form.AppField
-                    name="password"
                     children={(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Password`}</field.FormLabel>
@@ -521,23 +546,23 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                                 <PasswordInput
                                     autoComplete="new-password"
                                     className={classNames?.input}
-                                    placeholder={t`Enter your password`}
                                     disabled={isSubmitting}
                                     enableToggle
-                                    value={field.state.value}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
+                                    placeholder={t`Enter your password`}
+                                    value={field.state.value}
                                 />
                             </field.FormControl>
 
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
+                    name="password"
                 />
 
                 {confirmPasswordEnabled && (
                     <form.AppField
-                        name="confirmPassword"
                         children={(field) => (
                             <field.FormItem>
                                 <field.FormLabel className={classNames?.label}>{t`Confirm Password`}</field.FormLabel>
@@ -546,18 +571,19 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                                     <PasswordInput
                                         autoComplete="new-password"
                                         className={classNames?.input}
-                                        placeholder={t`Enter your password again`}
                                         disabled={isSubmitting}
                                         enableToggle
-                                        value={field.state.value}
                                         onBlur={field.handleBlur}
                                         onChange={(e) => field.handleChange(e.target.value)}
+                                        placeholder={t`Enter your password again`}
+                                        value={field.state.value}
                                     />
                                 </field.FormControl>
 
                                 <field.FormMessage className={classNames?.error} />
                             </field.FormItem>
                         )}
+                        name="confirmPassword"
                     />
                 )}
 
@@ -565,71 +591,75 @@ export function SignUpForm({ className, classNames, callbackURL, isSubmitting, r
                     ?.filter((field) => field !== "name" && field !== "image")
                     .map((field) => {
                         const additionalField = additionalFields?.[field];
+
                         if (!additionalField) {
                             console.error(`Additional field ${field} not found`);
+
                             return null;
                         }
 
-                        return additionalField.type === "boolean" ? (
-                            <form.AppField
-                                key={field}
-                                name={field}
-                                children={(formField) => (
-                                    <formField.FormItem className="flex">
-                                        <formField.FormControl>
-                                            <Checkbox
-                                                checked={formField.state.value}
-                                                onCheckedChange={(checked) => formField.handleChange(checked === true)}
-                                                disabled={isSubmitting}
-                                            />
-                                        </formField.FormControl>
+                        return additionalField.type === "boolean"
+                            ? (
+                                <form.AppField
+                                    children={(formField) => (
+                                        <formField.FormItem className="flex">
+                                            <formField.FormControl>
+                                                <Checkbox
+                                                    checked={formField.state.value}
+                                                    disabled={isSubmitting}
+                                                    onCheckedChange={(checked) => formField.handleChange(checked === true)}
+                                                />
+                                            </formField.FormControl>
 
-                                        <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
+                                            <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
 
-                                        <formField.FormMessage className={classNames?.error} />
-                                    </formField.FormItem>
-                                )}
-                            />
-                        ) : (
-                            <form.AppField
-                                key={field}
-                                name={field}
-                                children={(formField) => (
-                                    <formField.FormItem>
-                                        <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
+                                            <formField.FormMessage className={classNames?.error} />
+                                        </formField.FormItem>
+                                    )}
+                                    key={field}
+                                    name={field}
+                                />
+                            )
+                            : (
+                                <form.AppField
+                                    children={(formField) => (
+                                        <formField.FormItem>
+                                            <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
 
-                                        <formField.FormControl>
-                                            <Input
-                                                className={classNames?.input}
-                                                type={additionalField.type === "number" ? "number" : "text"}
-                                                placeholder={
+                                            <formField.FormControl>
+                                                <Input
+                                                    className={classNames?.input}
+                                                    disabled={isSubmitting}
+                                                    onBlur={formField.handleBlur}
+                                                    onChange={(e) => formField.handleChange(e.target.value)}
+                                                    placeholder={
                                                     additionalField.placeholder || (typeof additionalField.label === "string" ? additionalField.label : "")
                                                 }
-                                                disabled={isSubmitting}
-                                                value={formField.state.value}
-                                                onBlur={formField.handleBlur}
-                                                onChange={(e) => formField.handleChange(e.target.value)}
-                                            />
-                                        </formField.FormControl>
+                                                    type={additionalField.type === "number" ? "number" : "text"}
+                                                    value={formField.state.value}
+                                                />
+                                            </formField.FormControl>
 
-                                        <formField.FormMessage className={classNames?.error} />
-                                    </formField.FormItem>
-                                )}
-                            />
-                        );
+                                            <formField.FormMessage className={classNames?.error} />
+                                        </formField.FormItem>
+                                    )}
+                                    key={field}
+                                    name={field}
+                                />
+                            );
                     })}
 
-                <Captcha ref={captchaRef} action="/sign-up/email" />
+                <Captcha action="/sign-up/email" ref={captchaRef} />
 
                 <form.Subscribe
-                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isSubmitting]) => (
-                        <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
+                        <Button className={cn("w-full", classNames?.button, classNames?.primaryButton)} disabled={!canSubmit || isSubmitting} type="submit">
                             {isSubmitting ? <Loader2 className="animate-spin" /> : t`Sign Up`}
                         </Button>
                     )}
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                 />
             </form>
         </form.AppForm>
     );
-}
+};

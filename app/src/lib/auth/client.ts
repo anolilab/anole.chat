@@ -1,20 +1,21 @@
-import { createAuthClient } from "better-auth/react";
+import { convexClient } from "@convex-dev/better-auth/client/plugins";
 import {
-    anonymousClient,
-    jwtClient,
-    oidcClient,
     adminClient,
+    anonymousClient,
     emailOTPClient,
+    jwtClient,
     magicLinkClient,
+    oidcClient,
     organizationClient,
     passkeyClient,
     twoFactorClient,
 } from "better-auth/client/plugins";
-import { convexClient } from "@convex-dev/better-auth/client/plugins";
-import { env } from "../env";
+import { createAuthClient } from "better-auth/react";
+
+import { env as environment } from "../env";
 
 export const authClient = createAuthClient({
-    baseURL: env.VITE_SITE_URL,
+    baseURL: environment.VITE_SITE_URL,
     plugins: [twoFactorClient(), emailOTPClient(), magicLinkClient(), organizationClient(), convexClient()],
 });
 

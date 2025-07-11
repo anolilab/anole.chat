@@ -1,3 +1,4 @@
+import type { ProviderIcon } from "../components/provider-icons";
 import {
     AppleIcon,
     DiscordIcon,
@@ -9,7 +10,6 @@ import {
     KickIcon,
     LinkedInIcon,
     MicrosoftIcon,
-    type ProviderIcon,
     RedditIcon,
     RobloxIcon,
     SpotifyIcon,
@@ -22,99 +22,99 @@ import {
 
 export const socialProviders = [
     {
-        provider: "apple",
-        name: "Apple",
         icon: AppleIcon,
+        name: "Apple",
+        provider: "apple",
     },
     {
-        provider: "discord",
-        name: "Discord",
         icon: DiscordIcon,
+        name: "Discord",
+        provider: "discord",
     },
     {
-        provider: "dropbox",
-        name: "Dropbox",
         icon: DropboxIcon,
+        name: "Dropbox",
+        provider: "dropbox",
     },
     {
-        provider: "facebook",
-        name: "Facebook",
         icon: FacebookIcon,
+        name: "Facebook",
+        provider: "facebook",
     },
     {
-        provider: "github",
-        name: "GitHub",
         icon: GitHubIcon,
+        name: "GitHub",
+        provider: "github",
     },
     {
-        provider: "gitlab",
-        name: "GitLab",
         icon: GitLabIcon,
+        name: "GitLab",
+        provider: "gitlab",
     },
     {
-        provider: "google",
-        name: "Google",
         icon: GoogleIcon,
+        name: "Google",
+        provider: "google",
     },
     {
-        provider: "kick",
-        name: "Kick",
         icon: KickIcon,
+        name: "Kick",
+        provider: "kick",
     },
     {
-        provider: "linkedin",
-        name: "LinkedIn",
         icon: LinkedInIcon,
+        name: "LinkedIn",
+        provider: "linkedin",
     },
     {
-        provider: "microsoft",
-        name: "Microsoft",
         icon: MicrosoftIcon,
+        name: "Microsoft",
+        provider: "microsoft",
     },
     {
-        provider: "reddit",
-        name: "Reddit",
         icon: RedditIcon,
+        name: "Reddit",
+        provider: "reddit",
     },
     {
-        provider: "roblox",
-        name: "Roblox",
         icon: RobloxIcon,
+        name: "Roblox",
+        provider: "roblox",
     },
     {
-        provider: "spotify",
-        name: "Spotify",
         icon: SpotifyIcon,
+        name: "Spotify",
+        provider: "spotify",
     },
     {
-        provider: "tiktok",
-        name: "TikTok",
         icon: TikTokIcon,
+        name: "TikTok",
+        provider: "tiktok",
     },
     {
-        provider: "twitch",
-        name: "Twitch",
         icon: TwitchIcon,
+        name: "Twitch",
+        provider: "twitch",
     },
     {
-        provider: "vk",
-        name: "VK",
         icon: VKIcon,
+        name: "VK",
+        provider: "vk",
     },
     {
-        provider: "twitter",
-        name: "X",
         icon: XIcon,
+        name: "X",
+        provider: "twitter",
     },
     {
-        provider: "zoom",
-        name: "Zoom",
         icon: ZoomIcon,
+        name: "Zoom",
+        provider: "zoom",
     },
 ] as const;
 
 export type Provider = {
-    provider: string;
-    name: string;
     icon?: ProviderIcon;
+    name: string;
+    provider: string;
 };

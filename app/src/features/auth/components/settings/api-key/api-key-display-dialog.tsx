@@ -1,21 +1,23 @@
 "use client";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
-import { type ComponentProps, useState } from "react";
 import { t } from "@lingui/core/macro";
+import { CheckIcon, CopyIcon } from "lucide-react";
+import type { ComponentProps } from "react";
+import { useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-interface APIKeyDisplayDialogProps extends ComponentProps<typeof Dialog> {
-    classNames?: SettingsCardClassNames;
-
+interface APIKeyDisplayDialogProperties extends ComponentProps<typeof Dialog> {
     apiKey: string;
+
+    classNames?: SettingsCardClassNames;
 }
 
-export function APIKeyDisplayDialog({ classNames, apiKey, onOpenChange, ...props }: APIKeyDisplayDialogProps) {
+export const APIKeyDisplayDialog = ({ apiKey, classNames, onOpenChange, ...properties }: APIKeyDisplayDialogProperties) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -25,44 +27,48 @@ export function APIKeyDisplayDialog({ classNames, apiKey, onOpenChange, ...props
     };
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
-            <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
+            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`API Key Created`}</DialogTitle>
 
                     <DialogDescription
                         className={cn("text-xs md:text-sm", classNames?.description)}
-                    >{t`Your API key has been created successfully. Make sure to copy it now as you won't be able to see it again.`}</DialogDescription>
+                    >
+                        {t`Your API key has been created successfully. Make sure to copy it now as you won't be able to see it again.`}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="bg-muted break-all rounded-md p-4 font-mono text-sm">{apiKey}</div>
 
                 <DialogFooter className={classNames?.dialog?.footer}>
                     <Button
+                        className={cn(classNames?.button, classNames?.outlineButton)}
+                        disabled={copied}
+                        onClick={handleCopy}
                         type="button"
                         variant="outline"
-                        onClick={handleCopy}
-                        disabled={copied}
-                        className={cn(classNames?.button, classNames?.outlineButton)}
                     >
-                        {copied ? (
-                            <>
-                                <CheckIcon className={classNames?.icon} />
-                                {t`Copied to clipboard`}
-                            </>
-                        ) : (
-                            <>
-                                <CopyIcon className={classNames?.icon} />
-                                {t`Copy to clipboard`}
-                            </>
-                        )}
+                        {copied
+                            ? (
+                                <>
+                                    <CheckIcon className={classNames?.icon} />
+                                    {t`Copied to clipboard`}
+                                </>
+                            )
+                            : (
+                                <>
+                                    <CopyIcon className={classNames?.icon} />
+                                    {t`Copy to clipboard`}
+                                </>
+                            )}
                     </Button>
 
-                    <Button type="button" variant="default" onClick={() => onOpenChange?.(false)} className={cn(classNames?.button, classNames?.primaryButton)}>
+                    <Button className={cn(classNames?.button, classNames?.primaryButton)} onClick={() => onOpenChange?.(false)} type="button" variant="default">
                         {t`Done`}
                     </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
     );
-}
+};

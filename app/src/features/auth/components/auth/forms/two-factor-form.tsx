@@ -1,29 +1,29 @@
 "use client";
 
+import { t } from "@lingui/core/macro";
+import { Link, useSearch } from "@tanstack/react-router";
 import type { BetterFetchError } from "better-auth/react";
-import type { Checkbox as CheckboxPrimitive } from "radix-ui";
 import { Loader2, QrCodeIcon, SendIcon } from "lucide-react";
-import { useContext, useEffect, useRef, useState } from "react";
+import type { Checkbox as CheckboxPrimitive } from "radix-ui";
+import { useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import { z } from "zod/v4";
-import { t } from "@lingui/core/macro";
-import { useSearch } from "@tanstack/react-router";
 
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-import { getLocalizedError } from "../../../lib/utils";
-import type { User } from "../../../types/auth-core-types";
+import CopyButton from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAppForm } from "@/components/ui/form";
 import { InputOTP } from "@/components/ui/input-otp";
-import CopyButton from "@/components/copy-button";
-import type { AuthFormClassNames } from "../auth-form";
-import { OTPInputGroup } from "../otp-input-group";
+import type { AuthFormClassNames } from "@/features/auth/components/auth/auth-form";
+import { OTPInputGroup } from "@/features/auth/components/auth/otp-input-group";
+import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { getLocalizedError } from "@/features/auth/lib/utils";
+import type { User } from "@/features/auth/types/auth-core-types";
+import { useIsHydrated } from "@/hooks/use-hydrated";
+import { cn } from "@/lib/utils";
 
-export interface TwoFactorFormProps {
+export interface TwoFactorFormProperties {
     className?: string;
     classNames?: AuthFormClassNames;
     isSubmitting?: boolean;
@@ -42,40 +42,40 @@ const formSchema = z.object({
             message: "One-time password is invalid",
         }),
     trustDevice: z.boolean().optional(),
-});
+}).strict();
 
 // Helper function to extract secret from TOTP URI
 const extractSecretFromTotpUri = (totpURI: string): string | null => {
     try {
         const url = new URL(totpURI);
+
         return url.searchParams.get("secret");
     } catch {
         return null;
     }
 };
 
-export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparators = 0, redirectTo, setIsSubmitting }: TwoFactorFormProps) {
+export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparators = 0, redirectTo, setIsSubmitting }: TwoFactorFormProperties) => {
     const isHydrated = useIsHydrated();
     const search = useSearch({ strict: false }) as any;
 
     const totpURI = isHydrated ? search?.totpURI : null;
     const digits = isHydrated ? search?.digits : null;
-    const hideForgotAuthenticator = search?.hideForgotAuthenticator ? true : false;
+    const hideForgotAuthenticator = !!search?.hideForgotAuthenticator;
     const totpSecret = totpURI ? extractSecretFromTotpUri(totpURI) : null;
 
-    const initialSendRef = useRef(false);
+    const initialSendReference = useRef(false);
 
     const {
         authClient,
         basePath,
         hooks: { useSession },
+        toast,
         twoFactor,
         viewPaths,
-        toast,
-        Link,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
-    const { onSuccess, isPending: transitionPending } = useOnSuccessTransition({
+    const { isPending: transitionPending, onSuccess } = useOnSuccessTransition({
         redirectTo,
     });
 
@@ -92,35 +92,35 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
             code: "",
             trustDevice: false,
         },
-        validators: {
-            onChange: formSchema,
-        },
         onSubmit: async ({ value }) => {
             try {
                 const verifyMethod = method === "totp" ? authClient.twoFactor.verifyTotp : authClient.twoFactor.verifyOtp;
 
                 await verifyMethod({
                     code: value.code,
-                    trustDevice: value.trustDevice,
                     fetchOptions: { throw: true },
+                    trustDevice: value.trustDevice,
                 });
 
                 await onSuccess();
 
                 if (sessionData && !isTwoFactorEnabled) {
                     toast({
-                        variant: "success",
                         message: t`Two-factor authentication enabled`,
+                        variant: "success",
                     });
                 }
             } catch (error) {
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
 
                 form.reset();
             }
+        },
+        validators: {
+            onChange: formSchema,
         },
     });
 
@@ -131,24 +131,26 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
     }, [form.state.isSubmitting, transitionPending, setIsSubmitting]);
 
     useEffect(() => {
-        if (method === "otp" && cooldownSeconds <= 0 && !initialSendRef.current) {
-            initialSendRef.current = true;
+        if (method === "otp" && cooldownSeconds <= 0 && !initialSendReference.current) {
+            initialSendReference.current = true;
             sendOtp();
         }
     }, [method]);
 
     useEffect(() => {
-        if (cooldownSeconds <= 0) return;
+        if (cooldownSeconds <= 0)
+            return;
 
         const timer = setTimeout(() => {
-            setCooldownSeconds((prev) => prev - 1);
+            setCooldownSeconds((previous) => previous - 1);
         }, 1000);
 
         return () => clearTimeout(timer);
     }, [cooldownSeconds]);
 
     const sendOtp = async () => {
-        if (isSendingOtp || cooldownSeconds > 0) return;
+        if (isSendingOtp || cooldownSeconds > 0)
+            return;
 
         try {
             setIsSendingOtp(true);
@@ -158,8 +160,8 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
             setCooldownSeconds(60);
         } catch (error) {
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
 
             if ((error as BetterFetchError).error.code === "INVALID_TWO_FACTOR_COOKIE") {
@@ -167,36 +169,42 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
             }
         }
 
-        initialSendRef.current = false;
+        initialSendReference.current = false;
         setIsSendingOtp(false);
     };
 
     return (
         <form.AppForm>
             <form
+                className={cn("grid w-full gap-6", className, classNames?.base)}
                 onSubmit={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     form.handleSubmit();
                 }}
-                className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 {twoFactor?.includes("totp") && totpURI && method === "totp" && (
                     <div className="space-y-4">
                         <div className={classNames?.label}>
-                            {t`Using an authenticator app like`}{" "}
-                            <a href="https://www.google.com/search?q=google+authenticator" target="_blank" className="text-blue-500 hover:underline">
+                            {t`Using an authenticator app like`}
+                            {" "}
+                            <a className="text-blue-500 hover:underline" href="https://www.google.com/search?q=google+authenticator" rel="noreferrer" target="_blank">
                                 Google Authenticator
                             </a>
-                            ,{" "}
-                            <a href="https://www.google.com/search?q=google+authenticator" target="_blank" className="text-blue-500 hover:underline">
+                            ,
+                            {" "}
+                            <a className="text-blue-500 hover:underline" href="https://www.google.com/search?q=google+authenticator" rel="noreferrer" target="_blank">
                                 Microsoft Authenticator
-                            </a>{" "}
-                            {t`or`}{" "}
-                            <a href="https://www.google.com/search?q=google+authenticator" target="_blank" className="text-blue-500 hover:underline">
+                            </a>
+                            {" "}
+                            {t`or`}
+                            {" "}
+                            <a className="text-blue-500 hover:underline" href="https://www.google.com/search?q=google+authenticator" rel="noreferrer" target="_blank">
                                 Authy
                             </a>
-                            , {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
+                            ,
+                            {" "}
+                            {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
                         </div>
                         <QRCode className={cn("shadow-xs mx-auto border", classNames?.qrCode)} value={totpURI} />
 
@@ -217,7 +225,6 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                 {method !== null && (
                     <>
                         <form.AppField
-                            name="code"
                             children={(field) => (
                                 <field.FormItem>
                                     <div className="flex items-center justify-between">
@@ -226,7 +233,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                                         {!hideForgotAuthenticator && (
                                             <Link
                                                 className={cn("text-sm hover:underline", classNames?.forgotPasswordLink)}
-                                                href={`${basePath}/${viewPaths.RECOVER_ACCOUNT}${isHydrated ? window.location.search : ""}`}
+                                                to={`${basePath}/${viewPaths.RECOVER_ACCOUNT}${isHydrated ? globalThis.location.search : ""}`}
                                             >
                                                 {t`Forgot authenticator`}
                                             </Link>
@@ -235,8 +242,10 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
 
                                     <field.FormControl>
                                         <InputOTP
+                                            className={classNames?.otpInput}
+                                            containerClassName={classNames?.otpInputContainer}
+                                            disabled={isSubmitting}
                                             maxLength={digits}
-                                            value={field.state.value}
                                             onChange={(value) => {
                                                 field.handleChange(value);
 
@@ -244,9 +253,7 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                                                     form.handleSubmit();
                                                 }
                                             }}
-                                            containerClassName={classNames?.otpInputContainer}
-                                            className={classNames?.otpInput}
-                                            disabled={isSubmitting}
+                                            value={field.state.value}
                                         >
                                             <OTPInputGroup otpSeparators={otpSeparators} />
                                         </InputOTP>
@@ -255,26 +262,27 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                                     <field.FormMessage className={classNames?.error} />
                                 </field.FormItem>
                             )}
+                            name="code"
                         />
 
                         <form.AppField
-                            name="trustDevice"
                             children={(field) => (
                                 <field.FormItem className="flex">
                                     <field.FormControl>
                                         <Checkbox
                                             checked={field.state.value}
+                                            className={classNames?.checkbox}
+                                            disabled={isSubmitting}
                                             onCheckedChange={(checked: CheckboxPrimitive.CheckedState) => {
                                                 field.handleChange(checked === true);
                                             }}
-                                            disabled={isSubmitting}
-                                            className={classNames?.checkbox}
                                         />
                                     </field.FormControl>
 
                                     <field.FormLabel className={classNames?.label}>{t`Trust this device`}</field.FormLabel>
                                 </field.FormItem>
                             )}
+                            name="trustDevice"
                         />
                     </>
                 )}
@@ -282,23 +290,23 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
                 <div className="grid gap-4">
                     {method !== null && (
                         <form.Subscribe
-                            selector={(state) => [state.canSubmit, state.isSubmitting]}
                             children={([canSubmit, isSubmitting]) => (
-                                <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn(classNames?.button, classNames?.primaryButton)}>
+                                <Button className={cn(classNames?.button, classNames?.primaryButton)} disabled={!canSubmit || isSubmitting} type="submit">
                                     {isSubmitting && <Loader2 className="animate-spin" />}
                                     {t`Two-factor authentication`}
                                 </Button>
                             )}
+                            selector={(state) => [state.canSubmit, state.isSubmitting]}
                         />
                     )}
 
                     {method === "otp" && twoFactor?.includes("otp") && (
                         <Button
+                            className={cn(classNames?.button, classNames?.outlineButton)}
+                            disabled={cooldownSeconds > 0 || isSendingOtp || isSubmitting}
+                            onClick={sendOtp}
                             type="button"
                             variant="outline"
-                            onClick={sendOtp}
-                            disabled={cooldownSeconds > 0 || isSendingOtp || isSubmitting}
-                            className={cn(classNames?.button, classNames?.outlineButton)}
                         >
                             {isSendingOtp ? <Loader2 className="animate-spin" /> : <SendIcon className={classNames?.icon} />}
 
@@ -309,11 +317,11 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
 
                     {method !== "otp" && twoFactor?.includes("otp") && (
                         <Button
+                            className={cn(classNames?.button, classNames?.secondaryButton)}
+                            disabled={isSubmitting}
+                            onClick={() => setMethod("otp")}
                             type="button"
                             variant="secondary"
-                            className={cn(classNames?.button, classNames?.secondaryButton)}
-                            onClick={() => setMethod("otp")}
-                            disabled={isSubmitting}
                         >
                             <SendIcon className={classNames?.icon} />
                             {t`Send verification code`}
@@ -322,11 +330,11 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
 
                     {method !== "totp" && twoFactor?.includes("totp") && (
                         <Button
+                            className={cn(classNames?.button, classNames?.secondaryButton)}
+                            disabled={isSubmitting}
+                            onClick={() => setMethod("totp")}
                             type="button"
                             variant="secondary"
-                            className={cn(classNames?.button, classNames?.secondaryButton)}
-                            onClick={() => setMethod("totp")}
-                            disabled={isSubmitting}
                         >
                             <QrCodeIcon className={classNames?.icon} />
                             {t`Continue with authenticator`}
@@ -336,4 +344,4 @@ export function TwoFactorForm({ className, classNames, isSubmitting, otpSeparato
             </form>
         </form.AppForm>
     );
-}
+};

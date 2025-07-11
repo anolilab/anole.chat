@@ -1,61 +1,66 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-import { asAsyncIterableStream } from "assistant-stream/utils";
-import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
-import type { ThreadMessageLike } from "@assistant-ui/react";
 import type { AgentModel } from "@anole/convex/ai/lib/agents";
-import { generateId } from "../providers/types";
-import { AdaptiveThrottle } from "../providers/streaming-optimizations";
+import type { ThreadMessageLike } from "@assistant-ui/react";
+import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream";
+import { asAsyncIterableStream } from "assistant-stream/utils";
+import { useCallback, useRef, useState } from "react";
 
-interface UseStreamManagerProps {
-    model: AgentModel;
+import { AdaptiveThrottle } from "../providers/streaming-optimizations";
+import { generateId } from "../providers/types";
+
+interface UseStreamManagerProperties {
     jwtToken: string;
-    onStreamStart: (threadId: string, messageId: string) => void;
-    onStreamUpdate: (threadId: string, messageId: string, newContent: ThreadMessageLike["content"]) => void;
+    model: AgentModel;
     onStreamError: (threadId: string, messageId: string, error: Error) => void;
+    onStreamStart: (threadId: string, messageId: string) => void;
     onStreamSuccess: (threadId: string, messageId: string) => void;
+    onStreamUpdate: (threadId: string, messageId: string, newContent: ThreadMessageLike["content"]) => void;
 }
 
-export const useStreamManager = ({ model, jwtToken, onStreamStart, onStreamUpdate, onStreamError, onStreamSuccess }: UseStreamManagerProps) => {
+export const useStreamManager = ({ jwtToken, model, onStreamError, onStreamStart, onStreamSuccess, onStreamUpdate }: UseStreamManagerProperties) => {
     const [isRunning, setIsRunning] = useState(false);
-    const abortControllerRef = useRef<AbortController | null>(null);
-    const throttleRef = useRef(new AdaptiveThrottle());
+    const abortControllerReference = useRef<AbortController | null>(null);
+    const throttleReference = useRef(new AdaptiveThrottle());
 
     const streamMessage = useCallback(
         async (prompt: string, threadId: string, fileIds?: string[]) => {
             if (isRunning) {
                 console.warn("Stream is already running.");
+
                 return;
             }
 
             const abortController = new AbortController();
-            abortControllerRef.current = abortController;
+
+            abortControllerReference.current = abortController;
             setIsRunning(true);
-            throttleRef.current.reset();
+            throttleReference.current.reset();
 
             const assistantMessageId = generateId();
+
             onStreamStart(threadId, assistantMessageId);
 
             try {
                 const response = await fetch(`/convex-http/chat/stream`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${jwtToken}`,
-                    },
-                    credentials: "include",
                     body: JSON.stringify({
-                        prompt: prompt,
-                        threadId: threadId,
-                        model,
                         fileIds,
+                        model,
+                        prompt,
+                        threadId,
                     }),
+                    credentials: "include",
+                    headers: {
+                        Authorization: `Bearer ${jwtToken}`,
+                        "Content-Type": "application/json",
+                    },
+                    method: "POST",
                     signal: abortController.signal,
                 });
 
                 if (!response.ok) {
                     const text = await response.text();
+
                     throw new Error(`HTTP error ${response.status}: ${text}`);
                 }
 
@@ -68,14 +73,16 @@ export const useStreamManager = ({ model, jwtToken, onStreamStart, onStreamUpdat
                 let lastText = "";
 
                 for await (const message of asAsyncIterableStream(stream)) {
-                    if (abortController.signal.aborted) break;
+                    if (abortController.signal.aborted)
+                        break;
 
                     if (message.parts.length > 0 && message.parts[0].type === "text") {
                         const textPart = message.parts[0];
+
                         if ("text" in textPart && textPart.text !== lastText) {
                             lastText = textPart.text;
-                            throttleRef.current.execute(() => {
-                                onStreamUpdate(threadId, assistantMessageId, [{ type: "text", text: lastText }]);
+                            throttleReference.current.execute(() => {
+                                onStreamUpdate(threadId, assistantMessageId, [{ text: lastText, type: "text" }]);
                             });
                         }
                     }
@@ -91,18 +98,19 @@ export const useStreamManager = ({ model, jwtToken, onStreamStart, onStreamUpdat
                 if (!abortController.signal.aborted) {
                     onStreamSuccess(threadId, assistantMessageId);
                 }
+
                 setIsRunning(false);
-                abortControllerRef.current = null;
+                abortControllerReference.current = null;
             }
         },
         [isRunning, jwtToken, model, onStreamStart, onStreamUpdate, onStreamError, onStreamSuccess],
     );
 
     const cancelStream = useCallback(() => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
+        if (abortControllerReference.current) {
+            abortControllerReference.current.abort();
         }
     }, []);
 
-    return { streamMessage, cancelStream, isRunning };
+    return { cancelStream, isRunning, streamMessage };
 };

@@ -1,24 +1,27 @@
 "use client";
 
-import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
-import { type ComponentProps, useState } from "react";
 import { t } from "@lingui/core/macro";
+import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
+import type { ComponentProps } from "react";
+import { useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-interface BackupCodesDialogProps extends ComponentProps<typeof Dialog> {
-    classNames?: SettingsCardClassNames;
+interface BackupCodesDialogProperties extends ComponentProps<typeof Dialog> {
     backupCodes: string[];
+    classNames?: SettingsCardClassNames;
 }
 
-export function BackupCodesDialog({ classNames, backupCodes, onOpenChange, ...props }: BackupCodesDialogProps) {
+export const BackupCodesDialog = ({ backupCodes, classNames, onOpenChange, ...properties }: BackupCodesDialogProperties) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
         const codesText = backupCodes.join("\n");
+
         navigator.clipboard.writeText(codesText);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -29,17 +32,18 @@ export function BackupCodesDialog({ classNames, backupCodes, onOpenChange, ...pr
         const blob = new Blob([codesText], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
+
         a.href = url;
         a.download = "backup-codes.txt";
-        document.body.appendChild(a);
+        document.body.append(a);
         a.click();
-        document.body.removeChild(a);
+        a.remove();
         URL.revokeObjectURL(url);
     };
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
-            <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={cn("max-w-md", classNames?.dialog?.content)}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
+            <DialogContent className={cn("max-w-md", classNames?.dialog?.content)} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Backup Codes`}</DialogTitle>
 
@@ -52,7 +56,7 @@ export function BackupCodesDialog({ classNames, backupCodes, onOpenChange, ...pr
                     <div className="bg-muted rounded-lg p-4">
                         <div className="grid grid-cols-1 gap-2 font-mono text-sm">
                             {backupCodes.map((code, index) => (
-                                <div key={index} className="text-center">
+                                <div className="text-center" key={index}>
                                     {code}
                                 </div>
                             ))}
@@ -64,39 +68,41 @@ export function BackupCodesDialog({ classNames, backupCodes, onOpenChange, ...pr
 
                 <DialogFooter className={cn("flex-col gap-2 sm:flex-row", classNames?.dialog?.footer)}>
                     <Button
+                        className={cn("w-full sm:w-auto", classNames?.button, classNames?.outlineButton)}
+                        onClick={handleDownload}
                         type="button"
                         variant="outline"
-                        onClick={handleDownload}
-                        className={cn("w-full sm:w-auto", classNames?.button, classNames?.outlineButton)}
                     >
                         <DownloadIcon className="h-4 w-4" />
                         {t`Download`}
                     </Button>
 
                     <Button
+                        className={cn("w-full sm:w-auto", classNames?.button, classNames?.outlineButton)}
+                        disabled={copied}
+                        onClick={handleCopy}
                         type="button"
                         variant="outline"
-                        onClick={handleCopy}
-                        disabled={copied}
-                        className={cn("w-full sm:w-auto", classNames?.button, classNames?.outlineButton)}
                     >
-                        {copied ? (
-                            <>
-                                <CheckIcon className="h-4 w-4" />
-                                {t`Copied!`}
-                            </>
-                        ) : (
-                            <>
-                                <CopyIcon className="h-4 w-4" />
-                                {t`Copy`}
-                            </>
-                        )}
+                        {copied
+                            ? (
+                                <>
+                                    <CheckIcon className="h-4 w-4" />
+                                    {t`Copied!`}
+                                </>
+                            )
+                            : (
+                                <>
+                                    <CopyIcon className="h-4 w-4" />
+                                    {t`Copy`}
+                                </>
+                            )}
                     </Button>
 
                     <Button
-                        type="button"
-                        onClick={() => onOpenChange?.(false)}
                         className={cn("w-full sm:w-auto", classNames?.button, classNames?.primaryButton)}
+                        onClick={() => onOpenChange?.(false)}
+                        type="button"
                     >
                         {t`Done`}
                     </Button>
@@ -104,4 +110,4 @@ export function BackupCodesDialog({ classNames, backupCodes, onOpenChange, ...pr
             </DialogContent>
         </Dialog>
     );
-}
+};

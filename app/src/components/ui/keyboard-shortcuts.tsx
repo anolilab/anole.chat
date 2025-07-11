@@ -1,5 +1,7 @@
+import type { HTMLProps, ReactNode } from "react";
+import { createContext, use } from "react";
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { type HTMLProps, type ReactNode, createContext, useContext } from "react";
 import { cn } from "@/lib/utils";
 
 /*
@@ -23,132 +25,132 @@ Example Usage:
 */
 
 interface KeyData {
+    label: string;
     symbols: {
+        default: string;
         mac?: string;
         windows?: string;
-        default: string;
     };
-    label: string;
 }
 
 export enum Keys {
-    Enter = "Enter",
-    Space = "Space",
-    Control = "Control",
-    Shift = "Shift",
     Alt = "Alt",
-    Escape = "Escape",
-    ArrowUp = "ArrowUp",
     ArrowDown = "ArrowDown",
     ArrowLeft = "ArrowLeft",
     ArrowRight = "ArrowRight",
+    ArrowUp = "ArrowUp",
     Backspace = "Backspace",
-    Tab = "Tab",
     CapsLock = "CapsLock",
-    Fn = "Fn",
     Command = "Command",
-    Insert = "Insert",
+    Control = "Control",
     Delete = "Delete",
-    Home = "Home",
     End = "End",
-    PageUp = "PageUp",
+    Enter = "Enter",
+    Escape = "Escape",
+    Function_ = "Fn",
+    Home = "Home",
+    Insert = "Insert",
     PageDown = "PageDown",
-    PrintScreen = "PrintScreen",
+    PageUp = "PageUp",
     Pause = "Pause",
+    PrintScreen = "PrintScreen",
+    Shift = "Shift",
+    Space = "Space",
+    Tab = "Tab",
 }
 
 export const DEFAULT_KEY_MAPPINGS = {
-    [Keys.Enter]: {
-        symbols: { mac: "↩", default: "↵" },
-        label: "Enter",
-    },
-    [Keys.Space]: {
-        symbols: { default: "␣" },
-        label: "Space",
-    },
-    [Keys.Control]: {
-        symbols: { mac: "⌃", default: "Ctrl" },
-        label: "Control",
-    },
-    [Keys.Shift]: {
-        symbols: { mac: "⇧", default: "Shift" },
-        label: "Shift",
-    },
     [Keys.Alt]: {
-        symbols: { mac: "⌥", default: "Alt" },
         label: "Alt/Option",
-    },
-    [Keys.Escape]: {
-        symbols: { mac: "⎋", default: "Esc" },
-        label: "Escape",
-    },
-    [Keys.ArrowUp]: {
-        symbols: { default: "↑" },
-        label: "Arrow Up",
+        symbols: { default: "Alt", mac: "⌥" },
     },
     [Keys.ArrowDown]: {
-        symbols: { default: "↓" },
         label: "Arrow Down",
+        symbols: { default: "↓" },
     },
     [Keys.ArrowLeft]: {
-        symbols: { default: "←" },
         label: "Arrow Left",
+        symbols: { default: "←" },
     },
     [Keys.ArrowRight]: {
-        symbols: { default: "→" },
         label: "Arrow Right",
+        symbols: { default: "→" },
+    },
+    [Keys.ArrowUp]: {
+        label: "Arrow Up",
+        symbols: { default: "↑" },
     },
     [Keys.Backspace]: {
-        symbols: { mac: "⌫", default: "⟵" },
         label: "Backspace",
-    },
-    [Keys.Tab]: {
-        symbols: { mac: "⇥", default: "⭾" },
-        label: "Tab",
+        symbols: { default: "⟵", mac: "⌫" },
     },
     [Keys.CapsLock]: {
-        symbols: { default: "⇪" },
         label: "Caps Lock",
-    },
-    [Keys.Fn]: {
-        symbols: { default: "Fn" }, // mac symbol for Fn not universally recognized
-        label: "Fn",
+        symbols: { default: "⇪" },
     },
     [Keys.Command]: {
-        symbols: { mac: "⌘", windows: "⊞ Win", default: "Command" },
         label: "Command",
+        symbols: { default: "Command", mac: "⌘", windows: "⊞ Win" },
     },
-    [Keys.Insert]: {
-        symbols: { default: "Ins" },
-        label: "Insert",
+    [Keys.Control]: {
+        label: "Control",
+        symbols: { default: "Ctrl", mac: "⌃" },
     },
     [Keys.Delete]: {
-        symbols: { mac: "⌦", default: "Del" },
         label: "Delete",
-    },
-    [Keys.Home]: {
-        symbols: { mac: "↖", default: "Home" },
-        label: "Home",
+        symbols: { default: "Del", mac: "⌦" },
     },
     [Keys.End]: {
-        symbols: { mac: "↘", default: "End" },
         label: "End",
+        symbols: { default: "End", mac: "↘" },
     },
-    [Keys.PageUp]: {
-        symbols: { mac: "⇞", default: "PgUp" },
-        label: "Page Up",
+    [Keys.Enter]: {
+        label: "Enter",
+        symbols: { default: "↵", mac: "↩" },
+    },
+    [Keys.Escape]: {
+        label: "Escape",
+        symbols: { default: "Esc", mac: "⎋" },
+    },
+    [Keys.Fn]: {
+        label: "Fn",
+        symbols: { default: "Fn" }, // mac symbol for Fn not universally recognized
+    },
+    [Keys.Home]: {
+        label: "Home",
+        symbols: { default: "Home", mac: "↖" },
+    },
+    [Keys.Insert]: {
+        label: "Insert",
+        symbols: { default: "Ins" },
     },
     [Keys.PageDown]: {
-        symbols: { mac: "⇟", default: "PgDn" },
         label: "Page Down",
+        symbols: { default: "PgDn", mac: "⇟" },
     },
-    [Keys.PrintScreen]: {
-        symbols: { default: "PrtSc" },
-        label: "Print Screen",
+    [Keys.PageUp]: {
+        label: "Page Up",
+        symbols: { default: "PgUp", mac: "⇞" },
     },
     [Keys.Pause]: {
-        symbols: { mac: "⎉", default: "Pause" },
         label: "Pause/Break",
+        symbols: { default: "Pause", mac: "⎉" },
+    },
+    [Keys.PrintScreen]: {
+        label: "Print Screen",
+        symbols: { default: "PrtSc" },
+    },
+    [Keys.Shift]: {
+        label: "Shift",
+        symbols: { default: "Shift", mac: "⇧" },
+    },
+    [Keys.Space]: {
+        label: "Space",
+        symbols: { default: "␣" },
+    },
+    [Keys.Tab]: {
+        label: "Tab",
+        symbols: { default: "⭾", mac: "⇥" },
     },
 };
 
@@ -162,43 +164,42 @@ const ShortcutsContext = createContext<ShortcutsContextData>({
     os: "mac",
 });
 
-const useShortcutsContext = () => {
-    return useContext(ShortcutsContext);
-};
+const useShortcutsContext = () => use(ShortcutsContext);
 
-interface ShortcutsProviderProps {
+interface ShortcutsProviderProperties {
     children: ReactNode;
     keyMappings?: Record<
         string,
         {
+            label?: string;
             symbols?: {
+                default?: string;
                 mac?: string;
                 windows?: string;
-                default?: string;
             };
-            label?: string;
         }
     >;
     os?: ShortcutsContextData["os"];
 }
 
-export const ShortcutsProvider = ({ children, keyMappings = {}, os = detectOS() }: ShortcutsProviderProps) => {
+export const ShortcutsProvider = ({ children, keyMappings = {}, os = detectOS() }: ShortcutsProviderProperties) => {
     const keyMappingsWithDefaults = defaultsDeep({}, keyMappings, DEFAULT_KEY_MAPPINGS);
+
     return (
         <TooltipProvider>
-            <ShortcutsContext.Provider value={{ keyMappings: keyMappingsWithDefaults, os }}>{children}</ShortcutsContext.Provider>
+            <ShortcutsContext value={{ keyMappings: keyMappingsWithDefaults, os }}>{children}</ShortcutsContext>
         </TooltipProvider>
     );
 };
 
-interface KeySymbolProps extends HTMLProps<HTMLDivElement> {
-    keyName: string;
+interface KeySymbolProperties extends HTMLProps<HTMLDivElement> {
     disableTooltip?: boolean;
+    keyName: string;
 }
 
-export const KeySymbol = ({ keyName, disableTooltip = false, className, ...otherProps }: KeySymbolProps) => {
+export const KeySymbol = ({ className, disableTooltip = false, keyName, ...otherProperties }: KeySymbolProperties) => {
     const context = useShortcutsContext();
-    const keyMappings = context.keyMappings;
+    const { keyMappings } = context;
     const os = context.os || "default";
     const keyData = keyMappings[keyName];
     const symbol = keyData?.symbols?.[os] ?? keyData?.symbols?.default ?? keyName;
@@ -212,7 +213,7 @@ export const KeySymbol = ({ keyName, disableTooltip = false, className, ...other
                         "border-foreground/20 text-foreground/50 flex h-5 w-fit min-w-[1.25rem] items-center justify-center rounded-md border px-1 text-xs",
                         className,
                     )}
-                    {...otherProps}
+                    {...otherProperties}
                 >
                     <span>{symbol}</span>
                 </div>
@@ -222,30 +223,32 @@ export const KeySymbol = ({ keyName, disableTooltip = false, className, ...other
     );
 };
 
-interface KeyComboProps extends HTMLProps<HTMLDivElement> {
-    keyNames: string[];
+interface KeyComboProperties extends HTMLProps<HTMLDivElement> {
     disableTooltips?: boolean;
+    keyNames: string[];
 }
 
-export const KeyCombo = ({ keyNames, disableTooltips = false, className, ...otherProps }: KeyComboProps) => {
-    return (
-        <div className={cn("flex gap-1", className)} {...otherProps}>
-            {keyNames.map((keyName) => (
-                <KeySymbol key={keyName} keyName={keyName} disableTooltip={disableTooltips} />
-            ))}
-        </div>
-    );
-};
+export const KeyCombo = ({ className, disableTooltips = false, keyNames, ...otherProperties }: KeyComboProperties) => (
+    <div className={cn("flex gap-1", className)} {...otherProperties}>
+        {keyNames.map((keyName) => (
+            <KeySymbol disableTooltip={disableTooltips} key={keyName} keyName={keyName} />
+        ))}
+    </div>
+);
 
 // Simple utility to merge objects deeply (replaces lodash.defaultsdeep)
 function defaultsDeep(target: any, ...sources: any[]): any {
-    if (!sources.length) return target;
+    if (sources.length === 0)
+        return target;
+
     const source = sources.shift();
 
     if (isObject(target) && isObject(source)) {
         for (const key in source) {
             if (isObject(source[key])) {
-                if (!target[key]) Object.assign(target, { [key]: {} });
+                if (!target[key])
+                    Object.assign(target, { [key]: {} });
+
                 defaultsDeep(target[key], source[key]);
             } else {
                 Object.assign(target, { [key]: source[key] });
@@ -262,7 +265,10 @@ function isObject(item: any): boolean {
 
 // Utility to detect OS
 export function detectOS(): "mac" | "windows" {
-    if (typeof window === "undefined") return "mac"; // Default for SSR
-    const platform = window.navigator.platform.toLowerCase();
+    if (globalThis.window === undefined)
+        return "mac"; // Default for SSR
+
+    const platform = globalThis.navigator.platform.toLowerCase();
+
     return platform.includes("mac") ? "mac" : "windows";
 }

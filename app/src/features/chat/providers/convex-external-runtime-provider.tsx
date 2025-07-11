@@ -1,28 +1,29 @@
 "use client";
 
+import type { ExternalStoreAdapter, ThreadMessageLike } from "@assistant-ui/react";
 import {
     AssistantRuntimeProvider,
-    useExternalStoreRuntime,
-    type ExternalStoreAdapter,
-    type ThreadMessageLike,
     CompositeAttachmentAdapter,
+    useExternalStoreRuntime,
 } from "@assistant-ui/react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useConvex } from "convex/react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+
 import ConvexAttachmentAdapter from "@/features/chat/adapter/convex-attachment-adapter";
 import { useThreadContext } from "@/features/chat/components/thread-context";
-import type { ConvexExternalRuntimeProviderProps } from "./types";
-import { isValidThreadMessage } from "./types";
+import { providerLogger } from "@/lib/logger";
+
+import { useConvexThreadSyncer } from "../hooks/use-convex-thread-syncer";
 import { useMessageHandlers } from "../hooks/use-message-handlers";
 import { useThreadListAdapter } from "./thread-list-adapter";
-import { providerLogger } from "@/lib/logger";
-import { useConvexThreadSyncer } from "../hooks/use-convex-thread-syncer";
+import type { ConvexExternalRuntimeProviderProps as ConvexExternalRuntimeProviderProperties } from "./types";
+import { isValidThreadMessage } from "./types";
 
-export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtToken }: ConvexExternalRuntimeProviderProps) => {
+export const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threadId }: ConvexExternalRuntimeProviderProperties) => {
     const threadContext = useThreadContext();
     const convex = useConvex();
 
-    const { currentThreadId, setCurrentThreadId, threads, setThreads, setThreadMetadata } = threadContext;
+    const { currentThreadId, setCurrentThreadId, setThreadMetadata, setThreads, threads } = threadContext;
 
     useEffect(() => {
         if (threadId && threadId !== currentThreadId) {
@@ -31,14 +32,14 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
 
             if (!threads.has(threadId)) {
                 providerLogger.info("[Provider] Initializing new thread in context: %s", threadId);
-                setThreads((prev) => new Map(prev).set(threadId, []));
+                setThreads((previous) => new Map(previous).set(threadId, []));
 
-                setThreadMetadata((prev) =>
-                    new Map(prev).set(threadId, {
-                        title: "New Chat",
-                        status: "active",
+                setThreadMetadata((previous) =>
+                    new Map(previous).set(threadId, {
                         createdAt: new Date(),
                         lastActivity: new Date(),
+                        status: "active",
+                        title: "New Chat",
                     }),
                 );
             }
@@ -46,50 +47,57 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
     }, [threadId, currentThreadId, setCurrentThreadId, threads, setThreads, setThreadMetadata]);
 
     const {
-        handleNewMessage,
-        handleEditMessage,
-        handleReloadMessage,
         handleCancel,
+        handleEditMessage,
+        handleNewMessage,
+        handleReloadMessage,
         isRunning: streamIsRunning,
     } = useMessageHandlers({
-        model,
         jwtToken,
+        model,
     });
 
     const { convexThreads, messagesAreLoading } = useConvexThreadSyncer({
-        model,
         isRunning: streamIsRunning,
+        model,
     });
 
     const isRunning = streamIsRunning || messagesAreLoading;
 
     const currentMessages = useMemo(() => {
         const raw = threads.get(currentThreadId) || [];
+
         providerLogger.debug("[Provider] Selecting messages for UI. Raw count: %d", raw.length, { threadId: currentThreadId });
         const filtered = raw.filter((message) => {
             if (!isValidThreadMessage(message)) {
-                providerLogger.error("[Provider] Invalid message found in state, filtering out.", { threadId: currentThreadId, message });
+                providerLogger.error("[Provider] Invalid message found in state, filtering out.", { message, threadId: currentThreadId });
+
                 return false;
             }
+
             return true;
         });
-        providerLogger.debug("[Provider] Final filtered messages for UI. Count: %d", filtered.length, { threadId: currentThreadId, messages: filtered });
+
+        providerLogger.debug("[Provider] Final filtered messages for UI. Count: %d", filtered.length, { messages: filtered, threadId: currentThreadId });
+
         return filtered;
     }, [threads, currentThreadId]);
 
     const threadListAdapter = useThreadListAdapter({
-        model,
         currentThreadId,
+        model,
     });
 
-    const convexThreadsRef = useRef(convexThreads);
-    convexThreadsRef.current = convexThreads;
+    const convexThreadsReference = useRef(convexThreads);
+
+    convexThreadsReference.current = convexThreads;
 
     const wrappedHandleNewMessage = useCallback(
         (message: any) => {
             providerLogger.debug("[Provider] 'onNew' triggered. Passing to handleNewMessage.", { content: message.content?.[0]?.text || "unknown" });
+
             return handleNewMessage(message, {
-                results: convexThreadsRef.current,
+                results: convexThreadsReference.current,
             });
         },
         [handleNewMessage],
@@ -98,6 +106,7 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
     const setMessages = useCallback(
         (messages: ThreadMessageLike[]) => {
             const currentCount = threads.get(currentThreadId)?.length ?? 0;
+
             providerLogger.debug("[Provider] setMessages called. Current count: %d, New count: %d", currentCount, messages.length, {
                 threadId: currentThreadId,
             });
@@ -105,8 +114,10 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
             const validMessages = messages.filter((message) => {
                 if (!isValidThreadMessage(message)) {
                     providerLogger.warn("[Provider] Invalid message detected in setMessages, filtering out.", { message });
+
                     return false;
                 }
+
                 return true;
             });
 
@@ -116,38 +127,43 @@ export const ConvexExternalRuntimeProvider = ({ children, model, threadId, jwtTo
                 validMessages.length,
                 validMessages.map((m) => m.id).join(", "),
             );
-            setThreads((prev) => new Map(prev).set(currentThreadId, validMessages));
+            setThreads((previous) => new Map(previous).set(currentThreadId, validMessages));
         },
         [currentThreadId, setThreads],
     );
 
     const adapter: ExternalStoreAdapter<ThreadMessageLike> = useMemo(
-        () => ({
-            messages: currentMessages,
-            isRunning,
-            convertMessage: (message: ThreadMessageLike) => message,
-            onNew: wrappedHandleNewMessage,
-            onEdit: async (msg) => {
-                providerLogger.debug("[Provider] 'onEdit' triggered.");
-                return handleEditMessage(msg);
-            },
-            onReload: async (id) => {
-                providerLogger.debug("[Provider] 'onReload' triggered.");
-                return handleReloadMessage(id);
-            },
-            onCancel: async () => {
-                providerLogger.debug("[Provider] 'onCancel' triggered.");
-                return handleCancel();
-            },
-            setMessages,
-            adapters: {
-                attachments: new CompositeAttachmentAdapter([new ConvexAttachmentAdapter(convex)]),
-                threadList: threadListAdapter,
-            },
-            unstable_capabilities: {
-                copy: true,
-            },
-        }),
+        () => {
+            return {
+                adapters: {
+                    attachments: new CompositeAttachmentAdapter([new ConvexAttachmentAdapter(convex)]),
+                    threadList: threadListAdapter,
+                },
+                convertMessage: (message: ThreadMessageLike) => message,
+                isRunning,
+                messages: currentMessages,
+                onCancel: async () => {
+                    providerLogger.debug("[Provider] 'onCancel' triggered.");
+
+                    return handleCancel();
+                },
+                onEdit: async (message) => {
+                    providerLogger.debug("[Provider] 'onEdit' triggered.");
+
+                    return handleEditMessage(message);
+                },
+                onNew: wrappedHandleNewMessage,
+                onReload: async (id) => {
+                    providerLogger.debug("[Provider] 'onReload' triggered.");
+
+                    return handleReloadMessage(id);
+                },
+                setMessages,
+                unstable_capabilities: {
+                    copy: true,
+                },
+            };
+        },
         [currentMessages, isRunning, wrappedHandleNewMessage, handleEditMessage, handleReloadMessage, handleCancel, setMessages, threadListAdapter, convex],
     );
 

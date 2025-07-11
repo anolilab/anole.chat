@@ -1,29 +1,33 @@
 "use client";
 
-import { type ComponentProps, useState } from "react";
 import { t } from "@lingui/core/macro";
+import type { ComponentProps } from "react";
+import { useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+
 import type { SettingsCardClassNames } from "./settings-card";
 
-interface SessionFreshnessDialogProps extends ComponentProps<typeof Dialog> {
+interface SessionFreshnessDialogProperties extends ComponentProps<typeof Dialog> {
     classNames?: SettingsCardClassNames;
 
     onVerified?: () => void;
 }
 
-export function SessionFreshnessDialog({ classNames, onVerified, onOpenChange, ...props }: SessionFreshnessDialogProps) {
+export const SessionFreshnessDialog = ({ classNames, onOpenChange, onVerified, ...properties }: SessionFreshnessDialogProperties) => {
     const [password, setPassword] = useState("");
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!password.trim()) return;
+
+        if (!password.trim())
+            return;
 
         setIsPending(true);
         setError("");
@@ -36,7 +40,7 @@ export function SessionFreshnessDialog({ classNames, onVerified, onOpenChange, .
             onVerified?.();
             onOpenChange?.(false);
             setPassword("");
-        } catch (err) {
+        } catch {
             setError(t`Invalid password. Please try again.`);
         } finally {
             setIsPending(false);
@@ -44,8 +48,8 @@ export function SessionFreshnessDialog({ classNames, onVerified, onOpenChange, .
     };
 
     return (
-        <Dialog onOpenChange={onOpenChange} {...props}>
-            <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className={classNames?.dialog?.content}>
+        <Dialog onOpenChange={onOpenChange} {...properties}>
+            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => e.preventDefault()}>
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Verify Your Identity`}</DialogTitle>
 
@@ -54,33 +58,33 @@ export function SessionFreshnessDialog({ classNames, onVerified, onOpenChange, .
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                     <div className="space-y-2">
                         <Label htmlFor="verification-password">{t`Current Password`}</Label>
                         <Input
+                            autoFocus
                             id="verification-password"
-                            type="password"
-                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder={t`Enter your current password`}
                             required
-                            autoFocus
+                            type="password"
+                            value={password}
                         />
                         {error && <p className="text-destructive text-sm">{error}</p>}
                     </div>
 
                     <DialogFooter className={classNames?.dialog?.footer}>
                         <Button
+                            className={cn(classNames?.button, classNames?.outlineButton)}
+                            disabled={isPending}
+                            onClick={() => onOpenChange?.(false)}
                             type="button"
                             variant="outline"
-                            onClick={() => onOpenChange?.(false)}
-                            disabled={isPending}
-                            className={cn(classNames?.button, classNames?.outlineButton)}
                         >
                             {t`Cancel`}
                         </Button>
 
-                        <Button type="submit" disabled={!password.trim() || isPending} className={cn(classNames?.button, classNames?.primaryButton)}>
+                        <Button className={cn(classNames?.button, classNames?.primaryButton)} disabled={!password.trim() || isPending} type="submit">
                             {isPending ? t`Verifying...` : t`Verify`}
                         </Button>
                     </DialogFooter>
@@ -88,4 +92,4 @@ export function SessionFreshnessDialog({ classNames, onVerified, onOpenChange, .
             </DialogContent>
         </Dialog>
     );
-}
+};

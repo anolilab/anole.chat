@@ -16,6 +16,7 @@ export function useFont() {
         if (storedMainFont) {
             setMainFont(storedMainFont);
         }
+
         if (storedCodeFont) {
             setCodeFont(storedCodeFont);
         }
@@ -23,51 +24,66 @@ export function useFont() {
 
     useEffect(() => {
         document.body.classList.remove("font-sans", "font-serif", "font-mono", "font-roboto-slab");
+
         switch (mainFont) {
-            case "system":
-                document.body.classList.add("font-sans");
-                break;
-            case "serif":
-                document.body.classList.add("font-serif");
-                break;
-            case "mono":
+            case "mono": {
                 document.body.classList.add("font-mono");
                 break;
-            case "roboto-slab":
+            }
+            case "roboto-slab": {
                 document.body.classList.add("font-roboto-slab");
                 break;
-            default:
+            }
+            case "serif": {
+                document.body.classList.add("font-serif");
+                break;
+            }
+            case "system": {
                 document.body.classList.add("font-sans");
+                break;
+            }
+            default: {
+                document.body.classList.add("font-sans");
+            }
         }
+
         localStorage.setItem("mainFont", mainFont);
     }, [mainFont]);
 
     useEffect(() => {
         const codeElements = document.querySelectorAll("code, pre, kbd");
-        codeElements.forEach((el) => {
-            el.classList.remove("font-fira-code", "font-mono", "font-consolas", "font-jetbrains", "font-source-code-pro");
+
+        codeElements.forEach((element) => {
+            element.classList.remove("font-fira-code", "font-mono", "font-consolas", "font-jetbrains", "font-source-code-pro");
+
             switch (codeFont) {
-                case "fira-code":
-                    el.classList.add("font-fira-code");
+                case "consolas": {
+                    element.classList.add("font-consolas");
                     break;
-                case "mono":
-                    el.classList.add("font-mono");
+                }
+                case "fira-code": {
+                    element.classList.add("font-fira-code");
                     break;
-                case "consolas":
-                    el.classList.add("font-consolas");
+                }
+                case "jetbrains": {
+                    element.classList.add("font-jetbrains");
                     break;
-                case "jetbrains":
-                    el.classList.add("font-jetbrains");
+                }
+                case "mono": {
+                    element.classList.add("font-mono");
                     break;
-                case "source-code-pro":
-                    el.classList.add("font-source-code-pro");
+                }
+                case "source-code-pro": {
+                    element.classList.add("font-source-code-pro");
                     break;
-                default:
-                    el.classList.add("font-fira-code");
+                }
+                default: {
+                    element.classList.add("font-fira-code");
+                }
             }
         });
         localStorage.setItem("codeFont", codeFont);
     }, [codeFont]);
 
-    return { mainFont, setMainFont, codeFont, setCodeFont };
+    return { codeFont, mainFont, setCodeFont, setMainFont };
 }

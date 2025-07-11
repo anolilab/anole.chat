@@ -1,56 +1,18 @@
+import { lingui } from "@lingui/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { defineConfig, loadEnv } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
-import { lingui } from "@lingui/vite-plugin";
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd());
+    const environment = loadEnv(mode, process.cwd());
 
     return {
-        test: {
-            environment: "browser",
-            setupFiles: ["./vitest.setup.ts"],
-            browser: {
-                enabled: true,
-                name: "chromium", // or 'firefox', 'webkit'
-            },
+        define: {
+            global: "globalThis",
         },
         optimizeDeps: {
             exclude: ["scripts/*"],
-        },
-        resolve: {
-            alias: {
-                // Fix for @convex-dev/resend missing .js extension
-                "@convex-dev/resend/dist/esm/component/shared": "@convex-dev/resend/dist/esm/component/shared.js",
-            },
-        },
-        ssr: {
-            noExternal: ["@convex-dev/resend"],
-        },
-        server: {
-            routeRules: {
-                "/pr/posthog/**": { proxy: { to: "https://eu.i.posthog.com/**" } },
-            },
-            proxy: {
-                "/convex-http": {
-                    target: env.VITE_CONVEX_SITE_URL,
-                    changeOrigin: true,
-                    secure: false,
-                    rewrite: (path) => path.replace(/^\/convex-http/, ""),
-                    configure: (proxy, _options) => {
-                        proxy.on("error", (err, _req, _res) => {
-                            console.log("proxy error", err);
-                        });
-                        proxy.on("proxyReq", (_, req, _res) => {
-                            console.log("Sending Request to the Target:", req.method, req.url);
-                        });
-                        proxy.on("proxyRes", (proxyRes, req, _res) => {
-                            console.log("Received Response from the Target:", proxyRes.statusCode, req.url);
-                        });
-                    },
-                },
-            },
         },
         plugins: [
             lingui(),
@@ -59,18 +21,56 @@ export default defineConfig(({ mode }) => {
             }),
             tailwindcss(),
             tanstackStart({
-                tsr: {
-                    routeToken: "layout",
-                },
                 react: {
                     babel: {
                         plugins: [["babel-plugin-react-compiler", { target: "19" }], "@lingui/babel-plugin-lingui-macro"],
                     },
                 },
+                tsr: {
+                    routeToken: "layout",
+                },
             }),
         ],
-        define: {
-            global: "globalThis",
+        resolve: {
+            alias: {
+                // Fix for @convex-dev/resend missing .js extension
+                "@convex-dev/resend/dist/esm/component/shared": "@convex-dev/resend/dist/esm/component/shared.js",
+            },
+        },
+        server: {
+            proxy: {
+                "/convex-http": {
+                    changeOrigin: true,
+                    configure: (proxy, _options) => {
+                        proxy.on("error", (error, _request, _res) => {
+                            console.log("proxy error", error);
+                        });
+                        proxy.on("proxyReq", (_, request, _res) => {
+                            console.log("Sending Request to the Target:", request.method, request.url);
+                        });
+                        proxy.on("proxyRes", (proxyRes, request, _res) => {
+                            console.log("Received Response from the Target:", proxyRes.statusCode, request.url);
+                        });
+                    },
+                    rewrite: (path) => path.replace(/^\/convex-http/, ""),
+                    secure: false,
+                    target: environment.VITE_CONVEX_SITE_URL,
+                },
+            },
+            routeRules: {
+                "/pr/posthog/**": { proxy: { to: "https://eu.i.posthog.com/**" } },
+            },
+        },
+        ssr: {
+            noExternal: ["@convex-dev/resend"],
+        },
+        test: {
+            browser: {
+                enabled: true,
+                name: "chromium", // or 'firefox', 'webkit'
+            },
+            environment: "browser",
+            setupFiles: ["./vitest.setup.ts"],
         },
     };
 });

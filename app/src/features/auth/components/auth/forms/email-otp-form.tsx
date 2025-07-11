@@ -1,53 +1,54 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
-import { z } from "zod/v4";
 import { t } from "@lingui/core/macro";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { z } from "zod/v4";
 
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { InputOTP } from "@/components/ui/input-otp";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import { useIsHydrated } from "../../../../../hooks/use-hydrated";
+import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import type { AuthFormClassNames } from "../auth-form";
 import { OTPInputGroup } from "../otp-input-group";
 
-export interface EmailOTPFormProps {
+export interface EmailOTPFormProperties {
+    callbackURL?: string;
     className?: string;
     classNames?: AuthFormClassNames;
-    callbackURL?: string;
     isSubmitting?: boolean;
     otpSeparators?: 0 | 1 | 2;
     redirectTo?: string;
     setIsSubmitting?: (value: boolean) => void;
 }
 
-export function EmailOTPForm(props: EmailOTPFormProps) {
+export const EmailOTPForm = (properties: EmailOTPFormProperties) => {
     const [email, setEmail] = useState<string | undefined>();
 
     if (!email) {
-        return <EmailForm {...props} setEmail={setEmail} />;
+        return <EmailForm {...properties} setEmail={setEmail} />;
     }
 
-    return <OTPForm {...props} email={email} />;
-}
+    return <OTPForm {...properties} email={email} />;
+};
 
-function EmailForm({
+const EmailForm = ({
     className,
     classNames,
     isSubmitting,
-    setIsSubmitting,
     setEmail,
-}: EmailOTPFormProps & {
+    setIsSubmitting,
+}: EmailOTPFormProperties & {
     setEmail: (email: string) => void;
-}) {
+}) => {
     const isHydrated = useIsHydrated();
 
-    const { authClient, toast } = useContext(AuthUIContext);
+    const { authClient, toast } = useAuth();
 
     const formSchema = z.object({
         email: z
@@ -58,116 +59,119 @@ function EmailForm({
             .email({
                 message: t`Email is invalid`,
             }),
-    });
+    }).strict();
 
     const form = useAppForm({
         defaultValues: {
             email: "",
         },
-        validators: {
-            onChange: ({ value }) => {
-                const result = formSchema.safeParse(value);
-                if (!result.success) {
-                    return result.error.flatten().fieldErrors;
-                }
-                return undefined;
-            },
-        },
         onSubmit: async ({ value }) => {
             try {
                 await authClient.emailOtp.sendVerificationOtp({
                     email: value.email,
-                    type: "sign-in",
                     fetchOptions: { throw: true },
+                    type: "sign-in",
                 });
 
                 toast({
-                    variant: "success",
                     message: t`Verification code sent to your email`,
+                    variant: "success",
                 });
 
                 setEmail(value.email);
-            } catch (error) {
+            } catch {
                 toast({
-                    variant: "error",
                     message: t`Failed to send verification code`,
+                    variant: "error",
                 });
             }
+        },
+        validators: {
+            onChange: ({ value }) => {
+                const result = formSchema.safeParse(value);
+
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors;
+                }
+
+                return undefined;
+            },
         },
     });
 
     useEffect(() => {
         form.Subscribe({
-            selector: (state) => state.isSubmitting,
             children: (isFormSubmitting) => {
                 setIsSubmitting?.(isFormSubmitting);
+
                 return null;
             },
+            selector: (state) => state.isSubmitting,
         });
     }, [setIsSubmitting]);
 
     return (
         <form.AppForm>
             <form
+                className={cn("grid w-full gap-6", className, classNames?.base)}
+                noValidate={isHydrated}
                 onSubmit={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     form.handleSubmit();
                 }}
-                noValidate={isHydrated}
-                className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 <form.AppField
-                    name="email"
                     children={(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
-                                    className={classNames?.input}
-                                    type="email"
                                     autoComplete="email"
-                                    placeholder={t`Enter your email address`}
-                                    value={field.state.value}
+                                    className={classNames?.input}
+                                    disabled={isSubmitting}
                                     onBlur={field.handleBlur}
                                     onChange={(e) => field.handleChange(e.target.value)}
-                                    disabled={isSubmitting}
+                                    placeholder={t`Enter your email address`}
+                                    type="email"
+                                    value={field.state.value}
                                 />
                             </field.FormControl>
 
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
+                    name="email"
                 />
 
                 <form.Subscribe
-                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                     children={([canSubmit, isFormSubmitting]) => (
-                        <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn("w-full", classNames?.button, classNames?.primaryButton)}>
+                        <Button className={cn("w-full", classNames?.button, classNames?.primaryButton)} disabled={!canSubmit || isSubmitting} type="submit">
                             {isFormSubmitting || isSubmitting ? <Loader2 className="animate-spin" /> : t`Send Verification Code`}
                         </Button>
                     )}
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
                 />
             </form>
         </form.AppForm>
     );
-}
+};
 
-export function OTPForm({
+export const OTPForm = ({
     className,
     classNames,
+    email,
     isSubmitting,
     otpSeparators = 0,
     redirectTo,
     setIsSubmitting,
-    email,
-}: EmailOTPFormProps & {
+}: EmailOTPFormProperties & {
     email: string;
-}) {
-    const { authClient, toast } = useContext(AuthUIContext);
+}) => {
+    const { authClient, toast } = useAuth();
 
-    const { onSuccess, isPending: transitionPending } = useOnSuccessTransition({
+    const { isPending: transitionPending, onSuccess } = useOnSuccessTransition({
         redirectTo,
     });
 
@@ -180,70 +184,74 @@ export function OTPForm({
             .min(6, {
                 message: t`Verification code is invalid`,
             }),
-    });
+    }).strict();
 
     const form = useAppForm({
         defaultValues: {
             code: "",
         },
-        validators: {
-            onChange: ({ value }: { value: { code: string } }) => {
-                const result = formSchema.safeParse(value);
-                if (!result.success) {
-                    return result.error.flatten().fieldErrors;
-                }
-                return undefined;
-            },
-        },
         onSubmit: async ({ value }: { value: { code: string } }) => {
             try {
                 await authClient.signIn.emailOtp({
                     email,
-                    otp: value.code,
                     fetchOptions: { throw: true },
+                    otp: value.code,
                 });
 
                 await onSuccess();
-            } catch (error) {
+            } catch {
                 toast({
-                    variant: "error",
                     message: t`Invalid verification code`,
+                    variant: "error",
                 });
 
                 form.reset();
             }
         },
+        validators: {
+            onChange: ({ value }: { value: { code: string } }) => {
+                const result = formSchema.safeParse(value);
+
+                if (!result.success) {
+                    return result.error.flatten().fieldErrors;
+                }
+
+                return undefined;
+            },
+        },
     });
 
     useEffect(() => {
         form.Subscribe({
-            selector: (state) => [state.isSubmitting, transitionPending],
             children: ([isFormSubmitting, isPending]) => {
                 setIsSubmitting?.(isFormSubmitting || isPending);
+
                 return null;
             },
+            selector: (state) => [state.isSubmitting, transitionPending],
         });
     }, [setIsSubmitting, transitionPending]);
 
     return (
         <form.AppForm>
             <form
+                className={cn("grid w-full gap-6", className, classNames?.base)}
                 onSubmit={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     form.handleSubmit();
                 }}
-                className={cn("grid w-full gap-6", className, classNames?.base)}
             >
                 <form.AppField
-                    name="code"
                     children={(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Verification Code`}</field.FormLabel>
 
                             <field.FormControl>
                                 <InputOTP
-                                    value={field.state.value}
+                                    className={classNames?.otpInput}
+                                    containerClassName={classNames?.otpInputContainer}
+                                    disabled={isSubmitting}
                                     maxLength={6}
                                     onChange={(value) => {
                                         field.handleChange(value);
@@ -252,9 +260,7 @@ export function OTPForm({
                                             form.handleSubmit();
                                         }
                                     }}
-                                    containerClassName={classNames?.otpInputContainer}
-                                    className={classNames?.otpInput}
-                                    disabled={isSubmitting}
+                                    value={field.state.value}
                                 >
                                     <OTPInputGroup otpSeparators={otpSeparators} />
                                 </InputOTP>
@@ -263,20 +269,21 @@ export function OTPForm({
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
+                    name="code"
                 />
 
                 <div className="grid gap-4">
                     <form.Subscribe
-                        selector={(state) => [state.canSubmit, state.isSubmitting]}
                         children={([canSubmit, isFormSubmitting]) => (
-                            <Button type="submit" disabled={!canSubmit || isSubmitting} className={cn(classNames?.button, classNames?.primaryButton)}>
+                            <Button className={cn(classNames?.button, classNames?.primaryButton)} disabled={!canSubmit || isSubmitting} type="submit">
                                 {(isFormSubmitting || isSubmitting) && <Loader2 className="animate-spin" />}
                                 {t`Verify Code`}
                             </Button>
                         )}
+                        selector={(state) => [state.canSubmit, state.isSubmitting]}
                     />
                 </div>
             </form>
         </form.AppForm>
     );
-}
+};

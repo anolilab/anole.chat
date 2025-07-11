@@ -7,19 +7,19 @@ export interface EmailTemplateClassNames {
     body?: string;
     button?: string;
     container?: string;
-    image?: string;
     content?: string;
     footer?: string;
     heading?: string;
     hr?: string;
+    image?: string;
     link?: string;
 }
 
-export interface EmailTemplateProps {
-    classNames?: EmailTemplateClassNames;
+export interface EmailTemplateProperties {
     action?: string;
     /** @default process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL */
     baseUrl?: string;
+    classNames?: EmailTemplateClassNames;
     content: ReactNode;
     heading: ReactNode;
     /** @default `${baseUrl}/apple-touch-icon.png` */
@@ -32,7 +32,7 @@ export interface EmailTemplateProps {
     variant?: "vercel";
 }
 
-export const EmailTemplate = ({ classNames, action, baseUrl, content, heading, imageUrl, preview, siteName, variant = "vercel", url }: EmailTemplateProps) => {
+export const EmailTemplate = ({ action, baseUrl, classNames, content, heading, imageUrl, preview, siteName, url, variant = "vercel" }: EmailTemplateProperties) => {
     baseUrl = baseUrl || process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
     imageUrl = imageUrl || `${baseUrl}/apple-touch-icon.png`;
     siteName = siteName || process.env.SITE_NAME || process.env.NEXT_PUBLIC_SITE_NAME;
@@ -124,7 +124,12 @@ export const EmailTemplate = ({ classNames, action, baseUrl, content, heading, i
                         <Hr className={cn("border-color mx-0 my-[26px] w-full border border-solid", classNames?.hr)} />
 
                         <Text className={cn("text-[12px] leading-[24px] text-[#666666]", classNames?.footer)}>
-                            {siteName && <>{siteName} </>}
+                            {siteName && (
+                                <>
+                                    {siteName}
+                                    {" "}
+                                </>
+                            )}
 
                             {baseUrl && (
                                 <Link className={cn("no-underline", classNames?.link)} href={baseUrl}>

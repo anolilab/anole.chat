@@ -228,7 +228,7 @@ const { mutate: unlinkAccount } = useUnlinkAccount(authClient);
 ### Session Management
 
 ```typescript
-import { useSession, useListSessions, useRevokeSession } from "@/features/auth/hooks/session-management";
+import { useListSessions, useRevokeSession, useSession } from "@/features/auth/hooks/session-management";
 
 const { data: session } = useSession(authClient);
 const { data: sessions } = useListSessions(authClient);
@@ -238,7 +238,7 @@ const { mutate: revokeSession } = useRevokeSession(authClient);
 ### Organization Management
 
 ```typescript
-import { useActiveOrganization, useListOrganizations, useHasPermission } from "@/features/auth/hooks/organization-management";
+import { useActiveOrganization, useHasPermission, useListOrganizations } from "@/features/auth/hooks/organization-management";
 
 const { data: organization } = useActiveOrganization(authClient);
 const { data: hasPermission } = useHasPermission(authClient, {
@@ -350,13 +350,13 @@ import { useAuthMutation } from "@/features/auth/hooks/shared/use-auth-mutation"
 
 const signIn = useAuthMutation({
     mutationFn: authClient.signIn.email,
-    onSuccess: (data) => {
-        // Handle successful sign in
-        router.navigate({ to: "/dashboard" });
-    },
     onError: (error) => {
         // Handle error
         toast.error(error.message);
+    },
+    onSuccess: (data) => {
+        // Handle successful sign in
+        router.navigate({ to: "/dashboard" });
     },
 });
 
@@ -422,7 +422,7 @@ const ProtectedComponent = () => {
 All types are available with full TypeScript support:
 
 ```typescript
-import type { AuthClient, SessionData, Organization } from "@/features/auth/types";
+import type { AuthClient, Organization, SessionData } from "@/features/auth/types";
 ```
 
 ## 🚀 Performance

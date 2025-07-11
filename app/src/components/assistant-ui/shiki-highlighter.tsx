@@ -1,20 +1,21 @@
 "use client";
 
+import type { SyntaxHighlighterProps as AUIProperties } from "@assistant-ui/react-markdown";
 import type { FC } from "react";
-import { useState, useEffect } from "react";
-import ShikiHighlighter, { type ShikiHighlighterProps } from "react-shiki/core";
-import { createHighlighterCore, createOnigurumaEngine } from "react-shiki/core";
-import type { SyntaxHighlighterProps as AUIProps } from "@assistant-ui/react-markdown";
+import { useEffect, useState } from "react";
+import type { ShikiHighlighterProps } from "react-shiki/core";
+import ShikiHighlighter, { createHighlighterCore, createOnigurumaEngine } from "react-shiki/core";
 import type { HighlighterCore } from "shiki/core";
+
 import { cn } from "@/lib/utils";
 
 /**
  * Props for the SyntaxHighlighter component
  */
-export type HighlighterProps = Omit<ShikiHighlighterProps, "children" | "theme" | "highlighter"> & Pick<AUIProps, "node" | "components" | "language" | "code">;
+export type HighlighterProps = Omit<ShikiHighlighterProps, "children" | "theme" | "highlighter"> & Pick<AUIProperties, "node" | "components" | "language" | "code">;
 
 const highlighterPromise = createHighlighterCore({
-    themes: [import("@shikijs/themes/min-light"), import("@shikijs/themes/poimandres")],
+    engine: createOnigurumaEngine(import("shiki/wasm")),
     langs: [
         // Web Development
         import("@shikijs/langs/javascript"),
@@ -175,13 +176,12 @@ const highlighterPromise = createHighlighterCore({
         import("@shikijs/langs/http"),
         import("@shikijs/langs/protobuf"),
     ],
-    engine: createOnigurumaEngine(import("shiki/wasm")),
+    themes: [import("@shikijs/themes/min-light"), import("@shikijs/themes/poimandres")],
 });
 
 /**
  * SyntaxHighlighter component, using react-shiki with custom highlighter
  * Use it by passing to `defaultComponents` in `markdown-text.tsx`
- *
  * @example
  * const defaultComponents = memoizeMarkdownComponents({
  *   SyntaxHighlighter,
@@ -190,14 +190,14 @@ const highlighterPromise = createHighlighterCore({
  * });
  */
 export const SyntaxHighlighter: FC<HighlighterProps> = ({
-    code,
-    language,
-    className,
     addDefaultStyles = false, // assistant-ui requires custom base styles
-    showLanguage = false, // assistant-ui/react-markdown handles language labels
-    node: _node,
+    className,
+    code,
     components: _components,
-    ...props
+    language,
+    node: _node,
+    showLanguage = false, // assistant-ui/react-markdown handles language labels
+    ...properties
 }) => {
     const [highlighter, setHighlighter] = useState<HighlighterCore | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -214,6 +214,7 @@ export const SyntaxHighlighter: FC<HighlighterProps> = ({
             })
             .catch((error) => {
                 console.error("Failed to create highlighter:", error);
+
                 if (isMounted) {
                     setIsLoading(false);
                 }
@@ -226,8 +227,8 @@ export const SyntaxHighlighter: FC<HighlighterProps> = ({
 
     // Use dual theme setup for light/dark mode
     const shikiTheme = {
-        light: "min-light",
         dark: "poimandres",
+        light: "min-light",
     };
 
     // Dynamic base styles that adapt to theme
@@ -248,13 +249,13 @@ export const SyntaxHighlighter: FC<HighlighterProps> = ({
 
     return (
         <ShikiHighlighter
-            {...props}
+            {...properties}
+            addDefaultStyles={addDefaultStyles}
+            className={cn(BASE_STYLES, className)}
             highlighter={highlighter}
             language={language}
-            theme={shikiTheme}
-            addDefaultStyles={addDefaultStyles}
             showLanguage={showLanguage}
-            className={cn(BASE_STYLES, className)}
+            theme={shikiTheme}
         >
             {code}
         </ShikiHighlighter>

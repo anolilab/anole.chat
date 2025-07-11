@@ -1,5 +1,6 @@
-import { APIKeysCard } from "@/features/auth/components/settings/api-key/api-keys-card";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+
+import { APIKeysCard } from "@/features/auth/components/settings/api-key/api-keys-card";
 
 export const Route = createFileRoute("/dashboard/settings/api-keys")({
     beforeLoad: ({ context }) => {
@@ -10,6 +11,4 @@ export const Route = createFileRoute("/dashboard/settings/api-keys")({
     component: RouteComponent,
 });
 
-function RouteComponent() {
-    return <APIKeysCard />;
-}
+const RouteComponent = () => <APIKeysCard />;

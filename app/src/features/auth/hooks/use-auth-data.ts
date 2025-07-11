@@ -1,25 +1,27 @@
 import { useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+
 import { authDataCache } from "../lib/auth-data-cache";
-import { AuthUIContext } from "../lib/auth-ui-provider";
 import { getLocalizedError } from "../lib/utils";
 import type { FetchError } from "../types/data-structure-types";
 
 export function useAuthData<T>({
-    queryFn,
     cacheKey,
-    staleTime = 10000, // Default 10 seconds
+    queryFn,
+    staleTime = 10_000, // Default 10 seconds
 }: {
-    queryFn: () => Promise<{ data: T | null; error?: FetchError | null }>;
     cacheKey?: string;
+    queryFn: () => Promise<{ data: T | null; error?: FetchError | null }>;
     staleTime?: number;
 }) {
-    const { authClient, toast } = useContext(AuthUIContext);
+    const { authClient, toast } = useAuth();
     const { data: sessionData, isPending: sessionPending } = authClient.useSession();
 
     // Generate a stable cache key based on the queryFn if not provided
-    const queryFnRef = useRef(queryFn);
-    queryFnRef.current = queryFn;
+    const queryFunctionReference = useRef(queryFn);
+
+    queryFunctionReference.current = queryFn;
 
     const stableCacheKey = cacheKey || queryFn.toString();
 
@@ -40,18 +42,21 @@ export function useAuthData<T>({
             data: T | null;
             error?: FetchError | null;
         }>(stableCacheKey);
+
         if (existingRequest) {
             // Wait for the existing request to complete
             try {
                 const result = await existingRequest;
+
                 if (result.error) {
                     setError(result.error);
                 } else {
                     setError(null);
                 }
-            } catch (err) {
-                setError(err as FetchError);
+            } catch (error_) {
+                setError(error_ as FetchError);
             }
+
             return;
         }
 
@@ -61,7 +66,7 @@ export function useAuthData<T>({
         }
 
         // Create the fetch promise
-        const fetchPromise = queryFnRef.current();
+        const fetchPromise = queryFunctionReference.current();
 
         // Store the promise as in-flight
         authDataCache.setInFlightRequest(stableCacheKey, fetchPromise);
@@ -72,8 +77,8 @@ export function useAuthData<T>({
             if (error) {
                 setError(error);
                 toast({
-                    variant: "error",
                     message: getLocalizedError({ error }),
+                    variant: "error",
                 });
             } else {
                 setError(null);
@@ -81,12 +86,13 @@ export function useAuthData<T>({
 
             // Update cache with new data
             authDataCache.set(stableCacheKey, data);
-        } catch (err) {
-            const error = err as FetchError;
+        } catch (error_) {
+            const error = error_ as FetchError;
+
             setError(error);
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         } finally {
             authDataCache.setRefetching(stableCacheKey, false);
@@ -103,6 +109,7 @@ export function useAuthData<T>({
             authDataCache.clear(stableCacheKey);
             initialized.current = false;
             previousUserId.current = undefined;
+
             return;
         }
 
@@ -120,12 +127,10 @@ export function useAuthData<T>({
         // Check if data is stale
         const isStale = !cacheEntry || Date.now() - cacheEntry.timestamp > staleTime;
 
-        if (!initialized.current || !hasCachedData || userIdChanged || (hasCachedData && isStale)) {
-            // Only fetch if we don't have data or if the data is stale
-            if (!hasCachedData || isStale) {
-                initialized.current = true;
-                refetch();
-            }
+        if ((!initialized.current || !hasCachedData || userIdChanged || (hasCachedData && isStale)) // Only fetch if we don't have data or if the data is stale
+            && (!hasCachedData || isStale)) {
+            initialized.current = true;
+            refetch();
         }
 
         // Update the previous user ID
@@ -140,9 +145,9 @@ export function useAuthData<T>({
 
     return {
         data: cacheEntry?.data ?? null,
+        error,
         isPending,
         isRefetching: cacheEntry?.isRefetching ?? false,
-        error,
         refetch,
     };
 }

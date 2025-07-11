@@ -1,15 +1,17 @@
-import { useState, useCallback, useEffect, type FC, useRef } from "react";
-import { Sparkles, Loader2, AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { ThreadPrimitive, useComposer, useComposerRuntime } from "@assistant-ui/react";
+import { AlertCircle, Loader2, Sparkles, Wifi, WifiOff } from "lucide-react";
+import type { FC } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { ErrorFactory, ErrorUtils, RateLimitError, ValidationError, NetworkError, ContentError } from "@/lib/errors";
-import { promptToast } from "@/lib/toast";
 import { PromptImprovementErrorBoundary } from "@/components/error-boundaries/prompt-improvement-error-boundary";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ContentError, ErrorFactory, ErrorUtils, NetworkError, RateLimitError, ValidationError } from "@/lib/errors";
+import { promptToast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 const usePromptImprovement = (threadId: string) => {
     const [isImproving, setIsImproving] = useState(false);
@@ -22,7 +24,7 @@ const usePromptImprovement = (threadId: string) => {
                 throw new ValidationError("Prompt cannot be empty", "prompt");
             }
 
-            if (prompt.trim().length > 10000) {
+            if (prompt.trim().length > 10_000) {
                 throw new ContentError("Prompt is too long. Please keep it under 10,000 characters.", "prompt");
             }
 
@@ -32,18 +34,18 @@ const usePromptImprovement = (threadId: string) => {
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 30_000); // 30 second timeout
 
                 const response = await fetch("/convex-http/chat/improve-prompt", {
-                    method: "POST",
+                    body: JSON.stringify({
+                        improvementInstructions: improvementInstructions?.trim() || undefined,
+                        prompt: prompt.trim(),
+                        threadId,
+                    }),
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        prompt: prompt.trim(),
-                        threadId,
-                        improvementInstructions: improvementInstructions?.trim() || undefined,
-                    }),
+                    method: "POST",
                     signal: controller.signal,
                 });
 
@@ -52,12 +54,14 @@ const usePromptImprovement = (threadId: string) => {
                 if (!response.ok) {
                     // Handle different HTTP status codes
                     if (response.status === 429) {
-                        const errorData = await response.json().catch(() => ({}));
-                        const retryAfter = errorData.retryAfter || 60000;
+                        const errorData = await response.json().catch(() => { return {}; });
+                        const retryAfter = errorData.retryAfter || 60_000;
+
                         throw new RateLimitError(errorData.message || "Rate limit exceeded. Please try again later.", retryAfter);
                     }
 
-                    const errorData = await response.json().catch(() => ({}));
+                    const errorData = await response.json().catch(() => { return {}; });
+
                     throw ErrorFactory.fromResponse(response, errorData.error);
                 }
 
@@ -69,6 +73,7 @@ const usePromptImprovement = (threadId: string) => {
 
                 promptToast.improved("prompt-improvement");
                 setRetryCount(0); // Reset retry count on success
+
                 return data.improvedPrompt;
             } catch (error: any) {
                 promptToast.failed(error, undefined, "prompt-improvement");
@@ -127,6 +132,7 @@ const usePromptImprovement = (threadId: string) => {
 
                     // Wait before retrying with exponential backoff
                     const delay = ErrorUtils.getRetryDelay(error, attempt);
+
                     await new Promise((resolve) => setTimeout(resolve, delay));
                     setRetryCount(attempt);
                 }
@@ -144,13 +150,13 @@ const usePromptImprovement = (threadId: string) => {
     };
 };
 
-interface PromptImprovementButtonProps {
-    onImprove: () => void;
-    isImproving: boolean;
+interface PromptImprovementButtonProperties {
     isDisabled: boolean;
+    isImproving: boolean;
+    onImprove: () => void;
 }
 
-export const PromptImprovementButton: FC<PromptImprovementButtonProps> = ({ onImprove, isImproving, isDisabled }) => {
+export const PromptImprovementButton: FC<PromptImprovementButtonProperties> = ({ isDisabled, isImproving, onImprove }) => {
     const handleClick = useCallback(
         (e: React.MouseEvent<HTMLButtonElement>) => {
             e.preventDefault();
@@ -163,12 +169,12 @@ export const PromptImprovementButton: FC<PromptImprovementButtonProps> = ({ onIm
     return (
         <ThreadPrimitive.If running={false}>
             <TooltipIconButton
-                tooltip={isImproving ? "Improving prompt..." : "Improve prompt with AI"}
-                variant="ghost"
                 className="my-2.5 size-8 p-2 transition-opacity ease-in dark:text-neutral-100"
-                onClick={handleClick}
                 disabled={isImproving || isDisabled}
+                onClick={handleClick}
+                tooltip={isImproving ? "Improving prompt..." : "Improve prompt with AI"}
                 type="button"
+                variant="ghost"
             >
                 <Sparkles className={cn("h-4 w-4", isImproving && "animate-pulse")} />
             </TooltipIconButton>
@@ -176,16 +182,16 @@ export const PromptImprovementButton: FC<PromptImprovementButtonProps> = ({ onIm
     );
 };
 
-interface PromptImprovementDialogProps {
-    isOpen: boolean;
-    onOpenChange: (open: boolean) => void;
+interface PromptImprovementDialogProperties {
     currentPrompt: string;
+    isOpen: boolean;
     onApplyImprovement: (improvedPrompt: string) => void;
     onCancel: () => void;
+    onOpenChange: (open: boolean) => void;
     threadId: string;
 }
 
-const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onOpenChange, currentPrompt, onApplyImprovement, onCancel, threadId }) => {
+const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ currentPrompt, isOpen, onApplyImprovement, onCancel, onOpenChange, threadId }) => {
     const { improvePrompt, isImproving, retryCount } = usePromptImprovement(threadId);
     const [improvementInstructions, setImprovementInstructions] = useState("");
     const [improvedPrompt, setImprovedPrompt] = useState(currentPrompt);
@@ -204,6 +210,7 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onO
                 setError(null);
                 setHasImproved(false);
             }
+
             onOpenChange(open);
         },
         [currentPrompt, onOpenChange],
@@ -222,19 +229,21 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onO
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
 
-        window.addEventListener("online", handleOnline);
-        window.addEventListener("offline", handleOffline);
+        globalThis.addEventListener("online", handleOnline);
+        globalThis.addEventListener("offline", handleOffline);
 
         return () => {
-            window.removeEventListener("online", handleOnline);
-            window.removeEventListener("offline", handleOffline);
+            globalThis.removeEventListener("online", handleOnline);
+            globalThis.removeEventListener("offline", handleOffline);
         };
     }, []);
 
     const handleImprove = useCallback(async () => {
         setError(null);
+
         try {
             const result = await improvePrompt(localCurrentPrompt, improvementInstructions);
+
             setImprovedPrompt(result);
             setHasImproved(true);
         } catch (error: any) {
@@ -254,7 +263,7 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onO
     }, [onCancel, onOpenChange]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+        <Dialog onOpenChange={handleOpenChange} open={isOpen}>
             <DialogContent className="flex max-h-[80vh] max-w-2xl flex-col">
                 <DialogHeader>
                     <DialogTitle>Improve Prompt with AI</DialogTitle>
@@ -278,38 +287,43 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onO
 
                     {retryCount > 0 && (
                         <div className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
-                            Retrying... (Attempt {retryCount + 1})
+                            Retrying... (Attempt
+                            {" "}
+                            {retryCount + 1}
+                            )
                         </div>
                     )}
 
                     <div className="space-y-2">
                         <Label htmlFor="current-prompt">Current Prompt</Label>
                         <Textarea
+                            className="min-h-32"
+                            disabled={isImproving}
                             id="current-prompt"
-                            value={localCurrentPrompt}
                             onChange={(e) => {
                                 // Update both current and improved prompt when editing current
                                 const newValue = e.target.value;
+
                                 setLocalCurrentPrompt(newValue);
+
                                 if (!hasImproved) {
                                     setImprovedPrompt(newValue);
                                 }
                             }}
-                            className="min-h-32"
-                            disabled={isImproving}
                             placeholder="Your current prompt will appear here..."
+                            value={localCurrentPrompt}
                         />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="improvement-instructions">What would you like to improve? (optional)</Label>
                         <Textarea
-                            id="improvement-instructions"
-                            placeholder="e.g., Make it more concise, add technical details, improve clarity..."
-                            value={improvementInstructions}
-                            onChange={(e) => setImprovementInstructions(e.target.value)}
                             className="min-h-20"
                             disabled={isImproving}
+                            id="improvement-instructions"
+                            onChange={(e) => setImprovementInstructions(e.target.value)}
+                            placeholder="e.g., Make it more concise, add technical details, improve clarity..."
+                            value={improvementInstructions}
                         />
                     </div>
 
@@ -317,36 +331,38 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onO
                         <div className="space-y-2">
                             <Label htmlFor="improved-prompt">Improved Prompt</Label>
                             <Textarea
-                                id="improved-prompt"
-                                value={improvedPrompt}
-                                onChange={(e) => setImprovedPrompt(e.target.value)}
                                 className="min-h-32"
                                 disabled={isImproving}
+                                id="improved-prompt"
+                                onChange={(e) => setImprovedPrompt(e.target.value)}
                                 placeholder="The improved prompt will appear here..."
+                                value={improvedPrompt}
                             />
                         </div>
                     )}
                 </div>
 
                 <DialogFooter className="gap-2">
-                    <Button variant="outline" onClick={handleCancel} disabled={isImproving}>
+                    <Button disabled={isImproving} onClick={handleCancel} variant="outline">
                         Cancel
                     </Button>
-                    <Button onClick={handleImprove} disabled={isImproving || !localCurrentPrompt.trim()} variant="secondary">
-                        {isImproving ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Improving...
-                            </>
-                        ) : (
-                            <>
-                                <Sparkles className="mr-2 h-4 w-4" />
-                                Improve
-                            </>
-                        )}
+                    <Button disabled={isImproving || !localCurrentPrompt.trim()} onClick={handleImprove} variant="secondary">
+                        {isImproving
+                            ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Improving...
+                                </>
+                            )
+                            : (
+                                <>
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    Improve
+                                </>
+                            )}
                     </Button>
                     {hasImproved && (
-                        <Button onClick={handleApply} disabled={isImproving || !improvedPrompt.trim()}>
+                        <Button disabled={isImproving || !improvedPrompt.trim()} onClick={handleApply}>
                             Apply
                         </Button>
                     )}
@@ -356,15 +372,17 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProps> = ({ isOpen, onO
     );
 };
 
-interface PromptImprovementProps {
+interface PromptImprovementProperties {
     threadId: string;
 }
 
-export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId }) => {
+export const PromptImprovement: FC<PromptImprovementProperties> = ({ threadId }) => {
     const composerRuntime = useComposerRuntime();
 
     const currentInputValue = useComposer((c) => {
-        if (!c.isEditing) return "";
+        if (!c.isEditing)
+            return "";
+
         return c.text;
     });
 
@@ -377,18 +395,18 @@ export const PromptImprovement: FC<PromptImprovementProps> = ({ threadId }) => {
     }, [currentInputValue]);
 
     return (
-        <PromptImprovementErrorBoundary onRetry={handleOpenDialog} fallbackToInput={true}>
-            <PromptImprovementButton onImprove={handleOpenDialog} isDisabled={!currentInputValue} isImproving={false} />
+        <PromptImprovementErrorBoundary fallbackToInput onRetry={handleOpenDialog}>
+            <PromptImprovementButton isDisabled={!currentInputValue} isImproving={false} onImprove={handleOpenDialog} />
             <PromptImprovementDialog
-                isOpen={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
                 currentPrompt={currentInputValue}
+                isOpen={isDialogOpen}
                 onApplyImprovement={(improvedPrompt) => {
                     composerRuntime.setText(improvedPrompt);
                 }}
                 onCancel={() => {
                     composerRuntime.setText(originalPrompt.current);
                 }}
+                onOpenChange={setIsDialogOpen}
                 threadId={threadId}
             />
         </PromptImprovementErrorBoundary>

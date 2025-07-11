@@ -2,10 +2,9 @@ import type { AnyUseQueryOptions } from "@tanstack/react-query";
 import { useCallback, useContext, useEffect, useMemo } from "react";
 
 import { AuthQueryContext } from "../../lib/auth-query-provider";
-
 import type { AnyAuthClient } from "../../types/auth-core-types";
-import { useAuthQuery } from "../shared/use-auth-query";
 import { useSession } from "../session-user-management";
+import { useAuthQuery } from "../shared/use-auth-query";
 
 export const decodeJwt = (token: string) => {
     const decode = (data: string) => {
@@ -15,33 +14,36 @@ export const decodeJwt = (token: string) => {
 
         return Buffer.from(data, "base64").toString();
     };
-    const parts = token.split(".").map((part) => decode(part.replace(/-/g, "+").replace(/_/g, "/")));
+    const parts = token.split(".").map((part) => decode(part.replaceAll("-", "+").replaceAll("_", "/")));
 
     return JSON.parse(parts[1]);
 };
 
 export function useToken<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {
     const { data: sessionData } = useSession(authClient, options);
-    const { tokenKey, tokenQueryOptions, queryOptions } = useContext(AuthQueryContext);
+    const { queryOptions, tokenKey, tokenQueryOptions } = useContext(AuthQueryContext);
     const mergedOptions = { ...queryOptions, ...tokenQueryOptions, ...options };
 
     const queryResult = useAuthQuery<{ token: string }>({
         authClient,
-        queryKey: tokenKey,
-        queryFn: ({ fetchOptions }) => authClient.$fetch("/token", fetchOptions),
         options: {
             enabled: !!sessionData && (mergedOptions.enabled ?? true),
         },
+        queryFn: ({ fetchOptions }) => authClient.$fetch("/token", fetchOptions),
+        queryKey: tokenKey,
     });
 
     const { data, refetch, ...rest } = queryResult;
     const payload = useMemo(() => (data ? decodeJwt(data.token) : null), [data]);
 
     useEffect(() => {
-        if (!data?.token) return;
+        if (!data?.token)
+            return;
 
         const payload = decodeJwt(data.token);
-        if (!payload?.exp) return;
+
+        if (!payload?.exp)
+            return;
 
         const expiresAt = payload.exp * 1000;
         const expiresIn = expiresAt - Date.now();
@@ -52,16 +54,20 @@ export function useToken<TAuthClient extends AnyAuthClient>(authClient: TAuthCli
     }, [data, refetch]);
 
     const isTokenExpired = useCallback(() => {
-        if (!data?.token) return true;
+        if (!data?.token)
+            return true;
 
         const payload = decodeJwt(data.token);
-        if (!payload?.exp) return true;
+
+        if (!payload?.exp)
+            return true;
 
         return payload.exp < Date.now() / 1000;
     }, [data]);
 
     useEffect(() => {
-        if (!sessionData) return;
+        if (!sessionData)
+            return;
 
         if (payload?.sub !== sessionData.user.id) {
             refetch();
@@ -73,5 +79,5 @@ export function useToken<TAuthClient extends AnyAuthClient>(authClient: TAuthCli
         [sessionData, isTokenExpired, payload, data],
     );
 
-    return { ...rest, data: tokenData, token: tokenData?.token, payload };
+    return { ...rest, data: tokenData, payload, token: tokenData?.token };
 }

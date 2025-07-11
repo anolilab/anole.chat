@@ -1,20 +1,22 @@
 "use client";
-import { useContext, useState } from "react";
+
 import { t } from "@lingui/core/macro";
+import { use, useState } from "react";
+
+import { CardContent } from "@/components/ui/card";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
 
 import { useIsHydrated } from "../../../../hooks/use-hydrated";
-import { AuthUIContext } from "../../lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
+import type { SettingsCardProps as SettingsCardProperties } from "../settings/shared/settings-card";
 import { SettingsCard } from "../settings/shared/settings-card";
-import type { SettingsCardProps } from "../settings/shared/settings-card";
-import { CardContent } from "@/components/ui/card";
 import { CreateOrganizationDialog } from "./create-organization-dialog";
 import { OrganizationCell } from "./organization-cell";
 
-export function OrganizationsCard({ className, classNames, ...props }: SettingsCardProps) {
+export const OrganizationsCard = ({ className, classNames, ...properties }: SettingsCardProperties) => {
     const {
         hooks: { useListOrganizations },
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const isHydrated = useIsHydrated();
     const { data: organizations, isPending: organizationsPending } = useListOrganizations();
@@ -26,26 +28,26 @@ export function OrganizationsCard({ className, classNames, ...props }: SettingsC
     return (
         <>
             <SettingsCard
+                action={() => setCreateDialogOpen(true)}
+                actionLabel={t`Create Organization`}
                 className={className}
                 classNames={classNames}
-                title={t`Organizations`}
                 description={t`Manage your organizations and memberships`}
                 instructions={t`Create new organizations or manage existing ones`}
-                actionLabel={t`Create Organization`}
-                action={() => setCreateDialogOpen(true)}
                 isPending={isPending}
-                {...props}
+                title={t`Organizations`}
+                {...properties}
             >
                 {organizations && organizations?.length > 0 && (
                     <CardContent className={cn("grid gap-4", classNames?.content)}>
                         {organizations?.map((organization) => (
-                            <OrganizationCell key={organization.id} classNames={classNames} organization={organization} />
+                            <OrganizationCell classNames={classNames} key={organization.id} organization={organization} />
                         ))}
                     </CardContent>
                 )}
             </SettingsCard>
 
-            <CreateOrganizationDialog classNames={classNames} open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
+            <CreateOrganizationDialog classNames={classNames} onOpenChange={setCreateDialogOpen} open={createDialogOpen} />
         </>
     );
-}
+};

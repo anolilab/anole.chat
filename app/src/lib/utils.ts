@@ -1,12 +1,13 @@
-import { type ClassValue, clsx } from "clsx";
+import { api } from "@anole/convex/api";
+import { convexQuery } from "@convex-dev/react-query";
+import type { QueryClient } from "@tanstack/react-query";
+import type { ClassValue } from "clsx";
+import { clsx } from "clsx";
 import { customAlphabet } from "nanoid";
 import { twMerge } from "tailwind-merge";
 import { v7 } from "uuid";
-import type { QueryClient } from "@tanstack/react-query";
-import { api } from "@anole/convex/api";
-import { convexQuery } from "@convex-dev/react-query";
 
-export function cn(...inputs: Array<ClassValue>) {
+export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
@@ -14,14 +15,13 @@ export const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789");
 
 export const uuid = () => v7();
 
-export const convertImageToBase64 = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-    });
-};
+export const convertImageToBase64 = async (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+    reader.addEventListener("load", () => resolve(reader.result as string));
+    reader.onerror = reject;
+});
 
 /**
  * Determines the appropriate redirect URL after successful authentication.

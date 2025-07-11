@@ -1,37 +1,38 @@
 "use client";
 
+import { t } from "@lingui/core/macro";
 import type { Session, User } from "better-auth";
 import { EllipsisIcon, Loader2, LogOutIcon, RepeatIcon } from "lucide-react";
-import { useContext, useState } from "react";
-import { t } from "@lingui/core/macro";
+import { use, useState } from "react";
 
-import { AuthUIContext } from "../../../lib/auth-ui-provider";
-import { getLocalizedError } from "../../../lib/utils";
-import { cn } from "@/lib/utils";
-import type { Refetch } from "../../../types/hook-integration-types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { cn } from "@/lib/utils";
+
+import { getLocalizedError } from "../../../lib/utils";
+import type { Refetch } from "../../../types/hook-integration-types";
 import { UserView } from "../../user-view";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
-export interface AccountCellProps {
+export interface AccountCellProperties {
     className?: string;
     classNames?: SettingsCardClassNames;
-    deviceSession: { user: User; session: Session };
+    deviceSession: { session: Session; user: User };
 
     refetch?: Refetch;
 }
 
-export function AccountCell({ className, classNames, deviceSession, refetch }: AccountCellProps) {
+export const AccountCell = ({ className, classNames, deviceSession, refetch }: AccountCellProperties) => {
     const {
         basePath,
         hooks: { useSession },
         mutators: { revokeDeviceSession, setActiveSession },
+        navigate,
         toast,
         viewPaths,
-        navigate,
-    } = useContext(AuthUIContext);
+    } = useAuth();
 
     const { data: sessionData } = useSession();
     const [isLoading, setIsLoading] = useState(false);
@@ -48,8 +49,8 @@ export function AccountCell({ className, classNames, deviceSession, refetch }: A
             setIsLoading(false);
 
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
     };
@@ -66,8 +67,8 @@ export function AccountCell({ className, classNames, deviceSession, refetch }: A
             setIsLoading(false);
 
             toast({
-                variant: "error",
                 message: getLocalizedError({ error }),
+                variant: "error",
             });
         }
     };
@@ -104,6 +105,7 @@ export function AccountCell({ className, classNames, deviceSession, refetch }: A
                         onClick={() => {
                             if (isCurrentSession) {
                                 navigate(`${basePath}/${viewPaths.SIGN_OUT}`);
+
                                 return;
                             }
 
@@ -118,4 +120,4 @@ export function AccountCell({ className, classNames, deviceSession, refetch }: A
             </DropdownMenu>
         </Card>
     );
-}
+};

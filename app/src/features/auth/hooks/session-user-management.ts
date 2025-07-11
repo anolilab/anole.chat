@@ -1,10 +1,13 @@
-import { type AnyUseQueryOptions, useQuery } from "@tanstack/react-query";
+import type { AnyUseQueryOptions } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 
-import { AuthQueryContext, type AuthQueryOptions } from "../lib/auth-query-provider";
+import type { AuthClient } from "@/lib/auth/client";
+
+import type { AuthQueryOptions } from "../lib/auth-query-provider";
+import { AuthQueryContext } from "../lib/auth-query-provider";
 import type { AnyAuthClient } from "../types/auth-core-types";
 import { useAuthMutation } from "./shared/use-auth-mutation";
-import type { AuthClient } from "@/lib/auth/client";
 
 // Session Management Hook
 export function useSession<TAuthClient extends AnyAuthClient>(authClient: TAuthClient, options?: Partial<AnyUseQueryOptions>) {
@@ -12,17 +15,17 @@ export function useSession<TAuthClient extends AnyAuthClient>(authClient: TAuthC
     type User = TAuthClient["$Infer"]["Session"]["user"];
     type Session = TAuthClient["$Infer"]["Session"]["session"];
 
-    const { sessionQueryOptions, sessionKey: queryKey, queryOptions } = useContext(AuthQueryContext);
+    const { queryOptions, sessionKey: queryKey, sessionQueryOptions } = useContext(AuthQueryContext);
     const mergedOptions = { ...queryOptions, ...sessionQueryOptions, ...options };
 
     const result = useQuery<SessionData>({
-        queryKey,
         queryFn: () => (authClient as AuthClient).getSession({ fetchOptions: { throw: true } }),
+        queryKey,
         ...mergedOptions,
     });
 
-    let session = result.data?.session as Session | undefined;
-    let user = result.data?.user as User | undefined;
+    const session = result.data?.session as Session | undefined;
+    const user = result.data?.user as User | undefined;
 
     if (user) {
         user.createdAt = new Date(user.createdAt);
@@ -49,12 +52,14 @@ export function useUpdateUser<TAuthClient extends AnyAuthClient>(authClient: TAu
     const { sessionKey: queryKey } = useContext(AuthQueryContext);
 
     return useAuthMutation({
-        queryKey,
         mutationFn: authClient.updateUser,
-        optimisticData: (params, previousSession: SessionData) => ({
-            ...previousSession,
-            user: { ...previousSession.user, ...params },
-        }),
+        optimisticData: (parameters, previousSession: SessionData) => {
+            return {
+                ...previousSession,
+                user: { ...previousSession.user, ...parameters },
+            };
+        },
         options,
+        queryKey,
     });
 }

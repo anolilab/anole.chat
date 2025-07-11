@@ -3,15 +3,11 @@ import { z } from "zod/v4";
 // import { vite } from "@t3-oss/env-core/presets-zod"
 
 export const env = createEnv({
-    server: {
-        SERVER_URL: z.string().url().optional(),
-        RESEND_API_KEY: z.string(),
-        RESEND_FROM_EMAIL: z.string(),
-        ANTHROPIC_API_KEY: z.string(),
-        POLAR_ACCESS_TOKEN: z.string(),
-        POLAR_SUCCESS_URL: z.string(),
-        POLAR_WEBHOOK_SECRET: z.string(),
-        ENCRYPTION_KEY: z.string(),
+    client: {
+        VITE_APP_TITLE: z.string().min(1).optional(),
+        VITE_CONVEX_SITE_URL: z.string().url(),
+        VITE_CONVEX_URL: z.string().url(),
+        VITE_SITE_URL: z.string().url(),
     },
 
     /**
@@ -19,21 +15,6 @@ export const env = createEnv({
      * a type-level and at runtime.
      */
     clientPrefix: "VITE_",
-    client: {
-        VITE_APP_TITLE: z.string().min(1).optional(),
-        VITE_SITE_URL: z.string().url(),
-        VITE_CONVEX_URL: z.string().url(),
-        VITE_CONVEX_SITE_URL: z.string().url(),
-    },
-
-    /**
-     * What object holds the environment variables at runtime. This is usually
-     * `process.env` or `import.meta.env`.
-     */
-    runtimeEnv: {
-        ...import.meta.env,
-        ...process.env,
-    },
 
     /**
      * By default, this library will feed the environment variables directly to
@@ -50,6 +31,26 @@ export const env = createEnv({
      */
     emptyStringAsUndefined: true,
 
+    /**
+     * What object holds the environment variables at runtime. This is usually
+     * `process.env` or `import.meta.env`.
+     */
+    runtimeEnv: {
+        ...import.meta.env,
+        ...process.env,
+    },
+
+    server: {
+        ANTHROPIC_API_KEY: z.string(),
+        ENCRYPTION_KEY: z.string(),
+        POLAR_ACCESS_TOKEN: z.string(),
+        POLAR_SUCCESS_URL: z.string(),
+        POLAR_WEBHOOK_SECRET: z.string(),
+        RESEND_API_KEY: z.string(),
+        RESEND_FROM_EMAIL: z.string(),
+        SERVER_URL: z.string().url().optional(),
+    },
+
     // TODO: Recheck why this does not work
-    //extends: [vite()],
+    // extends: [vite()],
 });

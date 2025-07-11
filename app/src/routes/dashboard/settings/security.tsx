@@ -1,5 +1,6 @@
-import { SecuritySettingsCards } from "@/features/auth/components/settings/security-settings-cards";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+
+import { SecuritySettingsCards } from "@/features/auth/components/settings/security-settings-cards";
 
 export const Route = createFileRoute("/dashboard/settings/security")({
     beforeLoad: ({ context }) => {
@@ -10,6 +11,4 @@ export const Route = createFileRoute("/dashboard/settings/security")({
     component: RouteComponent,
 });
 
-function RouteComponent() {
-    return <SecuritySettingsCards />;
-}
+const RouteComponent = () => <SecuritySettingsCards />;

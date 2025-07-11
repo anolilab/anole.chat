@@ -1,22 +1,18 @@
-import { redirect, createFileRoute, useRouteContext } from "@tanstack/react-router";
-import { api } from "@anole/convex/api";
 import { DEFAULT_MODEL } from "@anole/convex/ai/lib/agents";
-import { Assistant } from "@/features/chat/components/assistant";
+import { api } from "@anole/convex/api";
 import { convexQuery } from "@convex-dev/react-query";
+import { createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
+
+import { Assistant } from "@/features/chat/components/assistant";
 
 const ChatPage = () => {
     const context = useRouteContext({ from: "/(chat)/chat/$threadId" });
     const { threadId } = Route.useParams();
 
-    return <Assistant threadId={threadId} jwtToken={context.token as string} />;
+    return <Assistant jwtToken={context.token as string} threadId={threadId} />;
 };
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({
-    validateSearch: (search: Record<string, unknown>) => {
-        return {
-            initialMessage: search.initialMessage as string | undefined,
-        };
-    },
     beforeLoad: async ({ context, params }) => {
         if (!context?.user?.id) {
             throw redirect({ to: "/auth/sign-in" });
@@ -60,4 +56,9 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
         }
     },
     component: ChatPage,
+    validateSearch: (search: Record<string, unknown>) => {
+        return {
+            initialMessage: search.initialMessage as string | undefined,
+        };
+    },
 });

@@ -1,7 +1,9 @@
 import { useContext, useEffect } from "react";
-import { AuthUIContext } from "../lib/auth-ui-provider";
-import type { AuthView } from "../lib/auth-view-paths";
+
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import type { AuthClient } from "@/lib/auth/client";
+
+import type { AuthView } from "../lib/auth-view-paths";
 
 interface AuthenticateOptions<TAuthClient extends AuthClient> {
     authClient?: TAuthClient;
@@ -16,32 +18,33 @@ export function useAuthenticate<TAuthClient extends AuthClient>(options?: Authen
     const { authView = "SIGN_IN", enabled = true } = options ?? {};
 
     const {
-        hooks: { useSession },
         basePath,
-        viewPaths,
+        hooks: { useSession },
         replace,
-    } = useContext(AuthUIContext);
+        viewPaths,
+    } = useAuth();
 
-    const { data, isPending, error, refetch } = useSession();
+    const { data, error, isPending, refetch } = useSession();
     const sessionData = data as
         | {
-              session: Session;
-              user: User;
-          }
+            session: Session;
+            user: User;
+        }
         | null
         | undefined;
 
     useEffect(() => {
-        if (!enabled || isPending || sessionData) return;
+        if (!enabled || isPending || sessionData)
+            return;
 
-        replace(`${basePath}/${viewPaths[authView]}?redirectTo=${window.location.href.replace(window.location.origin, "")}`);
+        replace(`${basePath}/${viewPaths[authView]}?redirectTo=${globalThis.location.href.replace(globalThis.location.origin, "")}`);
     }, [isPending, sessionData, basePath, viewPaths, replace, authView, enabled]);
 
     return {
         data: sessionData,
-        user: sessionData?.user,
-        isPending,
         error,
+        isPending,
         refetch,
+        user: sessionData?.user,
     };
 }

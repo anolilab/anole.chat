@@ -1,35 +1,33 @@
-import type { FC } from "react";
-import type { JSX } from "react";
+import { api } from "@anole/convex/api";
+import type { Doc } from "@anole/convex/dataModel";
 import { ThreadListPrimitive } from "@assistant-ui/react";
-import {
-    ArchiveIcon,
-    PlusIcon,
-    TrashIcon,
-    GitBranch,
-    ChevronRight,
-    ChevronDown,
-    Pin,
-    PinOff,
-    GripVertical,
-    HelpCircle,
-    Search,
-    X,
-    Loader2,
-    DownloadIcon,
-} from "lucide-react";
-import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useMutation, useConvex, useAction } from "convex/react";
-import { useQuery } from "convex-helpers/react/cache";
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useLingui } from "@lingui/react/macro";
 import { useNavigate } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useAction, useConvex, useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache";
+import {
+    ArchiveIcon,
+    ChevronDown,
+    ChevronRight,
+    DownloadIcon,
+    GitBranch,
+    GripVertical,
+    HelpCircle,
+    Loader2,
+    Pin,
+    PinOff,
+    PlusIcon,
+    Search,
+    TrashIcon,
+    X,
+} from "lucide-react";
+import type { FC, JSX } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -41,36 +39,37 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
-import { api } from "@anole/convex/api";
-import { ShortcutsProvider, KeyCombo, KeySymbol, Keys } from "@/components/ui/keyboard-shortcuts";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { KeyCombo, Keys, KeySymbol, ShortcutsProvider } from "@/components/ui/keyboard-shortcuts";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useThreadContext } from "@/features/chat/components/thread-context";
-import { handleDownload, type DownloadFormat } from "@/lib/download";
-import type { Doc } from "@anole/convex/dataModel";
+import type { DownloadFormat } from "@/lib/download";
+import { handleDownload } from "@/lib/download";
 import { ValidationError } from "@/lib/errors";
-import { useLingui } from "@lingui/react/macro";
+import { cn } from "@/lib/utils";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
-    threadId: string;
-    title: string;
-    status: string;
     branchPoint: number;
     branchType: string;
-    createdAt: number;
     children: BranchNode[];
+    createdAt: number;
     depth: number;
     isPinned?: boolean;
-    order?: number;
     model?: string;
+    order?: number;
     relevantMessages?: any[]; // Messages that matched the search query
+    status: string;
+    threadId: string;
+    title: string;
 }
 
 interface ThreadGroup {
-    title: string;
-    threads: BranchNode[];
     isCollapsed?: boolean;
+    threads: BranchNode[];
+    title: string;
 }
 
 type GroupType = "pinned" | "today" | "last7days" | "lastMonth" | "older" | "archived";
@@ -84,19 +83,19 @@ export const ThreadList: FC = () => {
     const [showSearch, setShowSearch] = useState(false);
     const [searchType, setSearchType] = useState<"threads" | "messages">("threads");
     const [loadingStates, setLoadingStates] = useState<{
-        pinning: Set<string>;
-        deleting: Set<string>;
-        branching: Set<string>;
-        reordering: boolean;
-        downloading: Set<string>;
         archiving: Set<string>;
+        branching: Set<string>;
+        deleting: Set<string>;
+        downloading: Set<string>;
+        pinning: Set<string>;
+        reordering: boolean;
     }>({
-        pinning: new Set(),
-        deleting: new Set(),
-        branching: new Set(),
-        reordering: false,
-        downloading: new Set(),
         archiving: new Set(),
+        branching: new Set(),
+        deleting: new Set(),
+        downloading: new Set(),
+        pinning: new Set(),
+        reordering: false,
     });
 
     // Search threads when there's a search query and search type is "threads"
@@ -104,9 +103,9 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchThreads,
         searchType === "threads"
             ? {
-                  searchQuery: searchQuery.trim(),
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
+                paginationOpts: { cursor: null, numItems: 100 },
+                searchQuery: searchQuery.trim(),
+            }
             : "skip",
     );
 
@@ -115,9 +114,9 @@ export const ThreadList: FC = () => {
         api.chat.functions.searchMessages,
         searchType === "messages"
             ? {
-                  searchQuery: searchQuery.trim(),
-                  paginationOpts: { numItems: 100, cursor: null },
-              }
+                paginationOpts: { cursor: null, numItems: 100 },
+                searchQuery: searchQuery.trim(),
+            }
             : "skip",
     );
 
@@ -125,25 +124,29 @@ export const ThreadList: FC = () => {
     const isSearchLoading = searchQuery.trim() && ((searchType === "threads" && !threadSearchResults) || (searchType === "messages" && !messageSearchResults));
 
     const toggleExpanded = (threadId: string) => {
-        setExpandedThreads((prev) => {
-            const next = new Set(prev);
+        setExpandedThreads((previous) => {
+            const next = new Set(previous);
+
             if (next.has(threadId)) {
                 next.delete(threadId);
             } else {
                 next.add(threadId);
             }
+
             return next;
         });
     };
 
     const toggleGroupCollapsed = (groupType: GroupType) => {
-        setCollapsedGroups((prev) => {
-            const next = new Set(prev);
+        setCollapsedGroups((previous) => {
+            const next = new Set(previous);
+
             if (next.has(groupType)) {
                 next.delete(groupType);
             } else {
                 next.add(groupType);
             }
+
             return next;
         });
     };
@@ -156,10 +159,10 @@ export const ThreadList: FC = () => {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
-                                variant="icon"
-                                size="sm"
                                 className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
                                 onClick={() => setShowSearch(!showSearch)}
+                                size="sm"
+                                variant="icon"
                             >
                                 <Search className="h-4 w-4" />
                             </Button>
@@ -171,10 +174,10 @@ export const ThreadList: FC = () => {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button
-                                variant="icon"
-                                size="sm"
                                 className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
                                 onClick={() => setShowKeyboardHelp(!showKeyboardHelp)}
+                                size="sm"
+                                variant="icon"
                             >
                                 <HelpCircle className="h-4 w-4" />
                             </Button>
@@ -187,36 +190,36 @@ export const ThreadList: FC = () => {
                 <div className="space-y-2">
                     <div className="flex items-center gap-2">
                         <Button
-                            variant={searchType === "threads" ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSearchType("threads")}
                             className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
+                            onClick={() => setSearchType("threads")}
+                            size="sm"
+                            variant={searchType === "threads" ? "default" : "outline"}
                         >
                             {t`Threads`}
                         </Button>
                         <Button
-                            variant={searchType === "messages" ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSearchType("messages")}
                             className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
+                            onClick={() => setSearchType("messages")}
+                            size="sm"
+                            variant={searchType === "messages" ? "default" : "outline"}
                         >
                             {t`Messages`}
                         </Button>
                     </div>
                     <div className="relative">
                         <Input
+                            autoFocus
+                            className="border-white/20 bg-white/5 pr-8 text-white placeholder:text-white/60"
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder={searchType === "threads" ? t`Search thread titles...` : t`Search message content...`}
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="border-white/20 bg-white/5 pr-8 text-white placeholder:text-white/60"
-                            autoFocus
                         />
                         {searchQuery && (
                             <Button
-                                variant="icon"
-                                size="sm"
                                 className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0"
                                 onClick={() => setSearchQuery("")}
+                                size="sm"
+                                variant="icon"
                             >
                                 <X className="h-3 w-3" />
                             </Button>
@@ -230,20 +233,20 @@ export const ThreadList: FC = () => {
                 </div>
             )}
             <HierarchicalThreadList
-                expandedThreads={expandedThreads}
-                toggleExpanded={toggleExpanded}
                 collapsedGroups={collapsedGroups}
-                toggleGroupCollapsed={toggleGroupCollapsed}
-                showKeyboardHelp={showKeyboardHelp}
-                setShowKeyboardHelp={setShowKeyboardHelp}
+                expandedThreads={expandedThreads}
+                isSearchLoading={isSearchLoading}
+                loadingStates={loadingStates}
+                messageSearchResults={messageSearchResults}
                 searchQuery={searchQuery}
                 searchType={searchType}
-                setShowSearch={setShowSearch}
-                loadingStates={loadingStates}
                 setLoadingStates={setLoadingStates}
-                isSearchLoading={isSearchLoading}
+                setShowKeyboardHelp={setShowKeyboardHelp}
+                setShowSearch={setShowSearch}
+                showKeyboardHelp={showKeyboardHelp}
                 threadSearchResults={threadSearchResults}
-                messageSearchResults={messageSearchResults}
+                toggleExpanded={toggleExpanded}
+                toggleGroupCollapsed={toggleGroupCollapsed}
             />
         </ThreadListPrimitive.Root>
     );
@@ -266,57 +269,57 @@ const ThreadListNew: FC = () => {
 };
 
 // Unified hierarchical thread list that shows parent-child relationships
-interface HierarchicalThreadListProps {
-    expandedThreads: Set<string>;
-    toggleExpanded: (threadId: string) => void;
+interface HierarchicalThreadListProperties {
     collapsedGroups: Set<GroupType>;
-    toggleGroupCollapsed: (groupType: GroupType) => void;
-    showKeyboardHelp: boolean;
-    setShowKeyboardHelp: React.Dispatch<React.SetStateAction<boolean>>;
+    expandedThreads: Set<string>;
+    isSearchLoading: boolean;
+    loadingStates: {
+        archiving: Set<string>;
+        branching: Set<string>;
+        deleting: Set<string>;
+        downloading: Set<string>;
+        pinning: Set<string>;
+        reordering: boolean;
+    };
+    messageSearchResults: any;
     searchQuery: string;
     searchType: "threads" | "messages";
-    setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
-    loadingStates: {
-        pinning: Set<string>;
-        deleting: Set<string>;
-        branching: Set<string>;
-        reordering: boolean;
-        downloading: Set<string>;
-        archiving: Set<string>;
-    };
     setLoadingStates: React.Dispatch<
         React.SetStateAction<{
-            pinning: Set<string>;
-            deleting: Set<string>;
-            branching: Set<string>;
-            reordering: boolean;
-            downloading: Set<string>;
             archiving: Set<string>;
+            branching: Set<string>;
+            deleting: Set<string>;
+            downloading: Set<string>;
+            pinning: Set<string>;
+            reordering: boolean;
         }>
     >;
-    isSearchLoading: boolean;
+    setShowKeyboardHelp: React.Dispatch<React.SetStateAction<boolean>>;
+    setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
+    showKeyboardHelp: boolean;
     threadSearchResults: any;
-    messageSearchResults: any;
+    toggleExpanded: (threadId: string) => void;
+    toggleGroupCollapsed: (groupType: GroupType) => void;
 }
 
-const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
-    expandedThreads,
-    toggleExpanded,
+const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
     collapsedGroups,
-    toggleGroupCollapsed,
-    showKeyboardHelp,
-    setShowKeyboardHelp,
+    expandedThreads,
+    isSearchLoading,
+    loadingStates,
+    messageSearchResults,
     searchQuery,
     searchType,
-    setShowSearch,
-    loadingStates,
     setLoadingStates,
-    isSearchLoading,
+    setShowKeyboardHelp,
+    setShowSearch,
+    showKeyboardHelp,
     threadSearchResults,
-    messageSearchResults,
+    toggleExpanded,
+    toggleGroupCollapsed,
 }) => {
     const { t } = useLingui();
-    const { currentThreadId, createBranch, deleteBranch, threads } = useThreadContext();
+    const { createBranch, currentThreadId, deleteBranch, threads } = useThreadContext();
     const navigate = useNavigate();
     const convex = useConvex();
 
@@ -325,7 +328,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     const [isKeyboardNavigating, setIsKeyboardNavigating] = useState(false);
 
     // Get all threads to build the hierarchy
-    const threadsData = useQuery(api.chat.functions.getThreads, { paginationOpts: { numItems: 100, cursor: null } });
+    const threadsData = useQuery(api.chat.functions.getThreads, { paginationOpts: { cursor: null, numItems: 100 } });
 
     // Get thread relationships to build hierarchy
     const threadRelationships = useQuery(api.chat.functions.getAllThreadRelationships);
@@ -360,7 +363,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             threadsToUse = threadsData?.page;
         }
 
-        if (!threadsToUse || !threadRelationships) return [];
+        if (!threadsToUse || !threadRelationships)
+            return [];
 
         // Create maps for quick lookups
         const threadMap = new Map(threadsToUse.map((thread: any) => [thread._id, thread]));
@@ -373,26 +377,28 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
         const buildHierarchy = (threadId: string, depth: number = 0): BranchNode | null => {
             const thread = threadMap.get(threadId);
-            if (!thread) return null;
+
+            if (!thread)
+                return null;
 
             // Find direct children using relationships
             const childRelationships = threadRelationships.filter((rel: any) => rel.parentThreadId === threadId);
             const children = childRelationships.map((rel: any) => buildHierarchy(rel.threadId, depth + 1)).filter((node): node is BranchNode => node !== null);
 
             return {
-                threadId: thread._id,
-                title: thread.title || "New Chat",
-                status: thread.status || "active",
                 branchPoint: relationshipMap.get(threadId)?.branchPoint || 0,
                 branchType: relationshipMap.get(threadId)?.branchType || "branch",
-                createdAt: thread._creationTime,
                 children,
+                createdAt: thread._creationTime,
                 depth,
                 isPinned: pinnedThreadsSet.has(threadId),
-                order: threadOrderMap.get(threadId),
                 model: thread.model,
+                order: threadOrderMap.get(threadId),
                 // Add search relevance info if available (for message search)
                 relevantMessages: thread.relevantMessages,
+                status: thread.status || "active",
+                threadId: thread._id,
+                title: thread.title || "New Chat",
             };
         };
 
@@ -412,15 +418,22 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 }
 
                 // Normal sorting: pinned threads first, then by custom order, then by newest first
-                if (a.isPinned && !b.isPinned) return -1;
-                if (!a.isPinned && b.isPinned) return 1;
+                if (a.isPinned && !b.isPinned)
+                    return -1;
+
+                if (!a.isPinned && b.isPinned)
+                    return 1;
 
                 // Within pinned/unpinned groups, sort by custom order if available
                 if (a.order !== undefined && b.order !== undefined) {
                     return a.order - b.order;
                 }
-                if (a.order !== undefined && b.order === undefined) return -1;
-                if (a.order === undefined && b.order !== undefined) return 1;
+
+                if (a.order !== undefined && b.order === undefined)
+                    return -1;
+
+                if (a.order === undefined && b.order !== undefined)
+                    return 1;
 
                 // Finally, sort by creation time (newest first)
                 return b.createdAt - a.createdAt;
@@ -428,9 +441,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
             return [
                 {
-                    title: `Search Results (${sortedThreads.length})`,
-                    threads: sortedThreads,
                     isCollapsed: false,
+                    threads: sortedThreads,
+                    title: `Search Results (${sortedThreads.length})`,
                 },
             ];
         }
@@ -438,6 +451,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         // Group threads by time periods, excluding archived threads
         const now = Date.now();
         const startOfToday = new Date();
+
         startOfToday.setHours(0, 0, 0, 0);
         const todayTimestamp = startOfToday.getTime();
         const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
@@ -468,67 +482,69 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         });
 
         // Sort each group
-        const sortThreads = (threads: BranchNode[]) => {
-            return threads.sort((a: BranchNode, b: BranchNode) => {
-                // Within groups, sort by custom order if available, then by newest first
-                if (a.order !== undefined && b.order !== undefined) {
-                    return a.order - b.order;
-                }
-                if (a.order !== undefined && b.order === undefined) return -1;
-                if (a.order === undefined && b.order !== undefined) return 1;
+        const sortThreads = (threads: BranchNode[]) => threads.sort((a: BranchNode, b: BranchNode) => {
+            // Within groups, sort by custom order if available, then by newest first
+            if (a.order !== undefined && b.order !== undefined) {
+                return a.order - b.order;
+            }
 
-                return b.createdAt - a.createdAt;
-            });
-        };
+            if (a.order !== undefined && b.order === undefined)
+                return -1;
+
+            if (a.order === undefined && b.order !== undefined)
+                return 1;
+
+            return b.createdAt - a.createdAt;
+        });
 
         const groups: ThreadGroup[] = [];
 
         if (pinnedThreadsList.length > 0) {
             groups.push({
-                title: "Pinned",
-                threads: sortThreads(pinnedThreadsList),
                 isCollapsed: collapsedGroups.has("pinned"),
+                threads: sortThreads(pinnedThreadsList),
+                title: "Pinned",
             });
         }
 
         if (todayThreads.length > 0) {
             groups.push({
-                title: "Today",
-                threads: sortThreads(todayThreads),
                 isCollapsed: collapsedGroups.has("today"),
+                threads: sortThreads(todayThreads),
+                title: "Today",
             });
         }
 
         if (last7DaysThreads.length > 0) {
             groups.push({
-                title: "Last 7 days",
-                threads: sortThreads(last7DaysThreads),
                 isCollapsed: collapsedGroups.has("last7days"),
+                threads: sortThreads(last7DaysThreads),
+                title: "Last 7 days",
             });
         }
 
         if (lastMonthThreads.length > 0) {
             groups.push({
-                title: "Last month",
-                threads: sortThreads(lastMonthThreads),
                 isCollapsed: collapsedGroups.has("lastMonth"),
+                threads: sortThreads(lastMonthThreads),
+                title: "Last month",
             });
         }
 
         if (olderThreads.length > 0) {
             groups.push({
-                title: "Older",
-                threads: sortThreads(olderThreads),
                 isCollapsed: collapsedGroups.has("older"),
+                threads: sortThreads(olderThreads),
+                title: "Older",
             });
         }
 
         // Always add archived threads as the last group
         if (archivedThreads.length > 0) {
             groups.push({
-                title: "Archived",
-                threads: sortThreads(archivedThreads),
                 isCollapsed: collapsedGroups.has("archived"),
+                threads: sortThreads(archivedThreads),
+                title: "Archived",
             });
         }
 
@@ -551,6 +567,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
 
         const flattenNode = (node: BranchNode) => {
             flattened.push(node);
+
             if (expandedThreads.has(node.threadId)) {
                 node.children.forEach(flattenNode);
             }
@@ -576,16 +593,18 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 });
             }
 
-            setLoadingStates((prev) => ({
-                ...prev,
-                downloading: new Set(prev.downloading).add(node.threadId),
-            }));
+            setLoadingStates((previous) => {
+                return {
+                    ...previous,
+                    downloading: new Set(previous.downloading).add(node.threadId),
+                };
+            });
 
             try {
                 const data = await convex.query(api.chat.functions.getFullThreadForExport, {
-                    threadId: node.threadId,
-
                     model: node.model,
+
+                    threadId: node.threadId,
                 });
 
                 if (data && data.thread && data.messages) {
@@ -594,10 +613,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             } catch (error) {
                 console.error("Failed to download thread:", error);
             } finally {
-                setLoadingStates((prev) => {
-                    const newDownloading = new Set(prev.downloading);
+                setLoadingStates((previous) => {
+                    const newDownloading = new Set(previous.downloading);
+
                     newDownloading.delete(node.threadId);
-                    return { ...prev, downloading: newDownloading };
+
+                    return { ...previous, downloading: newDownloading };
                 });
             }
         },
@@ -605,24 +626,29 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     );
 
     const handleCreateBranch = async (threadId: string) => {
-        setLoadingStates((prev) => ({
-            ...prev,
-            branching: new Set(prev.branching).add(threadId),
-        }));
+        setLoadingStates((previous) => {
+            return {
+                ...previous,
+                branching: new Set(previous.branching).add(threadId),
+            };
+        });
 
         try {
             const currentMessages = threads.get(threadId) || [];
+
             if (currentMessages.length > 0) {
                 await createBranch(threadId, currentMessages.length - 1, "New Branch");
             }
         } catch (error) {
             console.error("Failed to create branch:", error);
         } finally {
-            setLoadingStates((prev) => {
-                const newBranching = new Set(prev.branching);
+            setLoadingStates((previous) => {
+                const newBranching = new Set(previous.branching);
+
                 newBranching.delete(threadId);
+
                 return {
-                    ...prev,
+                    ...previous,
                     branching: newBranching,
                 };
             });
@@ -630,21 +656,25 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     const handleDeleteThread = async (threadId: string) => {
-        setLoadingStates((prev) => ({
-            ...prev,
-            deleting: new Set(prev.deleting).add(threadId),
-        }));
+        setLoadingStates((previous) => {
+            return {
+                ...previous,
+                deleting: new Set(previous.deleting).add(threadId),
+            };
+        });
 
         try {
             await deleteBranch(threadId);
         } catch (error) {
             console.error("Failed to delete thread:", error);
         } finally {
-            setLoadingStates((prev) => {
-                const newDeleting = new Set(prev.deleting);
+            setLoadingStates((previous) => {
+                const newDeleting = new Set(previous.deleting);
+
                 newDeleting.delete(threadId);
+
                 return {
-                    ...prev,
+                    ...previous,
                     deleting: newDeleting,
                 };
             });
@@ -652,10 +682,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     const handlePinThread = async (threadId: string) => {
-        setLoadingStates((prev) => ({
-            ...prev,
-            pinning: new Set(prev.pinning).add(threadId),
-        }));
+        setLoadingStates((previous) => {
+            return {
+                ...previous,
+                pinning: new Set(previous.pinning).add(threadId),
+            };
+        });
 
         try {
             await pinThreadMutation({
@@ -664,11 +696,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         } catch (error) {
             console.error("Failed to pin thread:", error);
         } finally {
-            setLoadingStates((prev) => {
-                const newPinning = new Set(prev.pinning);
+            setLoadingStates((previous) => {
+                const newPinning = new Set(previous.pinning);
+
                 newPinning.delete(threadId);
+
                 return {
-                    ...prev,
+                    ...previous,
                     pinning: newPinning,
                 };
             });
@@ -676,10 +710,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     const handleUnpinThread = async (threadId: string) => {
-        setLoadingStates((prev) => ({
-            ...prev,
-            pinning: new Set(prev.pinning).add(threadId),
-        }));
+        setLoadingStates((previous) => {
+            return {
+                ...previous,
+                pinning: new Set(previous.pinning).add(threadId),
+            };
+        });
 
         try {
             await unpinThreadMutation({
@@ -688,11 +724,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         } catch (error) {
             console.error("Failed to unpin thread:", error);
         } finally {
-            setLoadingStates((prev) => {
-                const newPinning = new Set(prev.pinning);
+            setLoadingStates((previous) => {
+                const newPinning = new Set(previous.pinning);
+
                 newPinning.delete(threadId);
+
                 return {
-                    ...prev,
+                    ...previous,
                     pinning: newPinning,
                 };
             });
@@ -700,25 +738,29 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     };
 
     const updateThread = async (threadId: string, model: string, status: "archived" | "active") => {
-        setLoadingStates((prev) => ({
-            ...prev,
-            archiving: new Set(prev.archiving).add(threadId),
-        }));
+        setLoadingStates((previous) => {
+            return {
+                ...previous,
+                archiving: new Set(previous.archiving).add(threadId),
+            };
+        });
 
         try {
             await updateThreadAction({
-                threadId,
                 model,
                 status,
+                threadId,
             });
         } catch (error) {
             console.error(`Failed to ${status === "archived" ? "archive" : "unarchive"} thread:`, error);
         } finally {
-            setLoadingStates((prev) => {
-                const newArchiving = new Set(prev.archiving);
+            setLoadingStates((previous) => {
+                const newArchiving = new Set(previous.archiving);
+
                 newArchiving.delete(threadId);
+
                 return {
-                    ...prev,
+                    ...previous,
                     archiving: newArchiving,
                 };
             });
@@ -737,9 +779,10 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
 
-        if (!over || active.id === over.id) return;
+        if (!over || active.id === over.id)
+            return;
 
-        setLoadingStates((prev) => ({ ...prev, reordering: true }));
+        setLoadingStates((previous) => { return { ...previous, reordering: true }; });
 
         try {
             // Find which group the active and over items belong to
@@ -756,6 +799,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     activeGroup = group;
                     activeIndex = activeThreadIndex;
                 }
+
                 if (overThreadIndex !== -1) {
                     overGroup = group;
                     overIndex = overThreadIndex;
@@ -765,6 +809,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             // Only allow reordering within the same group for now
             if (!activeGroup || !overGroup || activeGroup.title !== overGroup.title) {
                 console.log("Cross-group reordering not supported yet");
+
                 return;
             }
 
@@ -772,18 +817,20 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             const reorderedThreads = arrayMove(activeGroup.threads, activeIndex, overIndex);
 
             // Update the order in the database
-            const threadOrders = reorderedThreads.map((thread, index) => ({
-                threadId: thread.threadId,
-                order: index,
-            }));
+            const threadOrders = reorderedThreads.map((thread, index) => {
+                return {
+                    order: index,
+                    threadId: thread.threadId,
+                };
+            });
 
             await updateThreadOrderMutation({
-                threadOrders: threadOrders,
+                threadOrders,
             });
         } catch (error) {
             console.error("Failed to reorder threads:", error);
         } finally {
-            setLoadingStates((prev) => ({ ...prev, reordering: false }));
+            setLoadingStates((previous) => { return { ...previous, reordering: false }; });
         }
     };
 
@@ -798,28 +845,133 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             }
 
             switch (event.key) {
+                case "?": {
+                    if (!isCtrlOrCmd) {
+                        event.preventDefault();
+                        setShowKeyboardHelp((previous) => !previous);
+                    }
+
+                    break;
+                }
+                case "a":
+
+                case "A": {
+                    if (isCtrlOrCmd && currentThreadId) {
+                        event.preventDefault();
+                        const currentThread = flattenedThreads.find((t) => t.threadId === currentThreadId);
+
+                        if (currentThread) {
+                            const model = currentThread.model || "gemini-1.5-flash"; // Default model
+
+                            if (currentThread.status === "archived") {
+                                updateThread(currentThreadId, model, "active");
+                            } else {
+                                updateThread(currentThreadId, model, "archived");
+                            }
+                        }
+                    }
+
+                    break;
+                }
+                case "ArrowDown": {
+                    if (!isCtrlOrCmd) {
+                        event.preventDefault();
+                        setIsKeyboardNavigating(true);
+                        setSelectedThreadIndex((previous) => {
+                            const totalThreads = flattenedThreads.length;
+                            const newIndex = previous >= totalThreads - 1 ? 0 : previous + 1;
+
+                            return newIndex;
+                        });
+                    }
+
+                    break;
+                }
+
+                case "ArrowUp": {
+                    if (!isCtrlOrCmd) {
+                        event.preventDefault();
+                        setIsKeyboardNavigating(true);
+                        setSelectedThreadIndex((previous) => {
+                            const totalThreads = flattenedThreads.length;
+                            const newIndex = previous <= 0 ? totalThreads - 1 : previous - 1;
+
+                            return newIndex;
+                        });
+                    }
+
+                    break;
+                }
+                case "b":
+
+                case "B": {
+                    if (isCtrlOrCmd && currentThreadId) {
+                        event.preventDefault();
+                        handleCreateBranch(currentThreadId);
+                    }
+
+                    break;
+                }
+                case "d":
+
+                case "D": {
+                    if (isCtrlOrCmd && currentThreadId) {
+                        event.preventDefault();
+                        handleDeleteThread(currentThreadId);
+                    }
+
+                    break;
+                }
+                case "Enter": {
+                    if (isKeyboardNavigating && selectedThreadIndex >= 0 && selectedThreadIndex < flattenedThreads.length) {
+                        event.preventDefault();
+                        const selectedThread = flattenedThreads[selectedThreadIndex];
+
+                        navigate({ params: { threadId: selectedThread.threadId }, search: { initialMessage: undefined }, to: "/chat/$threadId" });
+                        setIsKeyboardNavigating(false);
+                        setSelectedThreadIndex(-1);
+                    }
+
+                    break;
+                }
+
+                case "Escape": {
+                    event.preventDefault();
+                    setIsKeyboardNavigating(false);
+                    setSelectedThreadIndex(-1);
+                    setShowKeyboardHelp(false);
+                    break;
+                }
+
+                case "f":
+
+                case "F": {
+                    if (isCtrlOrCmd) {
+                        event.preventDefault();
+                        setShowSearch((previous) => !previous);
+                    }
+
+                    break;
+                }
+
                 case "n":
-                case "N":
+
+                case "N": {
                     if (isCtrlOrCmd) {
                         event.preventDefault();
                         // Create new thread
                         navigate({ to: "/chat/new" });
                     }
-                    break;
 
-                case "d":
-                case "D":
-                    if (isCtrlOrCmd && currentThreadId) {
-                        event.preventDefault();
-                        handleDeleteThread(currentThreadId);
-                    }
                     break;
+                }
 
                 case "p":
-                case "P":
+                case "P": {
                     if (isCtrlOrCmd && currentThreadId) {
                         event.preventDefault();
                         const currentThread = flattenedThreads.find((t) => t.threadId === currentThreadId);
+
                         if (currentThread) {
                             if (currentThread.isPinned) {
                                 handleUnpinThread(currentThreadId);
@@ -828,90 +980,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             }
                         }
                     }
-                    break;
 
-                case "b":
-                case "B":
-                    if (isCtrlOrCmd && currentThreadId) {
-                        event.preventDefault();
-                        handleCreateBranch(currentThreadId);
-                    }
                     break;
+                }
 
-                case "a":
-                case "A":
-                    if (isCtrlOrCmd && currentThreadId) {
-                        event.preventDefault();
-                        const currentThread = flattenedThreads.find((t) => t.threadId === currentThreadId);
-                        if (currentThread) {
-                            const model = currentThread.model || "gemini-1.5-flash"; // Default model
-                            if (currentThread.status === "archived") {
-                                updateThread(currentThreadId, model, "active");
-                            } else {
-                                updateThread(currentThreadId, model, "archived");
-                            }
-                        }
-                    }
+                default: {
                     break;
-
-                case "ArrowUp":
-                    if (!isCtrlOrCmd) {
-                        event.preventDefault();
-                        setIsKeyboardNavigating(true);
-                        setSelectedThreadIndex((prev) => {
-                            const totalThreads = flattenedThreads.length;
-                            const newIndex = prev <= 0 ? totalThreads - 1 : prev - 1;
-                            return newIndex;
-                        });
-                    }
-                    break;
-
-                case "ArrowDown":
-                    if (!isCtrlOrCmd) {
-                        event.preventDefault();
-                        setIsKeyboardNavigating(true);
-                        setSelectedThreadIndex((prev) => {
-                            const totalThreads = flattenedThreads.length;
-                            const newIndex = prev >= totalThreads - 1 ? 0 : prev + 1;
-                            return newIndex;
-                        });
-                    }
-                    break;
-
-                case "Enter":
-                    if (isKeyboardNavigating && selectedThreadIndex >= 0 && selectedThreadIndex < flattenedThreads.length) {
-                        event.preventDefault();
-                        const selectedThread = flattenedThreads[selectedThreadIndex];
-                        navigate({ to: "/chat/$threadId", params: { threadId: selectedThread.threadId }, search: { initialMessage: undefined } });
-                        setIsKeyboardNavigating(false);
-                        setSelectedThreadIndex(-1);
-                    }
-                    break;
-
-                case "Escape":
-                    event.preventDefault();
-                    setIsKeyboardNavigating(false);
-                    setSelectedThreadIndex(-1);
-                    setShowKeyboardHelp(false);
-                    break;
-
-                case "?":
-                    if (!isCtrlOrCmd) {
-                        event.preventDefault();
-                        setShowKeyboardHelp((prev) => !prev);
-                    }
-                    break;
-
-                case "f":
-                case "F":
-                    if (isCtrlOrCmd) {
-                        event.preventDefault();
-                        setShowSearch((prev) => !prev);
-                    }
-                    break;
-
-                default:
-                    break;
+                }
             }
         },
         [
@@ -933,6 +1008,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     // Add keyboard event listeners
     useEffect(() => {
         document.addEventListener("keydown", handleKeyDown);
+
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
@@ -954,15 +1030,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     }, [isKeyboardNavigating]);
 
     // Virtual scrolling setup
-    const parentRef = useRef<HTMLDivElement>(null);
+    const parentReference = useRef<HTMLDivElement>(null);
 
     // Flatten all visible items for virtualization (groups + threads)
     const virtualItems = useMemo(() => {
-        const items: Array<{ type: "group"; group: ThreadGroup; groupType: GroupType } | { type: "thread"; thread: BranchNode; index: number }> = [];
+        const items: ({ group: ThreadGroup; groupType: GroupType; type: "group" } | { index: number; thread: BranchNode; type: "thread" })[] = [];
 
         threadGroups.forEach((group) => {
-            const groupType =
-                group.title === "Pinned"
+            const groupType
+                = group.title === "Pinned"
                     ? "pinned"
                     : group.title === "Today"
                         ? "today"
@@ -975,12 +1051,12 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     : "older";
 
             // Add group header
-            items.push({ type: "group", group, groupType });
+            items.push({ group, groupType, type: "group" });
 
             // Add threads if group is not collapsed
             if (!group.isCollapsed) {
                 group.threads.forEach((thread, index) => {
-                    items.push({ type: "thread", thread, index });
+                    items.push({ index, thread, type: "thread" });
                 });
             }
         });
@@ -991,25 +1067,25 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     // Always call virtualizer hook to avoid "more hooks" error
     const virtualizer = useVirtualizer({
         count: virtualItems.length,
-        getScrollElement: () => parentRef.current,
         estimateSize: (index) => {
             const item = virtualItems[index];
 
             return item?.type === "group" ? 32 : 44; // Group headers are shorter
         },
+        getScrollElement: () => parentReference.current,
         overscan: 10,
     });
 
     // Sortable thread item component
-    const SortableThreadItem: FC<{ node: BranchNode; index?: number }> = ({ node, index }) => {
-        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: node.threadId });
+    const SortableThreadItem: FC<{ index?: number; node: BranchNode }> = ({ index, node }) => {
+        const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({ id: node.threadId });
 
         const isKeyboardSelected = isKeyboardNavigating && index === selectedThreadIndex;
 
         const style = {
+            opacity: isDragging ? 0.5 : 1,
             transform: CSS.Transform.toString(transform),
             transition,
-            opacity: isDragging ? 0.5 : 1,
         };
 
         return (
@@ -1042,7 +1118,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         !isRootThread && "ml-6",
                         (isDeleting || loadingStates.reordering) && "pointer-events-none opacity-50",
                     )}
-                    onClick={() => navigate({ to: "/chat/$threadId", params: { threadId: node.threadId }, search: { initialMessage: undefined } })}
+                    onClick={() => navigate({ params: { threadId: node.threadId }, search: { initialMessage: undefined }, to: "/chat/$threadId" })}
                 >
                     <div className="group/action-item relative flex items-center gap-2 overflow-hidden rounded-lg px-2.5 py-2">
                         {/* Drag handle - only show if not loading */}
@@ -1058,13 +1134,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         {/* Expand/collapse button for threads with children */}
                         {hasChildren && (
                             <Button
-                                variant="icon"
-                                size="sm"
                                 className="h-4 w-4 p-0"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     toggleExpanded(node.threadId);
                                 }}
+                                size="sm"
+                                variant="icon"
                             >
                                 {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             </Button>
@@ -1077,7 +1153,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     {node.title}
                                 </span>
                             </TooltipTrigger>
-                            <TooltipContent side="right" className="max-w-xs">
+                            <TooltipContent className="max-w-xs" side="right">
                                 <p className="break-words">{node.title}</p>
                             </TooltipContent>
                         </Tooltip>
@@ -1089,27 +1165,34 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button
-                                            variant="icon"
-                                            size="sm"
                                             className="hover:text-primary h-6 w-6 p-0"
+                                            disabled={isPinning}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                if (isPinning) return; // Prevent multiple clicks
+
+                                                if (isPinning)
+                                                    return; // Prevent multiple clicks
+
                                                 if (node.isPinned) {
                                                     handleUnpinThread(node.threadId);
                                                 } else {
                                                     handlePinThread(node.threadId);
                                                 }
                                             }}
-                                            disabled={isPinning}
+                                            size="sm"
+                                            variant="icon"
                                         >
-                                            {isPinning ? (
-                                                <Loader2 className="h-3 w-3 animate-spin" />
-                                            ) : node.isPinned ? (
-                                                <PinOff className="h-3 w-3" />
-                                            ) : (
-                                                <Pin className="h-3 w-3" />
-                                            )}
+                                            {isPinning
+                                                ? (
+                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                )
+                                                : node.isPinned
+                                                    ? (
+                                                        <PinOff className="h-3 w-3" />
+                                                    )
+                                                    : (
+                                                        <Pin className="h-3 w-3" />
+                                                    )}
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>{isPinning ? "Processing..." : node.isPinned ? "Unpin thread" : "Pin thread"}</TooltipContent>
@@ -1120,15 +1203,18 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        variant="icon"
-                                        size="sm"
                                         className="hover:text-primary h-6 w-6 p-0"
+                                        disabled={isBranching}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            if (isBranching) return; // Prevent multiple clicks
+
+                                            if (isBranching)
+                                                return; // Prevent multiple clicks
+
                                             handleCreateBranch(node.threadId);
                                         }}
-                                        disabled={isBranching}
+                                        size="sm"
+                                        variant="icon"
                                     >
                                         {isBranching ? <Loader2 className="h-3 w-3 animate-spin" /> : <GitBranch className="h-3 w-3" />}
                                     </Button>
@@ -1142,11 +1228,11 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     <TooltipTrigger asChild>
                                         <DropdownMenuTrigger asChild>
                                             <Button
-                                                variant="icon"
-                                                size="sm"
                                                 className="hover:text-primary h-6 w-6 p-0"
-                                                onClick={(e) => e.stopPropagation()}
                                                 disabled={isDownloading}
+                                                onClick={(e) => e.stopPropagation()}
+                                                size="sm"
+                                                variant="icon"
                                             >
                                                 {isDownloading ? <Loader2 className="h-3 w-3 animate-spin" /> : <DownloadIcon className="h-3 w-3" />}
                                             </Button>
@@ -1164,20 +1250,24 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
-                                        variant="icon"
-                                        size="sm"
                                         className="hover:text-primary h-6 w-6 p-0"
+                                        disabled={isArchiving}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            if (isArchiving) return;
+
+                                            if (isArchiving)
+                                                return;
+
                                             const model = node.model || "gemini-1.5-flash"; // Default model
+
                                             if (node.status === "archived") {
                                                 updateThread(node.threadId, model, "active");
                                             } else {
                                                 updateThread(node.threadId, model, "archived");
                                             }
                                         }}
-                                        disabled={isArchiving}
+                                        size="sm"
+                                        variant="icon"
                                     >
                                         {isArchiving ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArchiveIcon className="h-3 w-3" />}
                                     </Button>
@@ -1193,13 +1283,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     <TooltipTrigger asChild>
                                         <AlertDialogTrigger asChild>
                                             <Button
-                                                variant="icon"
-                                                size="sm"
                                                 className="hover:text-destructive h-6 w-6 p-0"
+                                                disabled={isDeleting}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                 }}
-                                                disabled={isDeleting}
+                                                size="sm"
+                                                variant="icon"
                                             >
                                                 {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrashIcon className="h-3 w-3" />}
                                             </Button>
@@ -1217,11 +1307,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>{t`Cancel`}</AlertDialogCancel>
                                         <AlertDialogAction
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                             onClick={() => {
-                                                if (isDeleting) return; // Prevent multiple clicks
+                                                if (isDeleting)
+                                                    return; // Prevent multiple clicks
+
                                                 handleDeleteThread(node.threadId);
                                             }}
-                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                         >
                                             {t`Delete`}
                                         </AlertDialogAction>
@@ -1234,7 +1326,10 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         {node.status === "archived" && <ArchiveIcon className="text-muted-foreground h-3 w-3 flex-shrink-0" />}
                         {searchQuery.trim() && node.relevantMessages && node.relevantMessages.length > 0 && (
                             <div className="bg-primary/10 text-primary flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs">
-                                {node.relevantMessages.length} match{node.relevantMessages.length !== 1 ? "es" : ""}
+                                {node.relevantMessages.length}
+                                {" "}
+                                match
+                                {node.relevantMessages.length === 1 ? "" : "es"}
                             </div>
                         )}
                     </div>
@@ -1245,13 +1340,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                         <div
                             className="bg-border absolute w-px"
                             style={{
+                                height: `${node.children.length * 44}px`,
                                 left: `${node.depth * 20 + 10}px`,
                                 top: "0px",
-                                height: `${node.children.length * 44}px`,
                             }}
                         />
                         {node.children.map((child, childIndex) => (
-                            <SortableThreadItem key={child.threadId} node={child} index={childIndex} />
+                            <SortableThreadItem index={childIndex} key={child.threadId} node={child} />
                         ))}
                     </div>
                 )}
@@ -1283,42 +1378,51 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     }
 
     // Show empty state for search results
-    if (!threadGroups.length && searchQuery.trim()) {
+    if (threadGroups.length === 0 && searchQuery.trim()) {
         return (
             <div className="text-muted-foreground px-3 py-8 text-center text-sm">
-                {isSearchLoading ? (
-                    <div className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Searching...</span>
-                    </div>
-                ) : (
-                    <>
-                        <p>
-                            No {searchType === "threads" ? "threads" : "messages"} found for "{searchQuery}"
-                        </p>
-                        <p className="mt-1 text-xs">
-                            {searchType === "threads" ? "Try searching in thread titles or summaries" : "Try searching in message content"}
-                        </p>
-                    </>
-                )}
+                {isSearchLoading
+                    ? (
+                        <div className="flex items-center justify-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Searching...</span>
+                        </div>
+                    )
+                    : (
+                        <>
+                            <p>
+                                No
+                                {" "}
+                                {searchType === "threads" ? "threads" : "messages"}
+                                {" "}
+                                found for "
+                                {searchQuery}
+                                "
+                            </p>
+                            <p className="mt-1 text-xs">
+                                {searchType === "threads" ? "Try searching in thread titles or summaries" : "Try searching in message content"}
+                            </p>
+                        </>
+                    )}
                 <p className="mt-2 text-xs opacity-70">Press ? for keyboard shortcuts</p>
             </div>
         );
     }
 
     const customMappings = {
-        n: { symbols: { default: "N" }, label: "N" },
-        d: { symbols: { default: "D" }, label: "D" },
-        p: { symbols: { default: "P" }, label: "P" },
-        b: { symbols: { default: "B" }, label: "B" },
-        a: { symbols: { default: "A" }, label: "A" },
-        f: { symbols: { default: "F" }, label: "F" },
-        "?": { symbols: { default: "?" }, label: "Question Mark" },
+        "?": { label: "Question Mark", symbols: { default: "?" } },
+        a: { label: "A", symbols: { default: "A" } },
+        b: { label: "B", symbols: { default: "B" } },
+        d: { label: "D", symbols: { default: "D" } },
+        f: { label: "F", symbols: { default: "F" } },
+        n: { label: "N", symbols: { default: "N" } },
+        p: { label: "P", symbols: { default: "P" } },
     };
 
     // Keyboard shortcuts help overlay
     const KeyboardHelp = () => {
-        if (!showKeyboardHelp) return null;
+        if (!showKeyboardHelp)
+            return null;
 
         return (
             <div className="bg-background/95 absolute inset-0 z-50 rounded-lg border p-4 backdrop-blur-sm">
@@ -1326,7 +1430,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-semibold">Keyboard Shortcuts</h3>
-                            <Button variant="icon" size="sm" onClick={() => setShowKeyboardHelp(false)} className="h-6 w-6 p-0">
+                            <Button className="h-6 w-6 p-0" onClick={() => setShowKeyboardHelp(false)} size="sm" variant="icon">
                                 ×
                             </Button>
                         </div>
@@ -1388,13 +1492,13 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
             return (
                 <div className="space-y-3">
                     {threadGroups.map((group) => (
-                        <div key={group.title} className="space-y-1">
+                        <div className="space-y-1" key={group.title}>
                             {/* Group Header */}
                             <div
                                 className="flex cursor-pointer items-center gap-2 px-2 py-1 text-xs font-medium text-white/70 hover:text-white"
                                 onClick={() => {
-                                    const groupType =
-                                        group.title === "Pinned"
+                                    const groupType
+                                        = group.title === "Pinned"
                                             ? "pinned"
                                             : group.title === "Today"
                                                 ? "today"
@@ -1405,19 +1509,24 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                                         : group.title === "Archived"
                                                             ? "archived"
                                                             : "older";
+
                                     toggleGroupCollapsed(groupType);
                                 }}
                             >
                                 {group.isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                                 <span>{group.title}</span>
-                                <span className="text-white/50">({group.threads.length})</span>
+                                <span className="text-white/50">
+                                    (
+                                    {group.threads.length}
+                                    )
+                                </span>
                             </div>
 
                             {/* Group Threads */}
                             {!group.isCollapsed && (
                                 <div className="space-y-1">
                                     {group.threads.map((thread, threadIndex) => (
-                                        <SortableThreadItem key={thread.threadId} node={thread} index={threadIndex} />
+                                        <SortableThreadItem index={threadIndex} key={thread.threadId} node={thread} />
                                     ))}
                                 </div>
                             )}
@@ -1430,8 +1539,8 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
         // Virtualized rendering for large lists
         return (
             <div
-                ref={parentRef}
                 className="h-full overflow-auto"
+                ref={parentReference}
                 style={{
                     height: "100%",
                     width: "100%",
@@ -1440,24 +1549,26 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                 <div
                     style={{
                         height: `${virtualizer.getTotalSize()}px`,
-                        width: "100%",
                         position: "relative",
+                        width: "100%",
                     }}
                 >
                     {virtualizer.getVirtualItems().map((virtualItem) => {
                         const item = virtualItems[virtualItem.index];
-                        if (!item) return null;
+
+                        if (!item)
+                            return null;
 
                         return (
                             <div
                                 key={virtualItem.key}
                                 style={{
+                                    height: `${virtualItem.size}px`,
+                                    left: 0,
                                     position: "absolute",
                                     top: 0,
-                                    left: 0,
-                                    width: "100%",
-                                    height: `${virtualItem.size}px`,
                                     transform: `translateY(${virtualItem.start}px)`,
+                                    width: "100%",
                                 }}
                             >
                                 {item.type === "group" ? (
@@ -1468,11 +1579,15 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
                                     >
                                         {item.group.isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                                         <span>{item.group.title}</span>
-                                        <span className="text-white/50">({item.group.threads.length})</span>
+                                        <span className="text-white/50">
+                                            (
+                                            {item.group.threads.length}
+                                            )
+                                        </span>
                                     </div>
                                 ) : (
                                     // Thread Item
-                                    <SortableThreadItem key={item.thread.threadId} node={item.thread} index={item.index} />
+                                    <SortableThreadItem index={item.index} key={item.thread.threadId} node={item.thread} />
                                 )}
                             </div>
                         );
@@ -1489,7 +1604,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProps> = ({
     return (
         <div className="relative">
             <KeyboardHelp />
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd} sensors={sensors}>
                 <SortableContext items={allThreadIds} strategy={verticalListSortingStrategy}>
                     {renderThreadGroups()}
                 </SortableContext>

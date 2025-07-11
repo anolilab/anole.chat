@@ -11,6 +11,4 @@ export const Route = createFileRoute("/dashboard/")({
     component: RouteComponent,
 });
 
-function RouteComponent() {
-    return <div className="flex w-full flex-col items-center justify-center"></div>;
-}
+const RouteComponent = () => <div className="flex w-full flex-col items-center justify-center" />;

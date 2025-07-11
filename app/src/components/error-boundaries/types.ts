@@ -1,18 +1,18 @@
-import type { ReactNode, ErrorInfo } from "react";
+import type { ErrorInfo, ReactNode } from "react";
 
-export interface ErrorBoundaryFallbackProps {
+export interface ErrorBoundaryFallbackProperties {
     error: Error;
-    retry: () => void;
     resetErrorBoundary: () => void;
+    retry: () => void;
 }
 
 export interface ErrorBoundaryConfig {
     level: "page" | "component" | "feature";
-    showToast?: boolean;
     maxRetries?: number;
-    resetOnPropsChange?: boolean;
-    resetKeys?: Array<string | number>;
     onError?: (error: Error, errorInfo: ErrorInfo) => void;
+    resetKeys?: (string | number)[];
+    resetOnPropsChange?: boolean;
+    showToast?: boolean;
 }
 
 export interface AsyncErrorBoundaryState {
@@ -20,20 +20,20 @@ export interface AsyncErrorBoundaryState {
 }
 
 export interface ErrorReportData {
-    id: string;
-    level: string;
-    timestamp: string;
+    context?: Record<string, any>;
     error: {
-        name: string;
         message: string;
+        name: string;
         stack?: string;
     };
     errorInfo: {
         componentStack: string;
     };
-    userAgent: string;
-    url: string;
-    userId?: string | null;
+    id: string;
+    level: string;
     sessionId?: string | null;
-    context?: Record<string, any>;
+    timestamp: string;
+    url: string;
+    userAgent: string;
+    userId?: string | null;
 }

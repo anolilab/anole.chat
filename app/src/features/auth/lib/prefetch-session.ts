@@ -9,7 +9,7 @@ export async function prefetchSession<TAuthClient extends AnyAuthClient>(
     queryOptions?: AuthQueryOptions,
     options?: Partial<AnyUseQueryOptions>,
 ) {
-    const { error, data } = await (authClient as AuthClient).getSession();
+    const { data, error } = await (authClient as AuthClient).getSession();
 
     const mergedOptions = {
         ...queryOptions?.queryOptions,
@@ -19,8 +19,8 @@ export async function prefetchSession<TAuthClient extends AnyAuthClient>(
 
     await queryClient.prefetchQuery({
         ...mergedOptions,
-        queryKey: queryOptions?.sessionKey,
         queryFn: () => data as SessionData,
+        queryKey: queryOptions?.sessionKey,
     });
 
     type SessionData = TAuthClient["$Infer"]["Session"];
@@ -28,8 +28,8 @@ export async function prefetchSession<TAuthClient extends AnyAuthClient>(
     type Session = TAuthClient["$Infer"]["Session"]["session"];
 
     return {
+        data,
         error,
-        data: data,
         session: data?.session as Session | undefined,
         user: data?.user as User | undefined,
     };

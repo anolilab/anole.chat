@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+
 import { AccountSettingsCards } from "@/features/auth/components/settings/account-settings-cards";
 
 export const Route = createFileRoute("/dashboard/settings/account")({
@@ -10,6 +11,4 @@ export const Route = createFileRoute("/dashboard/settings/account")({
     component: RouteComponent,
 });
 
-function RouteComponent() {
-    return <AccountSettingsCards />;
-}
+const RouteComponent = () => <AccountSettingsCards />;
