@@ -7,7 +7,6 @@ import { v } from "convex/values";
 
 import { components, internal } from "../_generated/api";
 import { internalMutation } from "../_generated/server";
-import { requireUserId } from "../auth/lib/helper";
 import MagicLinkEmail from "./templates/magic_link";
 import ResetPasswordEmail from "./templates/reset_password";
 import VerifyEmail from "./templates/verify_email";

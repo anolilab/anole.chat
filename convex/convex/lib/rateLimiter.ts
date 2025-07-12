@@ -81,14 +81,14 @@ export const rateLimiter = new RateLimiter(components.rateLimiter, {
 /**
  * Rate limit configuration types for type safety
  */
-export type RateLimitName
-    = | "promptImprovement"
-        | "promptImprovementAnonymous"
-        | "chatMessage"
-        | "chatMessageAnonymous"
-        | "globalPromptImprovement"
-        | "authFailure"
-        | "apiUsage";
+export type RateLimitName =
+    | "promptImprovement"
+    | "promptImprovementAnonymous"
+    | "chatMessage"
+    | "chatMessageAnonymous"
+    | "globalPromptImprovement"
+    | "authFailure"
+    | "apiUsage";
 
 /**
  * Helper function to get the appropriate rate limit name based on user authentication

@@ -20,15 +20,14 @@ export const SubscriptionSuccessEmail = ({ email }: SubscriptionEmailOptions) =>
         <Body
             style={{
                 backgroundColor: "#ffffff",
-                fontFamily: "-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Oxygen-Sans,Ubuntu,Cantarell,\"Helvetica Neue\",sans-serif",
+                fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
             }}
         >
             <Container style={{ margin: "0 auto", padding: "20px 0 48px" }}>
                 <Img alt="" height="37" src={`${SITE_URL}/images/convex-logo-email.jpg`} width="40" />
                 <Text style={{ fontSize: "16px", lineHeight: "26px" }}>
                     Hello
-                    {email}
-                    !
+                    {email}!
                 </Text>
                 <Text style={{ fontSize: "16px", lineHeight: "26px" }}>
                     Your subscription to PRO has been successfully processed.
@@ -36,11 +35,7 @@ export const SubscriptionSuccessEmail = ({ email }: SubscriptionEmailOptions) =>
                     We hope you enjoy the new features!
                 </Text>
                 <Text style={{ fontSize: "16px", lineHeight: "26px" }}>
-                    The
-                    {" "}
-                    <Link href="http://localhost:3000">domain-name.com</Link>
-                    {" "}
-                    team.
+                    The <Link href="http://localhost:3000">domain-name.com</Link> team.
                 </Text>
                 <Hr style={{ borderColor: "#cccccc", margin: "20px 0" }} />
                 <Text style={{ color: "#8898aa", fontSize: "12px" }}>200 domain-name.com</Text>
@@ -56,15 +51,14 @@ export const SubscriptionErrorEmail = ({ email }: SubscriptionEmailOptions) => (
         <Body
             style={{
                 backgroundColor: "#ffffff",
-                fontFamily: "-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Oxygen-Sans,Ubuntu,Cantarell,\"Helvetica Neue\",sans-serif",
+                fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
             }}
         >
             <Container style={{ margin: "0 auto", padding: "20px 0 48px" }}>
                 <Img alt="" height="37" src="https://react-email-demo-ijnnx5hul-resend.vercel.app/static/vercel-logo.png" width="40" />
                 <Text style={{ fontSize: "16px", lineHeight: "26px" }}>
                     Hello
-                    {email}
-                    .
+                    {email}.
                 </Text>
                 <Text style={{ fontSize: "16px", lineHeight: "26px" }}>
                     We were unable to process your subscription to PRO tier.
@@ -72,11 +66,7 @@ export const SubscriptionErrorEmail = ({ email }: SubscriptionEmailOptions) => (
                     But don't worry, we'll not charge you anything.
                 </Text>
                 <Text style={{ fontSize: "16px", lineHeight: "26px" }}>
-                    The
-                    {" "}
-                    <Link href="http://localhost:3000">domain-name.com</Link>
-                    {" "}
-                    team.
+                    The <Link href="http://localhost:3000">domain-name.com</Link> team.
                 </Text>
                 <Hr style={{ borderColor: "#cccccc", margin: "20px 0" }} />
                 <Text style={{ color: "#8898aa", fontSize: "12px" }}>200 domain-name.com</Text>

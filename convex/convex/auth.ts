@@ -103,7 +103,7 @@ export const { createSession, createUser, deleteUser, isAuthenticated, updateUse
     onCreateUser: async (context, user) => {
         // Example: copy the user's email to the application users table.
         // We'll use onUpdateUser to keep it synced.
-        const userId = await context.db.insert("user", {
+        const userId = await context.db.insert("users", {
             email: user.email,
             role: "user",
         });
@@ -112,11 +112,11 @@ export const { createSession, createUser, deleteUser, isAuthenticated, updateUse
         return userId;
     },
     onDeleteUser: async (context, userId) => {
-        await context.db.delete(userId as Id<"user">);
+        await context.db.delete(userId as Id<"users">);
     },
     onUpdateUser: async (context, user) => {
         // Keep the user's email synced
-        const userId = user.userId as Id<"user">;
+        const userId = user.userId as Id<"users">;
 
         await context.db.patch(userId, {
             email: user.email,

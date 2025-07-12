@@ -24,7 +24,7 @@ export const planKeyValidator = v.union(v.literal(PLANS.FREE), v.literal(PLANS.P
 export type PlanKey = Infer<typeof planKeyValidator>;
 
 export const subscriptionTables = {
-    subscription: defineTable({
+    subscriptions: defineTable({
         amount: v.number(),
         cancelAtPeriodEnd: v.boolean(),
         canceledAt: v.optional(v.number()),
@@ -47,7 +47,7 @@ export const subscriptionTables = {
         recurringInterval: intervalValidator,
         startedAt: v.number(),
         status: v.string(),
-        userId: v.id("user"),
+        userId: v.id("users"),
     })
         .index("by_userId", ["userId"])
         .index("by_subscription_id", ["id"])

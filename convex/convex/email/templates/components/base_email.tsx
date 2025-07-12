@@ -94,9 +94,7 @@ export const BaseEmail = ({
                     {footerLinks.length > 0 && <br />}
                     {footerText || (
                         <>
-                            {brandName}
-                            ,
-                            {brandTagline.toLowerCase()}
+                            {brandName},{brandTagline.toLowerCase()}
                         </>
                     )}
                 </Text>

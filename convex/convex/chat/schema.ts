@@ -1,21 +1,21 @@
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export const chatTables = {
+const chatTables = {
     pinnedThreads: defineTable({
         pinnedAt: v.number(),
         threadId: v.string(),
-        userId: v.id("user"),
+        userId: v.id("users"),
     })
         .index("by_user", ["userId"])
         .index("by_thread", ["threadId"])
         .index("by_user_and_thread", ["userId", "threadId"]),
 
-    threadOrder: defineTable({
+    threadOrders: defineTable({
         order: v.number(),
         threadId: v.string(),
         updatedAt: v.number(),
-        userId: v.id("user"),
+        userId: v.id("users"),
     })
         .index("by_user", ["userId"])
         .index("by_user_and_order", ["userId", "order"])
@@ -33,3 +33,5 @@ export const chatTables = {
         .index("by_parent", ["parentThreadId"])
         .index("by_parent_and_thread", ["parentThreadId", "threadId"]),
 };
+
+export default chatTables;

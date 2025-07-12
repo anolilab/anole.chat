@@ -3,18 +3,16 @@ import { v } from "convex/values";
 import { authedQuery } from "../auth/functions";
 import { MODELS_SHARED } from "./lib/models";
 
-const getDaysSinceEpoch = (daysAgo: number) =>
-    Math.floor(Date.now() / (24 * 60 * 60 * 1000)) - daysAgo;
+const getDaysSinceEpoch = (daysAgo: number) => Math.floor(Date.now() / (24 * 60 * 60 * 1000)) - daysAgo;
 
-const getHoursSinceEpoch = (hoursAgo: number) =>
-    Math.floor(Date.now() / (60 * 60 * 1000)) - hoursAgo;
+const getHoursSinceEpoch = (hoursAgo: number) => Math.floor(Date.now() / (60 * 60 * 1000)) - hoursAgo;
 
 export const getMyUsageStats = authedQuery({
     args: {
         timeframe: v.union(v.literal("1d"), v.literal("7d"), v.literal("30d")),
     },
     handler: async (context, { timeframe }) => {
-        const days = timeframe === "1d" ? 1 : (timeframe === "7d" ? 7 : 30)
+        const days = timeframe === "1d" ? 1 : timeframe === "7d" ? 7 : 30;
         const startDay = getDaysSinceEpoch(days);
 
         // Get user's events in time range - super efficient with the index
@@ -94,9 +92,7 @@ export const getMyUsageChartData = authedQuery({
             for (let index = hours - 1; index >= 0; index--) {
                 const hourStart = Date.now() - index * 60 * 60 * 1000;
                 const hourEnd = Date.now() - (index - 1) * 60 * 60 * 1000;
-                const hourEvents = events.filter(
-                    (e) => e._creationTime >= hourStart && e._creationTime < hourEnd,
-                );
+                const hourEvents = events.filter((e) => e._creationTime >= hourStart && e._creationTime < hourEnd);
 
                 const hourData = {
                     date: new Date(hourStart).toISOString(),
@@ -198,7 +194,7 @@ export const getMyModelUsage = authedQuery({
         timeframe: v.union(v.literal("1d"), v.literal("7d"), v.literal("30d")),
     },
     handler: async (context, { modelId, timeframe }) => {
-        const days = timeframe === "1d" ? 1 : (timeframe === "7d" ? 7 : 30)
+        const days = timeframe === "1d" ? 1 : timeframe === "7d" ? 7 : 30;
         const startDay = getDaysSinceEpoch(days);
 
         // Get user's events, then filter by model

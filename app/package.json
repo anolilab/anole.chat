@@ -21,6 +21,7 @@
         "env:clear": "pnpx convex env unset",
         "env:generate-encryption": "node scripts/generate-encryption-key.js",
         "env:list": "pnpx convex env list",
+        "lint:prettier": "prettier .",
         "lint:prettier:fix": "prettier --write .",
         "lint:eslint": "eslint . --cache --cache-location .eslint.cache.json",
         "lint:eslint:fix": "eslint . --fix --cache --cache-location .eslint.cache.json",

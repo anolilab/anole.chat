@@ -4,6 +4,7 @@ import type { PaginationResult } from "convex/server";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import z from "zod";
+import threadTitlePrompt from "./prompts/thread-title-prompt.txt";
 
 import { components, internal } from "../_generated/api";
 import type { Id } from "../_generated/dataModel";
@@ -96,7 +97,7 @@ export const getThreadMessages = query({
             const paginatedMessages = mergedMessages.slice(startIndex, endIndex);
 
             return {
-                continueCursor: endIndex < mergedMessages.length ? mergedMessages[endIndex - 1]?._id ?? "" : "",
+                continueCursor: endIndex < mergedMessages.length ? (mergedMessages[endIndex - 1]?._id ?? "") : "",
                 isDone: endIndex >= mergedMessages.length,
                 page: paginatedMessages,
             };
@@ -253,7 +254,16 @@ export const createTitleChat = internalAction({
 
         const textResult = await thread.generateText(
             {
-                prompt: `Generate a concise, 4-5 word title for a new conversation that captures the core topic of this user's prompt. Do not use quotation marks in the title. User prompt: "${arguments_.prompt}"`,
+                messages: [
+                    {
+                        role: "system",
+                        content: threadTitlePrompt,
+                    },
+                    {
+                        role: "user",
+                        content: `Here is the user's prompt:\n"${arguments_.prompt}"\nGenerate a title that accurately represents what this conversation is about based on the prompt provided.`,
+                    },
+                ],
             },
             {
                 storageOptions: {
@@ -445,7 +455,7 @@ export const pinThread = mutation({
         // Check if thread is already pinned
         const existingPin = await context.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", arguments_.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", arguments_.threadId))
             .unique();
 
         if (existingPin) {
@@ -465,7 +475,7 @@ export const pinThread = mutation({
         await context.db.insert("pinnedThreads", {
             pinnedAt: Date.now(),
             threadId: arguments_.threadId,
-            userId: userId as Id<"user">,
+            userId: userId as Id<"users">,
         });
 
         return { success: true };
@@ -482,7 +492,7 @@ export const unpinThread = mutation({
         // Find the pinned thread record
         const pinnedThread = await context.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", arguments_.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", arguments_.threadId))
             .unique();
 
         if (!pinnedThread) {
@@ -504,7 +514,7 @@ export const getPinnedThreads = query({
         // Get all pinned threads for the user
         const pinnedThreads = await context.db
             .query("pinnedThreads")
-            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"user">))
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
             .collect();
 
         return pinnedThreads;
@@ -522,7 +532,7 @@ export const isThreadPinned = query({
         // Check if thread is pinned
         const pinnedThread = await context.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", arguments_.threadId))
+            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", arguments_.threadId))
             .unique();
 
         return pinnedThread !== null;
@@ -547,8 +557,8 @@ export const updateThreadOrder = mutation({
         for (const { order, threadId } of arguments_.threadOrders) {
             // Check if order already exists
             const existingOrder = await context.db
-                .query("threadOrder")
-                .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"user">).eq("threadId", threadId))
+                .query("threadOrders")
+                .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", threadId))
                 .unique();
 
             if (existingOrder) {
@@ -559,11 +569,11 @@ export const updateThreadOrder = mutation({
                 });
             } else {
                 // Insert new order
-                await context.db.insert("threadOrder", {
+                await context.db.insert("threadOrders", {
                     order,
                     threadId,
                     updatedAt: now,
-                    userId: userId as Id<"user">,
+                    userId: userId as Id<"users">,
                 });
             }
         }
@@ -579,8 +589,8 @@ export const getThreadOrders = query({
 
         // Get all thread orders for the user
         const threadOrders = await context.db
-            .query("threadOrder")
-            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"user">))
+            .query("threadOrders")
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
             .collect();
 
         return threadOrders;
@@ -632,9 +642,13 @@ export const searchThreads = query({
             const bTitleMatch = b.title?.toLowerCase().includes(query);
 
             // Title matches come first
-            if (aTitleMatch && !bTitleMatch) { return -1; }
+            if (aTitleMatch && !bTitleMatch) {
+                return -1;
+            }
 
-            if (!aTitleMatch && bTitleMatch) { return 1; }
+            if (!aTitleMatch && bTitleMatch) {
+                return 1;
+            }
 
             // Then by creation time (newest first)
             return b._creationTime - a._creationTime;

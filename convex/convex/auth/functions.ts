@@ -8,6 +8,7 @@ import { betterAuthComponent } from "../auth";
 import { requireUserId } from "../auth/lib/helper";
 import type { Role } from "../lib/types";
 import { ROLES } from "../lib/types";
+import { userSettingsFields, aiUserSettingsFields } from "./fields";
 
 const getCurrentUserInternal = async (context: QueryContext) => {
     const userMetadata = await betterAuthComponent.getAuthUser(context);
@@ -18,7 +19,7 @@ const getCurrentUserInternal = async (context: QueryContext) => {
 
     // Get user data from your application's database (skip this if you have no
     // fields in your users table schema)
-    const user = await context.db.get(userMetadata.userId as Id<"user">);
+    const user = await context.db.get(userMetadata.userId as Id<"users">);
 
     return {
         ...user,
@@ -74,7 +75,7 @@ export const authedAction = customAction(
 );
 
 export const initializeNewUser = internalMutation({
-    args: { email: v.optional(v.string()), userId: v.id("user") }, // email is passed but not strictly used in this version
+    args: { email: v.optional(v.string()), userId: v.id("users") }, // email is passed but not strictly used in this version
     handler: async (context, { userId }) => {
         // Removed unused email from destructuring
         const existingAppUser = await context.db.get(userId);
@@ -99,7 +100,7 @@ export const initializeNewUser = internalMutation({
 export const setUserRole = mutation({
     args: {
         role: v.union(v.literal(ROLES.USER), v.literal(ROLES.BANNED), v.literal(ROLES.ADMIN)),
-        userId: v.id("user"),
+        userId: v.id("users"),
     },
     handler: async (context, { role, userId }): Promise<{ success: boolean }> => {
         const loggedInUserId = await requireUserId(context);
@@ -124,7 +125,7 @@ export const setUserRole = mutation({
 });
 
 export const toggleUserBanStatus = mutation({
-    args: { ban: v.boolean(), userId: v.id("user") },
+    args: { ban: v.boolean(), userId: v.id("users") },
     handler: async (context, { ban, userId }): Promise<{ message: string; success: boolean }> => {
         const loggedInUserId = await requireUserId(context);
 
@@ -149,50 +150,50 @@ export const toggleUserBanStatus = mutation({
     returns: v.object({ message: v.string(), success: v.boolean() }),
 });
 
-export const updateUserSettings = authedMutation({
-    args: {
-        codeFont: v.optional(v.union(v.literal("fira-code"), v.literal("mono"), v.literal("consolas"), v.literal("jetbrains"), v.literal("source-code-pro"))),
-        disableExternalLinkWarning: v.optional(v.boolean()),
-        hidePersonalInfo: v.optional(v.boolean()),
-        isAdvancedUser: v.optional(v.boolean()),
-        lastChatId: v.optional(v.string()),
-        mainFont: v.optional(v.union(v.literal("inter"), v.literal("system"), v.literal("serif"), v.literal("mono"), v.literal("roboto-slab"))),
-        notifications: v.optional(
-            v.object({
-                vouchReceived: v.optional(v.boolean()),
-            }),
-        ),
-        selectedModel: v.optional(v.string()),
-        sendBehavior: v.optional(v.union(v.literal("enter"), v.literal("shiftEnter"), v.literal("button"))),
-        showTimestamps: v.optional(v.boolean()),
-    },
-    handler: async (context, arguments_) => {
-        const settings = await context.db
-            .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", context.user.userId))
-            .unique();
+const makeSettingsUpsertMutation = (
+    // TODO: find the correct typing
+    tableName: any,
+    args: Record<string, any>,
+) => {
+    return authedMutation({
+        args,
+        handler: async (context, inputArgs) => {
+            const userId = context.user.userId;
+            const settings = await context.db
+                .query(tableName)
+                .withIndex("by_userId", (q) => q.eq("userId", userId))
+                .unique();
 
-        const { ...rest } = arguments_;
+            if (settings) {
+                await context.db.patch(settings._id, inputArgs);
+            } else {
+                await context.db.insert(tableName, {
+                    ["userId"]: userId,
+                    ...inputArgs,
+                });
+            }
+        },
+    });
+};
 
-        if (settings) {
-            await context.db.patch(settings._id, rest);
-        } else {
-            await context.db.insert("userSettings", {
-                userId: context.user.userId,
-                ...rest,
-            });
-        }
-    },
-});
+const makeSettingsGetQuery = (
+    // TODO: find the correct typing
+    tableName: any,
+) => {
+    return authedQuery({
+        args: {},
+        handler: async (context) => {
+            const userId = context.user.userId;
+            return await context.db
+                .query(tableName)
+                .withIndex("by_userId", (q) => q.eq("userId", userId))
+                .unique();
+        },
+    });
+};
 
-export const getUserSettings = authedQuery({
-    args: {},
-    handler: async (context) => {
-        const settings = await context.db
-            .query("userSettings")
-            .withIndex("by_userId", (q) => q.eq("userId", context.user.userId))
-            .unique();
+export const updateUserSettings = makeSettingsUpsertMutation("userSettings", userSettingsFields);
+export const getUserSettings = makeSettingsGetQuery("userSettings");
 
-        return settings;
-    },
-});
+export const updateAIUserSettings = makeSettingsUpsertMutation("aiUserSettings", aiUserSettingsFields);
+export const getAIUserSettings = makeSettingsGetQuery("aiUserSettings");

@@ -7,12 +7,7 @@
         /* These compiler options are required by Convex */
         "target": "ESNext",
         "jsx": "react-jsx",
-        "lib": [
-            "ES2021",
-            "dom",
-            "ESNext.Array",
-            "DOM.Iterable"
-        ],
+        "lib": ["ES2021", "dom", "ESNext.Array", "DOM.Iterable"],
         "module": "ESNext",
         "moduleResolution": "Bundler",
         /* These settings are not required by Convex and can be modified. */
@@ -25,10 +20,6 @@
         "isolatedModules": true,
         "skipLibCheck": true
     },
-    "include": [
-        "./**/*"
-    ],
-    "exclude": [
-        "./_generated"
-    ]
+    "include": ["./**/*"],
+    "exclude": ["./_generated"]
 }

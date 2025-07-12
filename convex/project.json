@@ -3,8 +3,6 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "convex",
     "projectType": "app",
-    "tags": [
-        "chat"
-    ],
+    "tags": ["chat"],
     "implicitDependencies": []
 }

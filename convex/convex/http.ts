@@ -67,20 +67,24 @@ app.post("/chat/improve-prompt", async (c) => improvePromptHttpAction(c.env, c.r
 app.post("/email/resend/webhook", async (c) => await resend.handleResendEventWebhook(c.env, c.req.raw));
 
 // Example API endpoint demonstrating Hono's health check
-app.get("/api/health", async (c) => c.json({
-    environment: "production",
-    status: "ok",
-    timestamp: new Date().toISOString(),
-}));
+app.get("/api/health", async (c) =>
+    c.json({
+        environment: "production",
+        status: "ok",
+        timestamp: new Date().toISOString(),
+    }),
+);
 
-app.notFound((c) => c.json(
-    {
-        error: "Endpoint not found",
-        method: c.req.method,
-        path: c.req.path,
-    },
-    404,
-));
+app.notFound((c) =>
+    c.json(
+        {
+            error: "Endpoint not found",
+            method: c.req.method,
+            path: c.req.path,
+        },
+        404,
+    ),
+);
 
 // Error handling
 app.onError((error, c) => {

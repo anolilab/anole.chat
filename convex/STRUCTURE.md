@@ -228,7 +228,7 @@ export const {feature}Tables = {
     exampleTable: defineTable({
         name: v.string(),
         value: v.number(),
-        userId: v.id("user"),
+        userId: v.id("users"),
     }).index("by_userId", ["userId"]),
 };
 ```
