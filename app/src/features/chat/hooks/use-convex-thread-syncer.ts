@@ -47,16 +47,20 @@ export const useConvexThreadSyncer = ({ isRunning, model }: UseConvexThreadSynce
         };
     }, [isRunning, isSyncPaused]);
 
-    const paginatedMessagesArguments = useMemo(() => (currentThreadId === "default"
+    const shouldSkip = currentThreadId === "default";
+
+    const paginatedMessagesArguments = useMemo(() => (shouldSkip
         ? "skip"
         : {
             model,
             threadId: currentThreadId,
         }), [currentThreadId, model]);
 
-    const { isLoading: messagesAreLoading, results: convexMessages } = useThreadMessages(api.chat.functions.getThreadMessages, paginatedMessagesArguments, {
+    const { isLoading, results: convexMessages } = useThreadMessages(api.chat.functions.getThreadMessages, paginatedMessagesArguments, {
         initialNumItems: 50,
     });
+
+    let messagesAreLoading = shouldSkip ? false : isLoading;
 
     const { results: convexThreads } = usePaginatedQuery(api.chat.functions.getThreads, {}, { initialNumItems: 10 });
 

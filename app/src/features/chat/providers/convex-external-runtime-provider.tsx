@@ -16,7 +16,7 @@ import { providerLogger } from "@/lib/logger";
 import { useConvexThreadSyncer } from "../hooks/use-convex-thread-syncer";
 import { useMessageHandlers } from "../hooks/use-message-handlers";
 import { useThreadListAdapter } from "./thread-list-adapter";
-import type { ConvexExternalRuntimeProviderProps as ConvexExternalRuntimeProviderProperties } from "./types";
+import type { ConvexExternalRuntimeProviderProperties } from "./types";
 import { isValidThreadMessage } from "./types";
 
 export const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threadId }: ConvexExternalRuntimeProviderProperties) => {
