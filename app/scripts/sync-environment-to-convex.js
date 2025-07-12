@@ -1,78 +1,80 @@
-#!/usr/bin/env node
-
-import fs from "fs";
-import path from "path";
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 const whitelist = {
+    ANTHROPIC_API_KEY: "ANTHROPIC_API_KEY",
+    BETTER_AUTH_SECRET: "BETTER_AUTH_SECRET",
+    ENCRYPTION_KEY: "ENCRYPTION_KEY",
+    FAL_API_KEY: "FAL_API_KEY",
+    GOOGLE_GENERATIVE_AI_API_KEY: "GOOGLE_GENERATIVE_AI_API_KEY",
+    GROQ_API_KEY: "GROQ_API_KEY",
+    OPENAI_API_KEY: "OPENAI_API_KEY",
     RESEND_API_KEY: "RESEND_API_KEY",
     RESEND_FROM_EMAIL: "RESEND_FROM_EMAIL",
     VITE_SITE_URL: "SITE_URL",
-    ENCRYPTION_KEY: "ENCRYPTION_KEY",
-    BETTER_AUTH_SECRET: "BETTER_AUTH_SECRET",
-    ANTHROPIC_API_KEY: "ANTHROPIC_API_KEY",
-    OPENAI_API_KEY: "OPENAI_API_KEY",
-    OPENAI_API_KEY: "OPENAI_API_KEY",
-    ANTHROPIC_API_KEY: "ANTHROPIC_API_KEY",
-    GOOGLE_API_KEY: "GOOGLE_API_KEY",
-    GROQ_API_KEY: "GROQ_API_KEY",
-    FAL_API_KEY: "FAL_API_KEY"
 };
 
-const parseEnvFile = (filePath) => {
+const parseEnvironmentFile = (filePath) => {
     if (!fs.existsSync(filePath)) {
         console.error(`❌ .env file not found at: ${filePath}`);
         process.exit(1);
     }
 
-    const envContent = fs.readFileSync(filePath, "utf8");
-    const envVars = {};
+    const environmentContent = fs.readFileSync(filePath, "utf8");
+    const environmentVariables = {};
 
-    envContent.split("\n").forEach((line) => {
+    environmentContent.split("\n").forEach((line) => {
         if (!line.trim() || line.trim().startsWith("#")) {
             return;
         }
 
         const match = line.match(/^([^=]+)=(.*)$/);
+
         if (match) {
             const key = match[1].trim();
-            const value = match[2].trim().replace(/^["']|["']$/g, "");
+            const value = match[2].trim().replaceAll(/^["']|["']$/g, "");
 
             if (whitelist[key] && value) {
                 const convexKey = whitelist[key];
-                envVars[convexKey] = value;
+
+                environmentVariables[convexKey] = value;
             }
         }
     });
 
-    return envVars;
+    return environmentVariables;
 };
 
-const setConvexEnvVar = (key, value) => {
+const setConvexEnvironmentVariable = (key, value) => {
     try {
         execSync(`pnpm exec convex env --deployment-name "anonymous:anonymous-ai-chat" set ${key} "${value}"`, { stdio: "inherit" });
+
         return true;
     } catch (error) {
         console.error(`❌ Failed to set ${key}:`, error.message);
+
         return false;
     }
 };
 
-const syncEnvToConvex = async () => {
+const syncEnvironmentToConvex = async () => {
     console.log("🔄 Syncing .env file to Convex...\n");
 
-    const envFilePath = path.join(process.cwd(), ".env");
-    const localEnvVars = parseEnvFile(envFilePath);
+    const environmentFilePath = path.join(process.cwd(), ".env");
+    const localEnvironmentVariables = parseEnvironmentFile(environmentFilePath);
 
-    if (Object.keys(localEnvVars).length === 0) {
+    if (Object.keys(localEnvironmentVariables).length === 0) {
         console.log("ℹ️  No Convex-relevant environment variables found in .env file");
+
         return;
     }
 
     console.log("📋 Found the following variables to sync:");
 
-    Object.keys(localEnvVars).forEach((key) => {
-        const maskedValue = localEnvVars[key].length > 10 ? localEnvVars[key].substring(0, 10) + "..." : localEnvVars[key];
+    Object.keys(localEnvironmentVariables).forEach((key) => {
+        const maskedValue = localEnvironmentVariables[key].length > 10 ? `${localEnvironmentVariables[key].slice(0, 10)}...` : localEnvironmentVariables[key];
+
         console.log(`  - ${key}: ${maskedValue}`);
     });
 
@@ -80,10 +82,10 @@ const syncEnvToConvex = async () => {
 
     let successCount = 0;
 
-    for (const [key, value] of Object.entries(localEnvVars)) {
+    for (const [key, value] of Object.entries(localEnvironmentVariables)) {
         console.log(`🔧 Setting ${key}...`);
 
-        if (setConvexEnvVar(key, value)) {
+        if (setConvexEnvironmentVariable(key, value)) {
             successCount++;
         }
     }
@@ -93,11 +95,11 @@ const syncEnvToConvex = async () => {
 
     if (successCount > 0) {
         console.log("\n🎉 Environment sync completed successfully!");
-        console.log('💡 Run "npx convex env list" to verify the changes');
+        console.log("💡 Run \"npx convex env list\" to verify the changes");
     }
 };
 
-syncEnvToConvex().catch((error) => {
+syncEnvironmentToConvex().catch((error) => {
     console.error("❌ Sync failed:", error.message);
     process.exit(1);
 });

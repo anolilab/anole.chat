@@ -4,11 +4,7 @@ import "@assistant-ui/react-markdown/styles/dot.css";
 import "katex/dist/katex.min.css";
 
 import type { CodeHeaderProps } from "@assistant-ui/react-markdown";
-import {
-    MarkdownTextPrimitive,
-    unstable_memoizeMarkdownComponents as memoizeMarkdownComponents,
-    useIsMarkdownCodeBlock,
-} from "@assistant-ui/react-markdown";
+import { MarkdownTextPrimitive, unstable_memoizeMarkdownComponents as memoizeMarkdownComponents, useIsMarkdownCodeBlock } from "@assistant-ui/react-markdown";
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
 import type { FC } from "react";
 import { memo, useState } from "react";
@@ -300,7 +296,9 @@ const useCopyToClipboard = ({
 
         navigator.clipboard.writeText(value).then(() => {
             setIsCopied(true);
-            setTimeout(() => { setIsCopied(false); }, copiedDuration);
+            setTimeout(() => {
+                setIsCopied(false);
+            }, copiedDuration);
         });
     };
 
@@ -336,7 +334,9 @@ const defaultComponents = memoizeMarkdownComponents({
     ),
     sup: ({ className, ...properties }) => <sup className={cn("[&>a]:text-xs [&>a]:no-underline", className)} {...properties} />,
     SyntaxHighlighter,
-    table: ({ className, ...properties }) => <table className={cn("my-5 w-full border-separate border-spacing-0 overflow-y-auto", className)} {...properties} />,
+    table: ({ className, ...properties }) => (
+        <table className={cn("my-5 w-full border-separate border-spacing-0 overflow-y-auto", className)} {...properties} />
+    ),
     td: ({ className, ...properties }) => (
         <td
             className={cn("border-b border-l px-4 py-2 text-left last:border-r [&[align=center]]:text-center [&[align=right]]:text-right", className)}

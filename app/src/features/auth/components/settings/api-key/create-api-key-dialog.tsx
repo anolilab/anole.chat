@@ -28,13 +28,15 @@ interface CreateAPIKeyDialogProperties extends ComponentProps<typeof Dialog> {
 export const CreateAPIKeyDialog = ({ classNames, onOpenChange, onSuccess, refetch, ...properties }: CreateAPIKeyDialogProperties) => {
     const { apiKey, authClient, toast } = useAuth();
 
-    const formSchema = z.object({
-        expiresInDays: z.string().optional(),
-        name: z
-            .string()
-            .trim()
-            .min(1, t`Name is required`),
-    }).strict();
+    const formSchema = z
+        .object({
+            expiresInDays: z.string().optional(),
+            name: z
+                .string()
+                .trim()
+                .min(1, t`Name is required`),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -73,7 +75,12 @@ export const CreateAPIKeyDialog = ({ classNames, onOpenChange, onSuccess, refetc
 
     return (
         <Dialog onOpenChange={onOpenChange} {...properties}>
-            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => { e.preventDefault(); }}>
+            <DialogContent
+                className={classNames?.dialog?.content}
+                onOpenAutoFocus={(e) => {
+                    e.preventDefault();
+                }}
+            >
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Create API Key`}</DialogTitle>
 
@@ -102,7 +109,9 @@ export const CreateAPIKeyDialog = ({ classNames, onOpenChange, onSuccess, refetc
                                                 autoFocus
                                                 className={classNames?.input}
                                                 onBlur={field.handleBlur}
-                                                onChange={(e) => { field.handleChange(e.target.value); }}
+                                                onChange={(e) => {
+                                                    field.handleChange(e.target.value);
+                                                }}
                                                 placeholder={t`Enter a name for your API key`}
                                                 required
                                                 value={field.state.value}

@@ -22,11 +22,11 @@ const RouteComponent = () => (
                 {/* TODO: check why the bg-sidebar with inset variant is not working */}
                 <SidebarProvider
                     style={
-                            {
-                                "--header-height": "calc(var(--spacing) * 8.5)",
-                                "--sidebar-width": "calc(var(--spacing) * 94)",
-                            } as React.CSSProperties
-                        }
+                        {
+                            "--header-height": "calc(var(--spacing) * 8.5)",
+                            "--sidebar-width": "calc(var(--spacing) * 94)",
+                        } as React.CSSProperties
+                    }
                 >
                     <Outlet />
                 </SidebarProvider>

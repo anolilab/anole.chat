@@ -22,9 +22,11 @@ export interface DeleteOrganizationDialogProperties extends ComponentProps<typeo
     classNames?: SettingsCardClassNames;
 }
 
-const formSchema = z.object({
-    slug: z.string().min(1, { message: t`Organization slug is required` }),
-}).strict();
+const formSchema = z
+    .object({
+        slug: z.string().min(1, { message: t`Organization slug is required` }),
+    })
+    .strict();
 
 export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properties }: DeleteOrganizationDialogProperties) => {
     const {
@@ -129,7 +131,9 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
                                             autoComplete="off"
                                             className={classNames?.input}
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => { field.handleChange(e.target.value); }}
+                                            onChange={(e) => {
+                                                field.handleChange(e.target.value);
+                                            }}
                                             placeholder={activeOrganization?.slug}
                                             value={field.state.value}
                                         />

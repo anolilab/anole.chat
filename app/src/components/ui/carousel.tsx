@@ -41,7 +41,15 @@ function useCarousel() {
     return context;
 }
 
-const Carousel = ({ children, className, opts, orientation = "horizontal", plugins, setApi, ...properties }: CarouselProperties & React.ComponentProps<"div">) => {
+const Carousel = ({
+    children,
+    className,
+    opts,
+    orientation = "horizontal",
+    plugins,
+    setApi,
+    ...properties
+}: CarouselProperties & React.ComponentProps<"div">) => {
     const [carouselReference, api] = useEmblaCarousel(
         {
             ...opts,

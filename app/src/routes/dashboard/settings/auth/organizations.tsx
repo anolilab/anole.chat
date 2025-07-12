@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { SecuritySettingsCards } from "@/features/auth/components/settings/security-settings-cards";
+import { OrganizationsCard } from "@/features/auth/components/organization/organizations-card";
 
-export const Route = createFileRoute("/dashboard/settings/security")({
+export const Route = createFileRoute("/dashboard/settings/auth/organizations")({
     beforeLoad: ({ context }) => {
         if (!context?.user?.id) {
             throw redirect({ to: "/auth/sign-in" });
@@ -11,4 +11,4 @@ export const Route = createFileRoute("/dashboard/settings/security")({
     component: RouteComponent,
 });
 
-const RouteComponent = () => <SecuritySettingsCards />;
+const RouteComponent = () => <OrganizationsCard />;

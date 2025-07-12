@@ -41,20 +41,22 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
     const { refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
 
-    const formSchema = z.object({
-        logo: z.string().optional(),
-        name: z.string().min(1, {
-            message: t`Organization name is required`,
-        }),
-        slug: z
-            .string()
-            .min(1, {
-                message: t`Organization slug is required`,
-            })
-            .regex(/^[a-z0-9-]+$/, {
-                message: t`Organization slug is invalid`,
+    const formSchema = z
+        .object({
+            logo: z.string().optional(),
+            name: z.string().min(1, {
+                message: t`Organization name is required`,
             }),
-    }).strict();
+            slug: z
+                .string()
+                .min(1, {
+                    message: t`Organization slug is required`,
+                })
+                .regex(/^[a-z0-9-]+$/, {
+                    message: t`Organization slug is invalid`,
+                }),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -195,7 +197,12 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                                     </Button>
                                                 </DropdownMenuTrigger>
 
-                                                <DropdownMenuContent align="start" onCloseAutoFocus={(e) => { e.preventDefault(); }}>
+                                                <DropdownMenuContent
+                                                    align="start"
+                                                    onCloseAutoFocus={(e) => {
+                                                        e.preventDefault();
+                                                    }}
+                                                >
                                                     <DropdownMenuItem disabled={uploadingLogo} onClick={openFileDialog}>
                                                         <UploadCloudIcon />
                                                         {t`Upload Logo`}
@@ -230,7 +237,9 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                     <field.FormControl>
                                         <Input
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => { field.handleChange(e.target.value); }}
+                                            onChange={(e) => {
+                                                field.handleChange(e.target.value);
+                                            }}
                                             placeholder={t`Enter organization name`}
                                             value={field.state.value}
                                         />
@@ -250,7 +259,9 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                     <field.FormControl>
                                         <Input
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => { field.handleChange(e.target.value); }}
+                                            onChange={(e) => {
+                                                field.handleChange(e.target.value);
+                                            }}
                                             placeholder={t`Enter organization slug`}
                                             value={field.state.value}
                                         />

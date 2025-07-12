@@ -73,13 +73,16 @@ export const RemoveMemberDialog = ({ classNames, member, onOpenChange, ...proper
 
     return (
         <Dialog onOpenChange={onOpenChange} {...properties}>
-            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => { e.preventDefault(); }}>
+            <DialogContent
+                className={classNames?.dialog?.content}
+                onOpenAutoFocus={(e) => {
+                    e.preventDefault();
+                }}
+            >
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Remove Member`}</DialogTitle>
 
-                    <DialogDescription
-                        className={cn("text-xs md:text-sm", classNames?.description)}
-                    >
+                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
                         {t`Are you sure you want to remove this member?`}
                     </DialogDescription>
                 </DialogHeader>

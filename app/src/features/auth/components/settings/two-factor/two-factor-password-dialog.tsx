@@ -22,9 +22,11 @@ interface TwoFactorPasswordDialogProperties extends ComponentProps<typeof Dialog
     isTwoFactorEnabled: boolean;
 }
 
-const formSchema = z.object({
-    password: z.string().min(1, { message: "Password is required" }),
-}).strict();
+const formSchema = z
+    .object({
+        password: z.string().min(1, { message: "Password is required" }),
+    })
+    .strict();
 
 export const TwoFactorPasswordDialog = ({ classNames, isTwoFactorEnabled, onOpenChange, ...properties }: TwoFactorPasswordDialogProperties) => {
     const { authClient, basePath, navigate, toast, twoFactor, viewPaths } = useAuth();
@@ -133,7 +135,9 @@ export const TwoFactorPasswordDialog = ({ classNames, isTwoFactorEnabled, onOpen
                                                 autoComplete="current-password"
                                                 className={classNames?.input}
                                                 onBlur={field.handleBlur}
-                                                onChange={(e) => { field.handleChange(e.target.value); }}
+                                                onChange={(e) => {
+                                                    field.handleChange(e.target.value);
+                                                }}
                                                 placeholder={t`Enter your password`}
                                                 value={field.state.value}
                                             />

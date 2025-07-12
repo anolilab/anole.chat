@@ -16,14 +16,16 @@ export type ConvexMessage = {
     message?: {
         content:
             | string
-            | (| {
-                text: string;
-                type: "text";
-            }
-            | {
-                image: string;
-                type: "image";
-            })[];
+            | (
+                | {
+                    text: string;
+                    type: "text";
+                }
+                | {
+                    image: string;
+                    type: "image";
+                }
+            )[];
         role: "user" | "assistant" | "system";
     };
     tool: boolean;
@@ -48,8 +50,7 @@ export const isValidThreadMessage = (message: any): message is ThreadMessageLike
     && typeof message.role === "string"
     && (message.role === "user" || message.role === "assistant" || message.role === "system")
     && Array.isArray(message.content)
-    && message.content.length > 0
-    ;
+    && message.content.length > 0;
 
 export const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
     try {

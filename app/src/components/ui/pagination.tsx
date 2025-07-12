@@ -5,14 +5,18 @@ import type { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const Pagination = ({ className, ...properties }: React.ComponentProps<"nav">) => <nav aria-label="pagination" className={cn("mx-auto flex w-full justify-center", className)} data-slot="pagination" role="navigation" {...properties} />;
+const Pagination = ({ className, ...properties }: React.ComponentProps<"nav">) => (
+    <nav aria-label="pagination" className={cn("mx-auto flex w-full justify-center", className)} data-slot="pagination" role="navigation" {...properties} />
+);
 
-const PaginationContent = ({ className, ...properties }: React.ComponentProps<"ul">) => <ul className={cn("flex flex-row items-center gap-1", className)} data-slot="pagination-content" {...properties} />;
+const PaginationContent = ({ className, ...properties }: React.ComponentProps<"ul">) => (
+    <ul className={cn("flex flex-row items-center gap-1", className)} data-slot="pagination-content" {...properties} />
+);
 
 const PaginationItem = ({ ...properties }: React.ComponentProps<"li">) => <li data-slot="pagination-item" {...properties} />;
 
-type PaginationLinkProperties = Pick<React.ComponentProps<typeof Button>, "size"> & React.ComponentProps<"a">
-    & {
+type PaginationLinkProperties = Pick<React.ComponentProps<typeof Button>, "size">
+    & React.ComponentProps<"a"> & {
         isActive?: boolean;
     };
 

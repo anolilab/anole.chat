@@ -1,75 +1,79 @@
-#!/usr/bin/env node
-
-import crypto from "crypto";
-import fs from "fs";
-import path from "path";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 const generateEncryptionKey = () => {
     const key = crypto.randomBytes(32);
+
     return key.toString("base64");
 };
 
-const checkKeyInEnv = (keyName) => {
-    const envPath = path.join(process.cwd(), ".env");
-    if (!fs.existsSync(envPath)) return false;
-    const envContent = fs.readFileSync(envPath, "utf8");
+const checkKeyInEnvironment = (keyName) => {
+    const environmentPath = path.join(process.cwd(), ".env");
+
+    if (!fs.existsSync(environmentPath))
+        return false;
+
+    const environmentContent = fs.readFileSync(environmentPath, "utf8");
     const regex = new RegExp(`^${keyName}=.+$`, "m");
-    return regex.test(envContent);
+
+    return regex.test(environmentContent);
 };
 
-const updateEnvFile = (keyName, keyValue) => {
-    const envPath = path.join(process.cwd(), ".env");
-    let envContent = "";
-    if (fs.existsSync(envPath)) {
-        envContent = fs.readFileSync(envPath, "utf8");
+const updateEnvironmentFile = (keyName, keyValue) => {
+    const environmentPath = path.join(process.cwd(), ".env");
+    let environmentContent = "";
+
+    if (fs.existsSync(environmentPath)) {
+        environmentContent = fs.readFileSync(environmentPath, "utf8");
     }
-    
+
     const keyRegex = new RegExp(`^${keyName}=.*$`, "m");
-    if (keyRegex.test(envContent)) {
+
+    if (keyRegex.test(environmentContent)) {
         const emptyKeyRegex = new RegExp(`^${keyName}=$`, "m");
-        if (emptyKeyRegex.test(envContent)) {
-            envContent = envContent.replace(emptyKeyRegex, `${keyName}=${keyValue}`);
+
+        if (emptyKeyRegex.test(environmentContent)) {
+            environmentContent = environmentContent.replace(emptyKeyRegex, `${keyName}=${keyValue}`);
             console.log(`✅ Updated ${keyName} in .env file`);
         } else {
             console.log(`ℹ️  ${keyName} already has a value in .env file`);
+
             return false;
         }
     } else {
-        if (envContent && !envContent.endsWith("
-")) {
-            envContent += "
-";
+        if (environmentContent && !environmentContent.endsWith("")) {
+            environmentContent += "";
         }
-        envContent += `${keyName}=${keyValue}
-`;
+
+        environmentContent += `${keyName}=${keyValue}`;
+
         console.log(`✅ Added ${keyName} to .env file`);
     }
-    
-    fs.writeFileSync(envPath, envContent);
+
+    fs.writeFileSync(environmentPath, environmentContent);
+
     return true;
 };
 
 (() => {
-    console.log("🔐 Generating encryption key...
-");
+    console.log("🔐 Generating encryption key...");
 
     const encryptionKey = generateEncryptionKey();
 
     console.log("Generated ENCRYPTION_KEY:");
     console.log("========================");
     console.log(encryptionKey);
-    console.log("========================
-");
+    console.log("========================");
 
-    if (checkKeyInEnv("ENCRYPTION_KEY")) {
+    if (checkKeyInEnvironment("ENCRYPTION_KEY")) {
         console.log("ℹ️  ENCRYPTION_KEY already exists in .env file with a value");
-        console.log("💡 If you want to regenerate, remove the existing value first
-");
+        console.log("💡 If you want to regenerate, remove the existing value first");
     } else {
-        const updated = updateEnvFile("ENCRYPTION_KEY", encryptionKey);
+        const updated = updateEnvironmentFile("ENCRYPTION_KEY", encryptionKey);
+
         if (updated) {
-            console.log("📁 .env file updated successfully!
-");
+            console.log("📁 .env file updated successfully!");
         }
     }
 
@@ -82,8 +86,7 @@ const updateEnvFile = (keyName, keyValue) => {
     console.log("- Never commit this key to version control");
     console.log("- Store it securely in your environment variables");
     console.log("- Use different keys for different environments (dev/staging/prod)");
-    console.log("- If compromised, generate a new key immediately
-");
+    console.log("- If compromised, generate a new key immediately");
 
     console.log("✅ Key generation complete!");
 })();

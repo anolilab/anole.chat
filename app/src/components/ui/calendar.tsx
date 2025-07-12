@@ -24,8 +24,7 @@ const Calendar = ({ className, classNames, showOutsideDays = true, ...properties
             day_range_end: "day-range-end aria-selected:bg-primary aria-selected:text-primary-foreground",
             day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
             day_range_start: "day-range-start aria-selected:bg-primary aria-selected:text-primary-foreground",
-            day_selected:
-                    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
             day_today: "bg-accent text-accent-foreground",
             head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
             head_row: "flex",

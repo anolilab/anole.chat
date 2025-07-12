@@ -19,9 +19,13 @@ const alertVariants = cva(
     },
 );
 
-const Alert = ({ className, variant, ...properties }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) => <div className={cn(alertVariants({ variant }), className)} data-slot="alert" role="alert" {...properties} />;
+const Alert = ({ className, variant, ...properties }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) => (
+    <div className={cn(alertVariants({ variant }), className)} data-slot="alert" role="alert" {...properties} />
+);
 
-const AlertTitle = ({ className, ...properties }: React.ComponentProps<"div">) => <div className={cn("col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight", className)} data-slot="alert-title" {...properties} />;
+const AlertTitle = ({ className, ...properties }: React.ComponentProps<"div">) => (
+    <div className={cn("col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight", className)} data-slot="alert-title" {...properties} />
+);
 
 const AlertDescription = ({ className, ...properties }: React.ComponentProps<"div">) => (
     <div

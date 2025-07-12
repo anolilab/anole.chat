@@ -42,17 +42,19 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
     const roles = [...builtInRoles, ...organization?.customRoles || []];
     const availableRoles = roles.filter((role) => membership?.role === "owner" || role.role !== "owner");
 
-    const formSchema = z.object({
-        email: z
-            .string()
-            .min(1, { message: t`Email is required` })
-            .email({
-                message: t`Invalid email`,
+    const formSchema = z
+        .object({
+            email: z
+                .string()
+                .min(1, { message: t`Email is required` })
+                .email({
+                    message: t`Invalid email`,
+                }),
+            role: z.string().min(1, {
+                message: t`Role is required`,
             }),
-        role: z.string().min(1, {
-            message: t`Role is required`,
-        }),
-    }).strict();
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -119,7 +121,9 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
                                             autoComplete="email"
                                             className={classNames?.input}
                                             onBlur={field.handleBlur}
-                                            onChange={(e) => { field.handleChange(e.target.value); }}
+                                            onChange={(e) => {
+                                                field.handleChange(e.target.value);
+                                            }}
                                             placeholder={t`Enter email address`}
                                             type="email"
                                             value={field.state.value}

@@ -48,46 +48,48 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
         redirectTo,
     });
 
-    const formSchema = z.object({
-        email: usernameEnabled
-            ? z.string().min(1, {
-                message: t`Username is required`,
-            })
-            : z
-                .string()
-                .min(1, {
-                    message: t`Email is required`,
+    const formSchema = z
+        .object({
+            email: usernameEnabled
+                ? z.string().min(1, {
+                    message: t`Username is required`,
                 })
-                .email({
-                    message: t`Email is invalid`,
-                }),
-        password: (() => {
-            let schema = z.string().min(1, {
-                message: t`Password is required`,
-            });
-
-            if (passwordValidation?.minLength) {
-                schema = schema.min(passwordValidation.minLength, {
-                    message: t`Password is too short`,
+                : z
+                    .string()
+                    .min(1, {
+                        message: t`Email is required`,
+                    })
+                    .email({
+                        message: t`Email is invalid`,
+                    }),
+            password: (() => {
+                let schema = z.string().min(1, {
+                    message: t`Password is required`,
                 });
-            }
 
-            if (passwordValidation?.maxLength) {
-                schema = schema.max(passwordValidation.maxLength, {
-                    message: t`Password is too long`,
-                });
-            }
+                if (passwordValidation?.minLength) {
+                    schema = schema.min(passwordValidation.minLength, {
+                        message: t`Password is too short`,
+                    });
+                }
 
-            if (passwordValidation?.regex) {
-                schema = schema.regex(passwordValidation.regex, {
-                    message: t`Invalid password`,
-                });
-            }
+                if (passwordValidation?.maxLength) {
+                    schema = schema.max(passwordValidation.maxLength, {
+                        message: t`Password is too long`,
+                    });
+                }
 
-            return schema;
-        })(),
-        rememberMe: z.boolean().optional(),
-    }).strict();
+                if (passwordValidation?.regex) {
+                    schema = schema.regex(passwordValidation.regex, {
+                        message: t`Invalid password`,
+                    });
+                }
+
+                return schema;
+            })(),
+            rememberMe: z.boolean().optional(),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -185,7 +187,9 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => { field.handleChange(e.target.value); }}
+                                    onChange={(e) => {
+                                        field.handleChange(e.target.value);
+                                    }}
                                     placeholder={usernameEnabled ? t`Enter your username` : t`Enter your email`}
                                     type={usernameEnabled ? "text" : "email"}
                                     value={field.state.value}
@@ -220,7 +224,9 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => { field.handleChange(e.target.value); }}
+                                    onChange={(e) => {
+                                        field.handleChange(e.target.value);
+                                    }}
                                     placeholder={t`Enter your password`}
                                     value={field.state.value}
                                 />
@@ -240,7 +246,9 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     <Checkbox
                                         checked={field.state.value}
                                         disabled={isSubmitting}
-                                        onCheckedChange={(checked) => { field.handleChange(checked === true); }}
+                                        onCheckedChange={(checked) => {
+                                            field.handleChange(checked === true);
+                                        }}
                                     />
                                 </field.FormControl>
 

@@ -15,7 +15,15 @@ interface SettingsActionButtonProperties extends ComponentProps<typeof Button> {
     isSubmitting?: boolean;
 }
 
-export const SettingsActionButton = ({ actionLabel, classNames, disabled, isSubmitting = false, onClick, variant, ...properties }: SettingsActionButtonProperties) => (
+export const SettingsActionButton = ({
+    actionLabel,
+    classNames,
+    disabled,
+    isSubmitting = false,
+    onClick,
+    variant,
+    ...properties
+}: SettingsActionButtonProperties) => (
     <Button
         className={cn(
             "md:ms-auto",

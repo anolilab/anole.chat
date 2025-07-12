@@ -6,11 +6,17 @@ import { cn } from "@/lib/utils";
 
 const Dialog = ({ ...properties }: React.ComponentProps<typeof DialogPrimitive.Root>) => <DialogPrimitive.Root data-slot="dialog" {...properties} />;
 
-const DialogTrigger = ({ ...properties }: React.ComponentProps<typeof DialogPrimitive.Trigger>) => <DialogPrimitive.Trigger data-slot="dialog-trigger" {...properties} />;
+const DialogTrigger = ({ ...properties }: React.ComponentProps<typeof DialogPrimitive.Trigger>) => (
+    <DialogPrimitive.Trigger data-slot="dialog-trigger" {...properties} />
+);
 
-const DialogPortal = ({ ...properties }: React.ComponentProps<typeof DialogPrimitive.Portal>) => <DialogPrimitive.Portal data-slot="dialog-portal" {...properties} />;
+const DialogPortal = ({ ...properties }: React.ComponentProps<typeof DialogPrimitive.Portal>) => (
+    <DialogPrimitive.Portal data-slot="dialog-portal" {...properties} />
+);
 
-const DialogClose = ({ ...properties }: React.ComponentProps<typeof DialogPrimitive.Close>) => <DialogPrimitive.Close data-slot="dialog-close" {...properties} />;
+const DialogClose = ({ ...properties }: React.ComponentProps<typeof DialogPrimitive.Close>) => (
+    <DialogPrimitive.Close data-slot="dialog-close" {...properties} />
+);
 
 const DialogOverlay = ({ className, ...properties }: React.ComponentProps<typeof DialogPrimitive.Overlay>) => (
     <DialogPrimitive.Overlay
@@ -43,12 +49,20 @@ const DialogContent = ({ children, className, ...properties }: React.ComponentPr
     </DialogPortal>
 );
 
-const DialogHeader = ({ className, ...properties }: React.ComponentProps<"div">) => <div className={cn("flex flex-col gap-2 text-center sm:text-left", className)} data-slot="dialog-header" {...properties} />;
+const DialogHeader = ({ className, ...properties }: React.ComponentProps<"div">) => (
+    <div className={cn("flex flex-col gap-2 text-center sm:text-left", className)} data-slot="dialog-header" {...properties} />
+);
 
-const DialogFooter = ({ className, ...properties }: React.ComponentProps<"div">) => <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} data-slot="dialog-footer" {...properties} />;
+const DialogFooter = ({ className, ...properties }: React.ComponentProps<"div">) => (
+    <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} data-slot="dialog-footer" {...properties} />
+);
 
-const DialogTitle = ({ className, ...properties }: React.ComponentProps<typeof DialogPrimitive.Title>) => <DialogPrimitive.Title className={cn("text-lg font-semibold leading-none", className)} data-slot="dialog-title" {...properties} />;
+const DialogTitle = ({ className, ...properties }: React.ComponentProps<typeof DialogPrimitive.Title>) => (
+    <DialogPrimitive.Title className={cn("text-lg font-semibold leading-none", className)} data-slot="dialog-title" {...properties} />
+);
 
-const DialogDescription = ({ className, ...properties }: React.ComponentProps<typeof DialogPrimitive.Description>) => <DialogPrimitive.Description className={cn("text-muted-foreground text-sm", className)} data-slot="dialog-description" {...properties} />;
+const DialogDescription = ({ className, ...properties }: React.ComponentProps<typeof DialogPrimitive.Description>) => (
+    <DialogPrimitive.Description className={cn("text-muted-foreground text-sm", className)} data-slot="dialog-description" {...properties} />
+);
 
 export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger };

@@ -127,8 +127,10 @@ export function useAuthData<T>({
         // Check if data is stale
         const isStale = !cacheEntry || Date.now() - cacheEntry.timestamp > staleTime;
 
-        if ((!initialized.current || !hasCachedData || userIdChanged || (hasCachedData && isStale)) // Only fetch if we don't have data or if the data is stale
-            && (!hasCachedData || isStale)) {
+        if (
+            (!initialized.current || !hasCachedData || userIdChanged || (hasCachedData && isStale)) // Only fetch if we don't have data or if the data is stale
+            && (!hasCachedData || isStale)
+        ) {
             initialized.current = true;
             refetch();
         }

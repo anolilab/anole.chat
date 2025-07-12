@@ -23,7 +23,12 @@ const badgeVariants = cva(
     },
 );
 
-const Badge = ({ asChild = false, className, variant, ...properties }: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) => {
+const Badge = ({
+    asChild = false,
+    className,
+    variant,
+    ...properties
+}: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) => {
     const Comp = asChild ? SlotPrimitive.Slot : "span";
 
     return <Comp className={cn(badgeVariants({ variant }), className)} data-slot="badge" {...properties} />;

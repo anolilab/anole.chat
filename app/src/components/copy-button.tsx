@@ -13,9 +13,13 @@ export default function CopyButton({ textToCopy }: CopyButtonProperties) {
 
     useEffect(() => {
         if (isCopied) {
-            const timer = setTimeout(() => { setIsCopied(false); }, 2000);
+            const timer = setTimeout(() => {
+                setIsCopied(false);
+            }, 2000);
 
-            return () => { clearTimeout(timer); };
+            return () => {
+                clearTimeout(timer);
+            };
         }
 
         return () => {};

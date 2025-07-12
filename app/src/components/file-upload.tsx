@@ -81,9 +81,15 @@ export default function UploadComponent() {
     return (
         <div
             className="sticky top-4 flex max-h-[calc(100vh-2rem)] min-h-[200px] w-full justify-center overflow-visible"
-            onDragEnd={() => { setIsDragging(false); }}
-            onDragExit={() => { setIsDragging(false); }}
-            onDragLeave={() => { setIsDragging(false); }}
+            onDragEnd={() => {
+                setIsDragging(false);
+            }}
+            onDragExit={() => {
+                setIsDragging(false);
+            }}
+            onDragLeave={() => {
+                setIsDragging(false);
+            }}
             onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragging(true);
@@ -128,9 +134,7 @@ export default function UploadComponent() {
                 </CardHeader>
                 <CardContent>
                     <form className="space-y-4" onSubmit={handleSubmitWithFiles}>
-                        <div
-                            className="border-muted-foreground/25 hover:border-muted-foreground/50 relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors"
-                        >
+                        <div className="border-muted-foreground/25 hover:border-muted-foreground/50 relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors">
                             <input accept="application/pdf" className="absolute inset-0 cursor-pointer opacity-0" onChange={handleFileChange} type="file" />
                             <FileUp className="text-muted-foreground mb-2 h-8 w-8" />
                             <p className="text-muted-foreground text-center text-sm">

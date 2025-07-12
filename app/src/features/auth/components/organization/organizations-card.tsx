@@ -28,7 +28,9 @@ export const OrganizationsCard = ({ className, classNames, ...properties }: Sett
     return (
         <>
             <SettingsCard
-                action={() => { setCreateDialogOpen(true); }}
+                action={() => {
+                    setCreateDialogOpen(true);
+                }}
                 actionLabel={t`Create Organization`}
                 className={className}
                 classNames={classNames}

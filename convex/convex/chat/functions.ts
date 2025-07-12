@@ -9,15 +9,14 @@ import threadTitlePrompt from "./prompts/thread-title-prompt.txt";
 import { components, internal } from "../_generated/api";
 import type { Id } from "../_generated/dataModel";
 import type { ActionCtx as ActionContext } from "../_generated/server";
-import { action, internalAction, internalMutation, internalQuery, mutation, query } from "../_generated/server";
+import { internalAction, internalMutation, internalQuery } from "../_generated/server";
 import type { AgentModel } from "../ai/lib/agents";
 import { getAgent } from "../ai/lib/agents";
-import createCacheMiddleware from "../ai/middleware/cacheMiddleware";
-import { authedQuery } from "../auth/functions";
-import { requireUserId } from "../auth/lib/helper";
+import createCacheMiddleware from "../ai/middlewares/cacheMiddleware";
+import { authedMutation, authedQuery, authedAction } from "../auth/functions";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
 
-export const createThread = mutation({
+export const createThread = authedMutation({
     args: {
         branchName: v.optional(v.string()),
         branchPoint: v.optional(v.number()),
@@ -25,7 +24,7 @@ export const createThread = mutation({
         parentThreadId: v.optional(v.string()),
     },
     handler: async (context, arguments_) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;
 
         const agent = getAgent(arguments_.model as AgentModel);
 
@@ -56,15 +55,13 @@ export const createThread = mutation({
     returns: v.string(),
 });
 
-export const getThreadMessages = query({
+export const getThreadMessages = authedQuery({
     args: {
         model: v.string(),
         paginationOpts: paginationOptsValidator,
         threadId: v.string(),
     },
     handler: async (context, { model, paginationOpts, threadId }): Promise<PaginationResult<MessageDoc>> => {
-        await requireUserId(context);
-
         const agent = getAgent(model as AgentModel);
 
         // Check if this thread has a parent (is a branch)
@@ -113,10 +110,10 @@ export const getThreadMessages = query({
     },
 });
 
-export const continueThread = action({
+export const continueThread = authedAction({
     args: { model: v.string(), prompt: v.string(), threadId: v.string() },
     handler: async (context, { model, prompt, threadId }) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;;
         const agent = getAgent(model as AgentModel);
 
         const { thread } = await agent.continueThread(context, { threadId, userId });
@@ -127,17 +124,17 @@ export const continueThread = action({
     },
 });
 
-export const getThreads = query({
+export const getThreads = authedQuery({
     args: { paginationOpts: paginationOptsValidator },
     handler: async (context, { paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;;
         const results = await context.runQuery(components.agent.threads.listThreadsByUserId, { paginationOpts, userId });
 
         return results;
     },
 });
 
-export const updateThread = action({
+export const updateThread = authedAction({
     args: {
         model: v.string(),
         order: v.optional(v.number()),
@@ -147,13 +144,7 @@ export const updateThread = action({
         title: v.optional(v.string()),
     },
     handler: async (context, { model, order, status, summary, threadId, title }) => {
-        const identity = await context.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new ConvexError("User must be logged in.");
-        }
-
-        const userId = identity.subject;
+        const userId = context.user._id;
         const agent = getAgent(model as AgentModel);
 
         const { thread } = await agent.continueThread(context, { threadId, userId });
@@ -172,7 +163,8 @@ export const streamHttpAction = async (context: ActionContext, request: Request)
         threadId?: string;
     };
 
-    const userId = await requireUserId(context);
+    const user = await context.runQuery(internal.auth.functions.getCurrentUser)
+    const userId = user._id;
 
     const agent = getAgent(model as AgentModel);
 
@@ -254,16 +246,7 @@ export const createTitleChat = internalAction({
 
         const textResult = await thread.generateText(
             {
-                messages: [
-                    {
-                        role: "system",
-                        content: threadTitlePrompt,
-                    },
-                    {
-                        role: "user",
-                        content: `Here is the user's prompt:\n"${arguments_.prompt}"\nGenerate a title that accurately represents what this conversation is about based on the prompt provided.`,
-                    },
-                ],
+                prompt: `${threadTitlePrompt}\nHere is the user's prompt:\n"${arguments_.prompt}"\nGenerate a title that accurately represents what this conversation is about based on the prompt provided.`,
             },
             {
                 storageOptions: {
@@ -345,13 +328,11 @@ export const getThreadRelationship = internalQuery({
     },
 });
 
-export const getChildThreads = query({
+export const getChildThreads = authedQuery({
     args: {
         parentThreadId: v.string(),
     },
     handler: async (context, arguments_) => {
-        await requireUserId(context);
-
         // Get all child threads for this parent
         const relationships = await context.db
             .query("threadRelationships")
@@ -397,11 +378,9 @@ export const deleteThreadRelationship = internalMutation({
 });
 
 // Update deleteThread to also clean up relationships
-export const deleteThreadWithRelationships = mutation({
+export const deleteThreadWithRelationships = authedMutation({
     args: { threadId: v.string() },
     handler: async (context, { threadId }) => {
-        await requireUserId(context);
-
         // Delete the thread relationship
         await context.runMutation(internal.chat.functions.deleteThreadRelationship, {
             threadId,
@@ -412,11 +391,9 @@ export const deleteThreadWithRelationships = mutation({
     },
 });
 
-export const getAllThreadRelationships = query({
+export const getAllThreadRelationships = authedQuery({
     args: {},
-    handler: async (context, arguments_) => {
-        await requireUserId(context);
-
+    handler: async (context) => {
         // Get all thread relationships for building the hierarchy
         const relationships = await context.db.query("threadRelationships").collect();
 
@@ -443,14 +420,12 @@ export const validateThreadExists = authedQuery({
     },
 });
 
-// Pin/Unpin thread functionality
-
-export const pinThread = mutation({
+export const pinThread = authedMutation({
     args: {
         threadId: v.string(),
     },
     handler: async (context, arguments_) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;
 
         // Check if thread is already pinned
         const existingPin = await context.db
@@ -475,19 +450,19 @@ export const pinThread = mutation({
         await context.db.insert("pinnedThreads", {
             pinnedAt: Date.now(),
             threadId: arguments_.threadId,
-            userId: userId as Id<"users">,
+            userId,
         });
 
         return { success: true };
     },
 });
 
-export const unpinThread = mutation({
+export const unpinThread = authedMutation({
     args: {
         threadId: v.string(),
     },
     handler: async (context, arguments_) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;
 
         // Find the pinned thread record
         const pinnedThread = await context.db
@@ -506,10 +481,10 @@ export const unpinThread = mutation({
     },
 });
 
-export const getPinnedThreads = query({
+export const getPinnedThreads = authedQuery({
     args: {},
     handler: async (context, arguments_) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;
 
         // Get all pinned threads for the user
         const pinnedThreads = await context.db
@@ -522,12 +497,12 @@ export const getPinnedThreads = query({
     returns: v.array(v.any()),
 });
 
-export const isThreadPinned = query({
+export const isThreadPinned = authedQuery({
     args: {
         threadId: v.string(),
     },
     handler: async (context, arguments_) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;
 
         // Check if thread is pinned
         const pinnedThread = await context.db
@@ -540,7 +515,7 @@ export const isThreadPinned = query({
     returns: v.boolean(),
 });
 
-export const updateThreadOrder = mutation({
+export const updateThreadOrder = authedMutation({
     args: {
         threadOrders: v.array(
             v.object({
@@ -550,7 +525,7 @@ export const updateThreadOrder = mutation({
         ),
     },
     handler: async (context, arguments_) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;
         const now = Date.now();
 
         // Update or insert thread orders
@@ -582,10 +557,10 @@ export const updateThreadOrder = mutation({
     },
 });
 
-export const getThreadOrders = query({
+export const getThreadOrders = authedQuery({
     args: {},
     handler: async (context, arguments_) => {
-        const userId = await requireUserId(context);
+        const userId = context.user._id;;
 
         // Get all thread orders for the user
         const threadOrders = await context.db
@@ -598,7 +573,7 @@ export const getThreadOrders = query({
     returns: v.array(v.any()),
 });
 
-export const searchThreads = query({
+export const searchThreads = authedQuery({
     args: {
         paginationOpts: paginationOptsValidator,
 
@@ -667,20 +642,14 @@ export const searchThreads = query({
     },
 });
 
-export const searchMessages = query({
+export const searchMessages = authedQuery({
     args: {
         paginationOpts: paginationOptsValidator,
 
         searchQuery: v.string(),
     },
     handler: async (context, { paginationOpts, searchQuery }): Promise<PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>> => {
-        const identity = await context.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new ConvexError("User must be logged in.");
-        }
-
-        const userId = identity.subject;
+        const userId = context.user._id;
 
         // If no search query, return empty results
         if (!searchQuery.trim()) {
@@ -878,19 +847,13 @@ export const improvePromptHttpAction = async (context: ActionContext, request: R
     }
 };
 
-export const getFullThreadForExport = query({
+export const getFullThreadForExport = authedQuery({
     args: {
         model: v.string(),
         threadId: v.string(),
     },
     async handler(context, { model, threadId }) {
-        const identity = await context.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new ConvexError("User must be logged in.");
-        }
-
-        const userId = identity.subject;
+        const userId = context.user._id;
 
         const thread = await context.runQuery(components.agent.threads.getThread, { threadId });
 

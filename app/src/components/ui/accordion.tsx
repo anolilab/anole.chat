@@ -4,9 +4,13 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Accordion = ({ ...properties }: React.ComponentProps<typeof AccordionPrimitive.Root>) => <AccordionPrimitive.Root data-slot="accordion" {...properties} />;
+const Accordion = ({ ...properties }: React.ComponentProps<typeof AccordionPrimitive.Root>) => (
+    <AccordionPrimitive.Root data-slot="accordion" {...properties} />
+);
 
-const AccordionItem = ({ className, ...properties }: React.ComponentProps<typeof AccordionPrimitive.Item>) => <AccordionPrimitive.Item className={cn("border-b last:border-b-0", className)} data-slot="accordion-item" {...properties} />;
+const AccordionItem = ({ className, ...properties }: React.ComponentProps<typeof AccordionPrimitive.Item>) => (
+    <AccordionPrimitive.Item className={cn("border-b last:border-b-0", className)} data-slot="accordion-item" {...properties} />
+);
 
 const AccordionTrigger = ({ children, className, ...properties }: React.ComponentProps<typeof AccordionPrimitive.Trigger>) => (
     <AccordionPrimitive.Header className="flex">

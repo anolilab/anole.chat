@@ -45,12 +45,14 @@ export const OrganizationSlugCard = ({ className, classNames, ...properties }: S
     return <OrganizationSlugForm className={className} classNames={classNames} {...properties} />;
 };
 
-const formSchema = z.object({
-    slug: z
-        .string()
-        .min(1, { message: t`Organization slug is required` })
-        .regex(/^[a-z0-9-]+$/, { message: t`Organization slug is invalid` }),
-}).strict();
+const formSchema = z
+    .object({
+        slug: z
+            .string()
+            .min(1, { message: t`Organization slug is required` })
+            .regex(/^[a-z0-9-]+$/, { message: t`Organization slug is invalid` }),
+    })
+    .strict();
 
 const OrganizationSlugForm = ({ className, classNames, ...properties }: SettingsCardProperties) => {
     const {
@@ -157,7 +159,9 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
                                                     className={classNames?.input}
                                                     disabled={isSubmitting || !hasPermission?.success}
                                                     onBlur={field.handleBlur}
-                                                    onChange={(e) => { field.handleChange(e.target.value); }}
+                                                    onChange={(e) => {
+                                                        field.handleChange(e.target.value);
+                                                    }}
                                                     placeholder={t`Enter organization slug`}
                                                     value={field.state.value}
                                                 />

@@ -12,7 +12,14 @@ export type TooltipIconButtonProps = ComponentPropsWithoutRef<typeof Button> & {
     tooltip: string;
 };
 
-export const TooltipIconButton = ({ children, className, ref, side = "bottom", tooltip, ...rest }: TooltipIconButtonProps & { ref?: React.RefObject<HTMLButtonElement | null> }) => (
+export const TooltipIconButton = ({
+    children,
+    className,
+    ref,
+    side = "bottom",
+    tooltip,
+    ...rest
+}: TooltipIconButtonProps & { ref?: React.RefObject<HTMLButtonElement | null> }) => (
     <Tooltip>
         <TooltipTrigger asChild>
             <Button size="icon" variant="ghost" {...rest} className={cn("size-6 p-1", className)} ref={ref}>

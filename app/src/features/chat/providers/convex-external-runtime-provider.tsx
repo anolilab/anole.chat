@@ -1,11 +1,7 @@
 "use client";
 
 import type { ExternalStoreAdapter, ThreadMessageLike } from "@assistant-ui/react";
-import {
-    AssistantRuntimeProvider,
-    CompositeAttachmentAdapter,
-    useExternalStoreRuntime,
-} from "@assistant-ui/react";
+import { AssistantRuntimeProvider, CompositeAttachmentAdapter, useExternalStoreRuntime } from "@assistant-ui/react";
 import { useConvex } from "convex/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
@@ -132,40 +128,37 @@ export const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threa
         [currentThreadId, setThreads],
     );
 
-    const adapter: ExternalStoreAdapter<ThreadMessageLike> = useMemo(
-        () => {
-            return {
-                adapters: {
-                    attachments: new CompositeAttachmentAdapter([new ConvexAttachmentAdapter(convex)]),
-                    threadList: threadListAdapter,
-                },
-                convertMessage: (message: ThreadMessageLike) => message,
-                isRunning,
-                messages: currentMessages,
-                onCancel: async () => {
-                    providerLogger.debug("[Provider] 'onCancel' triggered.");
+    const adapter: ExternalStoreAdapter<ThreadMessageLike> = useMemo(() => {
+        return {
+            adapters: {
+                attachments: new CompositeAttachmentAdapter([new ConvexAttachmentAdapter(convex)]),
+                threadList: threadListAdapter,
+            },
+            convertMessage: (message: ThreadMessageLike) => message,
+            isRunning,
+            messages: currentMessages,
+            onCancel: async () => {
+                providerLogger.debug("[Provider] 'onCancel' triggered.");
 
-                    handleCancel();
-                },
-                onEdit: async (message) => {
-                    providerLogger.debug("[Provider] 'onEdit' triggered.");
+                handleCancel();
+            },
+            onEdit: async (message) => {
+                providerLogger.debug("[Provider] 'onEdit' triggered.");
 
-                    return handleEditMessage(message);
-                },
-                onNew: wrappedHandleNewMessage,
-                onReload: async (id) => {
-                    providerLogger.debug("[Provider] 'onReload' triggered.");
+                return handleEditMessage(message);
+            },
+            onNew: wrappedHandleNewMessage,
+            onReload: async (id) => {
+                providerLogger.debug("[Provider] 'onReload' triggered.");
 
-                    return handleReloadMessage(id);
-                },
-                setMessages,
-                unstable_capabilities: {
-                    copy: true,
-                },
-            };
-        },
-        [currentMessages, isRunning, wrappedHandleNewMessage, handleEditMessage, handleReloadMessage, handleCancel, setMessages, threadListAdapter, convex],
-    );
+                return handleReloadMessage(id);
+            },
+            setMessages,
+            unstable_capabilities: {
+                copy: true,
+            },
+        };
+    }, [currentMessages, isRunning, wrappedHandleNewMessage, handleEditMessage, handleReloadMessage, handleCancel, setMessages, threadListAdapter, convex]);
 
     const runtime = useExternalStoreRuntime(adapter);
 

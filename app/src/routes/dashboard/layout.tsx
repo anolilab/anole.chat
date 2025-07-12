@@ -26,7 +26,6 @@ export const Route = createFileRoute("/dashboard")({
 
 const RouteComponent = () => {
     const location = useLocation();
-    const context = Route.useRouteContext();
 
     const { pathname } = location;
 
@@ -47,43 +46,43 @@ const RouteComponent = () => {
     const { apiKey, organization } = useAuth();
 
     const navigationItems = {
-        main: [
+        ai: [
             {
-                icon: MessageSquare,
-                name: "Chat",
-                url: context.chatUrl,
+                icon: Key,
+                name: "Providers",
+                url: "/dashboard/settings/ai/providers",
             },
         ],
         settings: [
             {
                 icon: User,
                 name: "Account",
-                url: "/dashboard/settings/account",
+                url: "/dashboard/settings/auth/account",
             },
             {
                 icon: Shield,
                 name: "Security",
-                url: "/dashboard/settings/security",
+                url: "/dashboard/settings/auth/security",
             },
             apiKey && {
                 icon: Key,
                 name: "API Keys",
-                url: "/dashboard/settings/api-keys",
+                url: "/dashboard/settings/auth/api-keys",
             },
             organization && {
                 icon: Building,
                 name: "Organizations",
-                url: "/dashboard/settings/organizations",
+                url: "/dashboard/settings/auth/organizations",
             },
             organization && {
                 icon: Building,
                 name: "Organization",
-                url: "/dashboard/settings/organization",
+                url: "/dashboard/settings/auth/organization",
             },
             organization && {
                 icon: Users,
                 name: "Members",
-                url: "/dashboard/settings/members",
+                url: "/dashboard/settings/auth/members",
             },
         ].filter(Boolean) as NavItem[],
     };
@@ -102,7 +101,7 @@ const RouteComponent = () => {
                     <AppSidebar
                         content={(
                             <>
-                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.main} label="Main" />
+                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
                                 <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
                             </>
                         )}

@@ -30,14 +30,14 @@ export const AppSidebar = ({
     ...properties
 }: React.ComponentProps<typeof Sidebar> & { content: React.ReactNode; footer?: React.ReactNode; header?: React.ReactNode }) => (
     <Sidebar className={cn("py-0 pl-0 [&>div]:flex-row", className)} collapsible="offcanvas" variant="inset" {...properties}>
-        <div className="flex h-screen w-3/12 flex-col items-center justify-center bg-black pr-5 gap-2">
+        <div className="flex h-screen w-3/12 flex-col items-center justify-center gap-2 bg-black pr-5">
             {sidebarLinks.map(({ icon: Icon, label, to }) => (
                 <Link
                     activeProps={{
                         className: "bg-primary text-primary-foreground",
                     }}
                     aria-label={label}
-                    className="text-white hover:text-primary-foreground hover:bg-primary flex aspect-square size-8 items-center justify-center rounded-lg"
+                    className="hover:text-primary-foreground hover:bg-primary flex aspect-square size-8 items-center justify-center rounded-lg text-white"
                     key={to}
                     to={to}
                 >

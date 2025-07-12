@@ -8,10 +8,10 @@
     "editor.formatOnSave": true,
 
     // Auto fix
-    //"editor.codeActionsOnSave": {
-    //    "source.fixAll.eslint": "explicit",
-    //    "source.organizeImports": "never"
-    //},
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "never"
+    },
 
     "eslint.runtime": "node",
 

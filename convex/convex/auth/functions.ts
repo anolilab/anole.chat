@@ -1,31 +1,11 @@
 import { v } from "convex/values";
 import { customAction, customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions";
 
-import type { Id } from "../_generated/dataModel";
-import type { QueryCtx as QueryContext } from "../_generated/server";
 import { action, internalMutation, mutation, query } from "../_generated/server";
-import { betterAuthComponent } from "../auth";
-import { requireUserId } from "../auth/lib/helper";
+import { requireUserId, getCurrentUserInternal } from "../auth/lib/helper";
 import type { Role } from "../lib/types";
 import { ROLES } from "../lib/types";
-import { userSettingsFields, aiUserSettingsFields } from "./fields";
-
-const getCurrentUserInternal = async (context: QueryContext) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(context);
-
-    if (!userMetadata) {
-        return null;
-    }
-
-    // Get user data from your application's database (skip this if you have no
-    // fields in your users table schema)
-    const user = await context.db.get(userMetadata.userId as Id<"users">);
-
-    return {
-        ...user,
-        ...userMetadata,
-    };
-};
+import { userSettingsFields, aiUserPreferencesFields } from "./fields";
 
 export const getCurrentUser = query({
     args: {},
@@ -104,7 +84,6 @@ export const setUserRole = mutation({
     },
     handler: async (context, { role, userId }): Promise<{ success: boolean }> => {
         const loggedInUserId = await requireUserId(context);
-
         const targetUser = await context.db.get(userId);
 
         if (!targetUser) {
@@ -158,7 +137,8 @@ const makeSettingsUpsertMutation = (
     return authedMutation({
         args,
         handler: async (context, inputArgs) => {
-            const userId = context.user.userId;
+            const userId = context.user._id;
+
             const settings = await context.db
                 .query(tableName)
                 .withIndex("by_userId", (q) => q.eq("userId", userId))
@@ -183,7 +163,8 @@ const makeSettingsGetQuery = (
     return authedQuery({
         args: {},
         handler: async (context) => {
-            const userId = context.user.userId;
+            const userId = context.user._id;
+
             return await context.db
                 .query(tableName)
                 .withIndex("by_userId", (q) => q.eq("userId", userId))
@@ -195,5 +176,5 @@ const makeSettingsGetQuery = (
 export const updateUserSettings = makeSettingsUpsertMutation("userSettings", userSettingsFields);
 export const getUserSettings = makeSettingsGetQuery("userSettings");
 
-export const updateAIUserSettings = makeSettingsUpsertMutation("aiUserSettings", aiUserSettingsFields);
-export const getAIUserSettings = makeSettingsGetQuery("aiUserSettings");
+export const updateAIUserPreferences = makeSettingsUpsertMutation("aiUserPreferences", aiUserPreferencesFields);
+export const getAIUserPreferences = makeSettingsGetQuery("aiUserPreferences");

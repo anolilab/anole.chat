@@ -50,16 +50,18 @@ const EmailForm = ({
 
     const { authClient, toast } = useAuth();
 
-    const formSchema = z.object({
-        email: z
-            .string()
-            .min(1, {
-                message: t`Email is required`,
-            })
-            .email({
-                message: t`Email is invalid`,
-            }),
-    }).strict();
+    const formSchema = z
+        .object({
+            email: z
+                .string()
+                .min(1, {
+                    message: t`Email is required`,
+                })
+                .email({
+                    message: t`Email is invalid`,
+                }),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -132,7 +134,9 @@ const EmailForm = ({
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => { field.handleChange(e.target.value); }}
+                                    onChange={(e) => {
+                                        field.handleChange(e.target.value);
+                                    }}
                                     placeholder={t`Enter your email address`}
                                     type="email"
                                     value={field.state.value}
@@ -175,16 +179,18 @@ export const OTPForm = ({
         redirectTo,
     });
 
-    const formSchema = z.object({
-        code: z
-            .string()
-            .min(1, {
-                message: t`Verification code is required`,
-            })
-            .min(6, {
-                message: t`Verification code is invalid`,
-            }),
-    }).strict();
+    const formSchema = z
+        .object({
+            code: z
+                .string()
+                .min(1, {
+                    message: t`Verification code is required`,
+                })
+                .min(6, {
+                    message: t`Verification code is invalid`,
+                }),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {

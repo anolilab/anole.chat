@@ -55,7 +55,9 @@ const CommandList = ({ className, ...properties }: React.ComponentProps<typeof C
     <CommandPrimitive.List className={cn("max-h-[300px] scroll-py-1 overflow-y-auto overflow-x-hidden", className)} data-slot="command-list" {...properties} />
 );
 
-const CommandEmpty = ({ ...properties }: React.ComponentProps<typeof CommandPrimitive.Empty>) => <CommandPrimitive.Empty className="py-6 text-center text-sm" data-slot="command-empty" {...properties} />;
+const CommandEmpty = ({ ...properties }: React.ComponentProps<typeof CommandPrimitive.Empty>) => (
+    <CommandPrimitive.Empty className="py-6 text-center text-sm" data-slot="command-empty" {...properties} />
+);
 
 const CommandGroup = ({ className, ...properties }: React.ComponentProps<typeof CommandPrimitive.Group>) => (
     <CommandPrimitive.Group
@@ -68,7 +70,9 @@ const CommandGroup = ({ className, ...properties }: React.ComponentProps<typeof 
     />
 );
 
-const CommandSeparator = ({ className, ...properties }: React.ComponentProps<typeof CommandPrimitive.Separator>) => <CommandPrimitive.Separator className={cn("bg-border -mx-1 h-px", className)} data-slot="command-separator" {...properties} />;
+const CommandSeparator = ({ className, ...properties }: React.ComponentProps<typeof CommandPrimitive.Separator>) => (
+    <CommandPrimitive.Separator className={cn("bg-border -mx-1 h-px", className)} data-slot="command-separator" {...properties} />
+);
 
 const CommandItem = ({ className, ...properties }: React.ComponentProps<typeof CommandPrimitive.Item>) => (
     <CommandPrimitive.Item
@@ -81,6 +85,8 @@ const CommandItem = ({ className, ...properties }: React.ComponentProps<typeof C
     />
 );
 
-const CommandShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="command-shortcut" {...properties} />;
+const CommandShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => (
+    <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="command-shortcut" {...properties} />
+);
 
 export { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut };

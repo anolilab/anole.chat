@@ -66,7 +66,12 @@ export const ApiKeyDeleteDialog = ({ apiKey, classNames, onOpenChange, refetch, 
 
     return (
         <Dialog onOpenChange={onOpenChange} {...properties}>
-            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => { e.preventDefault(); }}>
+            <DialogContent
+                className={classNames?.dialog?.content}
+                onOpenAutoFocus={(e) => {
+                    e.preventDefault();
+                }}
+            >
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>
                         {t`Delete`}
@@ -74,9 +79,7 @@ export const ApiKeyDeleteDialog = ({ apiKey, classNames, onOpenChange, refetch, 
                         {t`API Key`}
                     </DialogTitle>
 
-                    <DialogDescription
-                        className={cn("text-xs md:text-sm", classNames?.description)}
-                    >
+                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
                         {t`Are you sure you want to delete this API key? This action cannot be undone.`}
                     </DialogDescription>
                 </DialogHeader>

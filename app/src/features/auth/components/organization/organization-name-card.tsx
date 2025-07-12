@@ -45,9 +45,11 @@ export const OrganizationNameCard = ({ className, classNames, ...properties }: S
     return <OrganizationNameForm className={className} classNames={classNames} {...properties} />;
 };
 
-const formSchema = z.object({
-    name: z.string().min(1, { message: t`Organization name is required` }),
-}).strict();
+const formSchema = z
+    .object({
+        name: z.string().min(1, { message: t`Organization name is required` }),
+    })
+    .strict();
 
 const OrganizationNameForm = ({ className, classNames, ...properties }: SettingsCardProperties) => {
     const {
@@ -155,7 +157,9 @@ const OrganizationNameForm = ({ className, classNames, ...properties }: Settings
                                                     className={classNames?.input}
                                                     disabled={isSubmitting || !hasPermission?.success}
                                                     onBlur={field.handleBlur}
-                                                    onChange={(e) => { field.handleChange(e.target.value); }}
+                                                    onChange={(e) => {
+                                                        field.handleChange(e.target.value);
+                                                    }}
                                                     placeholder={t`Enter organization name`}
                                                     value={field.state.value}
                                                 />

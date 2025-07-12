@@ -31,7 +31,14 @@ export interface OrganizationLogoProperties {
  * - Shows a skeleton when isPending is true
  * - Falls back to a building icon when no logo is available
  */
-export const OrganizationLogo = ({ className, classNames, isPending, organization, size, ...properties }: ComponentProps<typeof Avatar> & OrganizationLogoProperties) => {
+export const OrganizationLogo = ({
+    className,
+    classNames,
+    isPending,
+    organization,
+    size,
+    ...properties
+}: ComponentProps<typeof Avatar> & OrganizationLogoProperties) => {
     const name = organization?.name;
     const source = organization?.logo;
 

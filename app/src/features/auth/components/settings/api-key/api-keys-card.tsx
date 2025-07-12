@@ -36,7 +36,9 @@ export const APIKeysCard = ({ ...properties }: APIKeysCardProperties) => {
         <>
             <SettingsCard
                 {...properties}
-                action={() => { setShowCreateDialog(true); }}
+                action={() => {
+                    setShowCreateDialog(true);
+                }}
                 description={t`Create and manage API keys for programmatic access to your account.`}
                 footer={(
                     <>

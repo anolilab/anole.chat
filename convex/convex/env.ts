@@ -5,6 +5,6 @@ export const { CONVEX_SITE_URL } = process.env;
 export const { ENCRYPTION_KEY } = process.env;
 export const { OPENAI_API_KEY } = process.env;
 export const { ANTHROPIC_API_KEY } = process.env;
-export const { GOOGLE_API_KEY } = process.env;
+export const { GOOGLE_GENERATIVE_AI_API_KEY } = process.env;
 export const { GROQ_API_KEY } = process.env;
 export const { FAL_API_KEY } = process.env;

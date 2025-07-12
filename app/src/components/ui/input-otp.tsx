@@ -21,7 +21,9 @@ const InputOTP = ({
     />
 );
 
-const InputOTPGroup = ({ className, ...properties }: React.ComponentProps<"div">) => <div className={cn("flex items-center", className)} data-slot="input-otp-group" {...properties} />;
+const InputOTPGroup = ({ className, ...properties }: React.ComponentProps<"div">) => (
+    <div className={cn("flex items-center", className)} data-slot="input-otp-group" {...properties} />
+);
 
 const InputOTPSlot = ({
     className,

@@ -14,7 +14,9 @@ const BreadcrumbList = ({ className, ...properties }: React.ComponentProps<"ol">
     />
 );
 
-const BreadcrumbItem = ({ className, ...properties }: React.ComponentProps<"li">) => <li className={cn("inline-flex items-center gap-1.5", className)} data-slot="breadcrumb-item" {...properties} />;
+const BreadcrumbItem = ({ className, ...properties }: React.ComponentProps<"li">) => (
+    <li className={cn("inline-flex items-center gap-1.5", className)} data-slot="breadcrumb-item" {...properties} />
+);
 
 const BreadcrumbLink = ({
     asChild,

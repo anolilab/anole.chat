@@ -6,7 +6,9 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const RadioGroup = ({ className, ...properties }: React.ComponentProps<typeof RadioGroupPrimitive.Root>) => <RadioGroupPrimitive.Root className={cn("grid gap-3", className)} data-slot="radio-group" {...properties} />;
+const RadioGroup = ({ className, ...properties }: React.ComponentProps<typeof RadioGroupPrimitive.Root>) => (
+    <RadioGroupPrimitive.Root className={cn("grid gap-3", className)} data-slot="radio-group" {...properties} />
+);
 
 const RadioGroupItem = ({ className, ...properties }: React.ComponentProps<typeof RadioGroupPrimitive.Item>) => (
     <RadioGroupPrimitive.Item

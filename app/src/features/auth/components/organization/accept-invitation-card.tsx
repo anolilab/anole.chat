@@ -177,9 +177,7 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
             <CardHeader className={cn("justify-items-center text-center", classNames?.header)}>
                 <CardTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Accept Invitation`}</CardTitle>
 
-                <CardDescription
-                    className={cn("text-xs md:text-sm", classNames?.description)}
-                >
+                <CardDescription className={cn("text-xs md:text-sm", classNames?.description)}>
                     {t`You've been invited to join an organization`}
                 </CardDescription>
             </CardHeader>

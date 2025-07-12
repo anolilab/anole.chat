@@ -23,18 +23,23 @@ export const APIKeyDisplayDialog = ({ apiKey, classNames, onOpenChange, ...prope
     const handleCopy = () => {
         navigator.clipboard.writeText(apiKey);
         setCopied(true);
-        setTimeout(() => { setCopied(false); }, 2000);
+        setTimeout(() => {
+            setCopied(false);
+        }, 2000);
     };
 
     return (
         <Dialog onOpenChange={onOpenChange} {...properties}>
-            <DialogContent className={classNames?.dialog?.content} onOpenAutoFocus={(e) => { e.preventDefault(); }}>
+            <DialogContent
+                className={classNames?.dialog?.content}
+                onOpenAutoFocus={(e) => {
+                    e.preventDefault();
+                }}
+            >
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`API Key Created`}</DialogTitle>
 
-                    <DialogDescription
-                        className={cn("text-xs md:text-sm", classNames?.description)}
-                    >
+                    <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>
                         {t`Your API key has been created successfully. Make sure to copy it now as you won't be able to see it again.`}
                     </DialogDescription>
                 </DialogHeader>

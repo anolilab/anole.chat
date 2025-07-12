@@ -35,16 +35,18 @@ export const RecoverAccountForm = ({ className, classNames, isSubmitting, otpSep
         redirectTo,
     });
 
-    const formSchema = z.object({
-        code: z
-            .string()
-            .min(1, {
-                message: t`Backup code is required`,
-            })
-            .min(6, {
-                message: t`Backup code is invalid`,
-            }),
-    }).strict();
+    const formSchema = z
+        .object({
+            code: z
+                .string()
+                .min(1, {
+                    message: t`Backup code is required`,
+                })
+                .min(6, {
+                    message: t`Backup code is invalid`,
+                }),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {

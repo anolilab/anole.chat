@@ -109,18 +109,22 @@ export const tools = [
     {
         callback: getWelcomeMessage,
         description: "Get the welcome message",
-        inputSchema: z.object({
-            name: z.string(),
-        }).strict(),
+        inputSchema: z
+            .object({
+                name: z.string(),
+            })
+            .strict(),
         name: "getWelcomeMessage",
     },
     {
         callback: calculateBMI,
         description: "Calculate the BMI of a person",
-        inputSchema: z.object({
-            height: z.number(),
-            weight: z.number(),
-        }).strict(),
+        inputSchema: z
+            .object({
+                height: z.number(),
+                weight: z.number(),
+            })
+            .strict(),
         name: "calculateBMI",
     },
     {

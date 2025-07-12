@@ -6,11 +6,17 @@ import * as React from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const AlertDialog = ({ ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) => <AlertDialogPrimitive.Root data-slot="alert-dialog" {...properties} />;
+const AlertDialog = ({ ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) => (
+    <AlertDialogPrimitive.Root data-slot="alert-dialog" {...properties} />
+);
 
-const AlertDialogTrigger = ({ ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) => <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...properties} />;
+const AlertDialogTrigger = ({ ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) => (
+    <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...properties} />
+);
 
-const AlertDialogPortal = ({ ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) => <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...properties} />;
+const AlertDialogPortal = ({ ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) => (
+    <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...properties} />
+);
 
 const AlertDialogOverlay = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) => (
     <AlertDialogPrimitive.Overlay
@@ -37,17 +43,29 @@ const AlertDialogContent = ({ className, ...properties }: React.ComponentProps<t
     </AlertDialogPortal>
 );
 
-const AlertDialogHeader = ({ className, ...properties }: React.ComponentProps<"div">) => <div className={cn("flex flex-col gap-2 text-center sm:text-left", className)} data-slot="alert-dialog-header" {...properties} />;
+const AlertDialogHeader = ({ className, ...properties }: React.ComponentProps<"div">) => (
+    <div className={cn("flex flex-col gap-2 text-center sm:text-left", className)} data-slot="alert-dialog-header" {...properties} />
+);
 
-const AlertDialogFooter = ({ className, ...properties }: React.ComponentProps<"div">) => <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} data-slot="alert-dialog-footer" {...properties} />;
+const AlertDialogFooter = ({ className, ...properties }: React.ComponentProps<"div">) => (
+    <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} data-slot="alert-dialog-footer" {...properties} />
+);
 
-const AlertDialogTitle = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) => <AlertDialogPrimitive.Title className={cn("text-lg font-semibold", className)} data-slot="alert-dialog-title" {...properties} />;
+const AlertDialogTitle = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) => (
+    <AlertDialogPrimitive.Title className={cn("text-lg font-semibold", className)} data-slot="alert-dialog-title" {...properties} />
+);
 
-const AlertDialogDescription = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Description>) => <AlertDialogPrimitive.Description className={cn("text-muted-foreground text-sm", className)} data-slot="alert-dialog-description" {...properties} />;
+const AlertDialogDescription = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Description>) => (
+    <AlertDialogPrimitive.Description className={cn("text-muted-foreground text-sm", className)} data-slot="alert-dialog-description" {...properties} />
+);
 
-const AlertDialogAction = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) => <AlertDialogPrimitive.Action className={cn(buttonVariants(), className)} {...properties} />;
+const AlertDialogAction = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) => (
+    <AlertDialogPrimitive.Action className={cn(buttonVariants(), className)} {...properties} />
+);
 
-const AlertDialogCancel = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) => <AlertDialogPrimitive.Cancel className={cn(buttonVariants({ variant: "outline" }), className)} {...properties} />;
+const AlertDialogCancel = ({ className, ...properties }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) => (
+    <AlertDialogPrimitive.Cancel className={cn(buttonVariants({ variant: "outline" }), className)} {...properties} />
+);
 
 export {
     AlertDialog,

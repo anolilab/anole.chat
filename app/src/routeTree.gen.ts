@@ -24,15 +24,19 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-pas
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthTwoFactorIndexRouteImport } from './routes/auth/two-factor/index'
 import { Route as chatChatIndexRouteImport } from './routes/(chat)/chat/index'
-import { Route as DashboardSettingsSecurityRouteImport } from './routes/dashboard/settings/security'
-import { Route as DashboardSettingsOrganizationsRouteImport } from './routes/dashboard/settings/organizations'
-import { Route as DashboardSettingsOrganizationRouteImport } from './routes/dashboard/settings/organization'
-import { Route as DashboardSettingsMembersRouteImport } from './routes/dashboard/settings/members'
-import { Route as DashboardSettingsApiKeysRouteImport } from './routes/dashboard/settings/api-keys'
-import { Route as DashboardSettingsAccountRouteImport } from './routes/dashboard/settings/account'
 import { Route as AuthTwoFactorOtpRouteImport } from './routes/auth/two-factor/otp'
 import { Route as chatChatThreadIdRouteImport } from './routes/(chat)/chat/$threadId'
 import { Route as AuthAcceptInvitationInvitationIdIndexRouteImport } from './routes/auth/accept-invitation/$invitationId/index'
+import { Route as DashboardSettingsAuthSecurityRouteImport } from './routes/dashboard/settings/auth/security'
+import { Route as DashboardSettingsAuthOrganizationsRouteImport } from './routes/dashboard/settings/auth/organizations'
+import { Route as DashboardSettingsAuthOrganizationRouteImport } from './routes/dashboard/settings/auth/organization'
+import { Route as DashboardSettingsAuthMembersRouteImport } from './routes/dashboard/settings/auth/members'
+import { Route as DashboardSettingsAuthApiKeysRouteImport } from './routes/dashboard/settings/auth/api-keys'
+import { Route as DashboardSettingsAuthAccountRouteImport } from './routes/dashboard/settings/auth/account'
+import { Route as DashboardSettingsAiUsageAnalyticsRouteImport } from './routes/dashboard/settings/ai/usage-analytics'
+import { Route as DashboardSettingsAiProvidersRouteImport } from './routes/dashboard/settings/ai/providers'
+import { Route as DashboardSettingsAiOptionsRouteImport } from './routes/dashboard/settings/ai/options'
+import { Route as DashboardSettingsAiModelsRouteImport } from './routes/dashboard/settings/ai/models'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 import { ServerRoute as ApiAiMcpTransportServerRouteImport } from './routes/api/ai/mcp/$transport'
 
@@ -102,42 +106,6 @@ const chatChatIndexRoute = chatChatIndexRouteImport.update({
   path: '/chat/',
   getParentRoute: () => chatLayoutRoute,
 } as any)
-const DashboardSettingsSecurityRoute =
-  DashboardSettingsSecurityRouteImport.update({
-    id: '/settings/security',
-    path: '/settings/security',
-    getParentRoute: () => DashboardLayoutRoute,
-  } as any)
-const DashboardSettingsOrganizationsRoute =
-  DashboardSettingsOrganizationsRouteImport.update({
-    id: '/settings/organizations',
-    path: '/settings/organizations',
-    getParentRoute: () => DashboardLayoutRoute,
-  } as any)
-const DashboardSettingsOrganizationRoute =
-  DashboardSettingsOrganizationRouteImport.update({
-    id: '/settings/organization',
-    path: '/settings/organization',
-    getParentRoute: () => DashboardLayoutRoute,
-  } as any)
-const DashboardSettingsMembersRoute =
-  DashboardSettingsMembersRouteImport.update({
-    id: '/settings/members',
-    path: '/settings/members',
-    getParentRoute: () => DashboardLayoutRoute,
-  } as any)
-const DashboardSettingsApiKeysRoute =
-  DashboardSettingsApiKeysRouteImport.update({
-    id: '/settings/api-keys',
-    path: '/settings/api-keys',
-    getParentRoute: () => DashboardLayoutRoute,
-  } as any)
-const DashboardSettingsAccountRoute =
-  DashboardSettingsAccountRouteImport.update({
-    id: '/settings/account',
-    path: '/settings/account',
-    getParentRoute: () => DashboardLayoutRoute,
-  } as any)
 const AuthTwoFactorOtpRoute = AuthTwoFactorOtpRouteImport.update({
   id: '/two-factor/otp',
   path: '/two-factor/otp',
@@ -153,6 +121,66 @@ const AuthAcceptInvitationInvitationIdIndexRoute =
     id: '/accept-invitation/$invitationId/',
     path: '/accept-invitation/$invitationId/',
     getParentRoute: () => AuthLayoutRoute,
+  } as any)
+const DashboardSettingsAuthSecurityRoute =
+  DashboardSettingsAuthSecurityRouteImport.update({
+    id: '/settings/auth/security',
+    path: '/settings/auth/security',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAuthOrganizationsRoute =
+  DashboardSettingsAuthOrganizationsRouteImport.update({
+    id: '/settings/auth/organizations',
+    path: '/settings/auth/organizations',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAuthOrganizationRoute =
+  DashboardSettingsAuthOrganizationRouteImport.update({
+    id: '/settings/auth/organization',
+    path: '/settings/auth/organization',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAuthMembersRoute =
+  DashboardSettingsAuthMembersRouteImport.update({
+    id: '/settings/auth/members',
+    path: '/settings/auth/members',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAuthApiKeysRoute =
+  DashboardSettingsAuthApiKeysRouteImport.update({
+    id: '/settings/auth/api-keys',
+    path: '/settings/auth/api-keys',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAuthAccountRoute =
+  DashboardSettingsAuthAccountRouteImport.update({
+    id: '/settings/auth/account',
+    path: '/settings/auth/account',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAiUsageAnalyticsRoute =
+  DashboardSettingsAiUsageAnalyticsRouteImport.update({
+    id: '/settings/ai/usage-analytics',
+    path: '/settings/ai/usage-analytics',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAiProvidersRoute =
+  DashboardSettingsAiProvidersRouteImport.update({
+    id: '/settings/ai/providers',
+    path: '/settings/ai/providers',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAiOptionsRoute =
+  DashboardSettingsAiOptionsRouteImport.update({
+    id: '/settings/ai/options',
+    path: '/settings/ai/options',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+const DashboardSettingsAiModelsRoute =
+  DashboardSettingsAiModelsRouteImport.update({
+    id: '/settings/ai/models',
+    path: '/settings/ai/models',
+    getParentRoute: () => DashboardLayoutRoute,
   } as any)
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: '/api/auth/$',
@@ -178,14 +206,18 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/chat/$threadId': typeof chatChatThreadIdRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
-  '/dashboard/settings/account': typeof DashboardSettingsAccountRoute
-  '/dashboard/settings/api-keys': typeof DashboardSettingsApiKeysRoute
-  '/dashboard/settings/members': typeof DashboardSettingsMembersRoute
-  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
-  '/dashboard/settings/organizations': typeof DashboardSettingsOrganizationsRoute
-  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/chat': typeof chatChatIndexRoute
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
+  '/dashboard/settings/ai/models': typeof DashboardSettingsAiModelsRoute
+  '/dashboard/settings/ai/options': typeof DashboardSettingsAiOptionsRoute
+  '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
+  '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
+  '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
+  '/dashboard/settings/auth/api-keys': typeof DashboardSettingsAuthApiKeysRoute
+  '/dashboard/settings/auth/members': typeof DashboardSettingsAuthMembersRoute
+  '/dashboard/settings/auth/organization': typeof DashboardSettingsAuthOrganizationRoute
+  '/dashboard/settings/auth/organizations': typeof DashboardSettingsAuthOrganizationsRoute
+  '/dashboard/settings/auth/security': typeof DashboardSettingsAuthSecurityRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -200,14 +232,18 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/chat/$threadId': typeof chatChatThreadIdRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
-  '/dashboard/settings/account': typeof DashboardSettingsAccountRoute
-  '/dashboard/settings/api-keys': typeof DashboardSettingsApiKeysRoute
-  '/dashboard/settings/members': typeof DashboardSettingsMembersRoute
-  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
-  '/dashboard/settings/organizations': typeof DashboardSettingsOrganizationsRoute
-  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/chat': typeof chatChatIndexRoute
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
+  '/dashboard/settings/ai/models': typeof DashboardSettingsAiModelsRoute
+  '/dashboard/settings/ai/options': typeof DashboardSettingsAiOptionsRoute
+  '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
+  '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
+  '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
+  '/dashboard/settings/auth/api-keys': typeof DashboardSettingsAuthApiKeysRoute
+  '/dashboard/settings/auth/members': typeof DashboardSettingsAuthMembersRoute
+  '/dashboard/settings/auth/organization': typeof DashboardSettingsAuthOrganizationRoute
+  '/dashboard/settings/auth/organizations': typeof DashboardSettingsAuthOrganizationsRoute
+  '/dashboard/settings/auth/security': typeof DashboardSettingsAuthSecurityRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdIndexRoute
 }
 export interface FileRoutesById {
@@ -225,14 +261,18 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/(chat)/chat/$threadId': typeof chatChatThreadIdRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
-  '/dashboard/settings/account': typeof DashboardSettingsAccountRoute
-  '/dashboard/settings/api-keys': typeof DashboardSettingsApiKeysRoute
-  '/dashboard/settings/members': typeof DashboardSettingsMembersRoute
-  '/dashboard/settings/organization': typeof DashboardSettingsOrganizationRoute
-  '/dashboard/settings/organizations': typeof DashboardSettingsOrganizationsRoute
-  '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
   '/(chat)/chat/': typeof chatChatIndexRoute
   '/auth/two-factor/': typeof AuthTwoFactorIndexRoute
+  '/dashboard/settings/ai/models': typeof DashboardSettingsAiModelsRoute
+  '/dashboard/settings/ai/options': typeof DashboardSettingsAiOptionsRoute
+  '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
+  '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
+  '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
+  '/dashboard/settings/auth/api-keys': typeof DashboardSettingsAuthApiKeysRoute
+  '/dashboard/settings/auth/members': typeof DashboardSettingsAuthMembersRoute
+  '/dashboard/settings/auth/organization': typeof DashboardSettingsAuthOrganizationRoute
+  '/dashboard/settings/auth/organizations': typeof DashboardSettingsAuthOrganizationsRoute
+  '/dashboard/settings/auth/security': typeof DashboardSettingsAuthSecurityRoute
   '/auth/accept-invitation/$invitationId/': typeof AuthAcceptInvitationInvitationIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -250,14 +290,18 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/chat/$threadId'
     | '/auth/two-factor/otp'
-    | '/dashboard/settings/account'
-    | '/dashboard/settings/api-keys'
-    | '/dashboard/settings/members'
-    | '/dashboard/settings/organization'
-    | '/dashboard/settings/organizations'
-    | '/dashboard/settings/security'
     | '/chat'
     | '/auth/two-factor'
+    | '/dashboard/settings/ai/models'
+    | '/dashboard/settings/ai/options'
+    | '/dashboard/settings/ai/providers'
+    | '/dashboard/settings/ai/usage-analytics'
+    | '/dashboard/settings/auth/account'
+    | '/dashboard/settings/auth/api-keys'
+    | '/dashboard/settings/auth/members'
+    | '/dashboard/settings/auth/organization'
+    | '/dashboard/settings/auth/organizations'
+    | '/dashboard/settings/auth/security'
     | '/auth/accept-invitation/$invitationId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -272,14 +316,18 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/chat/$threadId'
     | '/auth/two-factor/otp'
-    | '/dashboard/settings/account'
-    | '/dashboard/settings/api-keys'
-    | '/dashboard/settings/members'
-    | '/dashboard/settings/organization'
-    | '/dashboard/settings/organizations'
-    | '/dashboard/settings/security'
     | '/chat'
     | '/auth/two-factor'
+    | '/dashboard/settings/ai/models'
+    | '/dashboard/settings/ai/options'
+    | '/dashboard/settings/ai/providers'
+    | '/dashboard/settings/ai/usage-analytics'
+    | '/dashboard/settings/auth/account'
+    | '/dashboard/settings/auth/api-keys'
+    | '/dashboard/settings/auth/members'
+    | '/dashboard/settings/auth/organization'
+    | '/dashboard/settings/auth/organizations'
+    | '/dashboard/settings/auth/security'
     | '/auth/accept-invitation/$invitationId'
   id:
     | '__root__'
@@ -296,14 +344,18 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/(chat)/chat/$threadId'
     | '/auth/two-factor/otp'
-    | '/dashboard/settings/account'
-    | '/dashboard/settings/api-keys'
-    | '/dashboard/settings/members'
-    | '/dashboard/settings/organization'
-    | '/dashboard/settings/organizations'
-    | '/dashboard/settings/security'
     | '/(chat)/chat/'
     | '/auth/two-factor/'
+    | '/dashboard/settings/ai/models'
+    | '/dashboard/settings/ai/options'
+    | '/dashboard/settings/ai/providers'
+    | '/dashboard/settings/ai/usage-analytics'
+    | '/dashboard/settings/auth/account'
+    | '/dashboard/settings/auth/api-keys'
+    | '/dashboard/settings/auth/members'
+    | '/dashboard/settings/auth/organization'
+    | '/dashboard/settings/auth/organizations'
+    | '/dashboard/settings/auth/security'
     | '/auth/accept-invitation/$invitationId/'
   fileRoutesById: FileRoutesById
 }
@@ -432,48 +484,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof chatChatIndexRouteImport
       parentRoute: typeof chatLayoutRoute
     }
-    '/dashboard/settings/security': {
-      id: '/dashboard/settings/security'
-      path: '/settings/security'
-      fullPath: '/dashboard/settings/security'
-      preLoaderRoute: typeof DashboardSettingsSecurityRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
-    '/dashboard/settings/organizations': {
-      id: '/dashboard/settings/organizations'
-      path: '/settings/organizations'
-      fullPath: '/dashboard/settings/organizations'
-      preLoaderRoute: typeof DashboardSettingsOrganizationsRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
-    '/dashboard/settings/organization': {
-      id: '/dashboard/settings/organization'
-      path: '/settings/organization'
-      fullPath: '/dashboard/settings/organization'
-      preLoaderRoute: typeof DashboardSettingsOrganizationRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
-    '/dashboard/settings/members': {
-      id: '/dashboard/settings/members'
-      path: '/settings/members'
-      fullPath: '/dashboard/settings/members'
-      preLoaderRoute: typeof DashboardSettingsMembersRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
-    '/dashboard/settings/api-keys': {
-      id: '/dashboard/settings/api-keys'
-      path: '/settings/api-keys'
-      fullPath: '/dashboard/settings/api-keys'
-      preLoaderRoute: typeof DashboardSettingsApiKeysRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
-    '/dashboard/settings/account': {
-      id: '/dashboard/settings/account'
-      path: '/settings/account'
-      fullPath: '/dashboard/settings/account'
-      preLoaderRoute: typeof DashboardSettingsAccountRouteImport
-      parentRoute: typeof DashboardLayoutRoute
-    }
     '/auth/two-factor/otp': {
       id: '/auth/two-factor/otp'
       path: '/two-factor/otp'
@@ -494,6 +504,76 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/accept-invitation/$invitationId'
       preLoaderRoute: typeof AuthAcceptInvitationInvitationIdIndexRouteImport
       parentRoute: typeof AuthLayoutRoute
+    }
+    '/dashboard/settings/auth/security': {
+      id: '/dashboard/settings/auth/security'
+      path: '/settings/auth/security'
+      fullPath: '/dashboard/settings/auth/security'
+      preLoaderRoute: typeof DashboardSettingsAuthSecurityRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/auth/organizations': {
+      id: '/dashboard/settings/auth/organizations'
+      path: '/settings/auth/organizations'
+      fullPath: '/dashboard/settings/auth/organizations'
+      preLoaderRoute: typeof DashboardSettingsAuthOrganizationsRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/auth/organization': {
+      id: '/dashboard/settings/auth/organization'
+      path: '/settings/auth/organization'
+      fullPath: '/dashboard/settings/auth/organization'
+      preLoaderRoute: typeof DashboardSettingsAuthOrganizationRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/auth/members': {
+      id: '/dashboard/settings/auth/members'
+      path: '/settings/auth/members'
+      fullPath: '/dashboard/settings/auth/members'
+      preLoaderRoute: typeof DashboardSettingsAuthMembersRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/auth/api-keys': {
+      id: '/dashboard/settings/auth/api-keys'
+      path: '/settings/auth/api-keys'
+      fullPath: '/dashboard/settings/auth/api-keys'
+      preLoaderRoute: typeof DashboardSettingsAuthApiKeysRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/auth/account': {
+      id: '/dashboard/settings/auth/account'
+      path: '/settings/auth/account'
+      fullPath: '/dashboard/settings/auth/account'
+      preLoaderRoute: typeof DashboardSettingsAuthAccountRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/ai/usage-analytics': {
+      id: '/dashboard/settings/ai/usage-analytics'
+      path: '/settings/ai/usage-analytics'
+      fullPath: '/dashboard/settings/ai/usage-analytics'
+      preLoaderRoute: typeof DashboardSettingsAiUsageAnalyticsRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/ai/providers': {
+      id: '/dashboard/settings/ai/providers'
+      path: '/settings/ai/providers'
+      fullPath: '/dashboard/settings/ai/providers'
+      preLoaderRoute: typeof DashboardSettingsAiProvidersRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/ai/options': {
+      id: '/dashboard/settings/ai/options'
+      path: '/settings/ai/options'
+      fullPath: '/dashboard/settings/ai/options'
+      preLoaderRoute: typeof DashboardSettingsAiOptionsRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/ai/models': {
+      id: '/dashboard/settings/ai/models'
+      path: '/settings/ai/models'
+      fullPath: '/dashboard/settings/ai/models'
+      preLoaderRoute: typeof DashboardSettingsAiModelsRouteImport
+      parentRoute: typeof DashboardLayoutRoute
     }
   }
 }
@@ -561,22 +641,33 @@ const AuthLayoutRouteWithChildren = AuthLayoutRoute._addFileChildren(
 
 interface DashboardLayoutRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardSettingsAccountRoute: typeof DashboardSettingsAccountRoute
-  DashboardSettingsApiKeysRoute: typeof DashboardSettingsApiKeysRoute
-  DashboardSettingsMembersRoute: typeof DashboardSettingsMembersRoute
-  DashboardSettingsOrganizationRoute: typeof DashboardSettingsOrganizationRoute
-  DashboardSettingsOrganizationsRoute: typeof DashboardSettingsOrganizationsRoute
-  DashboardSettingsSecurityRoute: typeof DashboardSettingsSecurityRoute
+  DashboardSettingsAiModelsRoute: typeof DashboardSettingsAiModelsRoute
+  DashboardSettingsAiOptionsRoute: typeof DashboardSettingsAiOptionsRoute
+  DashboardSettingsAiProvidersRoute: typeof DashboardSettingsAiProvidersRoute
+  DashboardSettingsAiUsageAnalyticsRoute: typeof DashboardSettingsAiUsageAnalyticsRoute
+  DashboardSettingsAuthAccountRoute: typeof DashboardSettingsAuthAccountRoute
+  DashboardSettingsAuthApiKeysRoute: typeof DashboardSettingsAuthApiKeysRoute
+  DashboardSettingsAuthMembersRoute: typeof DashboardSettingsAuthMembersRoute
+  DashboardSettingsAuthOrganizationRoute: typeof DashboardSettingsAuthOrganizationRoute
+  DashboardSettingsAuthOrganizationsRoute: typeof DashboardSettingsAuthOrganizationsRoute
+  DashboardSettingsAuthSecurityRoute: typeof DashboardSettingsAuthSecurityRoute
 }
 
 const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
-  DashboardSettingsAccountRoute: DashboardSettingsAccountRoute,
-  DashboardSettingsApiKeysRoute: DashboardSettingsApiKeysRoute,
-  DashboardSettingsMembersRoute: DashboardSettingsMembersRoute,
-  DashboardSettingsOrganizationRoute: DashboardSettingsOrganizationRoute,
-  DashboardSettingsOrganizationsRoute: DashboardSettingsOrganizationsRoute,
-  DashboardSettingsSecurityRoute: DashboardSettingsSecurityRoute,
+  DashboardSettingsAiModelsRoute: DashboardSettingsAiModelsRoute,
+  DashboardSettingsAiOptionsRoute: DashboardSettingsAiOptionsRoute,
+  DashboardSettingsAiProvidersRoute: DashboardSettingsAiProvidersRoute,
+  DashboardSettingsAiUsageAnalyticsRoute:
+    DashboardSettingsAiUsageAnalyticsRoute,
+  DashboardSettingsAuthAccountRoute: DashboardSettingsAuthAccountRoute,
+  DashboardSettingsAuthApiKeysRoute: DashboardSettingsAuthApiKeysRoute,
+  DashboardSettingsAuthMembersRoute: DashboardSettingsAuthMembersRoute,
+  DashboardSettingsAuthOrganizationRoute:
+    DashboardSettingsAuthOrganizationRoute,
+  DashboardSettingsAuthOrganizationsRoute:
+    DashboardSettingsAuthOrganizationsRoute,
+  DashboardSettingsAuthSecurityRoute: DashboardSettingsAuthSecurityRoute,
 }
 
 const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(

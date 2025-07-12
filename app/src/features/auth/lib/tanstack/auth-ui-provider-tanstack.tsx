@@ -14,8 +14,12 @@ export const AuthUIProviderTanstack = ({
 }: AuthUIProviderProperties) => {
     const { hooks: contextHooks, mutators: contextMutators, onSessionChange, optimistic } = useTanstackOptions({ authClient });
 
-    const hooks = useMemo(() => { return { ...contextHooks, ...hooksProperty }; }, [contextHooks, hooksProperty]);
-    const mutators = useMemo(() => { return { ...contextMutators, ...mutatorsProperty }; }, [contextMutators, mutatorsProperty]);
+    const hooks = useMemo(() => {
+        return { ...contextHooks, ...hooksProperty };
+    }, [contextHooks, hooksProperty]);
+    const mutators = useMemo(() => {
+        return { ...contextMutators, ...mutatorsProperty };
+    }, [contextMutators, mutatorsProperty]);
 
     const onSessionChangeCallback = useCallback(async () => {
         await onSessionChange();
@@ -23,7 +27,14 @@ export const AuthUIProviderTanstack = ({
     }, [onSessionChangeProperty, onSessionChange]);
 
     return (
-        <AuthUIProvider authClient={authClient} hooks={hooks} mutators={mutators} onSessionChange={onSessionChangeCallback} optimistic={optimistic} {...properties}>
+        <AuthUIProvider
+            authClient={authClient}
+            hooks={hooks}
+            mutators={mutators}
+            onSessionChange={onSessionChangeCallback}
+            optimistic={optimistic}
+            {...properties}
+        >
             {children}
         </AuthUIProvider>
     );

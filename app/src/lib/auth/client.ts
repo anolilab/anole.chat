@@ -16,7 +16,7 @@ import { env as environment } from "../env";
 
 export const authClient = createAuthClient({
     baseURL: environment.VITE_SITE_URL,
-    plugins: [twoFactorClient(), emailOTPClient(), magicLinkClient(), organizationClient(), convexClient()],
+    plugins: [anonymousClient(), twoFactorClient(), emailOTPClient(), magicLinkClient(), organizationClient(), convexClient()],
 });
 
 export type AuthClient = typeof authClient;

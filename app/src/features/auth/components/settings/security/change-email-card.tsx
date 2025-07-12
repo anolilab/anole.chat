@@ -14,12 +14,14 @@ import { cn } from "@/lib/utils";
 import type { SettingsCardProps as SettingsCardProperties } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
 
-const formSchema = z.object({
-    email: z
-        .string()
-        .min(1, { message: t`Email is required` })
-        .email({ message: t`Invalid email` }),
-}).strict();
+const formSchema = z
+    .object({
+        email: z
+            .string()
+            .min(1, { message: t`Email is required` })
+            .email({ message: t`Invalid email` }),
+    })
+    .strict();
 
 export const ChangeEmailCard = ({ className, classNames, ...properties }: SettingsCardProperties) => {
     const {
@@ -155,7 +157,9 @@ export const ChangeEmailCard = ({ className, classNames, ...properties }: Settin
                                                         className={classNames?.input}
                                                         disabled={isSubmitting}
                                                         onBlur={field.handleBlur}
-                                                        onChange={(e) => { field.handleChange(e.target.value); }}
+                                                        onChange={(e) => {
+                                                            field.handleChange(e.target.value);
+                                                        }}
                                                         placeholder={t`Enter your email address`}
                                                         type="email"
                                                         value={field.state.value}

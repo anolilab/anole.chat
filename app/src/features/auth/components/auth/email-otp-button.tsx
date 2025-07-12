@@ -22,7 +22,9 @@ export const EmailOTPButton = ({ classNames, isSubmitting, view }: EmailOTPButto
         <Button
             className={cn("w-full", classNames?.form?.button, classNames?.form?.secondaryButton)}
             disabled={isSubmitting}
-            onClick={() => { navigate(`${basePath}/${view === "EMAIL_OTP" ? viewPaths.SIGN_IN : viewPaths.EMAIL_OTP}${globalThis.location.search}`); }}
+            onClick={() => {
+                navigate(`${basePath}/${view === "EMAIL_OTP" ? viewPaths.SIGN_IN : viewPaths.EMAIL_OTP}${globalThis.location.search}`);
+            }}
             type="button"
             variant="secondary"
         >

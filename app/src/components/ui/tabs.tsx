@@ -5,7 +5,9 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Tabs = ({ className, ...properties }: React.ComponentProps<typeof TabsPrimitive.Root>) => <TabsPrimitive.Root className={cn("flex flex-col gap-2", className)} data-slot="tabs" {...properties} />;
+const Tabs = ({ className, ...properties }: React.ComponentProps<typeof TabsPrimitive.Root>) => (
+    <TabsPrimitive.Root className={cn("flex flex-col gap-2", className)} data-slot="tabs" {...properties} />
+);
 
 const TabsList = ({ className, ...properties }: React.ComponentProps<typeof TabsPrimitive.List>) => (
     <TabsPrimitive.List
@@ -26,6 +28,8 @@ const TabsTrigger = ({ className, ...properties }: React.ComponentProps<typeof T
     />
 );
 
-const TabsContent = ({ className, ...properties }: React.ComponentProps<typeof TabsPrimitive.Content>) => <TabsPrimitive.Content className={cn("flex-1 outline-none", className)} data-slot="tabs-content" {...properties} />;
+const TabsContent = ({ className, ...properties }: React.ComponentProps<typeof TabsPrimitive.Content>) => (
+    <TabsPrimitive.Content className={cn("flex-1 outline-none", className)} data-slot="tabs-content" {...properties} />
+);
 
 export { Tabs, TabsContent, TabsList, TabsTrigger };

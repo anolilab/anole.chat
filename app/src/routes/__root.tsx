@@ -23,8 +23,16 @@ import { seo } from "@/lib/seo";
 
 import appCss from "../styles.css?url";
 
-const ReactQueryDevtools = lazy(() => import("@tanstack/react-query-devtools").then((m) => { return { default: m.ReactQueryDevtools }; }));
-const TanStackRouterDevtools = lazy(() => import("@tanstack/react-router-devtools").then((m) => { return { default: m.TanStackRouterDevtools }; }));
+const ReactQueryDevtools = lazy(() =>
+    import("@tanstack/react-query-devtools").then((m) => {
+        return { default: m.ReactQueryDevtools };
+    }),
+);
+const TanStackRouterDevtools = lazy(() =>
+    import("@tanstack/react-router-devtools").then((m) => {
+        return { default: m.TanStackRouterDevtools };
+    }),
+);
 
 interface MyRouterContext {
     convexClient: ConvexReactClient;

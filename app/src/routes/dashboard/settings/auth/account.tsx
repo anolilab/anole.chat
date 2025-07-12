@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { APIKeysCard } from "@/features/auth/components/settings/api-key/api-keys-card";
+import { AccountSettingsCards } from "@/features/auth/components/settings/account-settings-cards";
 
-export const Route = createFileRoute("/dashboard/settings/api-keys")({
+export const Route = createFileRoute("/dashboard/settings/auth/account")({
     beforeLoad: ({ context }) => {
         if (!context?.user?.id) {
             throw redirect({ to: "/auth/sign-in" });
@@ -11,4 +11,4 @@ export const Route = createFileRoute("/dashboard/settings/api-keys")({
     component: RouteComponent,
 });
 
-const RouteComponent = () => <APIKeysCard />;
+const RouteComponent = () => <AccountSettingsCards />;

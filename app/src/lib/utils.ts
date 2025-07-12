@@ -15,13 +15,16 @@ export const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789");
 
 export const uuid = () => v7();
 
-export const convertImageToBase64 = async (file: File): Promise<string> => new Promise((resolve, reject) => {
-    const reader = new FileReader();
+export const convertImageToBase64 = async (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-    reader.readAsDataURL(file);
-    reader.addEventListener("load", () => { resolve(reader.result as string); });
-    reader.onerror = reject;
-});
+        reader.readAsDataURL(file);
+        reader.addEventListener("load", () => {
+            resolve(reader.result as string);
+        });
+        reader.onerror = reject;
+    });
 
 /**
  * Determines the appropriate redirect URL after successful authentication.

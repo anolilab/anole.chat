@@ -12,7 +12,9 @@ const ResizablePanelGroup = ({ className, ...properties }: React.ComponentProps<
     />
 );
 
-const ResizablePanel = ({ ...properties }: React.ComponentProps<typeof ResizablePrimitive.Panel>) => <ResizablePrimitive.Panel data-slot="resizable-panel" {...properties} />;
+const ResizablePanel = ({ ...properties }: React.ComponentProps<typeof ResizablePrimitive.Panel>) => (
+    <ResizablePrimitive.Panel data-slot="resizable-panel" {...properties} />
+);
 
 const ResizableHandle = ({
     className,

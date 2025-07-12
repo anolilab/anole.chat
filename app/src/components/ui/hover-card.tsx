@@ -3,9 +3,13 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const HoverCard = ({ ...properties }: React.ComponentProps<typeof HoverCardPrimitive.Root>) => <HoverCardPrimitive.Root data-slot="hover-card" {...properties} />;
+const HoverCard = ({ ...properties }: React.ComponentProps<typeof HoverCardPrimitive.Root>) => (
+    <HoverCardPrimitive.Root data-slot="hover-card" {...properties} />
+);
 
-const HoverCardTrigger = ({ ...properties }: React.ComponentProps<typeof HoverCardPrimitive.Trigger>) => <HoverCardPrimitive.Trigger data-slot="hover-card-trigger" {...properties} />;
+const HoverCardTrigger = ({ ...properties }: React.ComponentProps<typeof HoverCardPrimitive.Trigger>) => (
+    <HoverCardPrimitive.Trigger data-slot="hover-card-trigger" {...properties} />
+);
 
 const HoverCardContent = ({ align = "center", className, sideOffset = 4, ...properties }: React.ComponentProps<typeof HoverCardPrimitive.Content>) => (
     <HoverCardPrimitive.Portal data-slot="hover-card-portal">

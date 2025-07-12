@@ -53,7 +53,7 @@ export const createAuth = (context: GenericContext) =>
             },
         },
         plugins: [
-            // organization(),
+            organization(),
             magicLink({
                 sendMagicLink: async ({ email, url }) => {
                     await sendMagicLink({
@@ -101,22 +101,19 @@ export const createAuth = (context: GenericContext) =>
 
 export const { createSession, createUser, deleteUser, isAuthenticated, updateUser } = betterAuthComponent.createAuthFunctions<DataModel>({
     onCreateUser: async (context, user) => {
-        // Example: copy the user's email to the application users table.
-        // We'll use onUpdateUser to keep it synced.
-        const userId = await context.db.insert("users", {
+        const userId = await context.db.insert("extendedUsers", {
             email: user.email,
-            role: "user",
+            role: "user"
         });
 
-        // This function must return the user id.
         return userId;
     },
     onDeleteUser: async (context, userId) => {
-        await context.db.delete(userId as Id<"users">);
+        await context.db.delete(userId as Id<"extendedUsers">);
     },
     onUpdateUser: async (context, user) => {
         // Keep the user's email synced
-        const userId = user.userId as Id<"users">;
+        const userId = user.userId as Id<"extendedUsers">;
 
         await context.db.patch(userId, {
             email: user.email,

@@ -34,7 +34,9 @@ const usePromptImprovement = (threadId: string) => {
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => { controller.abort(); }, 30_000); // 30 second timeout
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                }, 30_000); // 30 second timeout
 
                 const response = await fetch("/convex-http/chat/improve-prompt", {
                     body: JSON.stringify({
@@ -54,13 +56,17 @@ const usePromptImprovement = (threadId: string) => {
                 if (!response.ok) {
                     // Handle different HTTP status codes
                     if (response.status === 429) {
-                        const errorData = await response.json().catch(() => { return {}; });
+                        const errorData = await response.json().catch(() => {
+                            return {};
+                        });
                         const retryAfter = errorData.retryAfter || 60_000;
 
                         throw new RateLimitError(errorData.message || "Rate limit exceeded. Please try again later.", retryAfter);
                     }
 
-                    const errorData = await response.json().catch(() => { return {}; });
+                    const errorData = await response.json().catch(() => {
+                        return {};
+                    });
 
                     throw ErrorFactory.fromResponse(response, errorData.error);
                 }
@@ -226,8 +232,12 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
 
     // Monitor network status
     useEffect(() => {
-        const handleOnline = () => { setIsOnline(true); };
-        const handleOffline = () => { setIsOnline(false); };
+        const handleOnline = () => {
+            setIsOnline(true);
+        };
+        const handleOffline = () => {
+            setIsOnline(false);
+        };
 
         globalThis.addEventListener("online", handleOnline);
         globalThis.addEventListener("offline", handleOffline);
@@ -321,7 +331,9 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
                             className="min-h-20"
                             disabled={isImproving}
                             id="improvement-instructions"
-                            onChange={(e) => { setImprovementInstructions(e.target.value); }}
+                            onChange={(e) => {
+                                setImprovementInstructions(e.target.value);
+                            }}
                             placeholder="e.g., Make it more concise, add technical details, improve clarity..."
                             value={improvementInstructions}
                         />
@@ -334,7 +346,9 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
                                 className="min-h-32"
                                 disabled={isImproving}
                                 id="improved-prompt"
-                                onChange={(e) => { setImprovedPrompt(e.target.value); }}
+                                onChange={(e) => {
+                                    setImprovedPrompt(e.target.value);
+                                }}
                                 placeholder="The improved prompt will appear here..."
                                 value={improvedPrompt}
                             />

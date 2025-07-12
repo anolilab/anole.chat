@@ -28,8 +28,8 @@
         "lint:types": "tsc --noEmit",
         "serve": "vite preview",
         "start": "node .output/server/index.mjs",
-        "sync:env": "node scripts/sync-env-to-convex.js",
-        "sync:env:local": "node scripts/sync-env-to-convex.js --env=development",
+        "sync:env": "node scripts/sync-environment-to-convex.js",
+        "sync:env:local": "node scripts/sync-environment-to-convex.js --env=development",
         "test": "vitest run",
         "translate:clean": "lingui extract --clean",
         "translate:extract": "lingui extract"

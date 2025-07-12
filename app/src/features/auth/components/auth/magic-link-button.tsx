@@ -22,7 +22,9 @@ export const MagicLinkButton = ({ classNames, isSubmitting, view }: MagicLinkBut
         <Button
             className={cn("w-full", classNames?.form?.button, classNames?.form?.secondaryButton)}
             disabled={isSubmitting}
-            onClick={() => { navigate(`${basePath}/${view === "MAGIC_LINK" || !credentials ? viewPaths.SIGN_IN : viewPaths.MAGIC_LINK}${globalThis.location.search}`); }}
+            onClick={() => {
+                navigate(`${basePath}/${view === "MAGIC_LINK" || !credentials ? viewPaths.SIGN_IN : viewPaths.MAGIC_LINK}${globalThis.location.search}`);
+            }}
             type="button"
             variant="secondary"
         >

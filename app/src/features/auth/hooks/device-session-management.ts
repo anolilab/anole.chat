@@ -54,9 +54,14 @@ export function useSetActiveSession<TAuthClient extends AuthClient>(authClient: 
     const { listDeviceSessionsKey: queryKey } = { ...context, ...options };
 
     const mutation = useMutation({
-        mutationFn: ({ fetchOptions = { throw: true }, ...parameters }: SetActiveSessionParameters) => authClient.multiSession.setActive({ fetchOptions, ...parameters }),
-        onError: (error) => { onMutateError(error, queryKey); },
-        onSettled: () => { queryClient.clear(); },
+        mutationFn: ({ fetchOptions = { throw: true }, ...parameters }: SetActiveSessionParameters) =>
+            authClient.multiSession.setActive({ fetchOptions, ...parameters }),
+        onError: (error) => {
+            onMutateError(error, queryKey);
+        },
+        onSettled: () => {
+            queryClient.clear();
+        },
     });
 
     const { error: setActiveSessionError, isPending: setActiveSessionPending, mutate: setActiveSession, mutateAsync: setActiveSessionAsync } = mutation;

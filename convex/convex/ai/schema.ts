@@ -9,7 +9,7 @@ const ai = {
             modelId: v.string(), // "openai:gpt-4o"
             p: v.number(),
             r: v.number(),
-            userId: v.string(),
+            userId: v.id("users"),
         }),
     ).index("byUserDay", ["userId", "daysSinceEpoch"]),
 };

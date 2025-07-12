@@ -31,16 +31,18 @@ export const ForgotPasswordForm = ({ className, classNames, isSubmitting, setIsS
 
     const { authClient, basePath, baseURL, navigate, toast, viewPaths } = useAuth();
 
-    const formSchema = z.object({
-        email: z
-            .string()
-            .min(1, {
-                message: t`Email is required`,
-            })
-            .email({
-                message: t`Email is invalid`,
-            }),
-    }).strict();
+    const formSchema = z
+        .object({
+            email: z
+                .string()
+                .min(1, {
+                    message: t`Email is required`,
+                })
+                .email({
+                    message: t`Email is invalid`,
+                }),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -118,7 +120,9 @@ export const ForgotPasswordForm = ({ className, classNames, isSubmitting, setIsS
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => { field.handleChange(e.target.value); }}
+                                    onChange={(e) => {
+                                        field.handleChange(e.target.value);
+                                    }}
                                     placeholder={t`Enter your email`}
                                     type="email"
                                     value={field.state.value}

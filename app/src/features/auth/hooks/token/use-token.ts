@@ -50,7 +50,9 @@ export function useToken<TAuthClient extends AnyAuthClient>(authClient: TAuthCli
 
         const timeout = setTimeout(() => refetch(), expiresIn);
 
-        return () => { clearTimeout(timeout); };
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [data, refetch]);
 
     const isTokenExpired = useCallback(() => {

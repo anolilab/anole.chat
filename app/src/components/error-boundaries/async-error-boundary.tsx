@@ -23,27 +23,24 @@ export const AsyncErrorBoundary = ({ children, fallback, onError }: AsyncErrorBo
     const posthog = usePostHog();
 
     // Create a context to provide error handling to child components
-    const errorContext = useMemo(
-        () => {
-            return {
-                handleAsyncError: (error: Error) => {
-                    onError?.(error);
+    const errorContext = useMemo(() => {
+        return {
+            handleAsyncError: (error: Error) => {
+                onError?.(error);
 
-                    // Send error to PostHog
-                    posthog?.captureException(error, {
-                        $level: "error",
-                        context: "async-operation",
-                        errorBoundary: "async",
-                        timestamp: new Date().toISOString(),
-                        url: globalThis.location.href,
-                    });
+                // Send error to PostHog
+                posthog?.captureException(error, {
+                    $level: "error",
+                    context: "async-operation",
+                    errorBoundary: "async",
+                    timestamp: new Date().toISOString(),
+                    url: globalThis.location.href,
+                });
 
-                    handleError(error);
-                },
-            };
-        },
-        [handleError, onError, posthog],
-    );
+                handleError(error);
+            },
+        };
+    }, [handleError, onError, posthog]);
 
     return (
         <AsyncErrorContext value={errorContext}>
@@ -128,7 +125,9 @@ export function useSafeAsync<T>(asyncFunction: () => Promise<T>, deps: Dependenc
     const handleAsyncError = useAsyncErrorHandler();
 
     const execute = useCallback(async () => {
-        setState((previous) => { return { ...previous, error: null, loading: true }; });
+        setState((previous) => {
+            return { ...previous, error: null, loading: true };
+        });
 
         try {
             const result = await asyncFunction();

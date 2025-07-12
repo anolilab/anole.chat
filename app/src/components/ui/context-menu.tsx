@@ -6,17 +6,29 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const ContextMenu = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Root>) => <ContextMenuPrimitive.Root data-slot="context-menu" {...properties} />;
+const ContextMenu = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Root>) => (
+    <ContextMenuPrimitive.Root data-slot="context-menu" {...properties} />
+);
 
-const ContextMenuTrigger = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) => <ContextMenuPrimitive.Trigger data-slot="context-menu-trigger" {...properties} />;
+const ContextMenuTrigger = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) => (
+    <ContextMenuPrimitive.Trigger data-slot="context-menu-trigger" {...properties} />
+);
 
-const ContextMenuGroup = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Group>) => <ContextMenuPrimitive.Group data-slot="context-menu-group" {...properties} />;
+const ContextMenuGroup = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Group>) => (
+    <ContextMenuPrimitive.Group data-slot="context-menu-group" {...properties} />
+);
 
-const ContextMenuPortal = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Portal>) => <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...properties} />;
+const ContextMenuPortal = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Portal>) => (
+    <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...properties} />
+);
 
-const ContextMenuSub = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Sub>) => <ContextMenuPrimitive.Sub data-slot="context-menu-sub" {...properties} />;
+const ContextMenuSub = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Sub>) => (
+    <ContextMenuPrimitive.Sub data-slot="context-menu-sub" {...properties} />
+);
 
-const ContextMenuRadioGroup = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.RadioGroup>) => <ContextMenuPrimitive.RadioGroup data-slot="context-menu-radio-group" {...properties} />;
+const ContextMenuRadioGroup = ({ ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.RadioGroup>) => (
+    <ContextMenuPrimitive.RadioGroup data-slot="context-menu-radio-group" {...properties} />
+);
 
 const ContextMenuSubTrigger = ({
     children,
@@ -137,9 +149,13 @@ const ContextMenuLabel = ({
     />
 );
 
-const ContextMenuSeparator = ({ className, ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Separator>) => <ContextMenuPrimitive.Separator className={cn("bg-border -mx-1 my-1 h-px", className)} data-slot="context-menu-separator" {...properties} />;
+const ContextMenuSeparator = ({ className, ...properties }: React.ComponentProps<typeof ContextMenuPrimitive.Separator>) => (
+    <ContextMenuPrimitive.Separator className={cn("bg-border -mx-1 my-1 h-px", className)} data-slot="context-menu-separator" {...properties} />
+);
 
-const ContextMenuShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="context-menu-shortcut" {...properties} />;
+const ContextMenuShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => (
+    <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="context-menu-shortcut" {...properties} />
+);
 
 export {
     ContextMenu,

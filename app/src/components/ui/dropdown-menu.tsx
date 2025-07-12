@@ -4,11 +4,17 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const DropdownMenu = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...properties} />;
+const DropdownMenu = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => (
+    <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...properties} />
+);
 
-const DropdownMenuPortal = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) => <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...properties} />;
+const DropdownMenuPortal = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) => (
+    <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...properties} />
+);
 
-const DropdownMenuTrigger = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) => <DropdownMenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...properties} />;
+const DropdownMenuTrigger = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) => (
+    <DropdownMenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...properties} />
+);
 
 const DropdownMenuContent = ({ className, sideOffset = 4, ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) => (
     <DropdownMenuPrimitive.Portal>
@@ -24,7 +30,9 @@ const DropdownMenuContent = ({ className, sideOffset = 4, ...properties }: React
     </DropdownMenuPrimitive.Portal>
 );
 
-const DropdownMenuGroup = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Group>) => <DropdownMenuPrimitive.Group data-slot="dropdown-menu-group" {...properties} />;
+const DropdownMenuGroup = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Group>) => (
+    <DropdownMenuPrimitive.Group data-slot="dropdown-menu-group" {...properties} />
+);
 
 const DropdownMenuItem = ({
     className,
@@ -66,7 +74,9 @@ const DropdownMenuCheckboxItem = ({ checked, children, className, ...properties 
     </DropdownMenuPrimitive.CheckboxItem>
 );
 
-const DropdownMenuRadioGroup = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) => <DropdownMenuPrimitive.RadioGroup data-slot="dropdown-menu-radio-group" {...properties} />;
+const DropdownMenuRadioGroup = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) => (
+    <DropdownMenuPrimitive.RadioGroup data-slot="dropdown-menu-radio-group" {...properties} />
+);
 
 const DropdownMenuRadioItem = ({ children, className, ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem>) => (
     <DropdownMenuPrimitive.RadioItem
@@ -101,11 +111,17 @@ const DropdownMenuLabel = ({
     />
 );
 
-const DropdownMenuSeparator = ({ className, ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) => <DropdownMenuPrimitive.Separator className={cn("bg-border -mx-1 my-1 h-px", className)} data-slot="dropdown-menu-separator" {...properties} />;
+const DropdownMenuSeparator = ({ className, ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) => (
+    <DropdownMenuPrimitive.Separator className={cn("bg-border -mx-1 my-1 h-px", className)} data-slot="dropdown-menu-separator" {...properties} />
+);
 
-const DropdownMenuShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="dropdown-menu-shortcut" {...properties} />;
+const DropdownMenuShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => (
+    <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="dropdown-menu-shortcut" {...properties} />
+);
 
-const DropdownMenuSub = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) => <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...properties} />;
+const DropdownMenuSub = ({ ...properties }: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) => (
+    <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...properties} />
+);
 
 const DropdownMenuSubTrigger = ({
     children,

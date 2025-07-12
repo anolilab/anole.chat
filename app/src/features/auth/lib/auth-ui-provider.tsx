@@ -11,7 +11,19 @@ import { useAuthData } from "../hooks/use-auth-data";
 import type { AnyAuthClient } from "../types/auth-core-types";
 import type { AdditionalFields } from "../types/form-validation-types";
 import type { AuthHooks, AuthMutators, RenderToast } from "../types/hook-integration-types";
-import type { AvatarOptions, CaptchaOptions, CredentialsOptions, DeleteUserOptions, GenericOAuthOptions, GravatarOptions, OrganizationOptions, OrganizationOptionsContext, SettingsOptions, SignUpOptions, SocialOptions } from "../types/ui-configuration-types";
+import type {
+    AvatarOptions,
+    CaptchaOptions,
+    CredentialsOptions,
+    DeleteUserOptions,
+    GenericOAuthOptions,
+    GravatarOptions,
+    OrganizationOptions,
+    OrganizationOptionsContext,
+    SettingsOptions,
+    SignUpOptions,
+    SocialOptions,
+} from "../types/ui-configuration-types";
 import type { AuthViewPaths } from "./auth-view-paths";
 import { authViewPaths } from "./auth-view-paths";
 import { getLocalizedError } from "./utils";
@@ -389,86 +401,94 @@ export const AuthUIProvider = ({
         };
     }, [organizationProperty]);
 
-    const defaultMutators = useMemo(() => ({
-        deleteApiKey: (parameters) =>
-            authClient.apiKey.delete({
-                ...parameters,
-                fetchOptions: { throw: true },
-            }),
-        deletePasskey: (parameters) =>
-            authClient.passkey.deletePasskey({
-                ...parameters,
-                fetchOptions: { throw: true },
-            }),
-        revokeDeviceSession: (parameters) =>
-            authClient.multiSession.revoke({
-                ...parameters,
-                fetchOptions: { throw: true },
-            }),
-        revokeSession: (parameters) =>
-            authClient.revokeSession({
-                ...parameters,
-                fetchOptions: { throw: true },
-            }),
-        setActiveSession: (parameters) =>
-            authClient.multiSession.setActive({
-                ...parameters,
-                fetchOptions: { throw: true },
-            }),
-        unlinkAccount: (parameters) =>
-            authClient.unlinkAccount({
-                ...parameters,
-                fetchOptions: { throw: true },
-            }),
-        updateUser: (parameters) =>
-            authClient.updateUser({
-                ...parameters,
-                fetchOptions: { throw: true },
-            }),
-    } as AuthMutators), [authClient]);
+    const defaultMutators = useMemo(
+        () =>
+            ({
+                deleteApiKey: (parameters) =>
+                    authClient.apiKey.delete({
+                        ...parameters,
+                        fetchOptions: { throw: true },
+                    }),
+                deletePasskey: (parameters) =>
+                    authClient.passkey.deletePasskey({
+                        ...parameters,
+                        fetchOptions: { throw: true },
+                    }),
+                revokeDeviceSession: (parameters) =>
+                    authClient.multiSession.revoke({
+                        ...parameters,
+                        fetchOptions: { throw: true },
+                    }),
+                revokeSession: (parameters) =>
+                    authClient.revokeSession({
+                        ...parameters,
+                        fetchOptions: { throw: true },
+                    }),
+                setActiveSession: (parameters) =>
+                    authClient.multiSession.setActive({
+                        ...parameters,
+                        fetchOptions: { throw: true },
+                    }),
+                unlinkAccount: (parameters) =>
+                    authClient.unlinkAccount({
+                        ...parameters,
+                        fetchOptions: { throw: true },
+                    }),
+                updateUser: (parameters) =>
+                    authClient.updateUser({
+                        ...parameters,
+                        fetchOptions: { throw: true },
+                    }),
+            }) as AuthMutators,
+        [authClient],
+    );
 
-    const defaultHooks = useMemo(() => ({
-        useActiveOrganization: authClient.useActiveOrganization,
-        useHasPermission: (parameters) =>
-            useAuthData({
-                cacheKey: `hasPermission:${JSON.stringify(parameters)}`,
-                queryFn: () => authClient.organization.hasPermission(parameters),
-            }),
-        useInvitation: (parameters) =>
-            useAuthData({
-                cacheKey: `invitation:${JSON.stringify(parameters)}`,
-                queryFn: () => authClient.organization.getInvitation(parameters),
-            }),
-        useListAccounts: () =>
-            useAuthData({
-                cacheKey: "listAccounts",
-                queryFn: authClient.listAccounts,
-            }),
-        useListApiKeys: () =>
-            useAuthData({
-                cacheKey: "listApiKeys",
-                queryFn: authClient.apiKey.list,
-            }),
-        useListDeviceSessions: () =>
-            useAuthData({
-                cacheKey: "listDeviceSessions",
-                queryFn: authClient.multiSession.listDeviceSessions,
-            }),
-        useListOrganizations: authClient.useListOrganizations,
-        useListPasskeys: authClient.useListPasskeys,
-        useListSessions: () =>
-            useAuthData({
-                cacheKey: "listSessions",
-                queryFn: authClient.listSessions,
-            }),
-        useSession: authClient.useSession,
-    } as AuthHooks), [authClient]);
+    const defaultHooks = useMemo(
+        () =>
+            ({
+                useActiveOrganization: authClient.useActiveOrganization,
+                useHasPermission: (parameters) =>
+                    useAuthData({
+                        cacheKey: `hasPermission:${JSON.stringify(parameters)}`,
+                        queryFn: () => authClient.organization.hasPermission(parameters),
+                    }),
+                useInvitation: (parameters) =>
+                    useAuthData({
+                        cacheKey: `invitation:${JSON.stringify(parameters)}`,
+                        queryFn: () => authClient.organization.getInvitation(parameters),
+                    }),
+                useListAccounts: () =>
+                    useAuthData({
+                        cacheKey: "listAccounts",
+                        queryFn: authClient.listAccounts,
+                    }),
+                useListApiKeys: () =>
+                    useAuthData({
+                        cacheKey: "listApiKeys",
+                        queryFn: authClient.apiKey.list,
+                    }),
+                useListDeviceSessions: () =>
+                    useAuthData({
+                        cacheKey: "listDeviceSessions",
+                        queryFn: authClient.multiSession.listDeviceSessions,
+                    }),
+                useListOrganizations: authClient.useListOrganizations,
+                useListPasskeys: authClient.useListPasskeys,
+                useListSessions: () =>
+                    useAuthData({
+                        cacheKey: "listSessions",
+                        queryFn: authClient.listSessions,
+                    }),
+                useSession: authClient.useSession,
+            }) as AuthHooks,
+        [authClient],
+    );
 
-    const viewPaths = useMemo(() => ({ ...authViewPaths, ...viewPathsProperty } as AuthViewPaths), [viewPathsProperty]);
+    const viewPaths = useMemo(() => ({ ...authViewPaths, ...viewPathsProperty }) as AuthViewPaths, [viewPathsProperty]);
 
-    const hooks = useMemo(() => ({ ...defaultHooks, ...hooksProperty } as AuthHooks), [defaultHooks, hooksProperty]);
+    const hooks = useMemo(() => ({ ...defaultHooks, ...hooksProperty }) as AuthHooks, [defaultHooks, hooksProperty]);
 
-    const mutators = useMemo(() => ({ ...defaultMutators, ...mutatorsProperty } as AuthMutators), [defaultMutators, mutatorsProperty]);
+    const mutators = useMemo(() => ({ ...defaultMutators, ...mutatorsProperty }) as AuthMutators, [defaultMutators, mutatorsProperty]);
 
     // Remove trailing slash from baseURL
     baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;

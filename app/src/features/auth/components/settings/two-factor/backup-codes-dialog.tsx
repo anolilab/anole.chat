@@ -24,7 +24,9 @@ export const BackupCodesDialog = ({ backupCodes, classNames, onOpenChange, ...pr
 
         navigator.clipboard.writeText(codesText);
         setCopied(true);
-        setTimeout(() => { setCopied(false); }, 2000);
+        setTimeout(() => {
+            setCopied(false);
+        }, 2000);
     };
 
     const handleDownload = () => {
@@ -43,7 +45,12 @@ export const BackupCodesDialog = ({ backupCodes, classNames, onOpenChange, ...pr
 
     return (
         <Dialog onOpenChange={onOpenChange} {...properties}>
-            <DialogContent className={cn("max-w-md", classNames?.dialog?.content)} onOpenAutoFocus={(e) => { e.preventDefault(); }}>
+            <DialogContent
+                className={cn("max-w-md", classNames?.dialog?.content)}
+                onOpenAutoFocus={(e) => {
+                    e.preventDefault();
+                }}
+            >
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>{t`Backup Codes`}</DialogTitle>
 

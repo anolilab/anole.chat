@@ -32,7 +32,18 @@ export interface EmailTemplateProperties {
     variant?: "vercel";
 }
 
-export const EmailTemplate = ({ action, baseUrl, classNames, content, heading, imageUrl, preview, siteName, url, variant = "vercel" }: EmailTemplateProperties) => {
+export const EmailTemplate = ({
+    action,
+    baseUrl,
+    classNames,
+    content,
+    heading,
+    imageUrl,
+    preview,
+    siteName,
+    url,
+    variant = "vercel",
+}: EmailTemplateProperties) => {
     baseUrl = baseUrl || process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
     imageUrl = imageUrl || `${baseUrl}/apple-touch-icon.png`;
     siteName = siteName || process.env.SITE_NAME || process.env.NEXT_PUBLIC_SITE_NAME;

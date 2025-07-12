@@ -64,13 +64,26 @@ export const MemberCell = ({ className, classNames, hideActions, member }: Membe
                             </Button>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent onCloseAutoFocus={(e) => { e.preventDefault(); }}>
-                            <DropdownMenuItem onClick={() => { setUpdateRoleDialogOpen(true); }}>
+                        <DropdownMenuContent
+                            onCloseAutoFocus={(e) => {
+                                e.preventDefault();
+                            }}
+                        >
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setUpdateRoleDialogOpen(true);
+                                }}
+                            >
                                 <UserCogIcon className={classNames?.icon} />
                                 {t`Update Role`}
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem onClick={() => { setRemoveDialogOpen(true); }} variant="destructive">
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setRemoveDialogOpen(true);
+                                }}
+                                variant="destructive"
+                            >
                                 <UserXIcon className={classNames?.icon} />
                                 {t`Remove Member`}
                             </DropdownMenuItem>

@@ -174,7 +174,9 @@ export const UpdateFieldCard = ({
                                                     checked={field.state.value as boolean}
                                                     className={classNames?.checkbox}
                                                     disabled={isSubmitting}
-                                                    onCheckedChange={(checked) => { field.handleChange(checked as boolean); }}
+                                                    onCheckedChange={(checked) => {
+                                                        field.handleChange(checked as boolean);
+                                                    }}
                                                 />
                                             </field.FormControl>
 
@@ -200,7 +202,9 @@ export const UpdateFieldCard = ({
                                                         className={classNames?.input}
                                                         disabled={isSubmitting}
                                                         onBlur={field.handleBlur}
-                                                        onChange={(e) => { field.handleChange(e.target.value); }}
+                                                        onChange={(e) => {
+                                                            field.handleChange(e.target.value);
+                                                        }}
                                                         placeholder={placeholder}
                                                         type={type === "number" ? "number" : "text"}
                                                         value={field.state.value as string}

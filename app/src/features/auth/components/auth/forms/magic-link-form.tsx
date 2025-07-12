@@ -43,23 +43,28 @@ export const MagicLinkForm = ({
 
     const search = useSearch({ strict: false });
 
-    const getRedirectTo = useCallback(() => redirectToProperty || search.redirectTo || contextRedirectTo, [redirectToProperty, search.redirectTo, contextRedirectTo]);
+    const getRedirectTo = useCallback(
+        () => redirectToProperty || search.redirectTo || contextRedirectTo,
+        [redirectToProperty, search.redirectTo, contextRedirectTo],
+    );
 
     const getCallbackURL = useCallback(
         () => `${baseURL}${callbackURLProperty || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,
         [callbackURLProperty, persistClient, basePath, viewPaths, baseURL, getRedirectTo],
     );
 
-    const formSchema = z.object({
-        email: z
-            .string()
-            .min(1, {
-                message: t`Email is required`,
-            })
-            .email({
-                message: t`Email is invalid`,
-            }),
-    }).strict();
+    const formSchema = z
+        .object({
+            email: z
+                .string()
+                .min(1, {
+                    message: t`Email is required`,
+                })
+                .email({
+                    message: t`Email is invalid`,
+                }),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: {
@@ -137,7 +142,9 @@ export const MagicLinkForm = ({
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => { field.handleChange(e.target.value); }}
+                                    onChange={(e) => {
+                                        field.handleChange(e.target.value);
+                                    }}
                                     placeholder={t`Enter your email`}
                                     type="email"
                                     value={field.state.value}

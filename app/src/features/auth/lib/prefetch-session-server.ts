@@ -11,7 +11,12 @@ const getSession = cache(async <TAuth extends BetterAuth>(auth: TAuth, parameter
     return (await auth.api.getSession(parameters)) as SessionData;
 });
 
-export async function prefetchSession<TAuth extends BetterAuth>(auth: TAuth, queryClient: QueryClient, parameters: GetSessionParameters, queryKey = ["session"]) {
+export async function prefetchSession<TAuth extends BetterAuth>(
+    auth: TAuth,
+    queryClient: QueryClient,
+    parameters: GetSessionParameters,
+    queryKey = ["session"],
+) {
     type SessionData = TAuth["$Infer"]["Session"] | null;
     type User = TAuth["$Infer"]["Session"]["user"];
     type Session = TAuth["$Infer"]["Session"]["session"];

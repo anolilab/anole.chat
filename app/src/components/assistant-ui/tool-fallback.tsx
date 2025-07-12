@@ -17,7 +17,13 @@ export const ToolFallback: ToolCallContentPartComponent = ({ argsText, result, t
                     <b>{toolName}</b>
                 </p>
                 <div className="flex-grow" />
-                <Button onClick={() => { setIsCollapsed(!isCollapsed); }}>{isCollapsed ? <ChevronUpIcon /> : <ChevronDownIcon />}</Button>
+                <Button
+                    onClick={() => {
+                        setIsCollapsed(!isCollapsed);
+                    }}
+                >
+                    {isCollapsed ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                </Button>
             </div>
             {!isCollapsed && (
                 <div className="flex flex-col gap-2 border-t pt-2">

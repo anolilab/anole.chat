@@ -92,7 +92,12 @@ export const OrganizationCell = ({ className, classNames, organization }: Organi
                             {t`Manage Organization`}
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem onClick={() => { setIsLeaveDialogOpen(true); }} variant="destructive">
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setIsLeaveDialogOpen(true);
+                            }}
+                            variant="destructive"
+                        >
                             <LogOutIcon className={classNames?.icon} />
 
                             {t`Leave Organization`}

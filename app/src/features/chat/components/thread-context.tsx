@@ -118,7 +118,13 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
         // Automatically switch to the new branch
         setCurrentThreadId(branchId);
-        navigate({ params: { threadId: branchId }, search: (previous) => { return { ...previous }; }, to: "/chat/$threadId" });
+        navigate({
+            params: { threadId: branchId },
+            search: (previous) => {
+                return { ...previous };
+            },
+            to: "/chat/$threadId",
+        });
 
         return branchId;
     };
@@ -169,7 +175,13 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
             if (parentId && parentId !== "default") {
                 setCurrentThreadId(parentId);
-                navigate({ params: { threadId: parentId }, search: (previous) => { return { ...previous }; }, to: "/chat/$threadId" });
+                navigate({
+                    params: { threadId: parentId },
+                    search: (previous) => {
+                        return { ...previous };
+                    },
+                    to: "/chat/$threadId",
+                });
             } else {
                 // Redirect to main chat with notification
                 navigate({
@@ -181,131 +193,151 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
     };
 
     // Get parent thread ID - now uses Convex threads data
-    const getParentThread = useMemo(() => (threadId: string): string | null => {
-        // First check local metadata for local threads
-        const localMetadata = threadMetadata.get(threadId);
+    const getParentThread = useMemo(
+        () =>
+            (threadId: string): string | null => {
+                // First check local metadata for local threads
+                const localMetadata = threadMetadata.get(threadId);
 
-        if (localMetadata?.parentThreadId) {
-            return localMetadata.parentThreadId;
-        }
+                if (localMetadata?.parentThreadId) {
+                    return localMetadata.parentThreadId;
+                }
 
-        // Then check Convex threads data
-        if (allThreads?.page) {
-            const thread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
+                // Then check Convex threads data
+                if (allThreads?.page) {
+                    const thread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
 
-            return thread?.parentThreadIds?.[0] || null;
-        }
+                    return thread?.parentThreadIds?.[0] || null;
+                }
 
-        return null;
-    }, [threadMetadata, allThreads?.page]);
+                return null;
+            },
+        [threadMetadata, allThreads?.page],
+    );
 
     // Get child branch IDs - now uses Convex threads data
-    const getChildBranches = useMemo(() => (threadId: string): string[] => {
-        const children: string[] = [];
+    const getChildBranches = useMemo(
+        () =>
+            (threadId: string): string[] => {
+                const children: string[] = [];
 
-        // Check local metadata first
-        for (const [id, metadata] of threadMetadata.entries()) {
-            if (metadata.parentThreadId === threadId) {
-                children.push(id);
-            }
-        }
-
-        // Then check Convex threads data
-        if (allThreads?.page) {
-            for (const thread of allThreads.page) {
-                if (thread.parentThreadIds?.includes(threadId) && !children.includes(thread._id)) {
-                    children.push(thread._id);
+                // Check local metadata first
+                for (const [id, metadata] of threadMetadata.entries()) {
+                    if (metadata.parentThreadId === threadId) {
+                        children.push(id);
+                    }
                 }
-            }
-        }
 
-        return children;
-    }, [threadMetadata, allThreads?.page]);
+                // Then check Convex threads data
+                if (allThreads?.page) {
+                    for (const thread of allThreads.page) {
+                        if (thread.parentThreadIds?.includes(threadId) && !children.includes(thread._id)) {
+                            children.push(thread._id);
+                        }
+                    }
+                }
+
+                return children;
+            },
+        [threadMetadata, allThreads?.page],
+    );
 
     // Get the hierarchical tree structure of branches
-    const getBranchTree = useMemo(() => (rootThreadId?: string): BranchNode[] => {
-        const buildTree = (threadId: string, depth: number = 0): BranchNode => {
-            // Try to get metadata from local state first
-            let metadata = threadMetadata.get(threadId);
+    const getBranchTree = useMemo(
+        () =>
+            (rootThreadId?: string): BranchNode[] => {
+                const buildTree = (threadId: string, depth: number = 0): BranchNode => {
+                    // Try to get metadata from local state first
+                    let metadata = threadMetadata.get(threadId);
 
-            // If not found locally, create metadata from Convex thread data
-            if (!metadata && allThreads?.page) {
-                const convexThread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
+                    // If not found locally, create metadata from Convex thread data
+                    if (!metadata && allThreads?.page) {
+                        const convexThread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
 
-                if (convexThread) {
-                    metadata = {
-                        createdAt: new Date(convexThread._creationTime),
-                        lastActivity: new Date(convexThread._creationTime),
-                        parentThreadId: convexThread.parentThreadIds?.[0],
-                        status: convexThread.status === "active" ? "active" : "archived",
-                        title: convexThread.title || "Untitled Thread",
+                        if (convexThread) {
+                            metadata = {
+                                createdAt: new Date(convexThread._creationTime),
+                                lastActivity: new Date(convexThread._creationTime),
+                                parentThreadId: convexThread.parentThreadIds?.[0],
+                                status: convexThread.status === "active" ? "active" : "archived",
+                                title: convexThread.title || "Untitled Thread",
+                            };
+                        }
+                    }
+
+                    if (!metadata) {
+                        throw new Error(`Metadata not found for thread ${threadId}`);
+                    }
+
+                    const children = getChildBranches(threadId).map((childId) => buildTree(childId, depth + 1));
+
+                    return {
+                        children,
+                        depth,
+                        metadata,
+                        threadId,
                     };
+                };
+
+                if (rootThreadId) {
+                    return [buildTree(rootThreadId)];
                 }
-            }
 
-            if (!metadata) {
-                throw new Error(`Metadata not found for thread ${threadId}`);
-            }
+                // Find all root threads (threads without parents)
+                const rootThreads: string[] = [];
 
-            const children = getChildBranches(threadId).map((childId) => buildTree(childId, depth + 1));
-
-            return {
-                children,
-                depth,
-                metadata,
-                threadId,
-            };
-        };
-
-        if (rootThreadId) {
-            return [buildTree(rootThreadId)];
-        }
-
-        // Find all root threads (threads without parents)
-        const rootThreads: string[] = [];
-
-        // Check local threads
-        for (const [threadId, metadata] of threadMetadata.entries()) {
-            if (!metadata.parentThreadId) {
-                rootThreads.push(threadId);
-            }
-        }
-
-        // Check Convex threads
-        if (allThreads?.page) {
-            for (const thread of allThreads.page) {
-                if (!thread.parentThreadIds?.length && !rootThreads.includes(thread._id)) {
-                    rootThreads.push(thread._id);
+                // Check local threads
+                for (const [threadId, metadata] of threadMetadata.entries()) {
+                    if (!metadata.parentThreadId) {
+                        rootThreads.push(threadId);
+                    }
                 }
-            }
-        }
 
-        return rootThreads.map((threadId) => buildTree(threadId));
-    }, [threadMetadata, allThreads?.page, getChildBranches]);
+                // Check Convex threads
+                if (allThreads?.page) {
+                    for (const thread of allThreads.page) {
+                        if (!thread.parentThreadIds?.length && !rootThreads.includes(thread._id)) {
+                            rootThreads.push(thread._id);
+                        }
+                    }
+                }
+
+                return rootThreads.map((threadId) => buildTree(threadId));
+            },
+        [threadMetadata, allThreads?.page, getChildBranches],
+    );
 
     // Get the path from root to a specific thread
-    const getThreadPath = useMemo(() => (threadId: string): string[] => {
-        const path: string[] = [];
-        let currentId: string | null = threadId;
+    const getThreadPath = useMemo(
+        () =>
+            (threadId: string): string[] => {
+                const path: string[] = [];
+                let currentId: string | null = threadId;
 
-        while (currentId) {
-            path.unshift(currentId);
-            currentId = getParentThread(currentId);
-        }
+                while (currentId) {
+                    path.unshift(currentId);
+                    currentId = getParentThread(currentId);
+                }
 
-        return path;
-    }, [getParentThread]);
+                return path;
+            },
+        [getParentThread],
+    );
 
     // Get sibling branches (branches with the same parent)
-    const getBranchSiblings = useMemo(() => (threadId: string): string[] => {
-        const metadata = threadMetadata.get(threadId);
+    const getBranchSiblings = useMemo(
+        () =>
+            (threadId: string): string[] => {
+                const metadata = threadMetadata.get(threadId);
 
-        if (!metadata?.parentThreadId) {
-            return [];
-        }
+                if (!metadata?.parentThreadId) {
+                    return [];
+                }
 
-        return getChildBranches(metadata.parentThreadId).filter((id) => id !== threadId);
-    }, [threadMetadata, getChildBranches]);
+                return getChildBranches(metadata.parentThreadId).filter((id) => id !== threadId);
+            },
+        [threadMetadata, getChildBranches],
+    );
 
     // Merge a branch back into its parent or target thread
     const mergeBranch = async (sourceThreadId: string, targetThreadId: string) => {
@@ -354,7 +386,13 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
     const switchToBranch = (threadId: string) => {
         if (threads.has(threadId)) {
             setCurrentThreadId(threadId);
-            navigate({ params: { threadId }, search: (previous) => { return { ...previous }; }, to: "/chat/$threadId" });
+            navigate({
+                params: { threadId },
+                search: (previous) => {
+                    return { ...previous };
+                },
+                to: "/chat/$threadId",
+            });
 
             // Update last activity
             setThreadMetadata((previous) => {

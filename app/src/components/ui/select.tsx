@@ -6,9 +6,13 @@ import { cn } from "@/lib/utils";
 
 const Select = ({ ...properties }: React.ComponentProps<typeof SelectPrimitive.Root>) => <SelectPrimitive.Root data-slot="select" {...properties} />;
 
-const SelectGroup = ({ ...properties }: React.ComponentProps<typeof SelectPrimitive.Group>) => <SelectPrimitive.Group data-slot="select-group" {...properties} />;
+const SelectGroup = ({ ...properties }: React.ComponentProps<typeof SelectPrimitive.Group>) => (
+    <SelectPrimitive.Group data-slot="select-group" {...properties} />
+);
 
-const SelectValue = ({ ...properties }: React.ComponentProps<typeof SelectPrimitive.Value>) => <SelectPrimitive.Value data-slot="select-value" {...properties} />;
+const SelectValue = ({ ...properties }: React.ComponentProps<typeof SelectPrimitive.Value>) => (
+    <SelectPrimitive.Value data-slot="select-value" {...properties} />
+);
 
 const SelectTrigger = ({
     children,
@@ -61,7 +65,9 @@ const SelectContent = ({ children, className, position = "popper", ...properties
     </SelectPrimitive.Portal>
 );
 
-const SelectLabel = ({ className, ...properties }: React.ComponentProps<typeof SelectPrimitive.Label>) => <SelectPrimitive.Label className={cn("text-muted-foreground px-2 py-1.5 text-xs", className)} data-slot="select-label" {...properties} />;
+const SelectLabel = ({ className, ...properties }: React.ComponentProps<typeof SelectPrimitive.Label>) => (
+    <SelectPrimitive.Label className={cn("text-muted-foreground px-2 py-1.5 text-xs", className)} data-slot="select-label" {...properties} />
+);
 
 const SelectItem = ({ children, className, ...properties }: React.ComponentProps<typeof SelectPrimitive.Item>) => (
     <SelectPrimitive.Item
@@ -81,7 +87,9 @@ const SelectItem = ({ children, className, ...properties }: React.ComponentProps
     </SelectPrimitive.Item>
 );
 
-const SelectSeparator = ({ className, ...properties }: React.ComponentProps<typeof SelectPrimitive.Separator>) => <SelectPrimitive.Separator className={cn("bg-border pointer-events-none -mx-1 my-1 h-px", className)} data-slot="select-separator" {...properties} />;
+const SelectSeparator = ({ className, ...properties }: React.ComponentProps<typeof SelectPrimitive.Separator>) => (
+    <SelectPrimitive.Separator className={cn("bg-border pointer-events-none -mx-1 my-1 h-px", className)} data-slot="select-separator" {...properties} />
+);
 
 const SelectScrollUpButton = ({ className, ...properties }: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) => (
     <SelectPrimitive.ScrollUpButton

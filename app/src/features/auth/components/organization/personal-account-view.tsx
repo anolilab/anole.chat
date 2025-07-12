@@ -33,9 +33,7 @@ export const PersonalAccountView = ({ className, classNames, isPending, size, us
                         <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
 
                         {size !== "sm" && (
-                            <Skeleton
-                                className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-40" : "h-3 w-32", classNames?.subtitle, classNames?.skeleton)}
-                            />
+                            <Skeleton className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-40" : "h-3 w-32", classNames?.subtitle, classNames?.skeleton)} />
                         )}
                     </>
                 )
@@ -48,14 +46,12 @@ export const PersonalAccountView = ({ className, classNames, isPending, size, us
                                 || user?.firstName
                                 || user?.name
                                 || user?.fullName
-                                || user?.email
-                                || t`User`}
+                || user?.email
+                            || t`User`}
                         </span>
 
                         {size !== "sm" && (
-                            <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>
-                                {t`Personal Account`}
-                            </span>
+                            <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>{t`Personal Account`}</span>
                         )}
                     </>
                 )}

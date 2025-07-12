@@ -12,7 +12,8 @@ import { cn } from "@/lib/utils";
 /**
  * Props for the SyntaxHighlighter component
  */
-export type HighlighterProps = Omit<ShikiHighlighterProps, "children" | "theme" | "highlighter"> & Pick<AUIProperties, "node" | "components" | "language" | "code">;
+export type HighlighterProps = Omit<ShikiHighlighterProps, "children" | "theme" | "highlighter">
+    & Pick<AUIProperties, "node" | "components" | "language" | "code">;
 
 const highlighterPromise = createHighlighterCore({
     engine: createOnigurumaEngine(import("shiki/wasm")),

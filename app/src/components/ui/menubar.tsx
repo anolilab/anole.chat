@@ -12,13 +12,21 @@ const Menubar = ({ className, ...properties }: React.ComponentProps<typeof Menub
     />
 );
 
-const MenubarMenu = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.Menu>) => <MenubarPrimitive.Menu data-slot="menubar-menu" {...properties} />;
+const MenubarMenu = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.Menu>) => (
+    <MenubarPrimitive.Menu data-slot="menubar-menu" {...properties} />
+);
 
-const MenubarGroup = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.Group>) => <MenubarPrimitive.Group data-slot="menubar-group" {...properties} />;
+const MenubarGroup = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.Group>) => (
+    <MenubarPrimitive.Group data-slot="menubar-group" {...properties} />
+);
 
-const MenubarPortal = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.Portal>) => <MenubarPrimitive.Portal data-slot="menubar-portal" {...properties} />;
+const MenubarPortal = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.Portal>) => (
+    <MenubarPrimitive.Portal data-slot="menubar-portal" {...properties} />
+);
 
-const MenubarRadioGroup = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.RadioGroup>) => <MenubarPrimitive.RadioGroup data-slot="menubar-radio-group" {...properties} />;
+const MenubarRadioGroup = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.RadioGroup>) => (
+    <MenubarPrimitive.RadioGroup data-slot="menubar-radio-group" {...properties} />
+);
 
 const MenubarTrigger = ({ className, ...properties }: React.ComponentProps<typeof MenubarPrimitive.Trigger>) => (
     <MenubarPrimitive.Trigger
@@ -31,7 +39,13 @@ const MenubarTrigger = ({ className, ...properties }: React.ComponentProps<typeo
     />
 );
 
-const MenubarContent = ({ align = "start", alignOffset = -4, className, sideOffset = 8, ...properties }: React.ComponentProps<typeof MenubarPrimitive.Content>) => (
+const MenubarContent = ({
+    align = "start",
+    alignOffset = -4,
+    className,
+    sideOffset = 8,
+    ...properties
+}: React.ComponentProps<typeof MenubarPrimitive.Content>) => (
     <MenubarPortal>
         <MenubarPrimitive.Content
             align={align}
@@ -120,9 +134,13 @@ const MenubarLabel = ({
     />
 );
 
-const MenubarSeparator = ({ className, ...properties }: React.ComponentProps<typeof MenubarPrimitive.Separator>) => <MenubarPrimitive.Separator className={cn("bg-border -mx-1 my-1 h-px", className)} data-slot="menubar-separator" {...properties} />;
+const MenubarSeparator = ({ className, ...properties }: React.ComponentProps<typeof MenubarPrimitive.Separator>) => (
+    <MenubarPrimitive.Separator className={cn("bg-border -mx-1 my-1 h-px", className)} data-slot="menubar-separator" {...properties} />
+);
 
-const MenubarShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="menubar-shortcut" {...properties} />;
+const MenubarShortcut = ({ className, ...properties }: React.ComponentProps<"span">) => (
+    <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} data-slot="menubar-shortcut" {...properties} />
+);
 
 const MenubarSub = ({ ...properties }: React.ComponentProps<typeof MenubarPrimitive.Sub>) => <MenubarPrimitive.Sub data-slot="menubar-sub" {...properties} />;
 

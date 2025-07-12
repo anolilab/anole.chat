@@ -7,7 +7,9 @@ import { cn } from "@/lib/utils";
 
 const Popover = ({ ...properties }: React.ComponentProps<typeof PopoverPrimitive.Root>) => <PopoverPrimitive.Root data-slot="popover" {...properties} />;
 
-const PopoverTrigger = ({ ...properties }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) => <PopoverPrimitive.Trigger data-slot="popover-trigger" {...properties} />;
+const PopoverTrigger = ({ ...properties }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) => (
+    <PopoverPrimitive.Trigger data-slot="popover-trigger" {...properties} />
+);
 
 const PopoverContent = ({ align = "center", className, sideOffset = 4, ...properties }: React.ComponentProps<typeof PopoverPrimitive.Content>) => (
     <PopoverPrimitive.Portal>
@@ -24,6 +26,8 @@ const PopoverContent = ({ align = "center", className, sideOffset = 4, ...proper
     </PopoverPrimitive.Portal>
 );
 
-const PopoverAnchor = ({ ...properties }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) => <PopoverPrimitive.Anchor data-slot="popover-anchor" {...properties} />;
+const PopoverAnchor = ({ ...properties }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) => (
+    <PopoverPrimitive.Anchor data-slot="popover-anchor" {...properties} />
+);
 
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };

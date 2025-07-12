@@ -38,7 +38,10 @@ export const ProviderButton = ({
 
     const search = useSearch({ strict: false });
 
-    const getRedirectTo = useCallback(() => redirectToProperty || search.redirectTo || contextRedirectTo, [redirectToProperty, search.redirectTo, contextRedirectTo]);
+    const getRedirectTo = useCallback(
+        () => redirectToProperty || search.redirectTo || contextRedirectTo,
+        [redirectToProperty, search.redirectTo, contextRedirectTo],
+    );
 
     const getCallbackURL = useCallback(
         () => `${baseURL}${callbackURLProperty || (persistClient ? `${basePath}/${viewPaths.CALLBACK}?redirectTo=${getRedirectTo()}` : getRedirectTo())}`,

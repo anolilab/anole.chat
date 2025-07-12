@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-export const userFields = {
+export const extendedUserFields = {
     customerId: v.optional(v.string()),
     email: v.string(),
     role: v.union(v.literal("user"), v.literal("admin"), v.literal("banned")),
@@ -18,12 +18,12 @@ export const userSettingsFields = {
     onboardingCompleted: v.optional(v.boolean()),
 };
 
-export const aiUserSettingsFields = {
-    searchProvider: v.union(v.literal("firecrawl"), v.literal("brave"), v.literal("tavily"), v.literal("serper")),
+export const aiUserPreferencesFields = {
+    searchProvider: v.optional(v.union(v.literal("firecrawl"), v.literal("brave"), v.literal("tavily"), v.literal("serper"))),
     showTimestamps: v.optional(v.boolean()),
     selectedModel: v.optional(v.string()),
-    searchIncludeSourcesByDefault: v.boolean(),
-    customModels: v.record(
+    searchIncludeSourcesByDefault: v.optional(v.boolean()),
+    customModels: v.optional(v.record(
         v.string(),
         v.object({
             enabled: v.boolean(),
@@ -45,7 +45,7 @@ export const aiUserSettingsFields = {
                 )
             ),
         }),
-    ),
+    )),
     mcpServers: v.optional(
         v.array(
             v.object({
@@ -71,14 +71,7 @@ export const aiUserSettingsFields = {
             additionalContext: v.optional(v.string()),
         }),
     ),
-    coreAIProviders: v.record(
-        v.string(),
-        v.object({
-            enabled: v.boolean(),
-            encryptedKey: v.string(),
-        }),
-    ),
-    customAIProviders: v.record(
+    customAIProviders: v.optional(v.record(
         v.string(),
         v.object({
             name: v.string(),
@@ -86,8 +79,8 @@ export const aiUserSettingsFields = {
             endpoint: v.string(),
             encryptedKey: v.string(),
         }),
-    ),
-    generalProviders: v.object({
+    )),
+    generalProviders: v.optional(v.object({
         supermemory: v.optional(v.object({ enabled: v.boolean(), encryptedKey: v.string() })),
         firecrawl: v.optional(v.object({ enabled: v.boolean(), encryptedKey: v.string() })),
         tavily: v.optional(v.object({ enabled: v.boolean(), encryptedKey: v.string() })),
@@ -108,5 +101,5 @@ export const aiUserSettingsFields = {
                 country: v.optional(v.string()),
             }),
         ),
-    }),
+    })),
 };

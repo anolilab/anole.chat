@@ -7,7 +7,10 @@ export function useOnSuccessTransition({ redirectTo: redirectToProperty }: { red
     const { redirectTo: contextRedirectTo } = useAuth();
     const search = useSearch({ strict: false }) as any;
 
-    const getRedirectTo = useCallback(() => redirectToProperty || search?.redirectTo || contextRedirectTo, [redirectToProperty, search?.redirectTo, contextRedirectTo]);
+    const getRedirectTo = useCallback(
+        () => redirectToProperty || search?.redirectTo || contextRedirectTo,
+        [redirectToProperty, search?.redirectTo, contextRedirectTo],
+    );
 
     const [isPending, startTransition] = useTransition();
     const [success, setSuccess] = useState(false);

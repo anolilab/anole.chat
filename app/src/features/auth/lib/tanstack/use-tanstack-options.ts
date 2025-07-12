@@ -18,15 +18,12 @@ export function useTanstackOptions({ authClient }: { authClient: AnyAuthClient }
     const { setActiveSessionAsync } = useSetActiveSession();
     const { sessionKey } = useContext(AuthQueryContext);
 
-    const hooks = useMemo(
-        () => {
-            return {
-                ...(createAuthHooks(authClient as AuthClient) as Partial<AuthHooks>),
-                useIsRestoring,
-            };
-        },
-        [authClient],
-    );
+    const hooks = useMemo(() => {
+        return {
+            ...(createAuthHooks(authClient as AuthClient) as Partial<AuthHooks>),
+            useIsRestoring,
+        };
+    }, [authClient]);
 
     const mutators = useMemo(
         () =>

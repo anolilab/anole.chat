@@ -23,16 +23,13 @@ const handler = async (request: Request) => {
         {
             capabilities: {
                 tools: {
-                    ...tools.reduce<Record<string, { description: string }>>(
-                        (accumulator, tool) => {
-                            accumulator[tool.name] = {
-                                description: tool.description,
-                            };
+                    ...tools.reduce<Record<string, { description: string }>>((accumulator, tool) => {
+                        accumulator[tool.name] = {
+                            description: tool.description,
+                        };
 
-                            return accumulator;
-                        },
-                        {},
-                    ),
+                        return accumulator;
+                    }, {}),
                 },
             },
         },

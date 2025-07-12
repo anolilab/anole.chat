@@ -5,7 +5,10 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const TooltipProvider = ({ delayDuration = 0, ...properties }: React.ComponentProps<typeof TooltipPrimitive.Provider>) => <TooltipPrimitive.Provider data-slot="tooltip-provider" delayDuration={delayDuration} {...properties} />;
+const TooltipProvider = ({ delayDuration = 0, ...properties }: React.ComponentProps<typeof TooltipPrimitive.Provider>) => (
+    // eslint-disable-next-line react-x/no-context-provider
+    <TooltipPrimitive.Provider data-slot="tooltip-provider" delayDuration={delayDuration} {...properties} />
+);
 
 const Tooltip = ({ ...properties }: React.ComponentProps<typeof TooltipPrimitive.Root>) => (
     <TooltipProvider>
@@ -13,7 +16,9 @@ const Tooltip = ({ ...properties }: React.ComponentProps<typeof TooltipPrimitive
     </TooltipProvider>
 );
 
-const TooltipTrigger = ({ ...properties }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) => <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...properties} />;
+const TooltipTrigger = ({ ...properties }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) => (
+    <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...properties} />
+);
 
 const TooltipContent = ({ children, className, sideOffset = 0, ...properties }: React.ComponentProps<typeof TooltipPrimitive.Content>) => (
     <TooltipPrimitive.Portal>

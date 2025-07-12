@@ -32,17 +32,19 @@ export interface TwoFactorFormProperties {
     setIsSubmitting?: (value: boolean) => void;
 }
 
-const formSchema = z.object({
-    code: z
-        .string()
-        .min(1, {
-            message: "One-time password is required",
-        })
-        .min(6, {
-            message: "One-time password is invalid",
-        }),
-    trustDevice: z.boolean().optional(),
-}).strict();
+const formSchema = z
+    .object({
+        code: z
+            .string()
+            .min(1, {
+                message: "One-time password is required",
+            })
+            .min(6, {
+                message: "One-time password is invalid",
+            }),
+        trustDevice: z.boolean().optional(),
+    })
+    .strict();
 
 // Helper function to extract secret from TOTP URI
 const extractSecretFromTotpUri = (totpURI: string): string | null => {
@@ -145,7 +147,9 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
             setCooldownSeconds((previous) => previous - 1);
         }, 1000);
 
-        return () => { clearTimeout(timer); };
+        return () => {
+            clearTimeout(timer);
+        };
     }, [cooldownSeconds]);
 
     const sendOtp = async () => {
@@ -188,18 +192,33 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                         <div className={classNames?.label}>
                             {t`Using an authenticator app like`}
                             {" "}
-                            <a className="text-blue-500 hover:underline" href="https://www.google.com/search?q=google+authenticator" rel="noreferrer" target="_blank">
+                            <a
+                                className="text-blue-500 hover:underline"
+                                href="https://www.google.com/search?q=google+authenticator"
+                                rel="noreferrer"
+                                target="_blank"
+                            >
                                 Google Authenticator
                             </a>
                             ,
                             {" "}
-                            <a className="text-blue-500 hover:underline" href="https://www.google.com/search?q=google+authenticator" rel="noreferrer" target="_blank">
+                            <a
+                                className="text-blue-500 hover:underline"
+                                href="https://www.google.com/search?q=google+authenticator"
+                                rel="noreferrer"
+                                target="_blank"
+                            >
                                 Microsoft Authenticator
                             </a>
                             {" "}
                             {t`or`}
                             {" "}
-                            <a className="text-blue-500 hover:underline" href="https://www.google.com/search?q=google+authenticator" rel="noreferrer" target="_blank">
+                            <a
+                                className="text-blue-500 hover:underline"
+                                href="https://www.google.com/search?q=google+authenticator"
+                                rel="noreferrer"
+                                target="_blank"
+                            >
                                 Authy
                             </a>
                             ,
@@ -319,7 +338,9 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                         <Button
                             className={cn(classNames?.button, classNames?.secondaryButton)}
                             disabled={isSubmitting}
-                            onClick={() => { setMethod("otp"); }}
+                            onClick={() => {
+                                setMethod("otp");
+                            }}
                             type="button"
                             variant="secondary"
                         >
@@ -332,7 +353,9 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                         <Button
                             className={cn(classNames?.button, classNames?.secondaryButton)}
                             disabled={isSubmitting}
-                            onClick={() => { setMethod("totp"); }}
+                            onClick={() => {
+                                setMethod("totp");
+                            }}
                             type="button"
                             variant="secondary"
                         >

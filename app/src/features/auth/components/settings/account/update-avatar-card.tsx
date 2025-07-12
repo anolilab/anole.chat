@@ -127,7 +127,12 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
                         </Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent align="end" onCloseAutoFocus={(e) => { e.preventDefault(); }}>
+                    <DropdownMenuContent
+                        align="end"
+                        onCloseAutoFocus={(e) => {
+                            e.preventDefault();
+                        }}
+                    >
                         <DropdownMenuItem disabled={loading} onClick={openFileDialog}>
                             <UploadCloudIcon />
                             {t`Upload Avatar`}
