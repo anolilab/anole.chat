@@ -59,7 +59,7 @@ export const useConvexThreadSyncer = ({ isRunning, model }: UseConvexThreadSynce
     const { isLoading, results: convexMessages } = useThreadMessages(api.chat.functions.getThreadMessages, paginatedMessagesArguments, {
         initialNumItems: 50,
     });
-
+    // TODO: check the agents package
     let messagesAreLoading = shouldSkip ? false : isLoading;
 
     const { results: convexThreads } = usePaginatedQuery(api.chat.functions.getThreads, {}, { initialNumItems: 10 });
