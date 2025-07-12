@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import type { User } from "@/features/auth/types/auth-core-types";
 
-import type { SettingsCardProps as SettingsCardProperties } from "../shared/settings-card";
+import type { SettingsCardProperties } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
 import { TwoFactorPasswordDialog } from "./two-factor-password-dialog";
 

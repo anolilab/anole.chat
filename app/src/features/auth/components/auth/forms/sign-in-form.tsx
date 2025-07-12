@@ -20,7 +20,7 @@ import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
 import { getLocalizedError, isValidEmail } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { Captcha } from "../../captcha/captcha";
-import { PasswordInput } from "../../password-input";
+import { PasswordInput } from "../../../../../components/form/password-input";
 import type { AuthFormClassNames } from "../auth-form";
 
 export interface SignInFormProperties {

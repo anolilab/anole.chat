@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { FingerprintIcon } from "lucide-react";
-import { use } from "react";
+
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";

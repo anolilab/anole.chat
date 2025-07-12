@@ -11,7 +11,7 @@ import type { ConvexReactClient } from "convex/react";
 import { ThemeProvider } from "next-themes";
 import { lazy, Suspense } from "react";
 
-import { ReactScan } from "@/components/react-scan";
+import { ReactScan } from "@/components/debug/react-scan";
 import ScreenSizeDebug from "@/components/screen-size-debug";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";

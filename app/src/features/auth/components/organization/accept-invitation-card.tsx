@@ -3,7 +3,7 @@
 import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
 import { CheckIcon, Loader2, XIcon } from "lucide-react";
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,49 +16,29 @@ import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { OrganizationView } from "./organization-view";
 
-export interface AcceptInvitationCardProperties {
-    className?: string;
-    classNames?: SettingsCardClassNames;
-}
+const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => (
+    <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
+        <CardHeader className={cn("justify-items-center", classNames?.header)}>
+            <Skeleton className={cn("md:h-5.5 my-1 h-5 w-full max-w-32 md:w-40", classNames?.skeleton)} />
 
-export const AcceptInvitationCard = ({ className, classNames }: AcceptInvitationCardProperties) => {
-    const {
-        hooks: { useSession },
-        redirectTo,
-        replace,
-        toast,
-    } = useAuth();
+            <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
+        </CardHeader>
 
-    const { data: sessionData } = useSession();
-    const [invitationId, setInvitationId] = useState<string | null>(null);
-    const search = useSearch({ strict: false }) as any;
+        <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
+            <Card className={cn("flex-row items-center p-4")}>
+                <OrganizationView isPending />
 
-    useEffect(() => {
-        const invitationIdParameter = search?.invitationId;
+                <Skeleton className="shrink-2 ml-auto mt-0.5 h-4 w-full max-w-14" />
+            </Card>
 
-        if (!invitationIdParameter) {
-            toast({
-                message: t`Invitation not found`,
-                variant: "error",
-            });
+            <div className="grid grid-cols-2 gap-3">
+                <Skeleton className="h-9 w-full" />
 
-            replace(redirectTo);
-
-            return;
-        }
-
-        setInvitationId(invitationIdParameter);
-    }, [search?.invitationId, toast, replace, redirectTo]);
-
-    // If session is not loaded yet, use authenticate hook to check
-    useAuthenticate();
-
-    if (!sessionData || !invitationId) {
-        return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
-    }
-
-    return <AcceptInvitationContent className={className} classNames={classNames} invitationId={invitationId} />;
-};
+                <Skeleton className="h-9 w-full" />
+            </div>
+        </CardContent>
+    </Card>
+);
 
 const AcceptInvitationContent = ({ className, classNames, invitationId }: AcceptInvitationCardProperties & { invitationId: string }) => {
     const {
@@ -219,26 +199,47 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
     );
 };
 
-const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => (
-    <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
-        <CardHeader className={cn("justify-items-center", classNames?.header)}>
-            <Skeleton className={cn("md:h-5.5 my-1 h-5 w-full max-w-32 md:w-40", classNames?.skeleton)} />
+export interface AcceptInvitationCardProperties {
+    className?: string;
+    classNames?: SettingsCardClassNames;
+}
 
-            <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
-        </CardHeader>
+export const AcceptInvitationCard = ({ className, classNames }: AcceptInvitationCardProperties) => {
+    const {
+        hooks: { useSession },
+        redirectTo,
+        replace,
+        toast,
+    } = useAuth();
 
-        <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
-            <Card className={cn("flex-row items-center p-4")}>
-                <OrganizationView isPending />
+    const { data: sessionData } = useSession();
+    const [invitationId, setInvitationId] = useState<string | null>(null);
+    const search = useSearch({ strict: false }) as any;
 
-                <Skeleton className="shrink-2 ml-auto mt-0.5 h-4 w-full max-w-14" />
-            </Card>
+    useEffect(() => {
+        const invitationIdParameter = search?.invitationId;
 
-            <div className="grid grid-cols-2 gap-3">
-                <Skeleton className="h-9 w-full" />
+        if (!invitationIdParameter) {
+            toast({
+                message: t`Invitation not found`,
+                variant: "error",
+            });
 
-                <Skeleton className="h-9 w-full" />
-            </div>
-        </CardContent>
-    </Card>
-);
+            replace(redirectTo);
+
+            return;
+        }
+
+        // eslint-disable-next-line react-you-might-not-need-an-effect/no-derived-state, react-hooks-extra/no-direct-set-state-in-use-effect
+        setInvitationId(invitationIdParameter);
+    }, [search?.invitationId, toast, replace, redirectTo]);
+
+    // If session is not loaded yet, use authenticate hook to check
+    useAuthenticate();
+
+    if (!sessionData || !invitationId) {
+        return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
+    }
+
+    return <AcceptInvitationContent className={className} classNames={classNames} invitationId={invitationId} />;
+};

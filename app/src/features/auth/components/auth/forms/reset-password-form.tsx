@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { use, useEffect, useRef } from "react";
 import { z } from "zod/v4";
 
+import { PasswordInput } from "@/components/form/password-input";
 import { Button } from "@/components/ui/button";
 import { useAppForm } from "@/components/ui/form";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -12,7 +13,6 @@ import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
-import { PasswordInput } from "../../password-input";
 import type { AuthFormClassNames } from "../auth-form";
 
 export interface ResetPasswordFormProperties {

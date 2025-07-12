@@ -5,7 +5,7 @@ import { use, useState } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
-import type { SettingsCardProps as SettingsCardProperties } from "../settings/shared/settings-card";
+import type { SettingsCardProperties } from "../settings/shared/settings-card";
 import { SettingsCard } from "../settings/shared/settings-card";
 import { DeleteOrganizationDialog } from "./delete-organization-dialog";
 

@@ -1,12 +1,11 @@
 "use client";
 
 import { t } from "@lingui/core/macro";
-import { use } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 
-import type { AuthCardProps as AuthCardProperties } from "../../types/ui-configuration-types";
+import type { AuthCardProperties } from "../../types/ui-configuration-types";
 import { AccountsCard } from "./account/accounts-card";
 import { DeleteAccountCard } from "./account/delete-account-card";
 import { UpdateAvatarCard } from "./account/update-avatar-card";

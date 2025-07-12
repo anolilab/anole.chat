@@ -13,7 +13,7 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 import { cn } from "@/lib/utils";
 
-import { PasswordInput } from "../../password-input";
+import { PasswordInput } from "../../../../../components/form/password-input";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { BackupCodesDialog } from "./backup-codes-dialog";
 

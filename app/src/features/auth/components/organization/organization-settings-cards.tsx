@@ -5,7 +5,7 @@ import { use, useEffect } from "react";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 
-import type { AuthCardProps as AuthCardProperties } from "../../types/ui-configuration-types";
+import type { AuthCardProperties } from "../../types/ui-configuration-types";
 import { DeleteOrganizationCard } from "../organization/delete-organization-card";
 import { OrganizationLogoCard } from "../organization/organization-logo-card";
 import { OrganizationNameCard } from "../organization/organization-name-card";

@@ -1,7 +1,6 @@
 "use client";
 
 import { t } from "@lingui/core/macro";
-import { use } from "react";
 import { z } from "zod/v4";
 
 import { CardContent } from "@/components/ui/card";
@@ -10,9 +9,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 
+import { PasswordInput } from "../../../../../components/form/password-input";
 import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
-import { PasswordInput } from "../../password-input";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
 
@@ -329,8 +328,8 @@ export const ChangePasswordCard = ({ accounts, className, classNames, isPending,
                                                             enableToggle
                                                             onBlur={field.handleBlur}
                                                             onChange={(e) => {
-                                    field.handleChange(e.target.value);
-                                }}
+                                                                field.handleChange(e.target.value);
+                                                            }}
                                                             placeholder={t`Confirm new password`}
                                                             value={field.state.value}
                                                         />

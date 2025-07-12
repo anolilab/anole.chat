@@ -6,6 +6,7 @@ import { requireUserId, getCurrentUserInternal } from "../auth/lib/helper";
 import type { Role } from "../lib/types";
 import { ROLES } from "../lib/types";
 import { userSettingsFields, aiUserPreferencesFields } from "./fields";
+import { encryptKey } from "../lib/encryption";
 
 export const getCurrentUser = query({
     args: {},
@@ -129,6 +130,24 @@ export const toggleUserBanStatus = mutation({
     returns: v.object({ message: v.string(), success: v.boolean() }),
 });
 
+async function deepEncryptKeys(obj: any): Promise<any> {
+    if (Array.isArray(obj)) {
+        return Promise.all(obj.map(deepEncryptKeys));
+    } else if (obj && typeof obj === "object") {
+        const result: Record<string, any> = {};
+        for (const [key, value] of Object.entries(obj)) {
+            if (key === "encryptedKey" && typeof value === "string" && value) {
+                result[key] = await encryptKey(value);
+            } else {
+                result[key] = await deepEncryptKeys(value);
+            }
+        }
+        return result;
+    } else {
+        return obj;
+    }
+}
+
 const makeSettingsUpsertMutation = (
     // TODO: find the correct typing
     tableName: any,
@@ -139,17 +158,20 @@ const makeSettingsUpsertMutation = (
         handler: async (context, inputArgs) => {
             const userId = context.user._id;
 
+            // Recursively encrypt all encryptedKey fields
+            const toStore = await deepEncryptKeys(inputArgs);
+
             const settings = await context.db
                 .query(tableName)
                 .withIndex("by_userId", (q) => q.eq("userId", userId))
                 .unique();
 
             if (settings) {
-                await context.db.patch(settings._id, inputArgs);
+                await context.db.patch(settings._id, toStore);
             } else {
                 await context.db.insert(tableName, {
                     ["userId"]: userId,
-                    ...inputArgs,
+                    ...toStore,
                 });
             }
         },

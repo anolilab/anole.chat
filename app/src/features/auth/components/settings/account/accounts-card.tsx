@@ -1,7 +1,7 @@
 "use client";
 
 import { t } from "@lingui/core/macro";
-import { use } from "react";
+
 
 import { CardContent } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";

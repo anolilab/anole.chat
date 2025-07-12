@@ -23,7 +23,7 @@ import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
 import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { Captcha } from "../../captcha/captcha";
-import { PasswordInput } from "../../password-input";
+import { PasswordInput } from "../../../../../components/form/password-input";
 import type { AuthFormClassNames } from "../auth-form";
 
 export interface SignUpFormProperties {

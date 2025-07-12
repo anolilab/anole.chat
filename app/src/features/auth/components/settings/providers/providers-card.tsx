@@ -1,7 +1,7 @@
 "use client";
 
 import { t } from "@lingui/core/macro";
-import { use } from "react";
+
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

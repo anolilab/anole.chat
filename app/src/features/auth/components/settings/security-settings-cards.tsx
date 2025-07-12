@@ -1,11 +1,9 @@
 "use client";
 
-import { use } from "react";
-
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 
-import type { AuthCardProps as AuthCardProperties } from "../../types/ui-configuration-types";
+import type { AuthCardProperties } from "../../types/ui-configuration-types";
 import { DeleteAccountCard } from "./account/delete-account-card";
 import { PasskeysCard } from "./passkey/passkeys-card";
 import { ProvidersCard } from "./providers/providers-card";

@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-import type { UserViewProps as UserViewProperties } from "../user-view";
+import type { UserViewProperties } from "../user-view";
 
 /**
  * Displays user information with avatar and details in a compact view for personal accounts

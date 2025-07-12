@@ -30,6 +30,7 @@ import type * as email_templates_welcome_email from "../email/templates/welcome_
 import type * as env from "../env.js";
 import type * as file from "../file.js";
 import type * as http from "../http.js";
+import type * as lib_encryption from "../lib/encryption.js";
 import type * as lib_errors from "../lib/errors.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
 import type * as lib_systemFields from "../lib/systemFields.js";
@@ -72,6 +73,7 @@ declare const fullApi: ApiFromModules<{
   env: typeof env;
   file: typeof file;
   http: typeof http;
+  "lib/encryption": typeof lib_encryption;
   "lib/errors": typeof lib_errors;
   "lib/rateLimiter": typeof lib_rateLimiter;
   "lib/systemFields": typeof lib_systemFields;

@@ -1,22 +1,16 @@
 import { api } from "@anole/convex/api";
 import { useMutation, useQuery } from "convex/react";
-import { Copy as CopyIcon, Pencil, Server, Trash2 } from "lucide-react";
+import { Pencil, Server, Trash2 } from "lucide-react";
 import type { FC } from "react";
 import { useState } from "react";
+import { z } from "zod/v4";
 
-// Utility for copying to clipboard
-const useCopyToClipboard: () => { copied: boolean; copy: (text: string) => void } = () => {
-    const [copied, setCopied] = useState(false);
-    const copy = (text: string) => {
-        if (globalThis.window !== undefined && globalThis.navigator?.clipboard) {
-            globalThis.navigator.clipboard.writeText(text);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1200);
-        }
-    };
-
-    return { copied, copy };
-};
+import CopyButton from "@/components/copy-button";
+import { PasswordInput } from "@/components/form/password-input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAppForm } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 type CustomProvider = {
     enabled: boolean;
@@ -34,20 +28,46 @@ const initialForm: CustomProvider = {
     name: "",
 };
 
+const providerSchema = z.object({
+    enabled: z.boolean(),
+    encryptedKey: z.string().min(1, "API Key is required"),
+    endpoint: z.url("Must be a valid URL"),
+    name: z.string().min(2, "Name is required"),
+}).strict();
+
 const CustomProviderCard: FC = () => {
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettings = useMutation(api.auth.functions.updateAIUserPreferences);
     const [editingKey, setEditingKey] = useState<string | undefined>(undefined);
-    const [form, setForm] = useState<CustomProvider>(initialForm);
     const [loading, setLoading] = useState(false);
-    const { copied, copy } = useCopyToClipboard();
 
     const customProviders: CustomProviders = aiSettings?.customAIProviders || {};
 
-    // Handlers
+    const form = useAppForm({
+        defaultValues: initialForm,
+        onSubmit: async ({ value }) => {
+            setLoading(true);
+            const key = editingKey || value.name;
+
+            await updateAIUserSettings({
+                customAIProviders: {
+                    ...customProviders,
+                    [key]: { ...value },
+                },
+            });
+            setEditingKey(undefined);
+            form.reset();
+            setLoading(false);
+        },
+        validators: {
+            onChange: providerSchema,
+        },
+        values: editingKey ? customProviders[editingKey] ?? initialForm : initialForm,
+    });
+
     const handleEdit = (key: string) => {
         setEditingKey(key);
-        setForm(customProviders[key] ?? initialForm);
+        form.setValues(customProviders[key] ?? initialForm);
     };
 
     const handleDelete = async (key: string) => {
@@ -62,148 +82,133 @@ const CustomProviderCard: FC = () => {
             setEditingKey(undefined);
     };
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { checked, name, type, value } = event.target;
-
-        setForm((f) => { return { ...f, [name]: type === "checkbox" ? checked : value }; });
-    };
-
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault();
-
-        if (!form.name || !form.endpoint || !form.encryptedKey)
-            return;
-
-        setLoading(true);
-        const key = editingKey || form.name;
-
-        await updateAIUserSettings({
-            customAIProviders: {
-                ...customProviders,
-                [key]: { ...form },
-            },
-        });
-        setEditingKey(undefined);
-        setForm(initialForm);
-        setLoading(false);
-    };
-
     const handleCancel = () => {
         setEditingKey(undefined);
-        setForm(initialForm);
+        form.reset();
     };
-
-    // Memoized handlers for copy buttons
-    const handleCopyKey = (key: string) => () => copy(key);
 
     return (
         <div className="space-y-8">
             {/* Add/Edit Form */}
-            <form
-                aria-label={editingKey ? "Edit Provider" : "Add Provider"}
-                className="rounded-lg border bg-white dark:bg-zinc-900 p-6 shadow flex flex-col gap-4"
-                onSubmit={handleSubmit}
-            >
-                <div className="flex items-center gap-2 mb-2">
-                    <Server className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-lg">
-                        {editingKey ? "Edit Provider" : "Add Custom Provider"}
-                    </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex flex-col gap-1">
-                        <span className="text-xs font-medium">Provider Name</span>
-                        <input
-                            autoComplete="off"
-                            className="input input-bordered"
-                            disabled={loading}
-                            name="name"
-                            onChange={handleChange}
-                            placeholder="Provider Name"
-                            required
-                            value={form.name}
-                        />
-                    </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-xs font-medium">API Endpoint</span>
-                        <input
-                            autoComplete="off"
-                            className="input input-bordered"
-                            disabled={loading}
-                            name="endpoint"
-                            onChange={handleChange}
-                            placeholder="API Endpoint"
-                            required
-                            value={form.endpoint}
-                        />
-                    </label>
-                    <label className="flex flex-col gap-1 relative">
-                        <span className="text-xs font-medium">Encrypted API Key</span>
-                        <input
-                            aria-describedby="key-help"
-                            autoComplete="off"
-                            className="input input-bordered pr-10"
-                            disabled={loading}
-                            name="encryptedKey"
-                            onChange={handleChange}
-                            placeholder="Encrypted API Key"
-                            required
-                            type="password"
-                            value={form.encryptedKey}
-                        />
-                        <button
-                            aria-label="Copy encrypted key"
-                            className="absolute right-2 top-7 p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                            disabled={!form.encryptedKey}
-                            onClick={handleCopyKey(form.encryptedKey)}
-                            tabIndex={0}
-                            type="button"
-                        >
-                            <CopyIcon className={`w-4 h-4 ${copied ? "text-green-500" : "text-zinc-500"}`} />
-                        </button>
-                        <span className="text-xs text-zinc-400 mt-1" id="key-help">
-                            Key is hidden for security. Click copy to use.
+            <form.AppForm>
+                <form
+                    aria-label={editingKey ? "Edit Provider" : "Add Provider"}
+                    className="rounded-lg border bg-white dark:bg-zinc-900 p-6 shadow flex flex-col gap-4"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        form.handleSubmit();
+                    }}
+                >
+                    <div className="flex items-center gap-2 mb-2">
+                        <Server className="w-5 h-5 text-primary" />
+                        <span className="font-semibold text-lg">
+                            {editingKey ? "Edit Provider" : "Add Custom Provider"}
                         </span>
-                    </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-xs font-medium">Status</span>
-                        <div className="flex items-center gap-2">
-                            <input
-                                aria-checked={form.enabled}
-                                checked={form.enabled}
-                                className="toggle toggle-primary"
-                                disabled={loading}
-                                name="enabled"
-                                onChange={handleChange}
-                                type="checkbox"
-                            />
-                            <span className={`badge ${form.enabled ? "badge-success" : "badge-ghost"}`}>{form.enabled ? "Enabled" : "Disabled"}</span>
-                        </div>
-                    </label>
-                </div>
-                <div className="flex gap-2 mt-2">
-                    <button
-                        aria-busy={loading}
-                        className="btn btn-primary"
-                        disabled={loading}
-                        type="submit"
-                    >
-                        {editingKey ? "Update Provider" : "Add Provider"}
-                    </button>
-                    {editingKey && (
-                        <button
-                            className="btn btn-secondary"
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <form.AppField name="name">
+                            {(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel>Provider Name</field.FormLabel>
+                                    <field.FormControl>
+                                        <Input
+                                            autoComplete="off"
+                                            className="input input-bordered"
+                                            disabled={loading}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder="Provider Name"
+                                            value={field.state.value}
+                                        />
+                                    </field.FormControl>
+                                    <field.FormMessage />
+                                </field.FormItem>
+                            )}
+                        </form.AppField>
+                        <form.AppField name="endpoint">
+                            {(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel>API Endpoint</field.FormLabel>
+                                    <field.FormControl>
+                                        <Input
+                                            autoComplete="off"
+                                            className="input input-bordered"
+                                            disabled={loading}
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder="API Endpoint"
+                                            value={field.state.value}
+                                        />
+                                    </field.FormControl>
+                                    <field.FormMessage />
+                                </field.FormItem>
+                            )}
+                        </form.AppField>
+                        <form.AppField name="encryptedKey">
+                            {(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel>Encrypted API Key</field.FormLabel>
+                                    <field.FormControl>
+                                        <PasswordInput
+                                            aria-describedby="key-help"
+                                            autoComplete="off"
+                                            disabled={loading}
+                                            enableToggle
+                                            onBlur={field.handleBlur}
+                                            onChange={(e) => field.handleChange(e.target.value)}
+                                            placeholder="Encrypted API Key"
+                                            value={field.state.value}
+                                        />
+                                    </field.FormControl>
+                                    <field.FormDescription id="key-help">Key is hidden for security. Click copy to use.</field.FormDescription>
+                                    <field.FormMessage />
+                                </field.FormItem>
+                            )}
+                        </form.AppField>
+                        <form.AppField name="enabled">
+                            {(field) => (
+                                <field.FormItem>
+                                    <field.FormLabel>Status</field.FormLabel>
+                                    <field.FormControl>
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox
+                                                aria-checked={field.state.value}
+                                                checked={field.state.value}
+                                                disabled={loading}
+                                                onCheckedChange={field.handleChange}
+                                            />
+                                            <span className={`badge ${field.state.value ? "badge-success" : "badge-ghost"}`}>{field.state.value ? "Enabled" : "Disabled"}</span>
+                                        </div>
+                                    </field.FormControl>
+                                    <field.FormMessage />
+                                </field.FormItem>
+                            )}
+                        </form.AppField>
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                        <Button
+                            aria-busy={loading}
                             disabled={loading}
-                            onClick={handleCancel}
-                            type="button"
+                            type="submit"
                         >
-                            Cancel
-                        </button>
-                    )}
-                </div>
-            </form>
+                            {editingKey ? "Update Provider" : "Add Provider"}
+                        </Button>
+                        {editingKey && (
+                            <Button
+                                disabled={loading}
+                                onClick={handleCancel}
+                                type="button"
+                                variant="secondary"
+                            >
+                                Cancel
+                            </Button>
+                        )}
+                    </div>
+                </form>
+            </form.AppForm>
             <hr className="border-zinc-200 dark:border-zinc-700" />
-            {/* Provider List */}
+
             <div>
                 <h3 className="mb-4 font-semibold text-lg flex items-center gap-2">
                     <Server className="w-5 h-5 text-primary" />
@@ -216,64 +221,54 @@ const CustomProviderCard: FC = () => {
                     )
                     : (
                         <ul className="grid gap-4">
-                            {Object.entries(customProviders).map(([key, provider]) => {
-                                const handleCopy = handleCopyKey(provider.encryptedKey);
-
-                                return (
-                                    <li
-                                        key={key}
-                                        className="rounded-lg border bg-white dark:bg-zinc-900 p-4 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2 hover:shadow-lg transition-shadow group"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                          <Server className="w-6 h-6 text-primary" />
-                                          <div>
+                            {Object.entries(customProviders).map(([key, provider]) => (
+                                <li
+                                    className="rounded-lg border bg-white dark:bg-zinc-900 p-4 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2 hover:shadow-lg transition-shadow group"
+                                    key={key}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Server className="w-6 h-6 text-primary" />
+                                        <div>
                                             <div className="font-medium text-base flex items-center gap-2">
-                                              {provider.name}
-                                              <span className={`badge ${provider.enabled ? "badge-success" : "badge-ghost"}`}>{provider.enabled ? "Enabled" : "Disabled"}</span>
-                                          </div>
+                                                {provider.name}
+                                                <span className={`badge ${provider.enabled ? "badge-success" : "badge-ghost"}`}>{provider.enabled ? "Enabled" : "Disabled"}</span>
+                                            </div>
                                             <div className="text-xs text-zinc-500">{provider.endpoint}</div>
                                             <div className="text-xs text-zinc-500 flex items-center gap-1">
-                                              Key: {provider.encryptedKey.slice(0, 6)}
-                                              ***
-<button
-    aria-label="Copy encrypted key"
-    className="ml-1 p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
-    onClick={handleCopy}
-    tabIndex={0}
-    type="button"
->
-    <CopyIcon className="w-4 h-4 text-zinc-500" />
-</button>
-                                          </div>
+                                                Key:
+                                                {" "}
+                                                {provider.encryptedKey.slice(0, 6)}
+                                                ***
+                                                <CopyButton textToCopy={provider.encryptedKey} />
+                                            </div>
                                         </div>
-                                      </div>
-                                        <div className="flex gap-2 mt-2 md:mt-0">
-                                          <button
-                                            type="button"
-                                            className="btn btn-sm btn-outline flex items-center gap-1"
-                                            onClick={() => handleEdit(key)}
+                                    </div>
+                                    <div className="flex gap-2 mt-2 md:mt-0">
+                                        <Button
                                             aria-label="Edit provider"
+                                            className="btn btn-sm btn-outline flex items-center gap-1"
                                             disabled={loading}
+                                            onClick={() => handleEdit(key)}
+                                            type="button"
                                         >
                                             <Pencil className="w-4 h-4" />
                                             {" "}
                                             Edit
-</button>
-                                          <button
-                                            type="button"
-                                            className="btn btn-sm btn-error flex items-center gap-1"
-                                            onClick={() => handleDelete(key)}
+                                        </Button>
+                                        <Button
                                             aria-label="Delete provider"
+                                            className="btn btn-sm btn-error flex items-center gap-1"
                                             disabled={loading}
+                                            onClick={() => handleDelete(key)}
+                                            type="button"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                             {" "}
                                             Delete
-</button>
-                                      </div>
-                                    </li>
-                                );
-                            })}
+                                        </Button>
+                                    </div>
+                                </li>
+                            ))}
                         </ul>
                     )}
             </div>

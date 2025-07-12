@@ -3,9 +3,8 @@
 import { AlertCircle } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type { AuthFormClassNames } from "@/features/auth/components/auth/auth-form";
 import { cn } from "@/lib/utils";
-
-import type { AuthFormClassNames } from "./auth/auth-form";
 
 export interface FormErrorProperties {
     classNames?: AuthFormClassNames;

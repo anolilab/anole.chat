@@ -1,11 +1,10 @@
 "use client";
 
 import { t } from "@lingui/core/macro";
-import { use } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
-import type { SettingsCardProps as SettingsCardProperties } from "../shared/settings-card";
+import type { SettingsCardProperties } from "../shared/settings-card";
 import { UpdateFieldCard } from "./update-field-card";
 
 export const UpdateNameCard = ({ className, classNames, ...properties }: SettingsCardProperties) => {

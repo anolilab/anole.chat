@@ -1,7 +1,7 @@
 "use client";
 
 import { t } from "@lingui/core/macro";
-import { use, useState } from "react";
+import { useState } from "react";
 import { z } from "zod/v4";
 
 import { CardContent } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 
-import type { SettingsCardProps as SettingsCardProperties } from "../shared/settings-card";
+import type { SettingsCardProperties } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
 
 const formSchema = z

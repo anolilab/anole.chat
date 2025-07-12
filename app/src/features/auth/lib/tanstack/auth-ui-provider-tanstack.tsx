@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import type { AuthUIProviderProps as AuthUIProviderProperties } from "../auth-ui-provider";
+import type { AuthUIProviderProperties } from "../auth-ui-provider";
 import { AuthUIProvider } from "../auth-ui-provider";
 import { useTanstackOptions } from "./use-tanstack-options";
 

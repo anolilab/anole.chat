@@ -8,7 +8,7 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 
 import { useIsHydrated } from "../../../../hooks/use-hydrated";
-import type { SettingsCardProps as SettingsCardProperties } from "../settings/shared/settings-card";
+import type { SettingsCardProperties } from "../settings/shared/settings-card";
 import { SettingsCard } from "../settings/shared/settings-card";
 import { CreateOrganizationDialog } from "./create-organization-dialog";
 import { OrganizationCell } from "./organization-cell";
