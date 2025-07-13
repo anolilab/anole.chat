@@ -4,6 +4,7 @@ import { Settings, Zap } from "lucide-react";
 import type { FC } from "react";
 import { useCallback, useState } from "react";
 import { z } from "zod/v4";
+import { useLingui } from "@lingui/react/macro";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,20 +30,21 @@ const initialForm: ModelSettings = {
     enableFunctionCalling: true,
 };
 
-const modelSettingsSchema = z.object({
-    defaultModel: z.string().min(1, "Default model is required"),
-    maxTokens: z.number().min(1, "Max tokens must be at least 1").max(32768, "Max tokens cannot exceed 32768"),
-    temperature: z.number().min(0, "Temperature must be at least 0").max(2, "Temperature cannot exceed 2"),
-    enableStreaming: z.boolean(),
-    enableFunctionCalling: z.boolean(),
-}).strict();
-
 const ModelSettingsCard: FC = () => {
+    const { t } = useLingui();
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
     const [loading, setLoading] = useState(false);
 
     const modelSettings: ModelSettings = aiSettings?.modelSettings || initialForm;
+
+    const modelSettingsSchema = z.object({
+        defaultModel: z.string().min(1, t`Default model is required`),
+        maxTokens: z.number().min(1, t`Max tokens must be at least 1`).max(32768, t`Max tokens cannot exceed 32768`),
+        temperature: z.number().min(0, t`Temperature must be at least 0`).max(2, t`Temperature cannot exceed 2`),
+        enableStreaming: z.boolean(),
+        enableFunctionCalling: z.boolean(),
+    }).strict();
 
     const form = useAppForm({
         defaultValues: modelSettings,
@@ -96,10 +98,10 @@ const ModelSettingsCard: FC = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Zap className="w-5 h-5" />
-                        Model Configuration
+                        {t`Model Configuration`}
                     </CardTitle>
                     <CardDescription>
-                        Configure your default AI model and generation parameters
+                        {t`Configure your default AI model and generation parameters`}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -108,7 +110,7 @@ const ModelSettingsCard: FC = () => {
                             <form.AppField name="defaultModel">
                                 {(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>Default Model</field.FormLabel>
+                                        <field.FormLabel>{t`Default Model`}</field.FormLabel>
                                         <field.FormControl>
                                             <Select
                                                 disabled={loading}
@@ -116,7 +118,7 @@ const ModelSettingsCard: FC = () => {
                                                 value={field.state.value}
                                             >
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select a model" />
+                                                    <SelectValue placeholder={t`Select a model`} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="gpt-4">GPT-4</SelectItem>
@@ -136,7 +138,7 @@ const ModelSettingsCard: FC = () => {
                             <form.AppField name="maxTokens">
                                 {(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>Max Tokens</field.FormLabel>
+                                        <field.FormLabel>{t`Max Tokens`}</field.FormLabel>
                                         <field.FormControl>
                                             <Input
                                                 disabled={loading}
@@ -157,7 +159,7 @@ const ModelSettingsCard: FC = () => {
                             <form.AppField name="temperature">
                                 {(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>Temperature</field.FormLabel>
+                                        <field.FormLabel>{t`Temperature`}</field.FormLabel>
                                         <field.FormControl>
                                             <Input
                                                 disabled={loading}
@@ -172,7 +174,7 @@ const ModelSettingsCard: FC = () => {
                                             />
                                         </field.FormControl>
                                         <field.FormDescription>
-                                            Controls randomness (0 = deterministic, 2 = very random)
+                                            {t`Controls randomness (0 = deterministic, 2 = very random)`}
                                         </field.FormDescription>
                                         <field.FormMessage />
                                     </field.FormItem>
@@ -187,9 +189,9 @@ const ModelSettingsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Enable Streaming</Label>
+                                                    <Label>{t`Enable Streaming`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Stream responses in real-time for better user experience
+                                                        {t`Stream responses in real-time for better user experience`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -210,9 +212,9 @@ const ModelSettingsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Enable Function Calling</Label>
+                                                    <Label>{t`Enable Function Calling`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Allow AI to call external functions and tools
+                                                        {t`Allow AI to call external functions and tools`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -230,7 +232,7 @@ const ModelSettingsCard: FC = () => {
 
                         <div className="flex justify-end">
                             <Button aria-busy={loading} disabled={loading} type="submit">
-                                Save Settings
+                                {t`Save Settings`}
                             </Button>
                         </div>
                     </form>

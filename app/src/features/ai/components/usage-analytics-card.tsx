@@ -4,6 +4,7 @@ import { BarChart3, Calendar, Download, Eye, EyeOff } from "lucide-react";
 import type { FC } from "react";
 import { useCallback, useState } from "react";
 import { z } from "zod/v4";
+import { useLingui } from "@lingui/react/macro";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,23 +36,24 @@ const initialForm: UsageAnalyticsSettings = {
     alertThreshold: 100,
 };
 
-const usageAnalyticsSchema = z.object({
-    enableUsageTracking: z.boolean(),
-    enableCostTracking: z.boolean(),
-    enablePerformanceMetrics: z.boolean(),
-    dataRetentionDays: z.number().min(1, "Data retention must be at least 1 day").max(365, "Data retention cannot exceed 365 days"),
-    exportFormat: z.string().min(1, "Export format is required"),
-    enableRealTimeMetrics: z.boolean(),
-    enableAlerts: z.boolean(),
-    alertThreshold: z.number().min(1, "Alert threshold must be at least 1").max(10000, "Alert threshold cannot exceed 10000"),
-}).strict();
-
 const UsageAnalyticsCard: FC = () => {
+    const { t } = useLingui();
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
     const [loading, setLoading] = useState(false);
 
     const usageAnalytics: UsageAnalyticsSettings = aiSettings?.usageAnalytics || initialForm;
+
+    const usageAnalyticsSchema = z.object({
+        enableUsageTracking: z.boolean(),
+        enableCostTracking: z.boolean(),
+        enablePerformanceMetrics: z.boolean(),
+        dataRetentionDays: z.number().min(1, t`Data retention must be at least 1 day`).max(365, t`Data retention cannot exceed 365 days`),
+        exportFormat: z.string().min(1, t`Export format is required`),
+        enableRealTimeMetrics: z.boolean(),
+        enableAlerts: z.boolean(),
+        alertThreshold: z.number().min(1, t`Alert threshold must be at least 1`).max(10000, t`Alert threshold cannot exceed 10000`),
+    }).strict();
 
     const form = useAppForm({
         defaultValues: usageAnalytics,
@@ -117,10 +119,10 @@ const UsageAnalyticsCard: FC = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <BarChart3 className="w-5 h-5" />
-                        Usage Analytics
+                        {t`Usage Analytics`}
                     </CardTitle>
                     <CardDescription>
-                        Configure usage tracking, analytics, and reporting settings
+                        {t`Configure usage tracking, analytics, and reporting settings`}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -132,9 +134,9 @@ const UsageAnalyticsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Usage Tracking</Label>
+                                                    <Label>{t`Usage Tracking`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Track API calls, tokens used, and usage patterns
+                                                        {t`Track API calls, tokens used, and usage patterns`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -155,9 +157,9 @@ const UsageAnalyticsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Cost Tracking</Label>
+                                                    <Label>{t`Cost Tracking`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Monitor API costs and spending patterns
+                                                        {t`Monitor API costs and spending patterns`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -178,9 +180,9 @@ const UsageAnalyticsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Performance Metrics</Label>
+                                                    <Label>{t`Performance Metrics`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Track response times and model performance
+                                                        {t`Track response times and model performance`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -198,7 +200,7 @@ const UsageAnalyticsCard: FC = () => {
                             <form.AppField name="dataRetentionDays">
                                 {(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>Data Retention Period</field.FormLabel>
+                                        <field.FormLabel>{t`Data Retention Period`}</field.FormLabel>
                                         <field.FormControl>
                                             <Input
                                                 disabled={loading}
@@ -212,7 +214,7 @@ const UsageAnalyticsCard: FC = () => {
                                             />
                                         </field.FormControl>
                                         <field.FormDescription>
-                                            Number of days to retain analytics data
+                                            {t`Number of days to retain analytics data`}
                                         </field.FormDescription>
                                         <field.FormMessage />
                                     </field.FormItem>
@@ -222,7 +224,7 @@ const UsageAnalyticsCard: FC = () => {
                             <form.AppField name="exportFormat">
                                 {(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>Export Format</field.FormLabel>
+                                        <field.FormLabel>{t`Export Format`}</field.FormLabel>
                                         <field.FormControl>
                                             <Select
                                                 disabled={loading}
@@ -230,7 +232,7 @@ const UsageAnalyticsCard: FC = () => {
                                                 value={field.state.value}
                                             >
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select export format" />
+                                                    <SelectValue placeholder={t`Select export format`} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="csv">CSV</SelectItem>
@@ -251,9 +253,9 @@ const UsageAnalyticsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Real-time Metrics</Label>
+                                                    <Label>{t`Real-time Metrics`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Show live usage metrics and dashboards
+                                                        {t`Show live usage metrics and dashboards`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -274,9 +276,9 @@ const UsageAnalyticsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Usage Alerts</Label>
+                                                    <Label>{t`Usage Alerts`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Get notified when usage exceeds thresholds
+                                                        {t`Get notified when usage exceeds thresholds`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -295,7 +297,7 @@ const UsageAnalyticsCard: FC = () => {
                                 <form.AppField name="alertThreshold">
                                     {(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>Alert Threshold</field.FormLabel>
+                                            <field.FormLabel>{t`Alert Threshold`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     disabled={loading}
@@ -309,7 +311,7 @@ const UsageAnalyticsCard: FC = () => {
                                                 />
                                             </field.FormControl>
                                             <field.FormDescription>
-                                                Number of API calls before triggering an alert
+                                                {t`Number of API calls before triggering an alert`}
                                             </field.FormDescription>
                                             <field.FormMessage />
                                         </field.FormItem>
@@ -321,10 +323,10 @@ const UsageAnalyticsCard: FC = () => {
                         <div className="flex justify-end gap-2">
                             <Button disabled={loading} type="button" variant="outline">
                                 <Download className="w-4 h-4 mr-2" />
-                                Export Data
+                                {t`Export Data`}
                             </Button>
                             <Button aria-busy={loading} disabled={loading} type="submit">
-                                Save Analytics Settings
+                                {t`Save Analytics Settings`}
                             </Button>
                         </div>
                     </form>

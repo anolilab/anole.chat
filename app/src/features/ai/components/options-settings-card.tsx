@@ -4,6 +4,7 @@ import { Settings, ToggleLeft } from "lucide-react";
 import type { FC } from "react";
 import { useCallback, useState } from "react";
 import { z } from "zod/v4";
+import { useLingui } from "@lingui/react/macro";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,22 +34,23 @@ const initialForm: OptionsSettings = {
     enableDebugMode: false,
 };
 
-const optionsSettingsSchema = z.object({
-    enableAutoSave: z.boolean(),
-    enableHistory: z.boolean(),
-    maxHistoryLength: z.number().min(1, "History length must be at least 1").max(1000, "History length cannot exceed 1000"),
-    enableContextWindow: z.boolean(),
-    contextWindowSize: z.number().min(1, "Context window size must be at least 1").max(100, "Context window size cannot exceed 100"),
-    customSystemPrompt: z.string().max(2000, "System prompt cannot exceed 2000 characters"),
-    enableDebugMode: z.boolean(),
-}).strict();
-
 const OptionsSettingsCard: FC = () => {
+    const { t } = useLingui();
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
     const [loading, setLoading] = useState(false);
 
     const optionsSettings: OptionsSettings = aiSettings?.optionsSettings || initialForm;
+
+    const optionsSettingsSchema = z.object({
+        enableAutoSave: z.boolean(),
+        enableHistory: z.boolean(),
+        maxHistoryLength: z.number().min(1, t`History length must be at least 1`).max(1000, t`History length cannot exceed 1000`),
+        enableContextWindow: z.boolean(),
+        contextWindowSize: z.number().min(1, t`Context window size must be at least 1`).max(100, t`Context window size cannot exceed 100`),
+        customSystemPrompt: z.string().max(2000, t`System prompt cannot exceed 2000 characters`),
+        enableDebugMode: z.boolean(),
+    }).strict();
 
     const form = useAppForm({
         defaultValues: optionsSettings,
@@ -110,10 +112,10 @@ const OptionsSettingsCard: FC = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <ToggleLeft className="w-5 h-5" />
-                        AI Options
+                        {t`AI Options`}
                     </CardTitle>
                     <CardDescription>
-                        Configure AI behavior and application options
+                        {t`Configure AI behavior and application options`}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -125,9 +127,9 @@ const OptionsSettingsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Auto Save</Label>
+                                                    <Label>{t`Auto Save`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Automatically save conversations and settings
+                                                        {t`Automatically save conversations and settings`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -148,9 +150,9 @@ const OptionsSettingsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Conversation History</Label>
+                                                    <Label>{t`Conversation History`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Keep track of your conversation history
+                                                        {t`Keep track of your conversation history`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -169,7 +171,7 @@ const OptionsSettingsCard: FC = () => {
                                 <form.AppField name="maxHistoryLength">
                                     {(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>Max History Length</field.FormLabel>
+                                            <field.FormLabel>{t`Max History Length`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     disabled={loading}
@@ -183,7 +185,7 @@ const OptionsSettingsCard: FC = () => {
                                                 />
                                             </field.FormControl>
                                             <field.FormDescription>
-                                                Maximum number of conversations to keep in history
+                                                {t`Maximum number of conversations to keep in history`}
                                             </field.FormDescription>
                                             <field.FormMessage />
                                         </field.FormItem>
@@ -197,9 +199,9 @@ const OptionsSettingsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Context Window</Label>
+                                                    <Label>{t`Context Window`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Maintain context from previous messages
+                                                        {t`Maintain context from previous messages`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -218,7 +220,7 @@ const OptionsSettingsCard: FC = () => {
                                 <form.AppField name="contextWindowSize">
                                     {(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>Context Window Size</field.FormLabel>
+                                            <field.FormLabel>{t`Context Window Size`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     disabled={loading}
@@ -232,7 +234,7 @@ const OptionsSettingsCard: FC = () => {
                                                 />
                                             </field.FormControl>
                                             <field.FormDescription>
-                                                Number of previous messages to include in context
+                                                {t`Number of previous messages to include in context`}
                                             </field.FormDescription>
                                             <field.FormMessage />
                                         </field.FormItem>
@@ -243,19 +245,19 @@ const OptionsSettingsCard: FC = () => {
                             <form.AppField name="customSystemPrompt">
                                 {(field) => (
                                     <field.FormItem>
-                                        <field.FormLabel>Custom System Prompt</field.FormLabel>
+                                        <field.FormLabel>{t`Custom System Prompt`}</field.FormLabel>
                                         <field.FormControl>
                                             <Textarea
                                                 disabled={loading}
                                                 onBlur={field.handleBlur}
                                                 onChange={handleSystemPromptChange}
-                                                placeholder="Enter a custom system prompt to guide AI behavior..."
+                                                placeholder={t`Enter a custom system prompt to guide AI behavior...`}
                                                 rows={4}
                                                 value={field.state.value}
                                             />
                                         </field.FormControl>
                                         <field.FormDescription>
-                                            Optional custom prompt to guide AI behavior across all conversations
+                                            {t`Optional custom prompt to guide AI behavior across all conversations`}
                                         </field.FormDescription>
                                         <field.FormMessage />
                                     </field.FormItem>
@@ -268,9 +270,9 @@ const OptionsSettingsCard: FC = () => {
                                         <field.FormControl>
                                             <div className="flex items-center justify-between">
                                                 <div className="space-y-0.5">
-                                                    <Label>Debug Mode</Label>
+                                                    <Label>{t`Debug Mode`}</Label>
                                                     <p className="text-sm text-muted-foreground">
-                                                        Enable debug information and logging
+                                                        {t`Enable debug information and logging`}
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -288,7 +290,7 @@ const OptionsSettingsCard: FC = () => {
 
                         <div className="flex justify-end">
                             <Button aria-busy={loading} disabled={loading} type="submit">
-                                Save Options
+                                {t`Save Options`}
                             </Button>
                         </div>
                     </form>
