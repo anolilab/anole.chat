@@ -177,14 +177,20 @@ export function ThreadShareDialog({ threadId, children }: ThreadShareDialogProps
                                                     {user.permission}
                                                 </Badge>
                                                 {threadAccess.isOwner && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleRemoveAccess(user.userId)}
-                                                        className="text-destructive hover:text-destructive"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
+                                                    <div className="flex items-center gap-1">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                if (confirm(`Are you sure you want to remove ${user.name || user.email} from this thread?`)) {
+                                                                    handleRemoveAccess(user.userId);
+                                                                }
+                                                            }}
+                                                            className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
