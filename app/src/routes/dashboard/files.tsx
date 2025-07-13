@@ -33,7 +33,6 @@ const FilesComponent = () => {
 
     const files = useQuery(api.attachments.listFiles, { limit: 100 });
     const deleteFile = useMutation(api.attachments.deleteFile);
-    const uploadFile = useMutation(api.attachments.uploadFile);
 
     const getFileIcon = (fileName: string, mimeType: string) => {
         if (mimeType.startsWith("image/")) return <Image className="h-8 w-8 text-blue-500" />;

@@ -53,6 +53,7 @@
         "@convex-dev/agent": "0.1.14",
         "@convex-dev/better-auth": "^0.7.0",
         "@convex-dev/migrations": "^0.2.9",
+        "@convex-dev/r2": "^0.7.0",
         "@convex-dev/rate-limiter": "^0.2.10",
         "@convex-dev/resend": "0.1.3",
         "@convex-dev/workflow": "^0.2.5",
