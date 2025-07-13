@@ -1,7 +1,7 @@
 "use client";
 
 import type { FC } from "react";
-import { useLingui } from "@lingui/react/macro";
+import { t } from "@lingui/core/macro";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAiModelContext } from "../-provider/ai-model-provider";
 
@@ -53,7 +53,6 @@ const models = [
 ];
 
 export const ModelPicker: FC = () => {
-    const { t } = useLingui();
     const { selectedModel, setSelectedModel } = useAiModelContext();
 
     return (

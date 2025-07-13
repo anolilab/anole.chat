@@ -4,7 +4,7 @@ import { BarChart3, Calendar, Download, Eye, EyeOff } from "lucide-react";
 import type { FC } from "react";
 import { useCallback, useState } from "react";
 import { z } from "zod/v4";
-import { useLingui } from "@lingui/react/macro";
+import { t } from "@lingui/core/macro";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,7 +37,6 @@ const initialForm: UsageAnalyticsSettings = {
 };
 
 const UsageAnalyticsCard: FC = () => {
-    const { t } = useLingui();
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
     const [loading, setLoading] = useState(false);

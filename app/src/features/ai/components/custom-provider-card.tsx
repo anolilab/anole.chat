@@ -4,7 +4,7 @@ import { Pencil, Server, Trash2 } from "lucide-react";
 import type { FC } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod/v4";
-import { useLingui } from "@lingui/react/macro";
+import { t } from "@lingui/core/macro";
 
 import CopyButton from "@/components/copy-button";
 import { PasswordInput } from "@/components/form/password-input";
@@ -32,7 +32,6 @@ const initialForm: CustomProvider = {
 };
 
 const CustomProviderCard: FC = () => {
-    const { t } = useLingui();
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
     const [dialogOpen, setDialogOpen] = useState(false);
