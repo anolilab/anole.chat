@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
-import { Building, Key, MessageSquare, Shield, User, Users } from "lucide-react";
+import { Building, File, Key, MessageSquare, Shield, User, Users } from "lucide-react";
 import { Fragment } from "react";
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
@@ -53,6 +53,13 @@ const RouteComponent = () => {
                 url: "/dashboard/settings/ai/providers",
             },
         ],
+        files: [
+            {
+                icon: File,
+                name: "Files",
+                url: "/dashboard/files",
+            },
+        ],
         settings: [
             {
                 icon: User,
@@ -102,6 +109,7 @@ const RouteComponent = () => {
                         content={(
                             <>
                                 <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
+                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.files} label="Files" />
                                 <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
                             </>
                         )}
