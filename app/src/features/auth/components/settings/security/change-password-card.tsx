@@ -328,8 +328,8 @@ export const ChangePasswordCard = ({ accounts, className, classNames, isPending,
                                                             enableToggle
                                                             onBlur={field.handleBlur}
                                                             onChange={(e) => {
-                                                                field.handleChange(e.target.value);
-                                                            }}
+                                    field.handleChange(e.target.value);
+                                }}
                                                             placeholder={t`Confirm new password`}
                                                             value={field.state.value}
                                                         />

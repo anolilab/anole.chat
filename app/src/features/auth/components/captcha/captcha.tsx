@@ -3,7 +3,6 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { useTheme } from "next-themes";
 import type { RefObject } from "react";
 
-
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 // Default captcha endpoints

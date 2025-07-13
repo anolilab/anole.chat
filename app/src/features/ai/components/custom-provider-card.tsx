@@ -1,4 +1,5 @@
 import { api } from "@anole/convex/api";
+import { t } from "@lingui/core/macro";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Server, Trash2 } from "lucide-react";
 import type { FC } from "react";
@@ -30,13 +31,6 @@ const initialForm: CustomProvider = {
     name: "",
 };
 
-const providerSchema = z.object({
-    enabled: z.boolean(),
-    encryptedKey: z.string().min(1, "API Key is required"),
-    endpoint: z.url("Must be a valid URL"),
-    name: z.string().min(2, "Name is required"),
-}).strict();
-
 const CustomProviderCard: FC = () => {
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
@@ -48,6 +42,15 @@ const CustomProviderCard: FC = () => {
 
     const customAIProviders = aiSettings?.customAIProviders;
     const customProviders: CustomProviders = useMemo(() => customAIProviders || {}, [customAIProviders]);
+
+    const providerSchema = z
+        .object({
+            enabled: z.boolean(),
+            encryptedKey: z.string().min(1, t`API Key is required`),
+            endpoint: z.url(t`Must be a valid URL`),
+            name: z.string().min(2, t`Name is required`),
+        })
+        .strict();
 
     const form = useAppForm({
         defaultValues: initialForm,
@@ -90,19 +93,22 @@ const CustomProviderCard: FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dialogOpen, editingKey, customProviders]);
 
-    const handleDelete = useCallback(async (key: string) => {
-        setLoading(true);
-        const updated = { ...customProviders };
+    const handleDelete = useCallback(
+        async (key: string) => {
+            setLoading(true);
+            const updated = { ...customProviders };
 
-        delete updated[key];
-        await updateAIUserSettingsMutation({ customAIProviders: updated });
-        setLoading(false);
+            delete updated[key];
+            await updateAIUserSettingsMutation({ customAIProviders: updated });
+            setLoading(false);
 
-        if (editingKey === key) {
-            setEditingKey(undefined);
-            setDialogOpen(false);
-        }
-    }, [customProviders, editingKey, updateAIUserSettingsMutation]);
+            if (editingKey === key) {
+                setEditingKey(undefined);
+                setDialogOpen(false);
+            }
+        },
+        [customProviders, editingKey, updateAIUserSettingsMutation],
+    );
 
     const handleCancel = useCallback(() => {
         setEditingKey(undefined);
@@ -111,19 +117,25 @@ const CustomProviderCard: FC = () => {
     }, [form]);
 
     // Checkbox handler: convert CheckedState to boolean
-    const handleCheckboxChange = useCallback((checked: boolean | "indeterminate") => {
-        form.setFieldValue("enabled", checked === true);
-    }, [form]);
+    const handleCheckboxChange = useCallback(
+        (checked: boolean | "indeterminate") => {
+            form.setFieldValue("enabled", checked === true);
+        },
+        [form],
+    );
 
     const handleDialogOpenAutoFocus = useCallback((event: Event) => {
         event.preventDefault();
     }, []);
 
-    const handleFormSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        event.stopPropagation();
-        form.handleSubmit();
-    }, [form]);
+    const handleFormSubmit = useCallback(
+        (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            event.stopPropagation();
+            form.handleSubmit();
+        },
+        [form],
+    );
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>, field: { handleChange: (value: string) => void }) =>
         field.handleChange(event.target.value);
@@ -161,30 +173,27 @@ const CustomProviderCard: FC = () => {
     return (
         <div className="space-y-8">
             <Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
-                <div className="flex justify-end mb-4">
+                <div className="mb-4 flex justify-end">
                     <DialogTrigger asChild>
                         <Button onClick={openCreateDialog} type="button" variant="default">
-                            Add Provider
+                            {t`Add Provider`}
                         </Button>
                     </DialogTrigger>
                 </div>
                 <DialogContent onOpenAutoFocus={handleDialogOpenAutoFocus}>
                     <DialogHeader>
-                        <DialogTitle>{editingKey ? "Edit Provider" : "Add Custom Provider"}</DialogTitle>
+                        <DialogTitle>{editingKey ? t`Edit Provider` : t`Add Custom Provider`}</DialogTitle>
                         <DialogDescription>
-                            {editingKey ? "Update your custom AI provider details." : "Add a new custom AI provider for your workspace."}
+                            {editingKey ? t`Update your custom AI provider details.` : t`Add a new custom AI provider for your workspace.`}
                         </DialogDescription>
                     </DialogHeader>
                     <form.AppForm>
-                        <form
-                            className="space-y-6"
-                            onSubmit={handleFormSubmit}
-                        >
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <form className="space-y-6" onSubmit={handleFormSubmit}>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <form.AppField name="name">
                                     {(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>Provider Name</field.FormLabel>
+                                            <field.FormLabel>{t`Provider Name`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     autoComplete="off"
@@ -192,7 +201,7 @@ const CustomProviderCard: FC = () => {
                                                     disabled={loading}
                                                     onBlur={field.handleBlur}
                                                     onChange={(event) => handleNameChange(event, field)}
-                                                    placeholder="Provider Name"
+                                                    placeholder={t`Provider Name`}
                                                     value={field.state.value}
                                                 />
                                             </field.FormControl>
@@ -203,7 +212,7 @@ const CustomProviderCard: FC = () => {
                                 <form.AppField name="endpoint">
                                     {(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>API Endpoint</field.FormLabel>
+                                            <field.FormLabel>{t`API Endpoint`}</field.FormLabel>
                                             <field.FormControl>
                                                 <Input
                                                     autoComplete="off"
@@ -211,7 +220,7 @@ const CustomProviderCard: FC = () => {
                                                     disabled={loading}
                                                     onBlur={field.handleBlur}
                                                     onChange={(event) => handleEndpointChange(event, field)}
-                                                    placeholder="API Endpoint"
+                                                    placeholder={t`API Endpoint`}
                                                     value={field.state.value}
                                                 />
                                             </field.FormControl>
@@ -222,7 +231,7 @@ const CustomProviderCard: FC = () => {
                                 <form.AppField name="encryptedKey">
                                     {(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>Encrypted API Key</field.FormLabel>
+                                            <field.FormLabel>{t`Encrypted API Key`}</field.FormLabel>
                                             <field.FormControl>
                                                 <PasswordInput
                                                     aria-describedby="key-help"
@@ -231,11 +240,11 @@ const CustomProviderCard: FC = () => {
                                                     enableToggle
                                                     onBlur={field.handleBlur}
                                                     onChange={(event) => handleKeyChange(event, field)}
-                                                    placeholder="Encrypted API Key"
+                                                    placeholder={t`Encrypted API Key`}
                                                     value={field.state.value}
                                                 />
                                             </field.FormControl>
-                                            <field.FormDescription id="key-help">Key is hidden for security.</field.FormDescription>
+                                            <field.FormDescription id="key-help">{t`Key is hidden for security.`}</field.FormDescription>
                                             <field.FormMessage />
                                         </field.FormItem>
                                     )}
@@ -243,7 +252,7 @@ const CustomProviderCard: FC = () => {
                                 <form.AppField name="enabled">
                                     {(field) => (
                                         <field.FormItem>
-                                            <field.FormLabel>Status</field.FormLabel>
+                                            <field.FormLabel>{t`Status`}</field.FormLabel>
                                             <field.FormControl>
                                                 <div className="flex items-center gap-2">
                                                     <Checkbox
@@ -252,7 +261,9 @@ const CustomProviderCard: FC = () => {
                                                         disabled={loading}
                                                         onCheckedChange={handleCheckboxChange}
                                                     />
-                                                    <span className={`badge ${field.state.value ? "badge-success" : "badge-ghost"}`}>{field.state.value ? "Enabled" : "Disabled"}</span>
+                                                    <span className={`badge ${field.state.value ? "badge-success" : "badge-ghost"}`}>
+                                                        {field.state.value ? t`Enabled` : t`Disabled`}
+                                                    </span>
                                                 </div>
                                             </field.FormControl>
                                             <field.FormMessage />
@@ -262,10 +273,10 @@ const CustomProviderCard: FC = () => {
                             </div>
                             <DialogFooter>
                                 <Button aria-busy={loading} disabled={loading} type="submit">
-                                    {editingKey ? "Update Provider" : "Add Provider"}
+                                    {editingKey ? t`Update Provider` : t`Add Provider`}
                                 </Button>
                                 <Button disabled={loading} onClick={handleCancel} type="button" variant="secondary">
-                                    Cancel
+                                    {t`Cancel`}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -274,38 +285,40 @@ const CustomProviderCard: FC = () => {
             </Dialog>
 
             <ConfirmDialog
-                cancelLabel="Cancel"
-                confirmLabel="Delete"
-                description="Are you sure you want to delete this provider? This action cannot be undone."
+                cancelLabel={t`Cancel`}
+                confirmLabel={t`Delete`}
+                description={t`Are you sure you want to delete this provider? This action cannot be undone.`}
                 loading={loading}
                 onConfirm={handleConfirmDelete}
                 onOpenChange={handleConfirmDialogOpenChange}
                 open={confirmOpen}
-                title="Delete Provider"
+                title={t`Delete Provider`}
             />
 
             <div>
                 {Object.entries(customProviders).length === 0
                     ? (
-                        <div className="text-zinc-500 text-center py-8">No custom providers.</div>
+                        <div className="py-8 text-center text-zinc-500">{t`No custom providers.`}</div>
                     )
                     : (
                         <ul className="grid gap-4">
                             {Object.entries(customProviders).map(([key, provider]) => (
                                 <li
-                                    className="rounded-lg border bg-white dark:bg-zinc-900 p-4 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2 hover:shadow-lg transition-shadow group"
+                                    className="group flex flex-col gap-2 rounded-lg border bg-white p-4 shadow transition-shadow hover:shadow-lg md:flex-row md:items-center md:justify-between dark:bg-zinc-900"
                                     key={key}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <Server className="w-6 h-6 text-primary" />
+                                        <Server className="text-primary h-6 w-6" />
                                         <div>
-                                            <div className="font-medium text-base flex items-center gap-2">
+                                            <div className="flex items-center gap-2 text-base font-medium">
                                                 {provider.name}
-                                                <span className={`badge ${provider.enabled ? "badge-success" : "badge-ghost"}`}>{provider.enabled ? "Enabled" : "Disabled"}</span>
+                                                <span className={`badge ${provider.enabled ? "badge-success" : "badge-ghost"}`}>
+                                                    {provider.enabled ? t`Enabled` : t`Disabled`}
+                                                </span>
                                             </div>
                                             <div className="text-xs text-zinc-500">{provider.endpoint}</div>
-                                            <div className="text-xs text-zinc-500 flex items-center gap-1">
-                                                Key:
+                                            <div className="flex items-center gap-1 text-xs text-zinc-500">
+                                                {t`Key:`}
                                                 {" "}
                                                 {provider.encryptedKey.slice(0, 6)}
                                                 ***
@@ -313,28 +326,28 @@ const CustomProviderCard: FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex gap-2 mt-2 md:mt-0">
+                                    <div className="mt-2 flex gap-2 md:mt-0">
                                         <Button
-                                            aria-label="Edit provider"
+                                            aria-label={t`Edit provider`}
                                             className="btn btn-sm btn-outline flex items-center gap-1"
                                             disabled={loading}
                                             onClick={getEditButtonHandler(key)}
                                             type="button"
                                         >
-                                            <Pencil className="w-4 h-4" />
+                                            <Pencil className="h-4 w-4" />
                                             {" "}
-                                            Edit
+                                            {t`Edit`}
                                         </Button>
                                         <Button
-                                            aria-label="Delete provider"
+                                            aria-label={t`Delete provider`}
                                             className="btn btn-sm btn-error flex items-center gap-1"
                                             disabled={loading}
                                             onClick={() => openDeleteDialog(key)}
                                             type="button"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="h-4 w-4" />
                                             {" "}
-                                            Delete
+                                            {t`Delete`}
                                         </Button>
                                     </div>
                                 </li>

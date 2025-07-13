@@ -69,6 +69,7 @@ export const aiUserPreferencesFields = {
             name: v.optional(v.string()),
             aiPersonality: v.optional(v.string()),
             additionalContext: v.optional(v.string()),
+            traits: v.optional(v.array(v.string())),
         }),
     ),
     customAIProviders: v.optional(v.record(

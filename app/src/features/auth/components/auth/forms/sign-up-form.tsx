@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";
 
+import { PasswordInput } from "../../../../../components/form/password-input";
 import { useIsHydrated } from "../../../../../hooks/use-hydrated";
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
@@ -23,7 +24,6 @@ import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
 import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import { Captcha } from "../../captcha/captcha";
-import { PasswordInput } from "../../../../../components/form/password-input";
 import type { AuthFormClassNames } from "../auth-form";
 
 export interface SignUpFormProperties {

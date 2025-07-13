@@ -40,11 +40,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProperties> = ({
             </AlertDialogHeader>
             <AlertDialogFooter>
                 <AlertDialogCancel disabled={loading}>{cancelLabel}</AlertDialogCancel>
-                <AlertDialogAction
-                    aria-busy={loading}
-                    disabled={loading}
-                    onClick={onConfirm}
-                >
+                <AlertDialogAction aria-busy={loading} disabled={loading} onClick={onConfirm}>
                     {confirmLabel}
                 </AlertDialogAction>
             </AlertDialogFooter>

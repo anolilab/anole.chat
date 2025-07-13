@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import CustomProviderForm from "@/features/ai/components/custom-provider-card";
+import CustomProviderCard from "@/features/ai/components/custom-provider-card";
 
-const RouteComponent = () => (<CustomProviderForm />);
+const RouteComponent = () => <CustomProviderCard />;
 
 export const Route = createFileRoute("/dashboard/settings/ai/providers")({
     component: RouteComponent,

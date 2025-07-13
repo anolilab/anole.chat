@@ -2,7 +2,6 @@
 
 import { t } from "@lingui/core/macro";
 
-
 import { CardContent } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { cn } from "@/lib/utils";

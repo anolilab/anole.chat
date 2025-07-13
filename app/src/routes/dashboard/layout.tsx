@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
-import { Building, Key, MessageSquare, Shield, User, Users } from "lucide-react";
+import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
 import { Fragment } from "react";
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
@@ -51,6 +51,21 @@ const RouteComponent = () => {
                 icon: Key,
                 name: "Providers",
                 url: "/dashboard/settings/ai/providers",
+            },
+            {
+                icon: Zap,
+                name: "Models",
+                url: "/dashboard/settings/ai/models",
+            },
+            {
+                icon: ToggleLeft,
+                name: "AI Options",
+                url: "/dashboard/settings/ai/options",
+            },
+            {
+                icon: ChartArea,
+                name: "Usage Analytics",
+                url: "/dashboard/settings/ai/usage-analytics",
             },
         ],
         settings: [

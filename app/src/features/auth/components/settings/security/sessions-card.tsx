@@ -4,7 +4,6 @@ import { t } from "@lingui/core/macro";
 import clsx from "clsx";
 import { UAParser } from "my-ua-parser";
 
-
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
