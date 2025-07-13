@@ -1,8 +1,18 @@
 "use client";
 
 import type { FC } from "react";
+import { useLingui } from "@lingui/react/macro";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAiModelContext } from "../-provider/ai-model-provider";
+
+// Model icons - these would need to be imported from your assets
+const openai = "/icons/openai.svg";
+const deepseek = "/icons/deepseek.svg";
+const anthropic = "/icons/anthropic.svg";
+const google = "/icons/google.svg";
+const meta = "/icons/meta.svg";
+const fireworks = "/icons/fireworks.svg";
+const mistral = "/icons/mistral.svg";
 
 const models = [
     {
@@ -43,17 +53,19 @@ const models = [
 ];
 
 export const ModelPicker: FC = () => {
+    const { t } = useLingui();
     const { selectedModel, setSelectedModel } = useAiModelContext();
+
     return (
         <Select value={selectedModel} onValueChange={setSelectedModel}>
             <SelectTrigger className="max-w-[300px]">
-                <SelectValue />
+                <SelectValue placeholder={t`Select a model`} />
             </SelectTrigger>
-            <SelectContent className="">
+            <SelectContent>
                 {models.map((model) => (
                     <SelectItem key={model.value} value={model.value}>
                         <span className="flex items-center gap-2">
-                            <Image src={model.icon} alt={model.name} className="inline size-4" />
+                            <img src={model.icon} alt={model.name} className="inline size-4" />
                             <span>{model.name}</span>
                         </span>
                     </SelectItem>
