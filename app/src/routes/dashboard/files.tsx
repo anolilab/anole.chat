@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { formatBytes, formatDate } from "@/lib/utils";
+import { ImageEditor } from "@/components/ui/image-editor";
 
 export const Route = createFileRoute("/dashboard/files")({
     component: FilesComponent,
@@ -29,6 +30,8 @@ const FilesComponent = () => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+    const [imageEditorOpen, setImageEditorOpen] = useState(false);
+    const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const files = useQuery(api.attachments.listFiles, { limit: 100 });
@@ -52,6 +55,21 @@ const FilesComponent = () => {
         const file = event.target.files?.[0];
         if (!file) return;
 
+        // Check if it's an image file
+        const isImage = file.type.startsWith('image/');
+
+        if (isImage) {
+            // Open image editor for images
+            setSelectedImageFile(file);
+            setImageEditorOpen(true);
+            return;
+        }
+
+        // For non-image files, upload directly
+        await uploadFile(file);
+    };
+
+    const uploadFile = async (file: File) => {
         setUploading(true);
         setUploadProgress(0);
         setUploadError(null);
@@ -104,6 +122,12 @@ const FilesComponent = () => {
         }
     };
 
+    const handleImageSave = async (editedFile: File) => {
+        await uploadFile(editedFile);
+        setImageEditorOpen(false);
+        setSelectedImageFile(null);
+    };
+
     const handleDeleteFile = async (key: string, fileName: string) => {
         if (!confirm(`Are you sure you want to delete "${fileName}"?`)) return;
 
@@ -144,7 +168,7 @@ const FilesComponent = () => {
                     className="flex items-center gap-2"
                 >
                     <Upload className="h-4 w-4" />
-                    Upload File
+                    Upload File (Images will open in editor)
                 </Button>
             </div>
 
@@ -268,7 +292,7 @@ const FilesComponent = () => {
                             className="flex items-center gap-2"
                         >
                             <Upload className="h-4 w-4" />
-                            Upload File
+                            Upload File (Images will open in editor)
                         </Button>
                     </CardContent>
                 </Card>
@@ -295,6 +319,17 @@ const FilesComponent = () => {
                     ))}
                 </div>
             )}
+
+            {/* Image Editor */}
+            <ImageEditor
+                isOpen={imageEditorOpen}
+                onClose={() => {
+                    setImageEditorOpen(false);
+                    setSelectedImageFile(null);
+                }}
+                onSave={handleImageSave}
+                originalFile={selectedImageFile}
+            />
         </div>
     );
 };
