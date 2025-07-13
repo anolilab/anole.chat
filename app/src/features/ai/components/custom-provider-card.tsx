@@ -2,13 +2,15 @@ import { api } from "@anole/convex/api";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Server, Trash2 } from "lucide-react";
 import type { FC } from "react";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod/v4";
 
 import CopyButton from "@/components/copy-button";
 import { PasswordInput } from "@/components/form/password-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
@@ -37,11 +39,15 @@ const providerSchema = z.object({
 
 const CustomProviderCard: FC = () => {
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
-    const updateAIUserSettings = useMutation(api.auth.functions.updateAIUserPreferences);
+    const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const [editingKey, setEditingKey] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingDeleteKey, setPendingDeleteKey] = useState<string | undefined>(undefined);
 
-    const customProviders: CustomProviders = aiSettings?.customAIProviders || {};
+    const customAIProviders = aiSettings?.customAIProviders;
+    const customProviders: CustomProviders = useMemo(() => customAIProviders || {}, [customAIProviders]);
 
     const form = useAppForm({
         defaultValues: initialForm,
@@ -49,172 +55,236 @@ const CustomProviderCard: FC = () => {
             setLoading(true);
             const key = editingKey || value.name;
 
-            await updateAIUserSettings({
+            await updateAIUserSettingsMutation({
                 customAIProviders: {
                     ...customProviders,
                     [key]: { ...value },
                 },
             });
             setEditingKey(undefined);
+            setDialogOpen(false);
             form.reset();
             setLoading(false);
         },
         validators: {
             onChange: providerSchema,
         },
-        values: editingKey ? customProviders[editingKey] ?? initialForm : initialForm,
     });
 
-    const handleEdit = (key: string) => {
-        setEditingKey(key);
-        form.setValues(customProviders[key] ?? initialForm);
-    };
+    const openCreateDialog = useCallback(() => {
+        setEditingKey(undefined);
+        setDialogOpen(true);
+    }, []);
 
-    const handleDelete = async (key: string) => {
+    const openEditDialog = useCallback((key: string) => {
+        setEditingKey(key);
+        setDialogOpen(true);
+    }, []);
+
+    useEffect(() => {
+        if (dialogOpen && editingKey) {
+            form.reset(customProviders[editingKey] ?? initialForm);
+        } else if (dialogOpen && !editingKey) {
+            form.reset(initialForm);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dialogOpen, editingKey, customProviders]);
+
+    const handleDelete = useCallback(async (key: string) => {
         setLoading(true);
         const updated = { ...customProviders };
 
         delete updated[key];
-        await updateAIUserSettings({ customAIProviders: updated });
+        await updateAIUserSettingsMutation({ customAIProviders: updated });
         setLoading(false);
 
-        if (editingKey === key)
+        if (editingKey === key) {
             setEditingKey(undefined);
-    };
+            setDialogOpen(false);
+        }
+    }, [customProviders, editingKey, updateAIUserSettingsMutation]);
 
-    const handleCancel = () => {
+    const handleCancel = useCallback(() => {
         setEditingKey(undefined);
+        setDialogOpen(false);
         form.reset();
-    };
+    }, [form]);
+
+    // Checkbox handler: convert CheckedState to boolean
+    const handleCheckboxChange = useCallback((checked: boolean | "indeterminate") => {
+        form.setFieldValue("enabled", checked === true);
+    }, [form]);
+
+    const handleDialogOpenAutoFocus = useCallback((event: Event) => {
+        event.preventDefault();
+    }, []);
+
+    const handleFormSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        form.handleSubmit();
+    }, [form]);
+
+    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>, field: { handleChange: (value: string) => void }) =>
+        field.handleChange(event.target.value);
+
+    const handleEndpointChange = (event: React.ChangeEvent<HTMLInputElement>, field: { handleChange: (value: string) => void }) =>
+        field.handleChange(event.target.value);
+
+    const handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>, field: { handleChange: (value: string) => void }) =>
+        field.handleChange(event.target.value);
+
+    // Stable handlers for edit/delete buttons
+    const getEditButtonHandler = useCallback((key: string) => () => openEditDialog(key), [openEditDialog]);
+
+    const openDeleteDialog = useCallback((key: string) => {
+        setPendingDeleteKey(key);
+        setConfirmOpen(true);
+    }, []);
+
+    const handleConfirmDelete = useCallback(async () => {
+        if (!pendingDeleteKey)
+            return;
+
+        await handleDelete(pendingDeleteKey);
+        setConfirmOpen(false);
+        setPendingDeleteKey(undefined);
+    }, [pendingDeleteKey, handleDelete]);
+
+    const handleConfirmDialogOpenChange = useCallback((open: boolean) => {
+        setConfirmOpen(open);
+
+        if (!open)
+            setPendingDeleteKey(undefined);
+    }, []);
 
     return (
         <div className="space-y-8">
-            {/* Add/Edit Form */}
-            <form.AppForm>
-                <form
-                    aria-label={editingKey ? "Edit Provider" : "Add Provider"}
-                    className="rounded-lg border bg-white dark:bg-zinc-900 p-6 shadow flex flex-col gap-4"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        form.handleSubmit();
-                    }}
-                >
-                    <div className="flex items-center gap-2 mb-2">
-                        <Server className="w-5 h-5 text-primary" />
-                        <span className="font-semibold text-lg">
-                            {editingKey ? "Edit Provider" : "Add Custom Provider"}
-                        </span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <form.AppField name="name">
-                            {(field) => (
-                                <field.FormItem>
-                                    <field.FormLabel>Provider Name</field.FormLabel>
-                                    <field.FormControl>
-                                        <Input
-                                            autoComplete="off"
-                                            className="input input-bordered"
-                                            disabled={loading}
-                                            onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
-                                            placeholder="Provider Name"
-                                            value={field.state.value}
-                                        />
-                                    </field.FormControl>
-                                    <field.FormMessage />
-                                </field.FormItem>
-                            )}
-                        </form.AppField>
-                        <form.AppField name="endpoint">
-                            {(field) => (
-                                <field.FormItem>
-                                    <field.FormLabel>API Endpoint</field.FormLabel>
-                                    <field.FormControl>
-                                        <Input
-                                            autoComplete="off"
-                                            className="input input-bordered"
-                                            disabled={loading}
-                                            onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
-                                            placeholder="API Endpoint"
-                                            value={field.state.value}
-                                        />
-                                    </field.FormControl>
-                                    <field.FormMessage />
-                                </field.FormItem>
-                            )}
-                        </form.AppField>
-                        <form.AppField name="encryptedKey">
-                            {(field) => (
-                                <field.FormItem>
-                                    <field.FormLabel>Encrypted API Key</field.FormLabel>
-                                    <field.FormControl>
-                                        <PasswordInput
-                                            aria-describedby="key-help"
-                                            autoComplete="off"
-                                            disabled={loading}
-                                            enableToggle
-                                            onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
-                                            placeholder="Encrypted API Key"
-                                            value={field.state.value}
-                                        />
-                                    </field.FormControl>
-                                    <field.FormDescription id="key-help">Key is hidden for security. Click copy to use.</field.FormDescription>
-                                    <field.FormMessage />
-                                </field.FormItem>
-                            )}
-                        </form.AppField>
-                        <form.AppField name="enabled">
-                            {(field) => (
-                                <field.FormItem>
-                                    <field.FormLabel>Status</field.FormLabel>
-                                    <field.FormControl>
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox
-                                                aria-checked={field.state.value}
-                                                checked={field.state.value}
-                                                disabled={loading}
-                                                onCheckedChange={field.handleChange}
-                                            />
-                                            <span className={`badge ${field.state.value ? "badge-success" : "badge-ghost"}`}>{field.state.value ? "Enabled" : "Disabled"}</span>
-                                        </div>
-                                    </field.FormControl>
-                                    <field.FormMessage />
-                                </field.FormItem>
-                            )}
-                        </form.AppField>
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                        <Button
-                            aria-busy={loading}
-                            disabled={loading}
-                            type="submit"
-                        >
-                            {editingKey ? "Update Provider" : "Add Provider"}
+            <Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
+                <div className="flex justify-end mb-4">
+                    <DialogTrigger asChild>
+                        <Button onClick={openCreateDialog} type="button" variant="default">
+                            Add Provider
                         </Button>
-                        {editingKey && (
-                            <Button
-                                disabled={loading}
-                                onClick={handleCancel}
-                                type="button"
-                                variant="secondary"
-                            >
-                                Cancel
-                            </Button>
-                        )}
-                    </div>
-                </form>
-            </form.AppForm>
-            <hr className="border-zinc-200 dark:border-zinc-700" />
+                    </DialogTrigger>
+                </div>
+                <DialogContent onOpenAutoFocus={handleDialogOpenAutoFocus}>
+                    <DialogHeader>
+                        <DialogTitle>{editingKey ? "Edit Provider" : "Add Custom Provider"}</DialogTitle>
+                        <DialogDescription>
+                            {editingKey ? "Update your custom AI provider details." : "Add a new custom AI provider for your workspace."}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form.AppForm>
+                        <form
+                            className="space-y-6"
+                            onSubmit={handleFormSubmit}
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <form.AppField name="name">
+                                    {(field) => (
+                                        <field.FormItem>
+                                            <field.FormLabel>Provider Name</field.FormLabel>
+                                            <field.FormControl>
+                                                <Input
+                                                    autoComplete="off"
+                                                    className="input input-bordered"
+                                                    disabled={loading}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(event) => handleNameChange(event, field)}
+                                                    placeholder="Provider Name"
+                                                    value={field.state.value}
+                                                />
+                                            </field.FormControl>
+                                            <field.FormMessage />
+                                        </field.FormItem>
+                                    )}
+                                </form.AppField>
+                                <form.AppField name="endpoint">
+                                    {(field) => (
+                                        <field.FormItem>
+                                            <field.FormLabel>API Endpoint</field.FormLabel>
+                                            <field.FormControl>
+                                                <Input
+                                                    autoComplete="off"
+                                                    className="input input-bordered"
+                                                    disabled={loading}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(event) => handleEndpointChange(event, field)}
+                                                    placeholder="API Endpoint"
+                                                    value={field.state.value}
+                                                />
+                                            </field.FormControl>
+                                            <field.FormMessage />
+                                        </field.FormItem>
+                                    )}
+                                </form.AppField>
+                                <form.AppField name="encryptedKey">
+                                    {(field) => (
+                                        <field.FormItem>
+                                            <field.FormLabel>Encrypted API Key</field.FormLabel>
+                                            <field.FormControl>
+                                                <PasswordInput
+                                                    aria-describedby="key-help"
+                                                    autoComplete="off"
+                                                    disabled={loading}
+                                                    enableToggle
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(event) => handleKeyChange(event, field)}
+                                                    placeholder="Encrypted API Key"
+                                                    value={field.state.value}
+                                                />
+                                            </field.FormControl>
+                                            <field.FormDescription id="key-help">Key is hidden for security.</field.FormDescription>
+                                            <field.FormMessage />
+                                        </field.FormItem>
+                                    )}
+                                </form.AppField>
+                                <form.AppField name="enabled">
+                                    {(field) => (
+                                        <field.FormItem>
+                                            <field.FormLabel>Status</field.FormLabel>
+                                            <field.FormControl>
+                                                <div className="flex items-center gap-2">
+                                                    <Checkbox
+                                                        aria-checked={field.state.value}
+                                                        checked={field.state.value}
+                                                        disabled={loading}
+                                                        onCheckedChange={handleCheckboxChange}
+                                                    />
+                                                    <span className={`badge ${field.state.value ? "badge-success" : "badge-ghost"}`}>{field.state.value ? "Enabled" : "Disabled"}</span>
+                                                </div>
+                                            </field.FormControl>
+                                            <field.FormMessage />
+                                        </field.FormItem>
+                                    )}
+                                </form.AppField>
+                            </div>
+                            <DialogFooter>
+                                <Button aria-busy={loading} disabled={loading} type="submit">
+                                    {editingKey ? "Update Provider" : "Add Provider"}
+                                </Button>
+                                <Button disabled={loading} onClick={handleCancel} type="button" variant="secondary">
+                                    Cancel
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </form.AppForm>
+                </DialogContent>
+            </Dialog>
+
+            <ConfirmDialog
+                cancelLabel="Cancel"
+                confirmLabel="Delete"
+                description="Are you sure you want to delete this provider? This action cannot be undone."
+                loading={loading}
+                onConfirm={handleConfirmDelete}
+                onOpenChange={handleConfirmDialogOpenChange}
+                open={confirmOpen}
+                title="Delete Provider"
+            />
 
             <div>
-                <h3 className="mb-4 font-semibold text-lg flex items-center gap-2">
-                    <Server className="w-5 h-5 text-primary" />
-                    {" "}
-                    Custom Providers
-                </h3>
                 {Object.entries(customProviders).length === 0
                     ? (
                         <div className="text-zinc-500 text-center py-8">No custom providers.</div>
@@ -248,7 +318,7 @@ const CustomProviderCard: FC = () => {
                                             aria-label="Edit provider"
                                             className="btn btn-sm btn-outline flex items-center gap-1"
                                             disabled={loading}
-                                            onClick={() => handleEdit(key)}
+                                            onClick={getEditButtonHandler(key)}
                                             type="button"
                                         >
                                             <Pencil className="w-4 h-4" />
@@ -259,7 +329,7 @@ const CustomProviderCard: FC = () => {
                                             aria-label="Delete provider"
                                             className="btn btn-sm btn-error flex items-center gap-1"
                                             disabled={loading}
-                                            onClick={() => handleDelete(key)}
+                                            onClick={() => openDeleteDialog(key)}
                                             type="button"
                                         >
                                             <Trash2 className="w-4 h-4" />
