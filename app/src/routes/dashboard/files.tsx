@@ -69,32 +69,33 @@ const FilesComponent = () => {
                 });
             }, 100);
 
-            // Convert file to bytes
-            const arrayBuffer = await file.arrayBuffer();
-            const bytes = new Uint8Array(arrayBuffer);
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("fileName", file.name);
 
-            const result = await uploadFile({
-                bytes,
-                filename: file.name,
-                mimeType: file.type,
+            const response = await fetch("/api/attachments/uploadFile", {
+                method: "POST",
+                body: formData,
             });
 
             clearInterval(progressInterval);
             setUploadProgress(100);
 
-            if (result.success) {
-                setUploadSuccess(`File "${result.fileName}" uploaded successfully!`);
-
-                // Reset file input
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = "";
-                }
-
-                // Clear success message after 3 seconds
-                setTimeout(() => setUploadSuccess(null), 3000);
-            } else {
-                throw new Error("Upload failed");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Upload failed");
             }
+
+            const result = await response.json();
+            setUploadSuccess(`File "${result.fileName}" uploaded successfully!`);
+
+            // Reset file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+
+            // Clear success message after 3 seconds
+            setTimeout(() => setUploadSuccess(null), 3000);
         } catch (error) {
             setUploadError(error instanceof Error ? error.message : "Upload failed");
         } finally {
@@ -153,7 +154,7 @@ const FilesComponent = () => {
                 type="file"
                 onChange={handleFileUpload}
                 className="hidden"
-                accept=".txt,.pdf,.md,.json,.csv,.jpg,.jpeg,.png,.gif,.webp"
+                accept="image/*,.txt,.pdf,.md,.mdx,.js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.go,.rs,.php,.rb,.swift,.kt,.dart,.vue,.svelte,.css,.scss,.html,.xml,.json,.yaml,.yml"
             />
 
             {/* Upload Progress */}
@@ -233,7 +234,7 @@ const FilesComponent = () => {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleDownload(`/api/agent/files/${file.key}`, file.fileName)}
+                                    onClick={() => handleDownload(`/api/attachments/getFile?key=${encodeURIComponent(file.key)}`, file.fileName)}
                                     className="flex-1"
                                 >
                                     <Download className="h-3 w-3 mr-1" />

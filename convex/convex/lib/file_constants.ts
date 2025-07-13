@@ -1,120 +1,193 @@
+// Supported image file extensions
+export const SUPPORTED_IMAGE_EXTENSIONS = [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".svg",
+    ".webp",
+    ".bmp",
+    ".ico"
+] as const
+
+// Supported code file extensions
+export const SUPPORTED_CODE_EXTENSIONS = [
+    ".js",
+    ".jsx",
+    ".ts",
+    ".tsx",
+    ".py",
+    ".java",
+    ".c",
+    ".cpp",
+    ".go",
+    ".rs",
+    ".php",
+    ".rb",
+    ".swift",
+    ".kt",
+    ".dart",
+    ".vue",
+    ".svelte",
+    ".css",
+    ".scss",
+    ".html",
+    ".xml",
+    ".json",
+    ".yaml",
+    ".yml"
+] as const
+
+// Supported plain text file extensions
+export const SUPPORTED_PLAIN_TEXT_EXTENSIONS = [".md", ".mdx", ".txt"] as const
+
+// Combined text extensions (code + plain text)
+export const SUPPORTED_TEXT_EXTENSIONS = [
+    ...SUPPORTED_PLAIN_TEXT_EXTENSIONS,
+    ...SUPPORTED_CODE_EXTENSIONS
+] as const
+
+// Supported MIME types for images
+export const SUPPORTED_IMAGE_MIME_TYPES = [
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/svg+xml",
+    "image/webp",
+    "image/bmp",
+    "image/x-icon"
+] as const
+
+// Supported MIME types for text files
+export const SUPPORTED_TEXT_MIME_TYPES = [
+    "text/plain",
+    "text/markdown",
+    "text/html",
+    "text/css",
+    "text/javascript",
+    "text/xml",
+    "text/yaml",
+    "application/json",
+    "application/javascript",
+    "application/typescript"
+] as const
+
+// All supported extensions combined
+export const ALL_SUPPORTED_EXTENSIONS = [
+    ...SUPPORTED_IMAGE_EXTENSIONS,
+    ...SUPPORTED_TEXT_EXTENSIONS,
+    ".pdf"
+] as const
+
 // File size limits
-export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-export const MAX_TOKENS_PER_FILE = 100000; // 100k tokens
-export const MAX_PDF_PAGES = 50;
-export const MAX_PDF_TOKENS = 50000; // 50k tokens for PDFs
+export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+export const MAX_TOKENS_PER_FILE = 32000 // 32k tokens
 
-// Supported file types
-const SUPPORTED_TEXT_EXTENSIONS = [
-    '.txt', '.md', '.json', '.csv', '.tsv', '.xml', '.html', '.css', '.js', '.ts', '.jsx', '.tsx',
-    '.py', '.java', '.cpp', '.c', '.h', '.hpp', '.cs', '.php', '.rb', '.go', '.rs', '.swift',
-    '.kt', '.scala', '.r', '.m', '.sql', '.sh', '.bash', '.zsh', '.fish', '.ps1', '.bat',
-    '.yaml', '.yml', '.toml', '.ini', '.cfg', '.conf', '.log', '.tex', '.rst', '.adoc'
-];
+// PDF-specific limits
+export const MAX_PDF_PAGES = 100
+export const MAX_PDF_TOKENS = 32000 // 32k tokens
 
-const SUPPORTED_IMAGE_EXTENSIONS = [
-    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg', '.ico', '.tiff', '.tif'
-];
-
-const SUPPORTED_PDF_EXTENSIONS = ['.pdf'];
-
-// MIME type mappings
-const MIME_TYPE_MAP: Record<string, string> = {
-    '.txt': 'text/plain',
-    '.md': 'text/markdown',
-    '.json': 'application/json',
-    '.csv': 'text/csv',
-    '.xml': 'application/xml',
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.ts': 'application/typescript',
-    '.jsx': 'text/jsx',
-    '.tsx': 'text/tsx',
-    '.py': 'text/x-python',
-    '.java': 'text/x-java-source',
-    '.cpp': 'text/x-c++src',
-    '.c': 'text/x-csrc',
-    '.h': 'text/x-chdr',
-    '.hpp': 'text/x-c++hdr',
-    '.cs': 'text/x-csharp',
-    '.php': 'application/x-httpd-php',
-    '.rb': 'text/x-ruby',
-    '.go': 'text/x-go',
-    '.rs': 'text/x-rust',
-    '.swift': 'text/x-swift',
-    '.kt': 'text/x-kotlin',
-    '.scala': 'text/x-scala',
-    '.r': 'text/x-r',
-    '.m': 'text/x-objective-c',
-    '.sql': 'text/x-sql',
-    '.sh': 'application/x-sh',
-    '.bash': 'application/x-sh',
-    '.zsh': 'application/x-sh',
-    '.fish': 'application/x-sh',
-    '.ps1': 'application/x-powershell',
-    '.bat': 'application/x-msdos-program',
-    '.yaml': 'application/x-yaml',
-    '.yml': 'application/x-yaml',
-    '.toml': 'application/toml',
-    '.ini': 'text/plain',
-    '.cfg': 'text/plain',
-    '.conf': 'text/plain',
-    '.log': 'text/plain',
-    '.tex': 'application/x-tex',
-    '.rst': 'text/x-rst',
-    '.adoc': 'text/asciidoc',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.bmp': 'image/bmp',
-    '.webp': 'image/webp',
-    '.svg': 'image/svg+xml',
-    '.ico': 'image/x-icon',
-    '.tiff': 'image/tiff',
-    '.tif': 'image/tiff',
-    '.pdf': 'application/pdf'
-};
-
-export function isSupportedFile(fileName: string, mimeType: string): boolean {
-    const extension = getFileExtension(fileName).toLowerCase();
-    return SUPPORTED_TEXT_EXTENSIONS.includes(extension) ||
-        SUPPORTED_IMAGE_EXTENSIONS.includes(extension) ||
-        SUPPORTED_PDF_EXTENSIONS.includes(extension);
+// File type validation functions
+export const isImageExtension = (filename: string) => {
+    const ext = filename.toLowerCase().match(/\.[^.]+$/)?.[0]
+    return ext ? (SUPPORTED_IMAGE_EXTENSIONS as readonly string[]).includes(ext) : false
 }
 
-export function getFileTypeInfo(fileName: string, mimeType: string) {
-    const extension = getFileExtension(fileName).toLowerCase();
-    const isText = SUPPORTED_TEXT_EXTENSIONS.includes(extension);
-    const isImage = SUPPORTED_IMAGE_EXTENSIONS.includes(extension);
-    const isPdf = SUPPORTED_PDF_EXTENSIONS.includes(extension);
-
-    return {
-        isText,
-        isImage,
-        isPdf,
-        extension
-    };
+export const isTextExtension = (filename: string) => {
+    const ext = filename.toLowerCase().match(/\.[^.]+$/)?.[0]
+    return ext ? (SUPPORTED_TEXT_EXTENSIONS as readonly string[]).includes(ext) : false
 }
 
-export function getCorrectMimeType(fileName: string, browserMimeType: string): string {
-    const extension = getFileExtension(fileName).toLowerCase();
-    const mappedMimeType = MIME_TYPE_MAP[extension];
-
-    // Use mapped MIME type if available, otherwise fall back to browser MIME type
-    return mappedMimeType || browserMimeType || 'application/octet-stream';
+export const isImageMimeType = (mimeType: string) => {
+    return (
+        mimeType.startsWith("image/") ||
+        (SUPPORTED_IMAGE_MIME_TYPES as readonly string[]).includes(mimeType)
+    )
 }
 
-export function getFileExtension(fileName: string): string {
-    const lastDotIndex = fileName.lastIndexOf('.');
-    return lastDotIndex !== -1 ? fileName.substring(lastDotIndex) : '';
+export const isTextMimeType = (mimeType: string) => {
+    return (
+        mimeType.startsWith("text/") ||
+        (SUPPORTED_TEXT_MIME_TYPES as readonly string[]).includes(mimeType)
+    )
 }
 
-// Simple token estimation (rough approximation)
-export function estimateTokenCount(text: string): number {
-    // Rough approximation: 1 token ≈ 4 characters for English text
-    return Math.ceil(text.length / 4);
+export const isSupportedFile = (filename: string, mimeType?: string) => {
+    // For text files, prioritize extension over MIME type since browsers often return
+    // application/octet-stream for code files like .c, .rs, etc.
+    const isText = isTextExtension(filename)
+    const isImage = isImageExtension(filename) || (mimeType ? isImageMimeType(mimeType) : false)
+    const isPdf =
+        filename.toLowerCase().endsWith(".pdf") ||
+        mimeType === "application/pdf" ||
+        mimeType === "application/x-pdf"
+    return isImage || isText || isPdf
+}
+
+// Get file accept attribute for input element
+export const getFileAcceptAttribute = (includeImages = true) => {
+    const textExtensions = SUPPORTED_TEXT_EXTENSIONS.join(",")
+    if (includeImages) {
+        return `image/*,${textExtensions}`
+    }
+    return textExtensions
+}
+
+// Simple token estimation (rough approximation: 1 token ≈ 4 characters)
+export const estimateTokenCount = (text: string) => {
+    return Math.ceil(text.length / 4)
+}
+
+// File type detection result
+export interface FileTypeInfo {
+    isImage: boolean
+    isCode: boolean
+    isText: boolean
+    extension?: string
+    isPdf?: boolean
+}
+
+export const getFileTypeInfo = (filename: string, mimeType?: string) => {
+    const fileName = filename.toLowerCase()
+    const extension = fileName.match(/\.[^.]+$/)?.[0]
+
+    // Check by extension first (more reliable than MIME type)
+    const isImage = isImageExtension(fileName)
+    const isCode = extension
+        ? (SUPPORTED_CODE_EXTENSIONS as readonly string[]).includes(extension)
+        : false
+    const isPlainText = extension
+        ? (SUPPORTED_PLAIN_TEXT_EXTENSIONS as readonly string[]).includes(extension)
+        : false
+
+    // For text files, extension is more reliable than MIME type
+    // (browsers often return application/octet-stream for code files)
+    const isText = isCode || isPlainText || isTextExtension(fileName)
+
+    // If not detected by extension, fall back to MIME type for images
+    const finalIsImage = isImage || (mimeType ? isImageMimeType(mimeType) : false)
+    const isPdf =
+        extension === ".pdf" || mimeType === "application/pdf" || mimeType === "application/x-pdf"
+
+    return { isImage: finalIsImage, isCode, isText, extension, isPdf } satisfies FileTypeInfo
+}
+
+// Get correct MIME type for a file based on its extension
+export const getCorrectMimeType = (filename: string, browserMimeType?: string): string => {
+    const fileInfo = getFileTypeInfo(filename, browserMimeType)
+
+    // If it's an image and browser provided a valid image MIME type, use it
+    if (fileInfo.isImage && browserMimeType && isImageMimeType(browserMimeType)) {
+        return browserMimeType
+    }
+
+    // If it's a text file (any kind), just use text/plain
+    if (fileInfo.isText) {
+        return "text/plain"
+    }
+
+    // Default fallback
+    return browserMimeType || "application/octet-stream"
 }
 
 // PDF estimation (placeholder - would need actual PDF parsing library)

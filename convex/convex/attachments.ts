@@ -150,7 +150,6 @@ export const uploadFile = httpAction(async (ctx, request) => {
 
         // Store file directly in R2
         const storedKey = await r2.store(ctx, new Uint8Array(fileBuffer), {
-            authorId: user.id,
             key,
             type: mimeType
         })
@@ -220,7 +219,9 @@ export const deleteFile = mutation({
                 }
             }
 
-            if (metadata.authorId !== user.id) {
+            // For R2, we'll use the key to determine ownership
+            // Files are stored with user ID in the key path
+            if (!metadata.key.includes(`attachments/${user.id}/`)) {
                 return {
                     success: false,
                     error: "Access denied: File does not belong to user"
@@ -253,7 +254,9 @@ export const listFiles = query({
                 return []
             }
 
-            return await r2.listMetadata(ctx, user.id, args.limit || 50)
+            // List files for the specific user by filtering keys
+            const allFiles = await r2.listMetadata(ctx, args.limit || 100)
+            return allFiles.filter(file => file.key.includes(`attachments/${user.id}/`))
         } catch (error) {
             console.error("Error listing files:", error)
             return []
