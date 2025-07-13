@@ -144,6 +144,9 @@ const RootDocument = () => {
                             replace={(href) => {
                                 router.navigate({ replace: true, to: href });
                             }}
+                            social={{
+                                providers: ["google"]
+                            }}
                             twoFactor={["totp"]}
                         >
                             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
