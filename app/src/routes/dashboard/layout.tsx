@@ -7,7 +7,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { AppSidebar } from "@/features/layout/components/app-sidebar";
+import AppSidebar from "@/features/layout/components/app-sidebar";
 import type { NavItem } from "@/features/layout/components/nav-items";
 import { NavItems } from "@/features/layout/components/nav-items";
 import { SiteHeader } from "@/features/layout/components/site-header";

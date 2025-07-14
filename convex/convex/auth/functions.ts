@@ -156,7 +156,6 @@ const makeSettingsUpsertMutation = (
     return authedMutation({
         args,
         handler: async (context, inputArgs) => {
-            console.log(context.user)
             const userId = context.user._id;
 
             // Recursively encrypt all encryptedKey fields
