@@ -226,7 +226,7 @@ export const ThreadList: FC = () => {
                         />
                         {searchQuery && (
                             <Button
-                                className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 p-0"
+                                className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 p-0"
                                 onClick={() => {
                                     setSearchQuery("");
                                 }}
@@ -237,7 +237,7 @@ export const ThreadList: FC = () => {
                             </Button>
                         )}
                         {isSearchLoading && (
-                            <div className="absolute right-8 top-1/2 -translate-y-1/2">
+                            <div className="absolute top-1/2 right-8 -translate-y-1/2">
                                 <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />
                             </div>
                         )}
@@ -1129,7 +1129,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
             <TooltipProvider>
                 <div
                     className={cn(
-                        "cursor-pointer hover:bg-white/10 focus-visible:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+                        "cursor-pointer hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none",
                         isActive && "bg-white/20",
                         isKeyboardSelected && "bg-white/10 ring-2 ring-white/50",
                         !isRootThread && "ml-6",

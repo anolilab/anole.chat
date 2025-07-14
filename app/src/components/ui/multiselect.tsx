@@ -434,7 +434,7 @@ const MultipleSelector = ({
         >
             <div
                 className={cn(
-                    "border-input focus-within:border-ring focus-within:ring-ring/20 relative min-h-[38px] rounded-lg border text-sm transition-shadow focus-within:outline-none focus-within:ring-[3px] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50",
+                    "border-input focus-within:border-ring focus-within:ring-ring/20 relative min-h-[38px] rounded-lg border text-sm transition-shadow focus-within:ring-[3px] focus-within:outline-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50",
                     {
                         "cursor-text": !disabled && selected.length > 0,
                         "p-1": selected.length > 0,
@@ -453,7 +453,7 @@ const MultipleSelector = ({
                     {selected.map((option) => (
                         <div
                             className={cn(
-                                "animate-fadeIn bg-background text-secondary-foreground hover:bg-background relative inline-flex h-7 cursor-default items-center rounded-md border border-solid pe-7 pl-2 ps-2 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50 data-[fixed]:pe-2",
+                                "animate-fadeIn bg-background text-secondary-foreground hover:bg-background relative inline-flex h-7 cursor-default items-center rounded-md border border-solid ps-2 pe-7 pl-2 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50 data-[fixed]:pe-2",
                                 badgeClassName,
                             )}
                             data-disabled={disabled || undefined}

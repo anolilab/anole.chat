@@ -7,7 +7,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ children, title }) => (
     <>
-        <header className="h-(--header-height) group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) relative flex shrink-0 items-center gap-2 transition-[width,height] ease-linear dark:text-white">
+        <header className="relative flex h-(--header-height) shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:text-white">
             <div className="relative z-20 flex w-full items-center gap-1 truncate pl-4 lg:gap-2 lg:pl-6">
                 <SidebarTrigger className="-ml-1" />
                 <Separator className="mx-2 data-[orientation=vertical]:h-4" orientation="vertical" />
@@ -17,7 +17,7 @@ export const SiteHeader: FC<PropsWithChildren<{ title?: string }>> = ({ children
                 <ModeToggle className="text-white" />
             </div>
             <div
-                className="h-14.5 w-25.5 absolute -right-2.5 -top-2 z-10 max-sm:hidden"
+                className="absolute -top-2 -right-2.5 z-10 h-14.5 w-25.5 max-sm:hidden"
                 style={{
                     clipPath: "inset(0px 8px 0px 0px)",
                 }}

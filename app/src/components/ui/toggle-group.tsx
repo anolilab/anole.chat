@@ -20,7 +20,7 @@ const ToggleGroup = ({
     ...properties
 }: React.ComponentProps<typeof ToggleGroupPrimitive.Root> & VariantProps<typeof toggleVariants>) => (
     <ToggleGroupPrimitive.Root
-        className={cn("group/toggle-group data-[variant=outline]:shadow-xs flex w-fit items-center rounded-md", className)}
+        className={cn("group/toggle-group flex w-fit items-center rounded-md data-[variant=outline]:shadow-xs", className)}
         data-size={size}
         data-slot="toggle-group"
         data-variant={variant}

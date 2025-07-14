@@ -21,9 +21,9 @@ export const SettingsCardHeader = ({ className, classNames, description, isPendi
         {isPending
             ? (
                 <>
-                    <Skeleton className={cn("md:h-5.5 my-0.5 h-5 w-1/3", classNames?.skeleton)} />
+                    <Skeleton className={cn("my-0.5 h-5 w-1/3 md:h-5.5", classNames?.skeleton)} />
 
-                    {description && <Skeleton className={cn("mb-0.5 mt-1.5 h-3 w-2/3 md:h-3.5", classNames?.skeleton)} />}
+                    {description && <Skeleton className={cn("mt-1.5 mb-0.5 h-3 w-2/3 md:h-3.5", classNames?.skeleton)} />}
                 </>
             )
             : (

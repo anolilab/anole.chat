@@ -167,7 +167,7 @@ const CarouselPrevious = ({ className, size = "icon", variant = "outline", ...pr
         <Button
             className={cn(
                 "absolute size-8 rounded-full",
-                orientation === "horizontal" ? "-left-12 top-1/2 -translate-y-1/2" : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+                orientation === "horizontal" ? "top-1/2 -left-12 -translate-y-1/2" : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
                 className,
             )}
             data-slot="carousel-previous"
@@ -190,7 +190,7 @@ const CarouselNext = ({ className, size = "icon", variant = "outline", ...proper
         <Button
             className={cn(
                 "absolute size-8 rounded-full",
-                orientation === "horizontal" ? "-right-12 top-1/2 -translate-y-1/2" : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+                orientation === "horizontal" ? "top-1/2 -right-12 -translate-y-1/2" : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
                 className,
             )}
             data-slot="carousel-next"

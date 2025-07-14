@@ -128,10 +128,7 @@ const RouteComponent = () => {
                 }
             >
                 <div className="flex h-dvh w-full">
-                    <AppSidebar
-                        content={sidebarContent}
-                        header={sidebarHeader}
-                    />
+                    <AppSidebar content={sidebarContent} header={sidebarHeader} />
                     <SidebarInset>
                         <SiteHeader>
                             <Breadcrumb>

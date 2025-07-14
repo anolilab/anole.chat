@@ -37,14 +37,6 @@ globs: **/*.tsx, **/*.jsx, components/**/*
 - Use proper key props in lists
 - Profile and optimize render performance
 
-## Forms
-- Use controlled components for form inputs
-- Implement proper form validation
-- Handle form submission states properly
-- Show appropriate loading and error states
-- Use form libraries for complex forms
-- Implement proper accessibility for forms
-
 ## Error Handling
 - Implement Error Boundaries
 - Handle async errors properly

@@ -13,7 +13,7 @@ const BlurGradientOverlay = () => {
 
     return (
         <div
-            className="pointer-events-none absolute inset-x-0 top-0 ml-2 mr-5 hidden select-none lg:block"
+            className="pointer-events-none absolute inset-x-0 top-0 mr-5 ml-2 hidden select-none lg:block"
             style={{
                 height: "calc(min(var(--framer-viewport-height, 100%), 100%) / 5)",
                 top: 0,

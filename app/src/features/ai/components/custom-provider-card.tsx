@@ -3,7 +3,7 @@ import { t } from "@lingui/core/macro";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Server, Trash2 } from "lucide-react";
 import type { FC } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { z } from "zod/v4";
 
 import CopyButton from "@/components/copy-button";
@@ -31,9 +31,12 @@ const initialForm: CustomProvider = {
     name: "",
 };
 
+// Remove the custom handleNameChange, handleEndpointChange, and handleKeyChange functions
+
 const CustomProviderCard: FC = () => {
     const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
+    const updateAIUserSettings = updateAIUserSettingsMutation;
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingKey, setEditingKey] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
@@ -53,12 +56,12 @@ const CustomProviderCard: FC = () => {
         .strict();
 
     const form = useAppForm({
-        defaultValues: initialForm,
+        defaultValues: editingKey && customProviders[editingKey] ? customProviders[editingKey] : initialForm,
         onSubmit: async ({ value }) => {
             setLoading(true);
             const key = editingKey || value.name;
 
-            await updateAIUserSettingsMutation({
+            await updateAIUserSettings({
                 customAIProviders: {
                     ...customProviders,
                     [key]: { ...value },
@@ -66,7 +69,6 @@ const CustomProviderCard: FC = () => {
             });
             setEditingKey(undefined);
             setDialogOpen(false);
-            form.reset();
             setLoading(false);
         },
         validators: {
@@ -84,22 +86,13 @@ const CustomProviderCard: FC = () => {
         setDialogOpen(true);
     }, []);
 
-    useEffect(() => {
-        if (dialogOpen && editingKey) {
-            form.reset(customProviders[editingKey] ?? initialForm);
-        } else if (dialogOpen && !editingKey) {
-            form.reset(initialForm);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dialogOpen, editingKey, customProviders]);
-
     const handleDelete = useCallback(
         async (key: string) => {
             setLoading(true);
             const updated = { ...customProviders };
 
             delete updated[key];
-            await updateAIUserSettingsMutation({ customAIProviders: updated });
+            await updateAIUserSettings({ customAIProviders: updated });
             setLoading(false);
 
             if (editingKey === key) {
@@ -107,25 +100,12 @@ const CustomProviderCard: FC = () => {
                 setDialogOpen(false);
             }
         },
-        [customProviders, editingKey, updateAIUserSettingsMutation],
+        [customProviders, editingKey, updateAIUserSettings],
     );
 
     const handleCancel = useCallback(() => {
         setEditingKey(undefined);
         setDialogOpen(false);
-        form.reset();
-    }, [form]);
-
-    // Checkbox handler: convert CheckedState to boolean
-    const handleCheckboxChange = useCallback(
-        (checked: boolean | "indeterminate") => {
-            form.setFieldValue("enabled", checked === true);
-        },
-        [form],
-    );
-
-    const handleDialogOpenAutoFocus = useCallback((event: Event) => {
-        event.preventDefault();
     }, []);
 
     const handleFormSubmit = useCallback(
@@ -136,15 +116,6 @@ const CustomProviderCard: FC = () => {
         },
         [form],
     );
-
-    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>, field: { handleChange: (value: string) => void }) =>
-        field.handleChange(event.target.value);
-
-    const handleEndpointChange = (event: React.ChangeEvent<HTMLInputElement>, field: { handleChange: (value: string) => void }) =>
-        field.handleChange(event.target.value);
-
-    const handleKeyChange = (event: React.ChangeEvent<HTMLInputElement>, field: { handleChange: (value: string) => void }) =>
-        field.handleChange(event.target.value);
 
     // Stable handlers for edit/delete buttons
     const getEditButtonHandler = useCallback((key: string) => () => openEditDialog(key), [openEditDialog]);
@@ -180,7 +151,11 @@ const CustomProviderCard: FC = () => {
                         </Button>
                     </DialogTrigger>
                 </div>
-                <DialogContent onOpenAutoFocus={handleDialogOpenAutoFocus}>
+                <DialogContent
+                    onOpenAutoFocus={(event: Event) => {
+                        event.preventDefault();
+                    }}
+                >
                     <DialogHeader>
                         <DialogTitle>{editingKey ? t`Edit Provider` : t`Add Custom Provider`}</DialogTitle>
                         <DialogDescription>
@@ -200,7 +175,7 @@ const CustomProviderCard: FC = () => {
                                                     className="input input-bordered"
                                                     disabled={loading}
                                                     onBlur={field.handleBlur}
-                                                    onChange={(event) => handleNameChange(event, field)}
+                                                    onChange={field.handleChange}
                                                     placeholder={t`Provider Name`}
                                                     value={field.state.value}
                                                 />
@@ -219,7 +194,7 @@ const CustomProviderCard: FC = () => {
                                                     className="input input-bordered"
                                                     disabled={loading}
                                                     onBlur={field.handleBlur}
-                                                    onChange={(event) => handleEndpointChange(event, field)}
+                                                    onChange={field.handleChange}
                                                     placeholder={t`API Endpoint`}
                                                     value={field.state.value}
                                                 />
@@ -239,7 +214,7 @@ const CustomProviderCard: FC = () => {
                                                     disabled={loading}
                                                     enableToggle
                                                     onBlur={field.handleBlur}
-                                                    onChange={(event) => handleKeyChange(event, field)}
+                                                    onChange={field.handleChange}
                                                     placeholder={t`Encrypted API Key`}
                                                     value={field.state.value}
                                                 />
@@ -259,7 +234,7 @@ const CustomProviderCard: FC = () => {
                                                         aria-checked={field.state.value}
                                                         checked={field.state.value}
                                                         disabled={loading}
-                                                        onCheckedChange={handleCheckboxChange}
+                                                        onCheckedChange={(checked) => field.handleChange(checked)}
                                                     />
                                                     <span className={`badge ${field.state.value ? "badge-success" : "badge-ghost"}`}>
                                                         {field.state.value ? t`Enabled` : t`Disabled`}

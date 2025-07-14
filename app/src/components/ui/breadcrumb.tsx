@@ -8,7 +8,7 @@ const Breadcrumb = ({ ...properties }: React.ComponentProps<"nav">) => <nav aria
 
 const BreadcrumbList = ({ className, ...properties }: React.ComponentProps<"ol">) => (
     <ol
-        className={cn("text-muted-foreground flex flex-wrap items-center gap-1.5 break-words text-sm sm:gap-2.5", className)}
+        className={cn("text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5", className)}
         data-slot="breadcrumb-list"
         {...properties}
     />

@@ -6,4 +6,4 @@ const RouteComponent = () => <AiCustomizationCard />;
 
 export const Route = createFileRoute("/dashboard/settings/ai/personalization")({
     component: RouteComponent,
-}); 
+});

@@ -31,17 +31,15 @@ const ModelSettingsCard: FC = () => {
     const customModels = useMemo(() => aiSettings?.customModels || {}, [aiSettings]);
 
     // --- Custom Model Form ---
-    const customModelSchema = z
-        .object({
-            abilities: z.array(z.string()).min(1, t`At least one ability required`),
-            contextLength: z.number().min(1, t`Context length required`),
-            enabled: z.boolean(),
-            maxTokens: z.number().min(1, t`Max tokens required`),
-            modelId: z.string().min(1, t`Model ID is required`),
-            name: z.string().min(2, t`Name is required`),
-            providerId: z.string().min(1, t`Provider ID is required`),
-        })
-        .strict();
+    const customModelSchema = z.object({
+        abilities: z.array(z.string()),
+        contextLength: z.number(),
+        enabled: z.boolean(),
+        maxTokens: z.number(),
+        modelId: z.string(),
+        name: z.string(),
+        providerId: z.string(),
+    }).strict();
     const initialCustomModel = useMemo(() => {
         return {
             abilities: ["text"],
@@ -53,8 +51,9 @@ const ModelSettingsCard: FC = () => {
             providerId: "openai",
         };
     }, []);
+    const customModelDefaultValues = customModelEditKey && customModels[customModelEditKey] ? customModels[customModelEditKey] : initialCustomModel;
     const customModelForm = useAppForm({
-        defaultValues: initialCustomModel,
+        defaultValues: customModelDefaultValues,
         onSubmit: async ({ value }) => {
             setLoading(true);
             setCustomModelFormError(undefined);
@@ -69,7 +68,6 @@ const ModelSettingsCard: FC = () => {
                     },
                 });
                 setDialogOpen(false);
-                customModelForm.reset();
             } catch (error) {
                 setCustomModelFormError((error as Error).message);
             }
@@ -78,30 +76,26 @@ const ModelSettingsCard: FC = () => {
         },
         validators: { onChange: customModelSchema },
     });
-    const openAddCustomModel = useCallback(() => {
+
+    // Remove unnecessary useCallback hooks
+    function openAddCustomModel() {
         setCustomModelEditKey(undefined);
         setDialogOpen(true);
-        customModelForm.reset(initialCustomModel);
-    }, [customModelForm, initialCustomModel]);
-    const openEditCustomModel = useCallback(
-        (key: string) => {
-            setCustomModelEditKey(key);
-            setDialogOpen(true);
-            customModelForm.reset(customModels[key]);
-        },
-        [customModels, customModelForm],
-    );
-    const handleDeleteCustomModel = useCallback(
-        async (key: string) => {
-            setLoading(true);
-            const updated = { ...customModels };
+    }
 
-            delete updated[key];
-            await updateAIUserSettingsMutation({ customModels: updated });
-            setLoading(false);
-        },
-        [customModels],
-    );
+    function openEditCustomModel(key: string) {
+        setCustomModelEditKey(key);
+        setDialogOpen(true);
+    }
+
+    async function handleDeleteCustomModel(key: string) {
+        setLoading(true);
+        const updated = { ...customModels };
+
+        delete updated[key];
+        await updateAIUserSettingsMutation({ customModels: updated });
+        setLoading(false);
+    }
 
     const customAIProviders = aiSettings?.customAIProviders || {};
     const providerOptions = Object.entries(customAIProviders).map(([key, provider]: [string, any]) => {

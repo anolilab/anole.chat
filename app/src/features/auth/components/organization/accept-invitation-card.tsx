@@ -19,7 +19,7 @@ import { OrganizationView } from "./organization-view";
 const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => (
     <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
         <CardHeader className={cn("justify-items-center", classNames?.header)}>
-            <Skeleton className={cn("md:h-5.5 my-1 h-5 w-full max-w-32 md:w-40", classNames?.skeleton)} />
+            <Skeleton className={cn("my-1 h-5 w-full max-w-32 md:h-5.5 md:w-40", classNames?.skeleton)} />
 
             <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
         </CardHeader>
@@ -28,7 +28,7 @@ const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCar
             <Card className={cn("flex-row items-center p-4")}>
                 <OrganizationView isPending />
 
-                <Skeleton className="shrink-2 ml-auto mt-0.5 h-4 w-full max-w-14" />
+                <Skeleton className="mt-0.5 ml-auto h-4 w-full max-w-14 shrink-2" />
             </Card>
 
             <div className="grid grid-cols-2 gap-3">

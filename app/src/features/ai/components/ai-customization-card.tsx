@@ -2,7 +2,7 @@ import { api } from "@anole/convex/api";
 import { t } from "@lingui/core/macro";
 import { useMutation, useQuery } from "convex/react";
 import type { FC } from "react";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { z } from "zod/v4";
 
 import { FormError } from "@/components/form/form-error";
@@ -13,15 +13,7 @@ import { Input } from "@/components/ui/input";
 import MultipleSelector from "@/components/ui/multiselect";
 import { Textarea } from "@/components/ui/textarea";
 
-const SUGGESTED_TRAITS = [
-    "friendly",
-    "witty",
-    "concise",
-    "curious",
-    "empathetic",
-    "creative",
-    "patient",
-];
+const SUGGESTED_TRAITS = ["friendly", "witty", "concise", "curious", "empathetic", "creative", "patient"];
 
 const SUGGESTED_TRAITS_OPTIONS = SUGGESTED_TRAITS.map((trait) => {
     return {
@@ -30,30 +22,41 @@ const SUGGESTED_TRAITS_OPTIONS = SUGGESTED_TRAITS.map((trait) => {
     };
 });
 
-const aiCustomizationSchema = z.object({
-    aiBehavior: z.string().max(300, t`Must be at most 300 characters.`).default(""),
-    aiContext: z.string().max(3000, t`Must be at most 3000 characters.`).default(""),
-    aiName: z.string().max(50, t`Must be at most 50 characters.`).default(""),
-    traits: z.array(z.string().max(100, t`Each trait must be at most 100 characters.`)).max(50, t`You can add up to 50 traits.`).default([]),
-}).strict();
-
-const initialValues: { aiBehavior: string; aiContext: string; aiName: string; traits: string[] } = {
-    aiBehavior: "",
-    aiContext: "",
-    aiName: "",
-    traits: [],
-};
+const aiCustomizationSchema = z
+    .object({
+        aiBehavior: z
+            .string()
+            .max(300, t`Must be at most 300 characters.`)
+            .default(""),
+        aiContext: z
+            .string()
+            .max(3000, t`Must be at most 3000 characters.`)
+            .default(""),
+        aiName: z
+            .string()
+            .max(50, t`Must be at most 50 characters.`)
+            .default(""),
+        traits: z
+            .array(z.string().max(1, t`Each trait must be at most 100 characters.`))
+            .max(50, t`You can add up to 50 traits.`)
+            .default([]),
+    })
+    .strict();
 
 const AiCustomizationCard: FC = () => {
     const [formError, setFormError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
-    const [traitsError, setTraitsError] = useState<string | undefined>(undefined);
 
     const aiUserPreferences = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserPreferences = useMutation(api.auth.functions.updateAIUserPreferences);
 
     const form = useAppForm({
-        defaultValues: initialValues,
+        defaultValues: {
+            aiBehavior: aiUserPreferences?.customization.aiPersonality ?? "",
+            aiContext: aiUserPreferences?.customization.additionalContext ?? "",
+            aiName: aiUserPreferences?.customization.name ?? "",
+            traits: aiUserPreferences?.customization.traits ?? [],
+        },
         onSubmit: async ({ value }) => {
             setLoading(true);
             setFormError(undefined);
@@ -76,46 +79,6 @@ const AiCustomizationCard: FC = () => {
         validators: { onChange: aiCustomizationSchema },
     });
 
-    // Memoized event handlers to avoid recreating in render
-    const handleNameChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => form.setFieldValue("aiName", event.target.value), [form]);
-    const handleBehaviorChange = React.useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => form.setFieldValue("aiBehavior", event.target.value), [form]);
-    const handleContextChange = React.useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => form.setFieldValue("aiContext", event.target.value), [form]);
-    const handleTraitsChange = React.useCallback((options: { label: string; value: string }[]) => {
-        if (options.length > 50) {
-            setTraitsError(t`You can add up to 50 traits.`);
-
-            return;
-        }
-
-        for (const o of options) {
-            if (o.value.length > 100) {
-                setTraitsError(t`Each trait must be at most 100 characters.`);
-
-                return;
-            }
-        }
-
-        setTraitsError(undefined);
-        form.setFieldValue("traits", options.map((o) => o.value));
-    }, [form]);
-    const traitsValue = React.useMemo(
-        () => (form.state.values.traits ? form.state.values.traits.map((trait: string) => { return { label: trait, value: trait }; }) : []),
-        [form.state.values.traits],
-    );
-
-    useEffect(() => {
-        const customization = aiUserPreferences?.customization;
-
-        if (customization && !form.state.isDirty) {
-            form.reset({
-                aiBehavior: customization.aiPersonality ?? "",
-                aiContext: customization.additionalContext ?? "",
-                aiName: customization.name ?? "",
-                traits: customization.traits ?? [],
-            });
-        }
-    }, [aiUserPreferences?.customization, form]);
-
     return (
         <Card>
             <CardHeader>
@@ -134,11 +97,15 @@ const AiCustomizationCard: FC = () => {
                                             disabled={loading}
                                             maxLength={50}
                                             onBlur={field.handleBlur}
-                                            onChange={handleNameChange}
+                                            onChange={(event_) => field.handleChange(event_.target.value)}
                                             placeholder={t`e.g. Alex, Dr. Smith, Captain`}
                                             value={field.state.value}
                                         />
                                     </field.FormControl>
+                                    <div className="text-muted-foreground mt-1 flex justify-end text-xs">
+                                        {field.state.value.length}
+                                        /50
+                                    </div>
                                     <field.FormDescription>{t`This helps the AI address you personally in conversations.`}</field.FormDescription>
                                     <field.FormMessage />
                                 </field.FormItem>
@@ -153,11 +120,15 @@ const AiCustomizationCard: FC = () => {
                                             disabled={loading}
                                             maxLength={300}
                                             onBlur={field.handleBlur}
-                                            onChange={handleBehaviorChange}
+                                            onChange={(event_) => field.handleChange(event_.target.value)}
                                             placeholder={t`Shape the AI's communication style and personality.`}
                                             value={field.state.value}
                                         />
                                     </field.FormControl>
+                                    <div className="text-muted-foreground mt-1 flex justify-end text-xs">
+                                        {field.state.value.length}
+                                        /300
+                                    </div>
                                     <field.FormDescription>{t`Shape the AI's communication style and personality.`}</field.FormDescription>
                                     <field.FormMessage />
                                 </field.FormItem>
@@ -172,11 +143,15 @@ const AiCustomizationCard: FC = () => {
                                             disabled={loading}
                                             maxLength={3000}
                                             onBlur={field.handleBlur}
-                                            onChange={handleContextChange}
+                                            onChange={(event_) => field.handleChange(event_.target.value)}
                                             placeholder={t`Provide context that helps the AI give you more relevant responses.`}
                                             value={field.state.value}
                                         />
                                     </field.FormControl>
+                                    <div className="text-muted-foreground mt-1 flex justify-end text-xs">
+                                        {field.state.value.length}
+                                        /3000
+                                    </div>
                                     <field.FormDescription>{t`Provide context that helps the AI give you more relevant responses.`}</field.FormDescription>
                                     <field.FormMessage />
                                 </field.FormItem>
@@ -193,14 +168,17 @@ const AiCustomizationCard: FC = () => {
                                             creatable
                                             disabled={loading}
                                             maxSelected={50}
-                                            onChange={handleTraitsChange}
+                                            onChange={(options: { label: string; value: string }[]) => {
+                                                field.handleChange(options.map((o) => o.value));
+                                            }}
                                             options={SUGGESTED_TRAITS_OPTIONS}
                                             placeholder={t`Add or select traits...`}
-                                            value={traitsValue}
+                                            value={field.state.value.map((trait: string) => {
+                                                return { label: trait, value: trait };
+                                            })}
                                         />
                                     </field.FormControl>
                                     <field.FormDescription>{t`Choose or add personality traits that will shape how Chat interacts with you. (Up to 50 traits, 100 characters each)`}</field.FormDescription>
-                                    {traitsError && <div className="text-destructive text-xs mt-1">{traitsError}</div>}
                                     <field.FormMessage />
                                 </field.FormItem>
                             )}

@@ -27,7 +27,7 @@ export const PasswordInput = ({ className, enableToggle, onChange, ...properties
             {enableToggle && (
                 <>
                     <Button
-                        className="absolute right-0 top-0 !bg-transparent"
+                        className="absolute top-0 right-0 !bg-transparent"
                         disabled={disabled}
                         onClick={() => {
                             setIsVisible(!isVisible);
