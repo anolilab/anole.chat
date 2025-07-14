@@ -54,6 +54,13 @@ const getNavigationItems = (apiKey: unknown, organization: unknown) => {
                 url: "/dashboard/settings/ai/usage-analytics",
             },
         ],
+        files: [
+            {
+                icon: File,
+                name: "Files",
+                url: "/dashboard/files",
+            },
+        ],
         settings: [
             {
                 icon: User,
