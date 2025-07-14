@@ -51,8 +51,8 @@ export const aiUserPreferencesFields = {
             v.object({
                 name: v.string(),
                 url: v.string(),
-                type: v.union(v.literal("sse"), v.literal("http")),
-                enabled: v.optional(v.boolean()),
+                protocol: v.union(v.literal("sse"), v.literal("http")),
+                enabled: v.boolean(),
                 headers: v.optional(
                     v.array(
                         v.object({
