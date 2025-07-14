@@ -13,6 +13,7 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
 import { Route as AuthLayoutRouteImport } from './routes/auth/layout'
+import { Route as filesLayoutRouteImport } from './routes/(files)/layout'
 import { Route as chatLayoutRouteImport } from './routes/(chat)/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as publicIndexRouteImport } from './routes/(public)/index'
@@ -22,6 +23,7 @@ import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-passw
 import { Route as AuthRecoverAccountRouteImport } from './routes/auth/recover-account'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as filesFilesRouteImport } from './routes/(files)/files'
 import { Route as AuthTwoFactorIndexRouteImport } from './routes/auth/two-factor/index'
 import { Route as chatChatIndexRouteImport } from './routes/(chat)/chat/index'
 import { Route as AuthTwoFactorOtpRouteImport } from './routes/auth/two-factor/otp'
@@ -51,6 +53,10 @@ const DashboardLayoutRoute = DashboardLayoutRouteImport.update({
 const AuthLayoutRoute = AuthLayoutRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const filesLayoutRoute = filesLayoutRouteImport.update({
+  id: '/(files)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const chatLayoutRoute = chatLayoutRouteImport.update({
@@ -96,6 +102,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
   getParentRoute: () => AuthLayoutRoute,
+} as any)
+const filesFilesRoute = filesFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => filesLayoutRoute,
 } as any)
 const AuthTwoFactorIndexRoute = AuthTwoFactorIndexRouteImport.update({
   id: '/two-factor/',
@@ -204,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
   '/auth': typeof AuthLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
@@ -231,6 +243,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
   '/auth': typeof AuthLayoutRouteWithChildren
+  '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
@@ -258,8 +271,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(chat)': typeof chatLayoutRouteWithChildren
+  '/(files)': typeof filesLayoutRouteWithChildren
   '/auth': typeof AuthLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/(files)/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
@@ -291,6 +306,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/files'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/recover-account'
@@ -318,6 +334,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/files'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/recover-account'
@@ -344,8 +361,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/(chat)'
+    | '/(files)'
     | '/auth'
     | '/dashboard'
+    | '/(files)/files'
     | '/auth/callback'
     | '/auth/forgot-password'
     | '/auth/recover-account'
@@ -374,6 +393,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   chatLayoutRoute: typeof chatLayoutRouteWithChildren
+  filesLayoutRoute: typeof filesLayoutRouteWithChildren
   AuthLayoutRoute: typeof AuthLayoutRouteWithChildren
   DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
   publicIndexRoute: typeof publicIndexRoute
@@ -418,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(files)': {
+      id: '/(files)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof filesLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(chat)': {
@@ -482,6 +509,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthLayoutRoute
+    }
+    '/(files)/files': {
+      id: '/(files)/files'
+      path: '/files'
+      fullPath: '/files'
+      preLoaderRoute: typeof filesFilesRouteImport
+      parentRoute: typeof filesLayoutRoute
     }
     '/auth/two-factor/': {
       id: '/auth/two-factor/'
@@ -630,6 +664,18 @@ const chatLayoutRouteWithChildren = chatLayoutRoute._addFileChildren(
   chatLayoutRouteChildren,
 )
 
+interface filesLayoutRouteChildren {
+  filesFilesRoute: typeof filesFilesRoute
+}
+
+const filesLayoutRouteChildren: filesLayoutRouteChildren = {
+  filesFilesRoute: filesFilesRoute,
+}
+
+const filesLayoutRouteWithChildren = filesLayoutRoute._addFileChildren(
+  filesLayoutRouteChildren,
+)
+
 interface AuthLayoutRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
@@ -699,6 +745,7 @@ const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   chatLayoutRoute: chatLayoutRouteWithChildren,
+  filesLayoutRoute: filesLayoutRouteWithChildren,
   AuthLayoutRoute: AuthLayoutRouteWithChildren,
   DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
   publicIndexRoute: publicIndexRoute,

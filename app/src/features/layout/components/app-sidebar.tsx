@@ -2,13 +2,12 @@
 
 import { t } from "@lingui/core/macro";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Cog, MessageSquare } from "lucide-react";
+import { Cog, File, MessageSquare } from "lucide-react";
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { NavUser } from "@/features/layout/components/nav-user";
 import { cn } from "@/lib/utils";
 
-// Extend sidebarLinks to support a custom matcher
 const sidebarLinks: {
     icon: React.ComponentType<{ className?: string }>;
     label: string;
@@ -20,6 +19,11 @@ const sidebarLinks: {
         label: t`Open messages`,
         matcher: (pathname) => pathname.startsWith("/chat"),
         to: "/chat",
+    },
+    {
+        icon: File,
+        label: t`Files`,
+        to: "/files",
     },
     {
         icon: Cog,

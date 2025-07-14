@@ -168,7 +168,7 @@ const RouteComponent = () => {
     );
 };
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/(files)")({
     beforeLoad: async ({ context }) => {
         const chatUrl = await getAuthRedirectUrl(context.queryClient);
 

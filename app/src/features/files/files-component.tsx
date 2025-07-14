@@ -1,29 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useState, useRef } from "react";
+import { api } from "@anole/convex/api";
+import { useMutation, useQuery } from "convex/react";
 import {
-    FileText,
-    Image,
-    File,
-    Download,
-    Trash2,
-    Upload,
     AlertCircle,
     CheckCircle,
-    X
+    Download,
+    File,
+    FileText,
+    Image,
+    Trash2,
+    Upload,
+    X,
 } from "lucide-react";
+import { useRef, useState } from "react";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ImageEditor } from "@/components/ui/image-editor";
 import { Progress } from "@/components/ui/progress";
 import { formatBytes, formatDate } from "@/lib/utils";
-import { ImageEditor } from "@/components/ui/image-editor";
-
-export const Route = createFileRoute("/dashboard/files")({
-    component: FilesComponent,
-});
 
 const FilesComponent = () => {
     const [uploading, setUploading] = useState(false);
@@ -32,36 +28,51 @@ const FilesComponent = () => {
     const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
     const [imageEditorOpen, setImageEditorOpen] = useState(false);
     const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const fileInputReference = useRef<HTMLInputElement>(null);
 
     const files = useQuery(api.attachments.listFiles, { limit: 100 });
     const deleteFile = useMutation(api.attachments.deleteFile);
 
     const getFileIcon = (fileName: string, mimeType: string) => {
-        if (mimeType.startsWith("image/")) return <Image className="h-8 w-8 text-blue-500" />;
-        if (mimeType.includes("pdf")) return <FileText className="h-8 w-8 text-red-500" />;
-        if (mimeType.includes("text")) return <FileText className="h-8 w-8 text-green-500" />;
+        if (mimeType.startsWith("image/"))
+            return <Image className="h-8 w-8 text-blue-500" />;
+
+        if (mimeType.includes("pdf"))
+            return <FileText className="h-8 w-8 text-red-500" />;
+
+        if (mimeType.includes("text"))
+            return <FileText className="h-8 w-8 text-green-500" />;
+
         return <File className="h-8 w-8 text-gray-500" />;
     };
 
     const getFileTypeBadge = (fileName: string, mimeType: string) => {
-        if (mimeType.startsWith("image/")) return <Badge variant="secondary">Image</Badge>;
-        if (mimeType.includes("pdf")) return <Badge variant="destructive">PDF</Badge>;
-        if (mimeType.includes("text")) return <Badge variant="default">Text</Badge>;
+        if (mimeType.startsWith("image/"))
+            return <Badge variant="secondary">Image</Badge>;
+
+        if (mimeType.includes("pdf"))
+            return <Badge variant="destructive">PDF</Badge>;
+
+        if (mimeType.includes("text"))
+            return <Badge variant="default">Text</Badge>;
+
         return <Badge variant="outline">File</Badge>;
     };
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file) return;
+
+        if (!file)
+            return;
 
         // Check if it's an image file
-        const isImage = file.type.startsWith('image/');
+        const isImage = file.type.startsWith("image/");
 
         if (isImage) {
             // Open image editor for images
             setSelectedImageFile(file);
             setImageEditorOpen(true);
+
             return;
         }
 
@@ -78,22 +89,25 @@ const FilesComponent = () => {
         try {
             // Simulate upload progress
             const progressInterval = setInterval(() => {
-                setUploadProgress(prev => {
-                    if (prev >= 90) {
+                setUploadProgress((previous) => {
+                    if (previous >= 90) {
                         clearInterval(progressInterval);
+
                         return 90;
                     }
-                    return prev + 10;
+
+                    return previous + 10;
                 });
             }, 100);
 
             const formData = new FormData();
+
             formData.append("file", file);
             formData.append("fileName", file.name);
 
             const response = await fetch("/api/attachments/uploadFile", {
-                method: "POST",
                 body: formData,
+                method: "POST",
             });
 
             clearInterval(progressInterval);
@@ -101,15 +115,17 @@ const FilesComponent = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
+
                 throw new Error(errorData.error || "Upload failed");
             }
 
             const result = await response.json();
+
             setUploadSuccess(`File "${result.fileName}" uploaded successfully!`);
 
             // Reset file input
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
+            if (fileInputReference.current) {
+                fileInputReference.current.value = "";
             }
 
             // Clear success message after 3 seconds
@@ -129,28 +145,31 @@ const FilesComponent = () => {
     };
 
     const handleDeleteFile = async (key: string, fileName: string) => {
-        if (!confirm(`Are you sure you want to delete "${fileName}"?`)) return;
+        if (!confirm(`Are you sure you want to delete "${fileName}"?`))
+            return;
 
         try {
             const result = await deleteFile({ key });
+
             if (result.success) {
                 setUploadSuccess(`File "${fileName}" deleted successfully!`);
                 setTimeout(() => setUploadSuccess(null), 3000);
             } else {
                 setUploadError(result.error || "Delete failed");
             }
-        } catch (error) {
+        } catch {
             setUploadError("Delete failed");
         }
     };
 
     const handleDownload = (url: string, fileName: string) => {
         const link = document.createElement("a");
+
         link.href = url;
         link.download = fileName;
-        document.body.appendChild(link);
+        document.body.append(link);
         link.click();
-        document.body.removeChild(link);
+        link.remove();
     };
 
     return (
@@ -163,9 +182,9 @@ const FilesComponent = () => {
                     </p>
                 </div>
                 <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
                     className="flex items-center gap-2"
+                    disabled={uploading}
+                    onClick={() => fileInputReference.current?.click()}
                 >
                     <Upload className="h-4 w-4" />
                     Upload File (Images will open in editor)
@@ -174,11 +193,11 @@ const FilesComponent = () => {
 
             {/* Hidden file input */}
             <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleFileUpload}
-                className="hidden"
                 accept="image/*,.txt,.pdf,.md,.mdx,.js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.go,.rs,.php,.rb,.swift,.kt,.dart,.vue,.svelte,.css,.scss,.html,.xml,.json,.yaml,.yml"
+                className="hidden"
+                onChange={handleFileUpload}
+                ref={fileInputReference}
+                type="file"
             />
 
             {/* Upload Progress */}
@@ -188,9 +207,12 @@ const FilesComponent = () => {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <span>Uploading file...</span>
-                                <span>{uploadProgress}%</span>
+                                <span>
+                                    {uploadProgress}
+                                    %
+                                </span>
                             </div>
-                            <Progress value={uploadProgress} className="w-full" />
+                            <Progress className="w-full" value={uploadProgress} />
                         </div>
                     </CardContent>
                 </Card>
@@ -203,9 +225,9 @@ const FilesComponent = () => {
                     <AlertDescription className="flex items-center justify-between">
                         {uploadError}
                         <Button
-                            variant="ghost"
-                            size="sm"
                             onClick={() => setUploadError(null)}
+                            size="sm"
+                            variant="ghost"
                         >
                             <X className="h-4 w-4" />
                         </Button>
@@ -220,9 +242,9 @@ const FilesComponent = () => {
                     <AlertDescription className="flex items-center justify-between">
                         {uploadSuccess}
                         <Button
-                            variant="ghost"
-                            size="sm"
                             onClick={() => setUploadSuccess(null)}
+                            size="sm"
+                            variant="ghost"
                         >
                             <X className="h-4 w-4" />
                         </Button>
@@ -233,7 +255,7 @@ const FilesComponent = () => {
             {/* Files Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {files?.map((file) => (
-                    <Card key={file.key} className="hover:shadow-md transition-shadow">
+                    <Card className="hover:shadow-md transition-shadow" key={file.key}>
                         <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
@@ -252,23 +274,26 @@ const FilesComponent = () => {
                         </CardHeader>
                         <CardContent className="pt-0">
                             <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                                <span>Uploaded {formatDate(file.uploadedAt)}</span>
+                                <span>
+                                    Uploaded
+                                    {formatDate(file.uploadedAt)}
+                                </span>
                             </div>
                             <div className="flex gap-2">
                                 <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleDownload(`/api/attachments/getFile?key=${encodeURIComponent(file.key)}`, file.fileName)}
                                     className="flex-1"
+                                    onClick={() => handleDownload(`/api/attachments/getFile?key=${encodeURIComponent(file.key)}`, file.fileName)}
+                                    size="sm"
+                                    variant="outline"
                                 >
                                     <Download className="h-3 w-3 mr-1" />
                                     Download
                                 </Button>
                                 <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleDeleteFile(file.key, file.fileName)}
                                     className="text-destructive hover:text-destructive"
+                                    onClick={() => handleDeleteFile(file.key, file.fileName)}
+                                    size="sm"
+                                    variant="outline"
                                 >
                                     <Trash2 className="h-3 w-3" />
                                 </Button>
@@ -288,8 +313,8 @@ const FilesComponent = () => {
                             Upload your first file to get started. Supported formats include text files, PDFs, and images.
                         </p>
                         <Button
-                            onClick={() => fileInputRef.current?.click()}
                             className="flex items-center gap-2"
+                            onClick={() => fileInputReference.current?.click()}
                         >
                             <Upload className="h-4 w-4" />
                             Upload File (Images will open in editor)
@@ -301,8 +326,8 @@ const FilesComponent = () => {
             {/* Loading State */}
             {files === undefined && (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {[...Array(6)].map((_, i) => (
-                        <Card key={i}>
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        <Card key={index}>
                             <CardHeader className="pb-3">
                                 <div className="flex items-center gap-3">
                                     <div className="h-8 w-8 bg-muted rounded animate-pulse" />
@@ -333,3 +358,5 @@ const FilesComponent = () => {
         </div>
     );
 };
+
+export default FilesComponent;

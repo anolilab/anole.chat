@@ -12,6 +12,7 @@ import type * as ai_functions from "../ai/functions.js";
 import type * as ai_lib_agents from "../ai/lib/agents.js";
 import type * as ai_lib_models from "../ai/lib/models.js";
 import type * as ai_middlewares_cacheMiddleware from "../ai/middlewares/cacheMiddleware.js";
+import type * as attachments from "../attachments.js";
 import type * as auth_fields from "../auth/fields.js";
 import type * as auth_functions from "../auth/functions.js";
 import type * as auth_lib_helper from "../auth/lib/helper.js";
@@ -32,6 +33,8 @@ import type * as file from "../file.js";
 import type * as http from "../http.js";
 import type * as lib_encryption from "../lib/encryption.js";
 import type * as lib_errors from "../lib/errors.js";
+import type * as lib_file_constants from "../lib/file_constants.js";
+import type * as lib_identity from "../lib/identity.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
 import type * as lib_systemFields from "../lib/systemFields.js";
 import type * as lib_types from "../lib/types.js";
@@ -55,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   "ai/lib/agents": typeof ai_lib_agents;
   "ai/lib/models": typeof ai_lib_models;
   "ai/middlewares/cacheMiddleware": typeof ai_middlewares_cacheMiddleware;
+  attachments: typeof attachments;
   "auth/fields": typeof auth_fields;
   "auth/functions": typeof auth_functions;
   "auth/lib/helper": typeof auth_lib_helper;
@@ -75,6 +79,8 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/encryption": typeof lib_encryption;
   "lib/errors": typeof lib_errors;
+  "lib/file_constants": typeof lib_file_constants;
+  "lib/identity": typeof lib_identity;
   "lib/rateLimiter": typeof lib_rateLimiter;
   "lib/systemFields": typeof lib_systemFields;
   "lib/types": typeof lib_types;
@@ -4769,6 +4775,130 @@ export declare const components: {
         "internal",
         { batchSize?: number; before?: number; name?: string },
         null
+      >;
+    };
+  };
+  r2: {
+    lib: {
+      deleteMetadata: FunctionReference<
+        "mutation",
+        "internal",
+        { bucket: string; key: string },
+        null
+      >;
+      deleteObject: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          accessKeyId: string;
+          bucket: string;
+          endpoint: string;
+          key: string;
+          secretAccessKey: string;
+        },
+        null
+      >;
+      deleteR2Object: FunctionReference<
+        "action",
+        "internal",
+        {
+          accessKeyId: string;
+          bucket: string;
+          endpoint: string;
+          key: string;
+          secretAccessKey: string;
+        },
+        null
+      >;
+      getMetadata: FunctionReference<
+        "query",
+        "internal",
+        {
+          accessKeyId: string;
+          bucket: string;
+          endpoint: string;
+          key: string;
+          secretAccessKey: string;
+        },
+        {
+          bucket: string;
+          bucketLink: string;
+          contentType?: string;
+          key: string;
+          lastModified: string;
+          link: string;
+          sha256?: string;
+          size?: number;
+          url: string;
+        } | null
+      >;
+      listMetadata: FunctionReference<
+        "query",
+        "internal",
+        {
+          accessKeyId: string;
+          bucket: string;
+          cursor?: string;
+          endpoint: string;
+          limit?: number;
+          secretAccessKey: string;
+        },
+        {
+          continueCursor: string;
+          isDone: boolean;
+          page: Array<{
+            bucket: string;
+            bucketLink: string;
+            contentType?: string;
+            key: string;
+            lastModified: string;
+            link: string;
+            sha256?: string;
+            size?: number;
+            url: string;
+          }>;
+          pageStatus?: null | "SplitRecommended" | "SplitRequired";
+          splitCursor?: null | string;
+        }
+      >;
+      store: FunctionReference<
+        "action",
+        "internal",
+        {
+          accessKeyId: string;
+          bucket: string;
+          endpoint: string;
+          secretAccessKey: string;
+          url: string;
+        },
+        any
+      >;
+      syncMetadata: FunctionReference<
+        "action",
+        "internal",
+        {
+          accessKeyId: string;
+          bucket: string;
+          endpoint: string;
+          key: string;
+          onComplete?: string;
+          secretAccessKey: string;
+        },
+        null
+      >;
+      upsertMetadata: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          bucket: string;
+          contentType?: string;
+          key: string;
+          lastModified: string;
+          link: string;
+          sha256?: string;
+          size?: number;
+        },
+        { isNew: boolean }
       >;
     };
   };

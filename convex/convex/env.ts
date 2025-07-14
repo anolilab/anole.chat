@@ -8,3 +8,7 @@ export const { ANTHROPIC_API_KEY } = process.env;
 export const { GOOGLE_GENERATIVE_AI_API_KEY } = process.env;
 export const { GROQ_API_KEY } = process.env;
 export const { FAL_API_KEY } = process.env;
+export const { R2_BUCKET } = process.env;
+export const { R2_ENDPOINT } = process.env;
+export const { R2_ACCESS_KEY_ID } = process.env;
+export const { R2_SECRET_ACCESS_KEY } = process.env;

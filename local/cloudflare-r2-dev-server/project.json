@@ -1,0 +1,8 @@
+{
+    "name": "cloudflare-r2-dev-server",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "local/cloudflare-r2-dev-server/src",
+    "projectType": "library",
+    "tags": ["chat", "cloudflare-r2-dev-server"],
+    "implicitDependencies": []
+}

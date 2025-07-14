@@ -16,7 +16,9 @@
     "type": "module",
     "workspaces": [
         "app",
-        "packages/*"
+        "convex",
+        "packages/*",
+        "local/**"
     ],
     "scripts": {
         "audit": "audit-ci --config ./audit-ci.jsonc",
@@ -37,7 +39,7 @@
         "lint:staged": "lint-staged --verbose --concurrent false --debug",
         "lint:types": "nx run-many --target=lint:types --all --parallel",
         "nx": "nx",
-        "sort-package-json": "sort-package-json packages/**/package.json app/package.json convex/package.json ./package.json"
+        "sort-package-json": "sort-package-json packages/**/package.json local/**/package.json app/package.json convex/package.json ./package.json"
     },
     "dependencies": {
         "@anolilab/commitlint-config": "^6.0.2",

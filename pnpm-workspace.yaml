@@ -2,6 +2,7 @@ packages:
   - app
   - convex
   - packages/*
+  - local/*
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
@@ -11,6 +12,7 @@ onlyBuiltDependencies:
   - nx
   - protobufjs
   - sharp
+  - sqlite3
   - unrs-resolver
 
 overrides:
