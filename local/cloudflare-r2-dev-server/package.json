@@ -9,6 +9,7 @@
         "start": "node ./dist/index.mjs"
     },
     "dependencies": {
+        "@hono/node-server": "^1.16.0",
         "hono": "^4.5.10",
         "sqlite3": "^5.1.7"
     },

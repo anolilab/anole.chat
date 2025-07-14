@@ -1,6 +1,7 @@
 import sqlite3 from "sqlite3";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
+import { serve } from '@hono/node-server'
 
 class R2Object {
   key!: string;
@@ -117,4 +118,19 @@ app.put("/*", async (c) => {
   return c.text("Upload successful");
 });
 
-export default app;
+serve(app);
+
+// graceful shutdown
+process.on('SIGINT', () => {
+    server.close()
+    process.exit(0)
+  })
+  process.on('SIGTERM', () => {
+    server.close((err) => {
+      if (err) {
+        console.error(err)
+        process.exit(1)
+      }
+      process.exit(0)
+    })
+  })

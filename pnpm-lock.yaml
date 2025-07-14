@@ -637,6 +637,9 @@ importers:
 
   local/cloudflare-r2-dev-server:
     dependencies:
+      '@hono/node-server':
+        specifier: ^1.16.0
+        version: 1.16.0(hono@4.8.5)
       hono:
         specifier: ^4.5.10
         version: 4.8.5
@@ -2394,6 +2397,12 @@ packages:
 
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
+
+  '@hono/node-server@1.16.0':
+    resolution: {integrity: sha512-9LwRb5XOrTFapOABiQjGC50wRVlzUvWZsDHINCnkBniP+Q+LQf4waN0nzk9t+2kqcTsnGnieSmqpHsr6kH2bdw==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      hono: ^4
 
   '@html-eslint/eslint-plugin@0.42.0':
     resolution: {integrity: sha512-TaSt4WLAytFQR+fKW3FM51HhYISxG4xJjsk+8GtHXUu3BSFeJ21X2LAftHPvILxVC0XUbOqn0X+NlfyWdqafKg==}
@@ -16566,6 +16575,10 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@hexagon/base64@1.1.28': {}
+
+  '@hono/node-server@1.16.0(hono@4.8.5)':
+    dependencies:
+      hono: 4.8.5
 
   '@html-eslint/eslint-plugin@0.42.0(eslint@9.31.0(jiti@2.4.2))':
     dependencies:
