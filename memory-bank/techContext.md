@@ -135,6 +135,15 @@ The frontend streaming is managed by a collection of custom React hooks designed
 - **Command Palette**: cmdk for search and commands
 - **Input Components**: input-otp for 2FA, react-day-picker for dates
 
+## Forms: TanStack Form Integration
+
+- **Form Library**: All forms use TanStack Form (`@tanstack/react-form`) for state management and validation.
+- **Custom Wrapper System**: Forms are built using custom hooks and components (`useAppForm`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`) from `app/src/components/ui/form.tsx`.
+- **Validation**: Zod schemas are recommended and passed to the `validators` option in `useAppForm`.
+- **Accessibility**: The custom components ensure ARIA compliance and proper labeling.
+- **Best Practices**: Do not use TanStack Form's default context/components directly; always use the project's wrappers. Bind fields with `<form.Field name="fieldName">` and use the provided handlers for value and blur events.
+- **Documentation**: See `.cursor/rules/tanstack-form.mdc` for full guidelines and examples.
+
 ## Authentication & Security
 
 - **Core Auth**: Better Auth v1.2+ with comprehensive features

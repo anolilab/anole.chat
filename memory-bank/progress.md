@@ -36,6 +36,12 @@
 - **Error Boundaries**: Comprehensive error handling
 - **Internationalization**: Lingui setup with English/German support
 
+### Form Handling
+- **TanStack Form Adoption**: All forms now use TanStack Form (`@tanstack/react-form`) with a custom wrapper system (`useAppForm`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`).
+  - Ensures consistent validation, accessibility, and UI structure for all forms
+  - Zod schemas recommended for validation
+  - See `.cursor/rules/tanstack-form.mdc` for full guidelines
+
 ## 🚧 Current Work
 
 ### Immediate Tasks

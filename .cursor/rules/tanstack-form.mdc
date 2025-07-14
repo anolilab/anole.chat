@@ -1,0 +1,95 @@
+---
+description: Guidelines and best practices for using TanStack Form in this project, including usage patterns, component structure, and integration with the custom form system in app/src/components/ui/form.tsx.
+patterns: "*.tsx"
+---
+# TanStack Form Usage Guidelines
+
+## General Principles
+
+- Use TanStack Form (`@tanstack/react-form`) for all new forms in the application.
+- Always use the custom form hook and components exported from `app/src/components/ui/form.tsx` (`useAppForm`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`).
+- Do not use TanStack Form's default context/components directly in UI code; always use the project's custom wrappers for consistency and styling.
+
+## Creating a Form
+
+1. **Import the custom hook and components:**
+   ```typescript
+   import { useAppForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+   ```
+
+2. **Define your validation schema (optional but recommended):**
+   - Use Zod or another schema validator for form validation.
+   - Pass the schema to the `validators` option in `useAppForm`.
+
+3. **Initialize the form:**
+   ```typescript
+   const form = useAppForm({
+     defaultValues: { ... }, // your initial values
+     onSubmit: async ({ value }) => { ... }, // handle submit
+     validators: { onChange: yourSchema }, // optional
+   });
+   ```
+
+4. **Render the form:**
+   - Use `<form onSubmit={form.handleSubmit}>` as the root.
+   - Use `<form.Field name="fieldName">` to bind fields.
+   - Use the custom UI components for each field.
+
+   Example:
+   ```tsx
+   <form onSubmit={form.handleSubmit}>
+     <form.Field name="username">
+       {(field) => (
+         <FormItem required>
+           <FormLabel>Username</FormLabel>
+           <FormControl>
+             <Input
+               value={field.state.value}
+               onChange={e => field.handleChange(e.target.value)}
+               onBlur={field.handleBlur}
+             />
+           </FormControl>
+           <FormDescription>Enter your username.</FormDescription>
+           <FormMessage />
+         </FormItem>
+       )}
+     </form.Field>
+     <Button type="submit">Submit</Button>
+   </form>
+   ```
+
+## Field Components
+
+- **FormItem**: Wraps each field, provides context for labels, descriptions, and error messages.
+- **FormLabel**: Renders the label for a field, automatically marks as required if needed.
+- **FormControl**: Wraps the input element, sets ARIA attributes for accessibility.
+- **FormDescription**: Provides additional help text for the field.
+- **FormMessage**: Displays validation errors or custom messages.
+
+## Field Binding
+
+- Use `form.Field name="fieldName"` to bind a field.
+- The render prop receives a `field` object with:
+  - `state.value`: The current value.
+  - `handleChange(value)`: Call to update the value.
+  - `handleBlur()`: Call on blur.
+- Always use these handlers for value and blur events.
+
+## Validation
+
+- Use Zod or compatible schema for validation.
+- Pass the schema to `validators: { onChange: schema }` in `useAppForm`.
+- Validation errors are shown automatically in `FormMessage`.
+
+## Accessibility
+
+- The custom components set ARIA attributes and IDs for accessibility.
+- Always use the provided structure to ensure proper labeling and error reporting.
+
+## Best Practices
+
+- Keep form logic in the component using the form.
+- Extract reusable form logic into custom hooks if needed.
+- Use controlled components for all inputs.
+- Do not mutate form state directly; always use the provided handlers.
+- Use the custom form components for all form fields to ensure consistent styling and behavior.

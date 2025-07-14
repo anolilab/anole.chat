@@ -1,331 +1,459 @@
 import { api } from "@anole/convex/api";
-import { t } from "@lingui/core/macro";
-import { useMutation, useQuery } from "convex/react";
-import { BarChart3, Calendar, Download, Eye, EyeOff } from "lucide-react";
+import { useQuery } from "convex/react";
+import { Activity, BarChart3, TrendingUp, Zap } from "lucide-react";
 import type { FC } from "react";
-import { useCallback, useState } from "react";
-import { z } from "zod/v4";
+import { useMemo, useState } from "react";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import type { ChartConfig } from "@/components/ui/chart";
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "@/components/ui/chart";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
-type UsageAnalyticsSettings = {
-    alertThreshold: number;
-    dataRetentionDays: number;
-    enableAlerts: boolean;
-    enableCostTracking: boolean;
-    enablePerformanceMetrics: boolean;
-    enableRealTimeMetrics: boolean;
-    enableUsageTracking: boolean;
-    exportFormat: string;
-};
+const MODEL_COLORS = [
+    "#3b82f6", // blue
+    "#ef4444", // red
+    "#10b981", // emerald
+    "#f59e0b", // amber
+    "#8b5cf6", // violet
+    "#ec4899", // pink
+    "#06b6d4", // cyan
+    "#84cc16", // lime
+    "#f97316", // orange
+    "#6366f1", // indigo
+    "#14b8a6", // teal
+    "#eab308", // yellow
+    "#dc2626", // red-600
+    "#059669", // emerald-600
+    "#7c3aed", // violet-600
+    "#db2777", // pink-600
+    "#0891b2", // cyan-600
+    "#65a30d", // lime-600
+    "#ea580c", // orange-600
+    "#4f46e5", // indigo-600
+];
 
-const initialForm: UsageAnalyticsSettings = {
-    alertThreshold: 100,
-    dataRetentionDays: 90,
-    enableAlerts: false,
-    enableCostTracking: true,
-    enablePerformanceMetrics: true,
-    enableRealTimeMetrics: false,
-    enableUsageTracking: true,
-    exportFormat: "csv",
-};
+interface UsageDashboardProperties {
+    className?: string;
+}
 
-const UsageAnalyticsCard: FC = () => {
-    const aiSettings = useQuery(api.auth.functions.getAIUserPreferences, {});
-    const updateAIUserSettingsMutation = useMutation(api.auth.functions.updateAIUserPreferences);
-    const [loading, setLoading] = useState(false);
+interface ModelStats {
+    completionTokens: number;
+    modelId: string;
+    modelName: string;
+    promptTokens: number;
+    reasoningTokens: number;
+    requests: number;
+    totalTokens: number;
+}
 
-    const usageAnalytics: UsageAnalyticsSettings = aiSettings?.usageAnalytics || initialForm;
+interface UsageStats {
+    modelStats: ModelStats[];
+    totalRequests: number;
+    totalTokens: number;
+}
 
-    const usageAnalyticsSchema = z
-        .object({
-            alertThreshold: z
-                .number()
-                .min(1, t`Alert threshold must be at least 1`)
-                .max(10_000, t`Alert threshold cannot exceed 10000`),
-            dataRetentionDays: z
-                .number()
-                .min(1, t`Data retention must be at least 1 day`)
-                .max(365, t`Data retention cannot exceed 365 days`),
-            enableAlerts: z.boolean(),
-            enableCostTracking: z.boolean(),
-            enablePerformanceMetrics: z.boolean(),
-            enableRealTimeMetrics: z.boolean(),
-            enableUsageTracking: z.boolean(),
-            exportFormat: z.string().min(1, t`Export format is required`),
-        })
-        .strict();
+interface ChartModelData {
+    completionTokens: number;
+    promptTokens: number;
+    reasoningTokens: number;
+    tokens: number;
+}
 
-    const form = useAppForm({
-        defaultValues: usageAnalytics,
-        onSubmit: async ({ value }) => {
-            setLoading(true);
-            await updateAIUserSettingsMutation({
-                usageAnalytics: value,
+interface ChartDay {
+    date: string;
+    models: Record<string, ChartModelData>;
+    totalTokens: number;
+}
+
+const isUsageStats = (object: unknown): object is UsageStats => !!object && typeof object === "object" && Array.isArray((object as UsageStats).modelStats);
+
+const isChartDayArray = (object: unknown): object is ChartDay[] => Array.isArray(object) && object.every((day) => day && typeof day === "object" && typeof (day as ChartDay).date === "string" && typeof (day as ChartDay).totalTokens === "number" && typeof (day as ChartDay).models === "object");
+
+const UsageAnalyticsCard: FC<UsageDashboardProperties> = ({ className }) => {
+    const [timeframe, setTimeframe] = useState<"1d" | "7d" | "30d">("7d");
+    const isMobile = useIsMobile();
+    const statsRaw = useQuery(api.ai.functions.getMyUsageStats, { timeframe });
+    const chartDataRaw = useQuery(
+        api.ai.functions.getMyUsageChartData,
+        { timeframe },
+    );
+    const stats: UsageStats | undefined = isUsageStats(statsRaw) ? statsRaw : undefined;
+    const chartData: ChartDay[] | undefined = isChartDayArray(chartDataRaw) ? chartDataRaw : undefined;
+
+    const modelUsageData = useMemo(() => {
+        if (!chartData)
+            return [];
+
+        return chartData.map((day: ChartDay) => {
+            const dayData: Record<string, any> = {
+                date: day.date,
+                total: day.totalTokens,
+            };
+
+            Object.entries(day.models).forEach(([modelId, data]: [string, ChartModelData]) => {
+                dayData[modelId] = data.tokens;
             });
-            setLoading(false);
-        },
-        validators: {
-            onChange: usageAnalyticsSchema,
-        },
-    });
 
-    const handleUsageTrackingChange = useCallback(
-        (checked: boolean) => {
-            form.setFieldValue("enableUsageTracking", checked);
+            return dayData;
+        });
+    }, [chartData]);
+
+    const tokenTypeData = useMemo(() => {
+        if (!chartData)
+            return [];
+
+        return chartData.map((day: ChartDay) => {
+            return {
+                completion: Object.values(day.models).reduce(
+                    (sum: number, model: ChartModelData) => sum + model.completionTokens,
+                    0,
+                ),
+                date: day.date,
+                prompt: Object.values(day.models).reduce((sum: number, model: ChartModelData) => sum + model.promptTokens, 0),
+                reasoning: Object.values(day.models).reduce(
+                    (sum: number, model: ChartModelData) => sum + model.reasoningTokens,
+                    0,
+                ),
+            };
+        });
+    }, [chartData]);
+
+    const modelIds = useMemo(() => {
+        if (!stats)
+            return [];
+
+        return stats.modelStats.map((model: ModelStats) => model.modelId);
+    }, [stats]);
+
+    const modelChartConfig = useMemo(() => {
+        const config: ChartConfig = {};
+
+        modelIds.forEach((modelId: string, index: number) => {
+            config[modelId] = {
+                color: MODEL_COLORS[index % MODEL_COLORS.length],
+                label: stats?.modelStats.find((m: ModelStats) => m.modelId === modelId)?.modelName || modelId,
+            };
+        });
+
+        return config;
+    }, [modelIds, stats]);
+
+    const tokenChartConfig = {
+        completion: {
+            label: "Output Tokens",
         },
-        [form],
-    );
-
-    const handleCostTrackingChange = useCallback(
-        (checked: boolean) => {
-            form.setFieldValue("enableCostTracking", checked);
+        prompt: {
+            label: "Input Tokens",
         },
-        [form],
-    );
-
-    const handlePerformanceMetricsChange = useCallback(
-        (checked: boolean) => {
-            form.setFieldValue("enablePerformanceMetrics", checked);
+        reasoning: {
+            label: "Reasoning Tokens",
         },
-        [form],
-    );
-
-    const handleDataRetentionChange = useCallback(
-        (event: React.ChangeEvent<HTMLInputElement>) => {
-            const value = Number.parseInt(event.target.value, 10);
-
-            if (!isNaN(value)) {
-                form.setFieldValue("dataRetentionDays", value);
-            }
-        },
-        [form],
-    );
-
-    const handleExportFormatChange = useCallback(
-        (value: string) => {
-            form.setFieldValue("exportFormat", value);
-        },
-        [form],
-    );
-
-    const handleRealTimeMetricsChange = useCallback(
-        (checked: boolean) => {
-            form.setFieldValue("enableRealTimeMetrics", checked);
-        },
-        [form],
-    );
-
-    const handleAlertsChange = useCallback(
-        (checked: boolean) => {
-            form.setFieldValue("enableAlerts", checked);
-        },
-        [form],
-    );
-
-    const handleAlertThresholdChange = useCallback(
-        (event: React.ChangeEvent<HTMLInputElement>) => {
-            const value = Number.parseInt(event.target.value, 10);
-
-            if (!isNaN(value)) {
-                form.setFieldValue("alertThreshold", value);
-            }
-        },
-        [form],
-    );
-
-    const handleSubmit = useCallback(
-        (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            event.stopPropagation();
-            form.handleSubmit();
-        },
-        [form],
-    );
+    } satisfies ChartConfig;
 
     return (
-        <div className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5" />
-                        {t`Usage Analytics`}
-                    </CardTitle>
-                    <CardDescription>{t`Configure usage tracking, analytics, and reporting settings`}</CardDescription>
+        <div className={cn("space-y-4", className)}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <Tabs
+                    onValueChange={(value: string) => setTimeframe(value as "1d" | "7d" | "30d")}
+                    value={timeframe}
+                >
+                    <TabsList className="grid w-full grid-cols-3 sm:w-auto">
+                        <TabsTrigger value="1d">1 Day</TabsTrigger>
+                        <TabsTrigger value="7d">7 Days</TabsTrigger>
+                        <TabsTrigger value="30d">30 Days</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <Card className="gap-3 p-4">
+                    <CardHeader className="flex flex-row items-center px-0">
+                        <Activity className="size-3 text-muted-foreground sm:size-4" />
+                        <CardTitle className="font-medium text-xs sm:text-sm">
+                            Total Requests
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="font-bold text-lg sm:text-2xl">
+                            {stats?.totalRequests || 0}
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                            {timeframe === "1d"
+                                ? "today"
+                                : `last ${timeframe === "7d" ? "7" : "30"} days`}
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card className="gap-3 p-4">
+                    <CardHeader className="flex flex-row items-center px-0">
+                        <Zap className="size-3 text-muted-foreground sm:size-4" />
+                        <CardTitle className="font-medium text-xs sm:text-sm">
+                            Total Tokens
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="font-bold text-lg sm:text-2xl">
+                            {((stats?.totalTokens || 0) / 1000).toFixed(1)}
+                            K
+                        </div>
+                        <p className="text-muted-foreground text-xs">input + output + reasoning</p>
+                    </CardContent>
+                </Card>
+                <Card className="gap-3 p-4">
+                    <CardHeader className="flex flex-row items-center px-0">
+                        <BarChart3 className="size-3 text-muted-foreground sm:size-4" />
+                        <CardTitle className="font-medium text-xs sm:text-sm">
+                            Models Used
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="font-bold text-lg sm:text-2xl">
+                            {stats?.modelStats.length || 0}
+                        </div>
+                        <p className="text-muted-foreground text-xs">different models</p>
+                    </CardContent>
+                </Card>
+                <Card className="gap-3 p-4">
+                    <CardHeader className="flex flex-row items-center px-0">
+                        <TrendingUp className="size-3 text-muted-foreground sm:size-4" />
+                        <CardTitle className="font-medium text-xs sm:text-sm">
+                            Avg tokens/request
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="font-bold text-lg sm:text-2xl">
+                            {stats?.totalRequests
+                                ? Math.round((stats?.totalTokens || 0) / stats.totalRequests)
+                                : 0}
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                            total tokens / total requests
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="grid gap-4">
+                <Card className="gap-3 overflow-hidden p-4">
+                    <CardHeader className="gap-0 px-0 pb-3">
+                        <CardTitle className="text-base sm:text-lg">Token Usage by Model</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm">
+                            Daily token consumption breakdown by model
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-3 px-0">
+                        <ChartContainer
+                            className="aspect-auto h-[250px] w-full overflow-hidden sm:h-[300px]"
+                            config={modelChartConfig}
+                        >
+                            <BarChart
+                                data={modelUsageData}
+                                height={undefined}
+                                margin={{ bottom: 0, left: 0, right: 10, top: 5 }}
+                                width={undefined}
+                            >
+                                <XAxis
+                                    dataKey="date"
+                                    fontSize={isMobile ? 10 : 12}
+                                    tickFormatter={(value: string) => {
+                                        const date = new Date(value);
+
+                                        if (timeframe === "1d") {
+                                            return date.toLocaleTimeString([], {
+                                                hour: "numeric",
+                                                hour12: true,
+                                            });
+                                        }
+
+                                        return isMobile
+                                            ? `${date.getMonth() + 1}/${date.getDate()}`
+                                            : date.toLocaleDateString();
+                                    }}
+                                />
+                                <YAxis
+                                    fontSize={isMobile ? 10 : 12}
+                                    tickFormatter={(value: number) => `${(value / 1000).toFixed(0)}K`}
+                                    width={30}
+                                />
+                                <ChartTooltip
+                                    content={<ChartTooltipContent />}
+                                    formatter={(value: number, name: string) => [
+                                        `${Number(value).toLocaleString()} tokens - `,
+                                        modelChartConfig[name as string]?.label || name,
+                                    ]}
+                                    labelFormatter={(value: string) => {
+                                        const date = new Date(value);
+
+                                        if (timeframe === "1d") {
+                                            return date.toLocaleString([], {
+                                                day: "numeric",
+                                                hour: "numeric",
+                                                hour12: true,
+                                                minute: "2-digit",
+                                                month: "short",
+                                            });
+                                        }
+
+                                        return date.toLocaleDateString([], {
+                                            day: "numeric",
+                                            month: "short",
+                                            weekday: "short",
+                                        });
+                                    }}
+                                />
+                                {modelIds.map((modelId: string) => (
+                                    <Bar
+                                        dataKey={modelId}
+                                        fill={modelChartConfig[modelId]?.color}
+                                        key={modelId}
+                                        stackId="models"
+                                    />
+                                ))}
+                            </BarChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                <Card className="gap-3 overflow-hidden p-4">
+                    <CardHeader className="gap-0 px-0 pb-3">
+                        <CardTitle className="text-base sm:text-lg">
+                            Token Type Distribution
+                        </CardTitle>
+                        <CardDescription className="text-xs sm:text-sm">
+                            Input, output, and reasoning token breakdown
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-3 px-0">
+                        <ChartContainer
+                            className="aspect-auto h-[250px] w-full overflow-hidden sm:h-[300px]"
+                            config={tokenChartConfig}
+                        >
+                            <BarChart
+                                data={tokenTypeData}
+                                height={undefined}
+                                margin={{ bottom: 0, left: 0, right: 10, top: 5 }}
+                                width={undefined}
+                            >
+                                <XAxis
+                                    dataKey="date"
+                                    fontSize={isMobile ? 10 : 12}
+                                    tickFormatter={(value: string) => {
+                                        const date = new Date(value);
+
+                                        if (timeframe === "1d") {
+                                            return date.toLocaleTimeString([], {
+                                                hour: "numeric",
+                                                hour12: true,
+                                            });
+                                        }
+
+                                        return isMobile
+                                            ? `${date.getMonth() + 1}/${date.getDate()}`
+                                            : date.toLocaleDateString();
+                                    }}
+                                />
+                                <YAxis
+                                    fontSize={isMobile ? 10 : 12}
+                                    tickFormatter={(value: number) => `${(value / 1000).toFixed(0)}K`}
+                                    width={30}
+                                />
+                                <ChartTooltip
+                                    content={<ChartTooltipContent />}
+                                    formatter={(value: number, name: string) => [
+                                        `${Number(value).toLocaleString()} `,
+                                        tokenChartConfig[name as keyof typeof tokenChartConfig]?.label || name,
+                                    ]}
+                                    labelFormatter={(value: string) => {
+                                        const date = new Date(value);
+
+                                        if (timeframe === "1d") {
+                                            return date.toLocaleString([], {
+                                                day: "numeric",
+                                                hour: "numeric",
+                                                hour12: true,
+                                                minute: "2-digit",
+                                                month: "short",
+                                            });
+                                        }
+
+                                        return date.toLocaleDateString([], {
+                                            day: "numeric",
+                                            month: "short",
+                                            weekday: "short",
+                                        });
+                                    }}
+                                />
+                                <Bar dataKey="prompt" fill="var(--chart-1)" stackId="tokens" />
+                                <Bar
+                                    dataKey="completion"
+                                    fill="var(--chart-2)"
+                                    stackId="tokens"
+                                />
+                                <Bar dataKey="reasoning" fill="var(--chart-3)" stackId="tokens" />
+                            </BarChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+            </div>
+            <Card className="gap-3 p-4">
+                <CardHeader className="gap-0 px-0">
+                    <CardTitle className="text-base sm:text-lg">Model Usage Details</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                        Detailed breakdown by model for the selected period
+                    </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div className="space-y-4">
-                            <form.AppField name="enableUsageTracking">
-                                {(field) => (
-                                    <field.FormItem>
-                                        <field.FormControl>
-                                            <div className="flex items-center justify-between">
-                                                <div className="space-y-0.5">
-                                                    <Label>{t`Usage Tracking`}</Label>
-                                                    <p className="text-muted-foreground text-sm">{t`Track API calls, tokens used, and usage patterns`}</p>
-                                                </div>
-                                                <Switch checked={field.state.value} disabled={loading} onCheckedChange={handleUsageTrackingChange} />
-                                            </div>
-                                        </field.FormControl>
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            </form.AppField>
-
-                            <form.AppField name="enableCostTracking">
-                                {(field) => (
-                                    <field.FormItem>
-                                        <field.FormControl>
-                                            <div className="flex items-center justify-between">
-                                                <div className="space-y-0.5">
-                                                    <Label>{t`Cost Tracking`}</Label>
-                                                    <p className="text-muted-foreground text-sm">{t`Monitor API costs and spending patterns`}</p>
-                                                </div>
-                                                <Switch checked={field.state.value} disabled={loading} onCheckedChange={handleCostTrackingChange} />
-                                            </div>
-                                        </field.FormControl>
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            </form.AppField>
-
-                            <form.AppField name="enablePerformanceMetrics">
-                                {(field) => (
-                                    <field.FormItem>
-                                        <field.FormControl>
-                                            <div className="flex items-center justify-between">
-                                                <div className="space-y-0.5">
-                                                    <Label>{t`Performance Metrics`}</Label>
-                                                    <p className="text-muted-foreground text-sm">{t`Track response times and model performance`}</p>
-                                                </div>
-                                                <Switch checked={field.state.value} disabled={loading} onCheckedChange={handlePerformanceMetricsChange} />
-                                            </div>
-                                        </field.FormControl>
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            </form.AppField>
-
-                            <form.AppField name="dataRetentionDays">
-                                {(field) => (
-                                    <field.FormItem>
-                                        <field.FormLabel>{t`Data Retention Period`}</field.FormLabel>
-                                        <field.FormControl>
-                                            <Input
-                                                disabled={loading}
-                                                max={365}
-                                                min={1}
-                                                onBlur={field.handleBlur}
-                                                onChange={handleDataRetentionChange}
-                                                placeholder="90"
-                                                type="number"
-                                                value={field.state.value}
-                                            />
-                                        </field.FormControl>
-                                        <field.FormDescription>{t`Number of days to retain analytics data`}</field.FormDescription>
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            </form.AppField>
-
-                            <form.AppField name="exportFormat">
-                                {(field) => (
-                                    <field.FormItem>
-                                        <field.FormLabel>{t`Export Format`}</field.FormLabel>
-                                        <field.FormControl>
-                                            <Select disabled={loading} onValueChange={handleExportFormatChange} value={field.state.value}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={t`Select export format`} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="csv">CSV</SelectItem>
-                                                    <SelectItem value="json">JSON</SelectItem>
-                                                    <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
-                                                    <SelectItem value="pdf">PDF Report</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </field.FormControl>
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            </form.AppField>
-
-                            <form.AppField name="enableRealTimeMetrics">
-                                {(field) => (
-                                    <field.FormItem>
-                                        <field.FormControl>
-                                            <div className="flex items-center justify-between">
-                                                <div className="space-y-0.5">
-                                                    <Label>{t`Real-time Metrics`}</Label>
-                                                    <p className="text-muted-foreground text-sm">{t`Show live usage metrics and dashboards`}</p>
-                                                </div>
-                                                <Switch checked={field.state.value} disabled={loading} onCheckedChange={handleRealTimeMetricsChange} />
-                                            </div>
-                                        </field.FormControl>
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            </form.AppField>
-
-                            <form.AppField name="enableAlerts">
-                                {(field) => (
-                                    <field.FormItem>
-                                        <field.FormControl>
-                                            <div className="flex items-center justify-between">
-                                                <div className="space-y-0.5">
-                                                    <Label>{t`Usage Alerts`}</Label>
-                                                    <p className="text-muted-foreground text-sm">{t`Get notified when usage exceeds thresholds`}</p>
-                                                </div>
-                                                <Switch checked={field.state.value} disabled={loading} onCheckedChange={handleAlertsChange} />
-                                            </div>
-                                        </field.FormControl>
-                                        <field.FormMessage />
-                                    </field.FormItem>
-                                )}
-                            </form.AppField>
-
-                            {form.state.values.enableAlerts && (
-                                <form.AppField name="alertThreshold">
-                                    {(field) => (
-                                        <field.FormItem>
-                                            <field.FormLabel>{t`Alert Threshold`}</field.FormLabel>
-                                            <field.FormControl>
-                                                <Input
-                                                    disabled={loading}
-                                                    max={10_000}
-                                                    min={1}
-                                                    onBlur={field.handleBlur}
-                                                    onChange={handleAlertThresholdChange}
-                                                    placeholder="100"
-                                                    type="number"
-                                                    value={field.state.value}
-                                                />
-                                            </field.FormControl>
-                                            <field.FormDescription>{t`Number of API calls before triggering an alert`}</field.FormDescription>
-                                            <field.FormMessage />
-                                        </field.FormItem>
-                                    )}
-                                </form.AppField>
-                            )}
-                        </div>
-
-                        <div className="flex justify-end gap-2">
-                            <Button disabled={loading} type="button" variant="outline">
-                                <Download className="mr-2 h-4 w-4" />
-                                {t`Export Data`}
-                            </Button>
-                            <Button aria-busy={loading} disabled={loading} type="submit">
-                                {t`Save Analytics Settings`}
-                            </Button>
-                        </div>
-                    </form>
+                <CardContent className="p-0 pt-0">
+                    <div className="space-y-1.5">
+                        {stats?.modelStats.map((model: ModelStats, index: number) => (
+                            <div
+                                className="flex items-center justify-between rounded-lg border px-2 py-1"
+                                key={model.modelId}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="h-3 w-3 rounded-full"
+                                        style={{
+                                            backgroundColor:
+                                                MODEL_COLORS[index % MODEL_COLORS.length],
+                                        }}
+                                    />
+                                    <div>
+                                        <div className="font-medium text-sm">{model.modelName}</div>
+                                        <div className="text-muted-foreground text-xs">
+                                            {model.requests}
+                                            {" "}
+                                            request
+                                            {model.requests === 1 ? "" : "s"}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="font-medium text-sm sm:text-base">
+                                        {(model.totalTokens / 1000).toFixed(1)}
+                                        K tokens
+                                    </div>
+                                    <div className="text-muted-foreground text-xs">
+                                        {(model.promptTokens / 1000).toFixed(0)}
+                                        K in •
+                                        {" "}
+                                        {(model.completionTokens / 1000).toFixed(0)}
+                                        K out
+                                        {model.reasoningTokens > 0
+                                            && ` • ${(model.reasoningTokens / 1000).toFixed(0)}K reasoning`}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {(!stats?.modelStats || stats.modelStats.length === 0) && (
+                            <div className="py-8 text-center text-muted-foreground">
+                                No usage data for the selected period
+                            </div>
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         </div>

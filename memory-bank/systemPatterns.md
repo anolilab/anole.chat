@@ -465,6 +465,53 @@ const isFresh = session
     : false;
 ```
 
+## Form Handling Pattern: TanStack Form Integration
+
+The project standardizes all form handling using TanStack Form (`@tanstack/react-form`) with a custom wrapper system defined in `app/src/components/ui/form.tsx`. This ensures:
+
+- Consistent form logic and validation across the app
+- Unified component structure for all forms
+- Accessibility and ARIA compliance by default
+- Seamless integration with Zod or compatible schema validation
+- Required fields and error messages handled via custom components
+
+**Usage Pattern:**
+- Always use the custom hook and components: `useAppForm`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`.
+- Do not use TanStack Form's default context/components directly in UI code.
+- Define validation schemas (Zod recommended) and pass to `validators` in `useAppForm`.
+- Bind fields using `<form.Field name="fieldName">` and render with the custom components.
+- Use provided handlers for value and blur events; do not mutate form state directly.
+- All error and description messaging is handled via `FormMessage` and `FormDescription`.
+
+See `.cursor/rules/tanstack-form.mdc` for the full guideline.
+
+## TanStack Form usage pattern
+
+- Always wrap forms in `<form.AppForm>` to provide the form context.
+- Use `<form.AppField name="...">` for each field, not `<form.Field>`.
+- Inside the render function of `<form.AppField>`, use the field-scoped components: `field.FormItem`, `field.FormLabel`, `field.FormControl`, `field.FormDescription`, and `field.FormMessage`.
+- Do not use the globally imported `FormItem`, `FormLabel`, etc. inside `<form.AppField>`; always use the ones from the `field` object.
+- Example:
+
+```tsx
+<form.AppForm>
+  <form className="..." onSubmit={form.handleSubmit}>
+    <form.AppField name="fieldName">
+      {(field) => (
+        <field.FormItem>
+          <field.FormLabel>Label</field.FormLabel>
+          <field.FormControl>
+            <Input ... />
+          </field.FormControl>
+          <field.FormMessage />
+        </field.FormItem>
+      )}
+    </form.AppField>
+    ...
+  </form>
+</form.AppForm>
+```
+
 ## Advanced Feature Patterns
 
 ### Thread Management System
