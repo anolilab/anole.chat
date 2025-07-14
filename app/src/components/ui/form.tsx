@@ -127,4 +127,4 @@ const { useAppForm, withForm } = createFormHook({
     formContext,
 });
 
-export { useAppForm, useFieldContext, useFormContext, withForm };
+export { FormControl, FormDescription, FormItem, FormLabel, FormMessage, useAppForm, useFieldContext, useFormContext, withForm };

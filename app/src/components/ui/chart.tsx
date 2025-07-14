@@ -46,7 +46,7 @@ const ChartContainer = ({
         <ChartContext value={{ config }}>
             <div
                 className={cn(
-                    "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden flex aspect-video justify-center text-xs [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-sector[stroke='#fff']]:stroke-transparent",
+                    "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border flex aspect-video justify-center text-xs [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
                     className,
                 )}
                 data-chart={chartId}
@@ -124,7 +124,7 @@ const ChartTooltipContent = ({
         const [item] = payload;
         const key = `${labelKey || item?.dataKey || item?.name || "value"}`;
         const itemConfig = getPayloadConfigFromPayload(config, item, key);
-        const value = !labelKey && typeof label === "string" ? config[label]?.label || label : itemConfig?.label;
+        const value = !labelKey && typeof label === "string" ? config[label as keyof typeof config]?.label || label : itemConfig?.label;
 
         if (labelFormatter) {
             return <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>;
@@ -172,7 +172,7 @@ const ChartTooltipContent = ({
                                             )
                                             : !hideIndicator && (
                                                 <div
-                                                    className={cn("border-(--color-border) bg-(--color-bg) shrink-0 rounded-[2px]", {
+                                                    className={cn("shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)", {
                                                         "h-2.5 w-2.5": indicator === "dot",
                                                         "my-0.5": nestLabel && indicator === "dashed",
                                                         "w-0 border-[1.5px] border-dashed bg-transparent": indicator === "dashed",
@@ -268,7 +268,7 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
         configLabelKey = payloadPayload[key as keyof typeof payloadPayload] as string;
     }
 
-    return configLabelKey in config ? config[configLabelKey] : config[key];
+    return configLabelKey in config ? config[configLabelKey] : config[key as keyof typeof config];
 }
 
 export { ChartContainer, ChartLegend, ChartLegendContent, ChartStyle, ChartTooltip, ChartTooltipContent };

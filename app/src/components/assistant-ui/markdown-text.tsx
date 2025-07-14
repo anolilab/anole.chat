@@ -316,19 +316,19 @@ const defaultComponents = memoizeMarkdownComponents({
     CodeHeader,
     h1: ({ className, ...properties }) => <h1 className={cn("mb-8 scroll-m-20 text-4xl font-extrabold tracking-tight last:mb-0", className)} {...properties} />,
     h2: ({ className, ...properties }) => (
-        <h2 className={cn("mb-4 mt-8 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
+        <h2 className={cn("mt-8 mb-4 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
     ),
     h3: ({ className, ...properties }) => (
-        <h3 className={cn("mb-4 mt-6 scroll-m-20 text-2xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
+        <h3 className={cn("mt-6 mb-4 scroll-m-20 text-2xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
     ),
     h4: ({ className, ...properties }) => (
-        <h4 className={cn("mb-4 mt-6 scroll-m-20 text-xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
+        <h4 className={cn("mt-6 mb-4 scroll-m-20 text-xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...properties} />
     ),
     h5: ({ className, ...properties }) => <h5 className={cn("my-4 text-lg font-semibold first:mt-0 last:mb-0", className)} {...properties} />,
     h6: ({ className, ...properties }) => <h6 className={cn("my-4 font-semibold first:mt-0 last:mb-0", className)} {...properties} />,
     hr: ({ className, ...properties }) => <hr className={cn("my-5 border-b", className)} {...properties} />,
     ol: ({ className, ...properties }) => <ol className={cn("my-5 ml-6 list-decimal [&>li]:mt-2", className)} {...properties} />,
-    p: ({ className, ...properties }) => <p className={cn("mb-5 mt-5 leading-7 first:mt-0 last:mb-0", className)} {...properties} />,
+    p: ({ className, ...properties }) => <p className={cn("mt-5 mb-5 leading-7 first:mt-0 last:mb-0", className)} {...properties} />,
     pre: ({ className, ...properties }) => (
         <pre className={cn("overflow-x-auto rounded-b-lg bg-zinc-50 p-4 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100", className)} {...properties} />
     ),

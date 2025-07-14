@@ -46,7 +46,7 @@ export default function ErrorComponent({ error }: { error: Error }) {
                                             <h3 className="mb-2 font-semibold">Error details:</h3>
                                             <p className="mb-4 text-sm">{error.message}</p>
                                             <h3 className="mb-2 font-semibold">Error trace:</h3>
-                                            <pre className="overflow-x-auto whitespace-pre-wrap text-xs">{error.stack}</pre>
+                                            <pre className="overflow-x-auto text-xs whitespace-pre-wrap">{error.stack}</pre>
                                         </div>
                                     </AccordionContent>
                                 </AccordionItem>

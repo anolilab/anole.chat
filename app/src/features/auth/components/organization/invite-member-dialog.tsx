@@ -3,7 +3,6 @@
 import { t } from "@lingui/core/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
-
 import { z } from "zod/v4";
 
 import { Button } from "@/components/ui/button";

@@ -9,7 +9,7 @@ const Card = ({ className, ...properties }: React.ComponentProps<"div">) => (
 const CardHeader = ({ className, ...properties }: React.ComponentProps<"div">) => (
     <div
         className={cn(
-            "@container/card-header has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6",
+            "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
             className,
         )}
         data-slot="card-header"
@@ -18,7 +18,7 @@ const CardHeader = ({ className, ...properties }: React.ComponentProps<"div">) =
 );
 
 const CardTitle = ({ className, ...properties }: React.ComponentProps<"div">) => (
-    <div className={cn("font-semibold leading-none", className)} data-slot="card-title" {...properties} />
+    <div className={cn("leading-none font-semibold", className)} data-slot="card-title" {...properties} />
 );
 
 const CardDescription = ({ className, ...properties }: React.ComponentProps<"div">) => (
@@ -34,7 +34,7 @@ const CardContent = ({ className, ...properties }: React.ComponentProps<"div">) 
 );
 
 const CardFooter = ({ className, ...properties }: React.ComponentProps<"div">) => (
-    <div className={cn("[.border-t]:pt-6 flex items-center px-6", className)} data-slot="card-footer" {...properties} />
+    <div className={cn("flex items-center px-6 [.border-t]:pt-6", className)} data-slot="card-footer" {...properties} />
 );
 
 export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle };

@@ -8,7 +8,7 @@
  * @module
  */
 
-import type * as ai_analytics from "../ai/analytics.js";
+import type * as ai_functions from "../ai/functions.js";
 import type * as ai_lib_agents from "../ai/lib/agents.js";
 import type * as ai_lib_models from "../ai/lib/models.js";
 import type * as ai_middlewares_cacheMiddleware from "../ai/middlewares/cacheMiddleware.js";
@@ -51,7 +51,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  "ai/analytics": typeof ai_analytics;
+  "ai/functions": typeof ai_functions;
   "ai/lib/agents": typeof ai_lib_agents;
   "ai/lib/models": typeof ai_lib_models;
   "ai/middlewares/cacheMiddleware": typeof ai_middlewares_cacheMiddleware;

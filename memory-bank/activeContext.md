@@ -4,6 +4,11 @@
 
 Following the successful completion of the chat provider refactoring and last chat ID redirect feature, we've recently completed a comprehensive **authentication component migration to @lingui/core/macro**. This migration modernizes the internationalization system and improves the developer experience for managing translations.
 
+**Form Handling Modernization:**
+- The project now standardizes all form handling using TanStack Form (`@tanstack/react-form`) with a custom wrapper system (`useAppForm`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`).
+- This approach ensures consistent validation, accessibility, and UI structure for all forms.
+- See `.cursor/rules/tanstack-form.mdc` for full guidelines.
+
 The project continues to evolve with a focus on improving user experience, code quality, and maintainability. Recent work has centered on authentication UI components and form enhancements.
 
 ## Recent Major Completions

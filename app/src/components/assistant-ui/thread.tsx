@@ -124,7 +124,7 @@ const ThreadWelcomeSuggestions: FC = () => {
                         <span className="text-lg">{suggestion.icon}</span>
                         <span className="text-muted-foreground bg-muted/50 rounded-full px-2 py-1 text-xs font-medium">{suggestion.category}</span>
                     </div>
-                    <span className="text-foreground group-hover:text-primary text-sm font-medium leading-relaxed transition-colors">{suggestion.prompt}</span>
+                    <span className="text-foreground group-hover:text-primary text-sm leading-relaxed font-medium transition-colors">{suggestion.prompt}</span>
                     <div className="from-primary/5 to-secondary/5 absolute inset-0 rounded-xl bg-gradient-to-r opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                 </ThreadPrimitive.Suggestion>
             ))}
@@ -204,7 +204,7 @@ const ComposerAction: FC = () => (
 const UserMessage: FC = () => (
     <MessagePrimitive.Root className="grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 py-4 [&:where(>*)]:col-start-2">
         <UserMessageAttachments />
-        <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[var(--thread-max-width)] break-words rounded-3xl px-5 py-2.5">
+        <div className="bg-muted text-foreground col-start-2 row-start-2 max-w-[var(--thread-max-width)] rounded-3xl px-5 py-2.5 break-words">
             <MessagePrimitive.Content components={{ Text: MarkdownText }} />
         </div>
         <UserActionBar />
@@ -245,14 +245,14 @@ const EditComposer: FC = () => (
 
 const AssistantMessage: FC = () => (
     <MessagePrimitive.Root className="relative grid w-full max-w-[var(--thread-max-width)] grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] py-4">
-        <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 max-w-[var(--thread-max-width)] break-words leading-7 dark:text-white">
+        <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 max-w-[var(--thread-max-width)] leading-7 break-words dark:text-white">
             <MessagePrimitive.Content components={{ Text: MarkdownText }} />
             <MessageError />
         </div>
 
         <AssistantActionBar />
 
-        <BranchPicker className="col-start-2 row-start-2 -ml-2 mr-2" />
+        <BranchPicker className="col-start-2 row-start-2 mr-2 -ml-2" />
     </MessagePrimitive.Root>
 );
 

@@ -1,0 +1,15 @@
+tanstack-form: Guidelines and best practices for using TanStack Form in this project, including usage patterns, component structure, and integration with the custom form system in app/src/components/ui/form.tsx.
+
+# Updated Usage Pattern
+- For blur events, always use the internal `field.handleBlur`.
+- For change events, always use `(e) => field.handleChange(e.target.value)`.
+- For form submission, use:
+  ```js
+  onSubmit: async ({ value }) => {
+    // Do something with form data
+    console.log(value);
+    // Use value for API calls
+  }
+  ```
+  The `value` object contains all changed form data.
+- Integrate with the custom form system in `app/src/components/ui/form.tsx` as needed. 

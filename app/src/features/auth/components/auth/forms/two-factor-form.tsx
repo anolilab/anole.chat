@@ -225,7 +225,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                             {" "}
                             {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
                         </div>
-                        <QRCode className={cn("shadow-xs mx-auto border", classNames?.qrCode)} value={totpURI} />
+                        <QRCode className={cn("mx-auto border shadow-xs", classNames?.qrCode)} value={totpURI} />
 
                         {totpSecret && (
                             <div className="max-w-sm space-y-2">
@@ -233,7 +233,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                                     {t`Scan not working? Copy this code key and enter it manually in your authentication app.`}
                                 </p>
                                 <div className="bg-muted/50 flex items-center justify-center gap-2 rounded-md border p-3">
-                                    <code className="break-all font-mono text-sm">{totpSecret}</code>
+                                    <code className="font-mono text-sm break-all">{totpSecret}</code>
                                     <CopyButton textToCopy={totpSecret} />
                                 </div>
                             </div>

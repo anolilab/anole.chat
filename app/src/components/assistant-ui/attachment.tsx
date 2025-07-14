@@ -146,7 +146,7 @@ const AttachmentUI: FC = () => {
                         <div className="flex h-12 w-40 items-center justify-center gap-2 rounded-lg border p-1">
                             <AttachmentThumb />
                             <div className="flex-grow basis-0">
-                                <p className="text-muted-foreground line-clamp-1 text-ellipsis break-all text-xs font-bold">
+                                <p className="text-muted-foreground line-clamp-1 text-xs font-bold break-all text-ellipsis">
                                     <AttachmentPrimitive.Name />
                                 </p>
                                 <p className="text-muted-foreground text-xs">{typeLabel}</p>
@@ -166,7 +166,7 @@ const AttachmentUI: FC = () => {
 const AttachmentRemove: FC = () => (
     <AttachmentPrimitive.Remove asChild>
         <TooltipIconButton
-            className="text-muted-foreground [&>svg]:bg-background absolute -right-3 -top-3 size-6 [&>svg]:size-4 [&>svg]:rounded-full"
+            className="text-muted-foreground [&>svg]:bg-background absolute -top-3 -right-3 size-6 [&>svg]:size-4 [&>svg]:rounded-full"
             side="top"
             tooltip="Remove file"
         >

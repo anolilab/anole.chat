@@ -1,56 +1,57 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
-import { Building, File, Key, MessageSquare, Shield, User, Users } from "lucide-react";
+import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
 import { Fragment } from "react";
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { AppSidebar } from "@/features/layout/components/app-sidebar";
+import AppSidebar from "@/features/layout/components/app-sidebar";
 import type { NavItem } from "@/features/layout/components/nav-items";
 import { NavItems } from "@/features/layout/components/nav-items";
 import { SiteHeader } from "@/features/layout/components/site-header";
 import { getAuthRedirectUrl } from "@/lib/utils";
 
-export const Route = createFileRoute("/dashboard")({
-    beforeLoad: async ({ context }) => {
-        const chatUrl = await getAuthRedirectUrl(context.queryClient);
+const sidebarHeader = (
+    <div className="flex items-center gap-2 px-4 py-2">
+        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <MessageSquare className="size-4" />
+        </div>
+        <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-semibold">AI Chat</span>
+            <span className="truncate text-xs">Dashboard</span>
+        </div>
+    </div>
+);
 
-        return {
-            chatUrl,
-        };
-    },
-    component: RouteComponent,
-});
-
-const RouteComponent = () => {
-    const location = useLocation();
-
-    const { pathname } = location;
-
-    // Generate breadcrumb items from pathname, filtering out empty strings
-    const pathSegments = pathname.split("/").filter(Boolean);
-
-    const breadcrumbItems = pathSegments.map((segment, index) => {
-        // Build the href by joining all segments up to current index
-        const href = `/${pathSegments.slice(0, index + 1).join("/")}`;
-
-        return {
-            href,
-            isLast: index === pathSegments.length - 1,
-            label: segment.charAt(0).toUpperCase() + segment.slice(1), // Capitalize first letter
-        };
-    });
-
-    const { apiKey, organization } = useAuth();
-
-    const navigationItems = {
+const getNavigationItems = (apiKey: unknown, organization: unknown) => {
+    return {
         ai: [
+            {
+                icon: User,
+                name: "Personalization",
+                url: "/dashboard/settings/ai/personalization",
+            },
             {
                 icon: Key,
                 name: "Providers",
                 url: "/dashboard/settings/ai/providers",
+            },
+            {
+                icon: Zap,
+                name: "Models",
+                url: "/dashboard/settings/ai/models",
+            },
+            {
+                icon: ToggleLeft,
+                name: "AI Options",
+                url: "/dashboard/settings/ai/options",
+            },
+            {
+                icon: ChartArea,
+                name: "Usage Analytics",
+                url: "/dashboard/settings/ai/usage-analytics",
             },
         ],
         files: [
@@ -93,6 +94,35 @@ const RouteComponent = () => {
             },
         ].filter(Boolean) as NavItem[],
     };
+};
+
+const RouteComponent = () => {
+    const location = useLocation();
+
+    const { pathname } = location;
+
+    // Generate breadcrumb items from pathname, filtering out empty strings
+    const pathSegments = pathname.split("/").filter(Boolean);
+
+    const breadcrumbItems = pathSegments.map((segment, index) => {
+        // Build the href by joining all segments up to current index
+        const href = `/${pathSegments.slice(0, index + 1).join("/")}`;
+
+        return {
+            href,
+            isLast: index === pathSegments.length - 1,
+            label: segment.charAt(0).toUpperCase() + segment.slice(1), // Capitalize first letter
+        };
+    });
+
+    const { apiKey, organization } = useAuth();
+    const navigationItems = getNavigationItems(apiKey, organization);
+    const sidebarContent = (
+        <>
+            <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
+            <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
+        </>
+    );
 
     return (
         <Authenticated>
@@ -105,26 +135,7 @@ const RouteComponent = () => {
                 }
             >
                 <div className="flex h-dvh w-full">
-                    <AppSidebar
-                        content={(
-                            <>
-                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
-                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.files} label="Files" />
-                                <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
-                            </>
-                        )}
-                        header={(
-                            <div className="flex items-center gap-2 px-4 py-2">
-                                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                    <MessageSquare className="size-4" />
-                                </div>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">AI Chat</span>
-                                    <span className="truncate text-xs">Dashboard</span>
-                                </div>
-                            </div>
-                        )}
-                    />
+                    <AppSidebar content={sidebarContent} header={sidebarHeader} />
                     <SidebarInset>
                         <SiteHeader>
                             <Breadcrumb>
@@ -163,3 +174,14 @@ const RouteComponent = () => {
         </Authenticated>
     );
 };
+
+export const Route = createFileRoute("/dashboard")({
+    beforeLoad: async ({ context }) => {
+        const chatUrl = await getAuthRedirectUrl(context.queryClient);
+
+        return {
+            chatUrl,
+        };
+    },
+    component: RouteComponent,
+});

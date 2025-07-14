@@ -35,6 +35,7 @@ import { Route as DashboardSettingsAuthApiKeysRouteImport } from './routes/dashb
 import { Route as DashboardSettingsAuthAccountRouteImport } from './routes/dashboard/settings/auth/account'
 import { Route as DashboardSettingsAiUsageAnalyticsRouteImport } from './routes/dashboard/settings/ai/usage-analytics'
 import { Route as DashboardSettingsAiProvidersRouteImport } from './routes/dashboard/settings/ai/providers'
+import { Route as DashboardSettingsAiPersonalizationRouteImport } from './routes/dashboard/settings/ai/personalization'
 import { Route as DashboardSettingsAiOptionsRouteImport } from './routes/dashboard/settings/ai/options'
 import { Route as DashboardSettingsAiModelsRouteImport } from './routes/dashboard/settings/ai/models'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
@@ -170,6 +171,12 @@ const DashboardSettingsAiProvidersRoute =
     path: '/settings/ai/providers',
     getParentRoute: () => DashboardLayoutRoute,
   } as any)
+const DashboardSettingsAiPersonalizationRoute =
+  DashboardSettingsAiPersonalizationRouteImport.update({
+    id: '/settings/ai/personalization',
+    path: '/settings/ai/personalization',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
 const DashboardSettingsAiOptionsRoute =
   DashboardSettingsAiOptionsRouteImport.update({
     id: '/settings/ai/options',
@@ -210,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
   '/dashboard/settings/ai/models': typeof DashboardSettingsAiModelsRoute
   '/dashboard/settings/ai/options': typeof DashboardSettingsAiOptionsRoute
+  '/dashboard/settings/ai/personalization': typeof DashboardSettingsAiPersonalizationRoute
   '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
   '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
   '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
@@ -236,6 +244,7 @@ export interface FileRoutesByTo {
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
   '/dashboard/settings/ai/models': typeof DashboardSettingsAiModelsRoute
   '/dashboard/settings/ai/options': typeof DashboardSettingsAiOptionsRoute
+  '/dashboard/settings/ai/personalization': typeof DashboardSettingsAiPersonalizationRoute
   '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
   '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
   '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
@@ -265,6 +274,7 @@ export interface FileRoutesById {
   '/auth/two-factor/': typeof AuthTwoFactorIndexRoute
   '/dashboard/settings/ai/models': typeof DashboardSettingsAiModelsRoute
   '/dashboard/settings/ai/options': typeof DashboardSettingsAiOptionsRoute
+  '/dashboard/settings/ai/personalization': typeof DashboardSettingsAiPersonalizationRoute
   '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
   '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
   '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/auth/two-factor'
     | '/dashboard/settings/ai/models'
     | '/dashboard/settings/ai/options'
+    | '/dashboard/settings/ai/personalization'
     | '/dashboard/settings/ai/providers'
     | '/dashboard/settings/ai/usage-analytics'
     | '/dashboard/settings/auth/account'
@@ -320,6 +331,7 @@ export interface FileRouteTypes {
     | '/auth/two-factor'
     | '/dashboard/settings/ai/models'
     | '/dashboard/settings/ai/options'
+    | '/dashboard/settings/ai/personalization'
     | '/dashboard/settings/ai/providers'
     | '/dashboard/settings/ai/usage-analytics'
     | '/dashboard/settings/auth/account'
@@ -348,6 +360,7 @@ export interface FileRouteTypes {
     | '/auth/two-factor/'
     | '/dashboard/settings/ai/models'
     | '/dashboard/settings/ai/options'
+    | '/dashboard/settings/ai/personalization'
     | '/dashboard/settings/ai/providers'
     | '/dashboard/settings/ai/usage-analytics'
     | '/dashboard/settings/auth/account'
@@ -561,6 +574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsAiProvidersRouteImport
       parentRoute: typeof DashboardLayoutRoute
     }
+    '/dashboard/settings/ai/personalization': {
+      id: '/dashboard/settings/ai/personalization'
+      path: '/settings/ai/personalization'
+      fullPath: '/dashboard/settings/ai/personalization'
+      preLoaderRoute: typeof DashboardSettingsAiPersonalizationRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
     '/dashboard/settings/ai/options': {
       id: '/dashboard/settings/ai/options'
       path: '/settings/ai/options'
@@ -643,6 +663,7 @@ interface DashboardLayoutRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardSettingsAiModelsRoute: typeof DashboardSettingsAiModelsRoute
   DashboardSettingsAiOptionsRoute: typeof DashboardSettingsAiOptionsRoute
+  DashboardSettingsAiPersonalizationRoute: typeof DashboardSettingsAiPersonalizationRoute
   DashboardSettingsAiProvidersRoute: typeof DashboardSettingsAiProvidersRoute
   DashboardSettingsAiUsageAnalyticsRoute: typeof DashboardSettingsAiUsageAnalyticsRoute
   DashboardSettingsAuthAccountRoute: typeof DashboardSettingsAuthAccountRoute
@@ -657,6 +678,8 @@ const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardSettingsAiModelsRoute: DashboardSettingsAiModelsRoute,
   DashboardSettingsAiOptionsRoute: DashboardSettingsAiOptionsRoute,
+  DashboardSettingsAiPersonalizationRoute:
+    DashboardSettingsAiPersonalizationRoute,
   DashboardSettingsAiProvidersRoute: DashboardSettingsAiProvidersRoute,
   DashboardSettingsAiUsageAnalyticsRoute:
     DashboardSettingsAiUsageAnalyticsRoute,

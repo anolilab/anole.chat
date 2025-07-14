@@ -213,7 +213,7 @@ export const OrganizationSwitcher = ({
 
                 <DropdownMenuContent
                     align={align}
-                    className={cn("w-[--radix-dropdown-menu-trigger-width] min-w-56 max-w-64", classNames?.content?.base)}
+                    className={cn("w-[--radix-dropdown-menu-trigger-width] max-w-64 min-w-56", classNames?.content?.base)}
                     onCloseAutoFocus={(e) => {
                         e.preventDefault();
                     }}

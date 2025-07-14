@@ -44,7 +44,7 @@ export const APIKeyDisplayDialog = ({ apiKey, classNames, onOpenChange, ...prope
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="bg-muted break-all rounded-md p-4 font-mono text-sm">{apiKey}</div>
+                <div className="bg-muted rounded-md p-4 font-mono text-sm break-all">{apiKey}</div>
 
                 <DialogFooter className={classNames?.dialog?.footer}>
                     <Button

@@ -2,7 +2,6 @@
 
 import { t } from "@lingui/core/macro";
 import type { ReactNode } from "react";
-
 import { z } from "zod/v4";
 
 import { CardContent } from "@/components/ui/card";
