@@ -1,10 +1,11 @@
-import React, { useState, useRef, useCallback } from "react";
+import { Crop, Download, RotateCcw, RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
+import React, { useCallback, useRef, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { RotateCcw, RotateCw, ZoomIn, ZoomOut, Crop, Download, X } from "lucide-react";
 
-interface ImageEditorProps {
+interface ImageEditorProperties {
     isOpen: boolean;
     onClose: () => void;
     onSave: (file: File) => void;
@@ -12,18 +13,13 @@ interface ImageEditorProps {
 }
 
 interface CropArea {
+    height: number;
+    width: number;
     x: number;
     y: number;
-    width: number;
-    height: number;
 }
 
-export const ImageEditor: React.FC<ImageEditorProps> = ({
-    isOpen,
-    onClose,
-    onSave,
-    originalFile
-}) => {
+export const ImageEditor: React.FC<ImageEditorProperties> = ({ isOpen, onClose, onSave, originalFile }) => {
     const [rotation, setRotation] = useState(0);
     const [scale, setScale] = useState(1);
     const [cropArea, setCropArea] = useState<CropArea | null>(null);
@@ -31,74 +27,81 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const imageRef = useRef<HTMLImageElement>(null);
+    const canvasReference = useRef<HTMLCanvasElement>(null);
+    const imageReference = useRef<HTMLImageElement>(null);
 
     // Load and process image when file changes
     React.useEffect(() => {
         if (originalFile && isOpen) {
             const reader = new FileReader();
-            reader.onload = (e) => {
+
+            reader.addEventListener("load", (e) => {
                 const img = new Image();
-                img.onload = () => {
-                    if (imageRef.current) {
-                        imageRef.current.src = e.target?.result as string;
+
+                img.addEventListener("load", () => {
+                    if (imageReference.current) {
+                        imageReference.current.src = e.target?.result as string;
                         drawImage();
                     }
-                };
+                });
                 img.src = e.target?.result as string;
-            };
+            });
             reader.readAsDataURL(originalFile);
         }
     }, [originalFile, isOpen]);
 
     const drawImage = useCallback(() => {
-        const canvas = canvasRef.current;
-        const image = imageRef.current;
-        if (!canvas || !image) return;
+        const canvas = canvasReference.current;
+        const image = imageReference.current;
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        if (!canvas || !image)
+            return;
+
+        const context = canvas.getContext("2d");
+
+        if (!context)
+            return;
 
         // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
         // Save context
-        ctx.save();
+        context.save();
 
         // Move to center
-        ctx.translate(canvas.width / 2, canvas.height / 2);
+        context.translate(canvas.width / 2, canvas.height / 2);
 
         // Apply transformations
-        ctx.rotate((rotation * Math.PI) / 180);
-        ctx.scale(scale, scale);
+        context.rotate((rotation * Math.PI) / 180);
+        context.scale(scale, scale);
 
         // Draw image centered
         const imgWidth = image.naturalWidth;
         const imgHeight = image.naturalHeight;
-        ctx.drawImage(image, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
+
+        context.drawImage(image, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
 
         // Draw crop overlay if cropping
         if (isCropping && cropArea) {
-            ctx.restore();
-            ctx.save();
+            context.restore();
+            context.save();
 
             // Semi-transparent overlay
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = "rgba(0, 0, 0, 0.5)";
+            context.fillRect(0, 0, canvas.width, canvas.height);
 
             // Clear crop area
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.fillRect(cropArea.x, cropArea.y, cropArea.width, cropArea.height);
+            context.globalCompositeOperation = "destination-out";
+            context.fillRect(cropArea.x, cropArea.y, cropArea.width, cropArea.height);
 
             // Crop border
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(cropArea.x, cropArea.y, cropArea.width, cropArea.height);
+            context.globalCompositeOperation = "source-over";
+            context.strokeStyle = "#fff";
+            context.lineWidth = 2;
+            context.strokeRect(cropArea.x, cropArea.y, cropArea.width, cropArea.height);
         }
 
-        ctx.restore();
+        context.restore();
     }, [rotation, scale, isCropping, cropArea]);
 
     React.useEffect(() => {
@@ -106,35 +109,43 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
     }, [drawImage]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (!isCropping) return;
+        if (!isCropping)
+            return;
 
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (!rect) return;
+        const rect = canvasReference.current?.getBoundingClientRect();
+
+        if (!rect)
+            return;
 
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
         setIsDragging(true);
         setDragStart({ x, y });
-        setCropArea({ x, y, width: 0, height: 0 });
+        setCropArea({ height: 0, width: 0, x, y });
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging || !isCropping) return;
+        if (!isDragging || !isCropping)
+            return;
 
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (!rect) return;
+        const rect = canvasReference.current?.getBoundingClientRect();
+
+        if (!rect)
+            return;
 
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        setCropArea(prev => {
-            if (!prev) return null;
+        setCropArea((previous) => {
+            if (!previous)
+                return null;
+
             return {
+                height: Math.abs(y - dragStart.y),
+                width: Math.abs(x - dragStart.x),
                 x: Math.min(dragStart.x, x),
                 y: Math.min(dragStart.y, y),
-                width: Math.abs(x - dragStart.x),
-                height: Math.abs(y - dragStart.y)
             };
         });
     };
@@ -143,10 +154,10 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
         setIsDragging(false);
     };
 
-    const rotateLeft = () => setRotation(prev => prev - 90);
-    const rotateRight = () => setRotation(prev => prev + 90);
-    const zoomIn = () => setScale(prev => Math.min(prev + 0.1, 3));
-    const zoomOut = () => setScale(prev => Math.max(prev - 0.1, 0.1));
+    const rotateLeft = () => setRotation((previous) => previous - 90);
+    const rotateRight = () => setRotation((previous) => previous + 90);
+    const zoomIn = () => setScale((previous) => Math.min(previous + 0.1, 3));
+    const zoomOut = () => setScale((previous) => Math.max(previous - 0.1, 0.1));
     const resetTransform = () => {
         setRotation(0);
         setScale(1);
@@ -156,65 +167,67 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
 
     const toggleCrop = () => {
         setIsCropping(!isCropping);
+
         if (!isCropping) {
             setCropArea(null);
         }
     };
 
     const applyCrop = () => {
-        if (!cropArea || !canvasRef.current) return;
+        if (!cropArea || !canvasReference.current)
+            return;
 
-        const canvas = canvasRef.current;
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
+        const canvas = canvasReference.current;
+        const temporaryCanvas = document.createElement("canvas");
+        const temporaryContext = temporaryCanvas.getContext("2d");
 
-        if (!tempCtx) return;
+        if (!temporaryContext)
+            return;
 
-        tempCanvas.width = cropArea.width;
-        tempCanvas.height = cropArea.height;
+        temporaryCanvas.width = cropArea.width;
+        temporaryCanvas.height = cropArea.height;
 
         // Draw the cropped portion
-        tempCtx.drawImage(
-            canvas,
-            cropArea.x, cropArea.y, cropArea.width, cropArea.height,
-            0, 0, cropArea.width, cropArea.height
-        );
+        temporaryContext.drawImage(canvas, cropArea.x, cropArea.y, cropArea.width, cropArea.height, 0, 0, cropArea.width, cropArea.height);
 
         // Convert to blob and create new file
-        tempCanvas.toBlob((blob) => {
+        temporaryCanvas.toBlob((blob) => {
             if (blob && originalFile) {
                 const newFile = new File([blob], originalFile.name, {
+                    lastModified: Date.now(),
                     type: originalFile.type,
-                    lastModified: Date.now()
                 });
+
                 onSave(newFile);
                 onClose();
             }
-        }, originalFile?.type || 'image/png');
+        }, originalFile?.type || "image/png");
     };
 
     const saveImage = () => {
-        if (!canvasRef.current || !originalFile) return;
+        if (!canvasReference.current || !originalFile)
+            return;
 
-        canvasRef.current.toBlob((blob) => {
+        canvasReference.current.toBlob((blob) => {
             if (blob) {
                 const newFile = new File([blob], originalFile.name, {
+                    lastModified: Date.now(),
                     type: originalFile.type,
-                    lastModified: Date.now()
                 });
+
                 onSave(newFile);
                 onClose();
             }
-        }, originalFile.type || 'image/png');
+        }, originalFile.type || "image/png");
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+        <Dialog onOpenChange={onClose} open={isOpen}>
+            <DialogContent className="max-h-[90vh] max-w-4xl overflow-hidden">
                 <DialogHeader>
                     <DialogTitle className="flex items-center justify-between">
                         <span>Edit Image</span>
-                        <Button variant="ghost" size="sm" onClick={onClose}>
+                        <Button onClick={onClose} size="sm" variant="ghost">
                             <X className="h-4 w-4" />
                         </Button>
                     </DialogTitle>
@@ -222,79 +235,45 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
 
                 <div className="flex flex-col gap-4">
                     {/* Image Canvas */}
-                    <div className="relative bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center min-h-[400px]">
+                    <div className="relative flex min-h-[400px] items-center justify-center overflow-hidden rounded-lg bg-gray-100">
                         <canvas
-                            ref={canvasRef}
-                            width={800}
+                            className="max-h-[400px] max-w-full cursor-crosshair"
                             height={600}
-                            className="max-w-full max-h-[400px] cursor-crosshair"
                             onMouseDown={handleMouseDown}
+                            onMouseLeave={handleMouseUp}
                             onMouseMove={handleMouseMove}
                             onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
+                            ref={canvasReference}
+                            width={800}
                         />
-                        <img
-                            ref={imageRef}
-                            alt="Original"
-                            className="hidden"
-                            crossOrigin="anonymous"
-                        />
+                        <img alt="Original" className="hidden" crossOrigin="anonymous" ref={imageReference} />
                     </div>
 
                     {/* Controls */}
                     <div className="flex flex-col gap-4">
                         {/* Toolbar */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={rotateLeft}
-                                className="flex items-center gap-2"
-                            >
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Button className="flex items-center gap-2" onClick={rotateLeft} size="sm" variant="outline">
                                 <RotateCcw className="h-4 w-4" />
                                 Rotate Left
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={rotateRight}
-                                className="flex items-center gap-2"
-                            >
+                            <Button className="flex items-center gap-2" onClick={rotateRight} size="sm" variant="outline">
                                 <RotateCw className="h-4 w-4" />
                                 Rotate Right
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={zoomOut}
-                                className="flex items-center gap-2"
-                            >
+                            <Button className="flex items-center gap-2" onClick={zoomOut} size="sm" variant="outline">
                                 <ZoomOut className="h-4 w-4" />
                                 Zoom Out
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={zoomIn}
-                                className="flex items-center gap-2"
-                            >
+                            <Button className="flex items-center gap-2" onClick={zoomIn} size="sm" variant="outline">
                                 <ZoomIn className="h-4 w-4" />
                                 Zoom In
                             </Button>
-                            <Button
-                                variant={isCropping ? "default" : "outline"}
-                                size="sm"
-                                onClick={toggleCrop}
-                                className="flex items-center gap-2"
-                            >
+                            <Button className="flex items-center gap-2" onClick={toggleCrop} size="sm" variant={isCropping ? "default" : "outline"}>
                                 <Crop className="h-4 w-4" />
                                 Crop
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={resetTransform}
-                            >
+                            <Button onClick={resetTransform} size="sm" variant="outline">
                                 Reset
                             </Button>
                         </div>
@@ -302,40 +281,48 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
                         {/* Manual Controls */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Rotation: {rotation}°</label>
+                                <label className="text-sm font-medium">
+                                    Rotation:
+                                    {rotation}
+                                    °
+                                </label>
                                 <Input
+                                    className="w-full"
+                                    max={180}
+                                    min={-180}
+                                    onChange={(e) => setRotation(Number(e.target.value))}
+                                    step={1}
                                     type="number"
                                     value={rotation}
-                                    onChange={(e) => setRotation(Number(e.target.value))}
-                                    min={-180}
-                                    max={180}
-                                    step={1}
-                                    className="w-full"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Scale: {scale.toFixed(1)}x</label>
+                                <label className="text-sm font-medium">
+                                    Scale:
+                                    {scale.toFixed(1)}
+                                    x
+                                </label>
                                 <Input
+                                    className="w-full"
+                                    max={3}
+                                    min={0.1}
+                                    onChange={(e) => setScale(Number(e.target.value))}
+                                    step={0.1}
                                     type="number"
                                     value={scale}
-                                    onChange={(e) => setScale(Number(e.target.value))}
-                                    min={0.1}
-                                    max={3}
-                                    step={0.1}
-                                    className="w-full"
                                 />
                             </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-2 justify-end">
+                        <div className="flex items-center justify-end gap-2">
                             {isCropping && cropArea && (
-                                <Button onClick={applyCrop} className="flex items-center gap-2">
+                                <Button className="flex items-center gap-2" onClick={applyCrop}>
                                     <Crop className="h-4 w-4" />
                                     Apply Crop
                                 </Button>
                             )}
-                            <Button onClick={saveImage} className="flex items-center gap-2">
+                            <Button className="flex items-center gap-2" onClick={saveImage}>
                                 <Download className="h-4 w-4" />
                                 Save Image
                             </Button>

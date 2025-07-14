@@ -33,7 +33,7 @@ import type * as file from "../file.js";
 import type * as http from "../http.js";
 import type * as lib_encryption from "../lib/encryption.js";
 import type * as lib_errors from "../lib/errors.js";
-import type * as lib_file_constants from "../lib/file_constants.js";
+import type * as lib_file_constants from "../files/lib/file_constants.js";
 import type * as lib_identity from "../lib/identity.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
 import type * as lib_systemFields from "../lib/systemFields.js";

@@ -17,6 +17,7 @@ const app: HonoWithConvex<ActionContext> = new Hono();
 app.use(
     "*",
     logger((message) => {
+        // eslint-disable-next-line no-console
         console.log(message);
     }),
 );

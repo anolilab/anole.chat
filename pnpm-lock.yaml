@@ -647,9 +647,15 @@ importers:
         specifier: ^5.1.7
         version: 5.1.7
     devDependencies:
+      '@anolilab/eslint-config':
+        specifier: 16.2.19
+        version: 16.2.19(74e9bb504486efef14ea8af86471c140)
       '@visulima/packem':
         specifier: 2.0.0-alpha.2
         version: 2.0.0-alpha.2(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)(@csstools/postcss-slow-plugins@2.0.0(postcss@8.5.6))(@types/node@24.0.13)(esbuild@0.25.6)(lightningcss@1.30.1)(postcss-value-parser@4.2.0)(postcss@8.5.6)(typescript@5.8.3)(yaml@2.8.0)
+      eslint:
+        specifier: 9.31.0
+        version: 9.31.0(jiti@2.4.2)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -24646,7 +24652,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.9.0)
+      retry-axios: 2.6.0(axios@1.9.0(debug@4.4.1))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -27978,7 +27984,7 @@ snapshots:
       onetime: 7.0.0
       signal-exit: 4.1.0
 
-  retry-axios@2.6.0(axios@1.9.0):
+  retry-axios@2.6.0(axios@1.9.0(debug@4.4.1)):
     dependencies:
       axios: 1.9.0(debug@4.4.1)
 

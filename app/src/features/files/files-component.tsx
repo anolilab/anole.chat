@@ -1,16 +1,6 @@
 import { api } from "@anole/convex/api";
 import { useMutation, useQuery } from "convex/react";
-import {
-    AlertCircle,
-    CheckCircle,
-    Download,
-    File,
-    FileText,
-    Image,
-    Trash2,
-    Upload,
-    X,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, Download, File, FileText, Image, Trash2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -173,19 +163,13 @@ const FilesComponent = () => {
     };
 
     return (
-        <div className="w-full max-w-6xl mx-auto space-y-6">
+        <div className="mx-auto w-full max-w-6xl space-y-6">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Files</h1>
-                    <p className="text-muted-foreground">
-                        Manage your uploaded files and attachments
-                    </p>
+                    <p className="text-muted-foreground">Manage your uploaded files and attachments</p>
                 </div>
-                <Button
-                    className="flex items-center gap-2"
-                    disabled={uploading}
-                    onClick={() => fileInputReference.current?.click()}
-                >
+                <Button className="flex items-center gap-2" disabled={uploading} onClick={() => fileInputReference.current?.click()}>
                     <Upload className="h-4 w-4" />
                     Upload File (Images will open in editor)
                 </Button>
@@ -224,11 +208,7 @@ const FilesComponent = () => {
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription className="flex items-center justify-between">
                         {uploadError}
-                        <Button
-                            onClick={() => setUploadError(null)}
-                            size="sm"
-                            variant="ghost"
-                        >
+                        <Button onClick={() => setUploadError(null)} size="sm" variant="ghost">
                             <X className="h-4 w-4" />
                         </Button>
                     </AlertDescription>
@@ -241,11 +221,7 @@ const FilesComponent = () => {
                     <CheckCircle className="h-4 w-4" />
                     <AlertDescription className="flex items-center justify-between">
                         {uploadSuccess}
-                        <Button
-                            onClick={() => setUploadSuccess(null)}
-                            size="sm"
-                            variant="ghost"
-                        >
+                        <Button onClick={() => setUploadSuccess(null)} size="sm" variant="ghost">
                             <X className="h-4 w-4" />
                         </Button>
                     </AlertDescription>
@@ -255,25 +231,21 @@ const FilesComponent = () => {
             {/* Files Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {files?.map((file) => (
-                    <Card className="hover:shadow-md transition-shadow" key={file.key}>
+                    <Card className="transition-shadow hover:shadow-md" key={file.key}>
                         <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-3">
                                     {getFileIcon(file.fileName, file.type)}
-                                    <div className="flex-1 min-w-0">
-                                        <CardTitle className="text-sm truncate">
-                                            {file.fileName}
-                                        </CardTitle>
-                                        <CardDescription className="text-xs">
-                                            {formatBytes(file.size)}
-                                        </CardDescription>
+                                    <div className="min-w-0 flex-1">
+                                        <CardTitle className="truncate text-sm">{file.fileName}</CardTitle>
+                                        <CardDescription className="text-xs">{formatBytes(file.size)}</CardDescription>
                                     </div>
                                 </div>
                                 {getFileTypeBadge(file.fileName, file.type)}
                             </div>
                         </CardHeader>
                         <CardContent className="pt-0">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+                            <div className="text-muted-foreground mb-3 flex items-center justify-between text-xs">
                                 <span>
                                     Uploaded
                                     {formatDate(file.uploadedAt)}
@@ -286,7 +258,7 @@ const FilesComponent = () => {
                                     size="sm"
                                     variant="outline"
                                 >
-                                    <Download className="h-3 w-3 mr-1" />
+                                    <Download className="mr-1 h-3 w-3" />
                                     Download
                                 </Button>
                                 <Button
@@ -307,15 +279,12 @@ const FilesComponent = () => {
             {files && files.length === 0 && (
                 <Card>
                     <CardContent className="flex flex-col items-center justify-center py-12">
-                        <File className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No files uploaded yet</h3>
-                        <p className="text-muted-foreground text-center mb-4">
+                        <File className="text-muted-foreground mb-4 h-12 w-12" />
+                        <h3 className="mb-2 text-lg font-semibold">No files uploaded yet</h3>
+                        <p className="text-muted-foreground mb-4 text-center">
                             Upload your first file to get started. Supported formats include text files, PDFs, and images.
                         </p>
-                        <Button
-                            className="flex items-center gap-2"
-                            onClick={() => fileInputReference.current?.click()}
-                        >
+                        <Button className="flex items-center gap-2" onClick={() => fileInputReference.current?.click()}>
                             <Upload className="h-4 w-4" />
                             Upload File (Images will open in editor)
                         </Button>
@@ -330,15 +299,15 @@ const FilesComponent = () => {
                         <Card key={index}>
                             <CardHeader className="pb-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 bg-muted rounded animate-pulse" />
+                                    <div className="bg-muted h-8 w-8 animate-pulse rounded" />
                                     <div className="flex-1 space-y-2">
-                                        <div className="h-4 bg-muted rounded animate-pulse" />
-                                        <div className="h-3 bg-muted rounded w-1/2 animate-pulse" />
+                                        <div className="bg-muted h-4 animate-pulse rounded" />
+                                        <div className="bg-muted h-3 w-1/2 animate-pulse rounded" />
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-0">
-                                <div className="h-8 bg-muted rounded animate-pulse" />
+                                <div className="bg-muted h-8 animate-pulse rounded" />
                             </CardContent>
                         </Card>
                     ))}

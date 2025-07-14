@@ -16,11 +16,5 @@ export default createConfig(
             tsconfigPath: "./tsconfig.json",
             ignoresTypeAware: ["*.json", "*.md"],
         },
-    },
-    {
-        files: ["**/*"],
-        rules: {
-            "unicorn/no-null": "off",
-        },
-    },
+    }
 );

@@ -27,7 +27,7 @@
         "build:chat": "nx run chat:build",
         "build:packages": "nx run-many --target=build --parallel --projects=tag:type:package",
         "build:packages:prod": "nx run-many --target=build:prod --parallel --projects=tag:type:package",
-        "dev:chat": "nx run-many --target=dev --parallel --projects=chat,convex",
+        "dev:chat": "nx run-many --target=dev --parallel --projects=chat,convex,cloudflare-r2-dev-server",
         "preinstall": "node -e \"if(process.env.CI == 'true') {console.info('Skipping preinstall...')} else {process.exit(1)}\" || (node verify-node-version.js && npm -y exec only-allow pnpm)",
         "lint": "pnpm run lint:prettier && pnpm run lint:eslint && lint:dedupe --check",
         "lint:dedupe": "pnpm dedupe --check",

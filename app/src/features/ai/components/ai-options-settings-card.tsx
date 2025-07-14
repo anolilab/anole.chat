@@ -67,26 +67,31 @@ const SettingsSection: FC<{
     </Card>
 );
 
-const headerSchema = z.object({
-    key: z.string(),
-    value: z.string(),
-}).strict().superRefine((data, context) => {
-    if (data.key && !data.value) {
-        context.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: t`Value is required if key is set`,
-            path: ["value"],
-        });
-    }
-});
+const headerSchema = z
+    .object({
+        key: z.string(),
+        value: z.string(),
+    })
+    .strict()
+    .superRefine((data, context) => {
+        if (data.key && !data.value) {
+            context.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: t`Value is required if key is set`,
+                path: ["value"],
+            });
+        }
+    });
 
-const mcpServerSchema = z.object({
-    enabled: z.boolean(),
-    headers: z.array(headerSchema),
-    protocol: z.string().min(1, t`Protocol is required`),
-    serverName: z.string().min(1, t`Server name is required`),
-    serverUrl: z.url(t`Must be a valid URL`).min(1, t`Server URL is required`),
-}).strict();
+const mcpServerSchema = z
+    .object({
+        enabled: z.boolean(),
+        headers: z.array(headerSchema),
+        protocol: z.string().min(1, t`Protocol is required`),
+        serverName: z.string().min(1, t`Server name is required`),
+        serverUrl: z.url(t`Must be a valid URL`).min(1, t`Server URL is required`),
+    })
+    .strict();
 
 const AiOptionsSettingsCard: FC = () => {
     const aiUserPreferences = useQuery(api.auth.functions.getAIUserPreferences, {});
@@ -142,7 +147,7 @@ const AiOptionsSettingsCard: FC = () => {
 
             <SettingsSection description={t`Connect to Model Context Protocol servers for additional AI capabilities`} title={t`MCP Servers`}>
                 <div className="mb-2">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                    <div className="mb-2 grid grid-cols-1 gap-4 md:grid-cols-2">
                         {(aiUserPreferences?.mcpServers || []).map((server: any, index: number) => (
                             <Card className="flex flex-col gap-2 p-4" key={server.url + index}>
                                 <div className="flex items-center justify-between">
@@ -176,7 +181,15 @@ const AiOptionsSettingsCard: FC = () => {
                             </Card>
                         ))}
                     </div>
-                    <Button onClick={() => { setEditServerIndex(undefined); setDialogOpen(true); }} size="sm" type="button" variant="outline">
+                    <Button
+                        onClick={() => {
+                            setEditServerIndex(undefined);
+                            setDialogOpen(true);
+                        }}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                    >
                         {t`Add MCP Server`}
                     </Button>
                     <McpServerDialog
@@ -191,9 +204,10 @@ const AiOptionsSettingsCard: FC = () => {
                         onSubmit={async (newServer) => {
                             let updatedServers;
 
-                            updatedServers = editServerIndex !== undefined && aiUserPreferences?.mcpServers
-                                ? aiUserPreferences.mcpServers.map((srv, index) => (index === editServerIndex ? newServer : srv))
-                                : [...aiUserPreferences?.mcpServers ?? [], newServer];
+                            updatedServers
+                                = editServerIndex !== undefined && aiUserPreferences?.mcpServers
+                                    ? aiUserPreferences.mcpServers.map((srv, index) => (index === editServerIndex ? newServer : srv))
+                                    : [...aiUserPreferences?.mcpServers ?? [], newServer];
 
                             await updateAIUserPreferences({
                                 mcpServers: updatedServers,
@@ -208,11 +222,7 @@ const AiOptionsSettingsCard: FC = () => {
                 description={t`Choose which service to use for web searches. BYOK providers take priority over server providers.`}
                 title={t`Web Search Provider`}
             >
-                <RadioGroup
-                    className="mb-2"
-                    onValueChange={handleSearchProviderChange}
-                    value={aiUserPreferences?.searchProvider ?? "firecrawl"}
-                >
+                <RadioGroup className="mb-2" onValueChange={handleSearchProviderChange} value={aiUserPreferences?.searchProvider ?? "firecrawl"}>
                     {WEB_SEARCH_PROVIDERS.map((provider) => (
                         <div className="mb-2 flex items-start gap-2" key={provider.id}>
                             <RadioGroupItem id={provider.id} value={provider.id} />
@@ -227,10 +237,7 @@ const AiOptionsSettingsCard: FC = () => {
 
             <SettingsSection title={t`Search Sources`}>
                 <div className="flex items-center gap-4">
-                    <Switch
-                        checked={aiUserPreferences?.searchIncludeSourcesByDefault ?? false}
-                        onCheckedChange={handleSearchIncludeSourcesChange}
-                    />
+                    <Switch checked={aiUserPreferences?.searchIncludeSourcesByDefault ?? false} onCheckedChange={handleSearchIncludeSourcesChange} />
                     <span className="text-muted-foreground text-sm">{t`Automatically include source links and citations in search responses`}</span>
                 </div>
             </SettingsSection>
@@ -286,7 +293,9 @@ const McpServerDialog = ({
             const filteredHeaders = form.state.values.headers.filter((h) => h.key && h.value);
             const newServer = {
                 enabled: form.state.values.enabled,
-                headers: filteredHeaders.map(({ key, value }) => { return { key, value }; }),
+                headers: filteredHeaders.map(({ key, value }) => {
+                    return { key, value };
+                }),
                 name: form.state.values.serverName,
                 protocol: form.state.values.protocol,
                 url: form.state.values.serverUrl,
@@ -309,13 +318,9 @@ const McpServerDialog = ({
                     <form className="space-y-4" onSubmit={form.handleSubmit}>
                         <form.AppField name="enabled">
                             {(field) => (
-                                <div className="flex items-center gap-2 mb-2">
+                                <div className="mb-2 flex items-center gap-2">
                                     <Label htmlFor="mcp-enabled">{t`Enabled`}</Label>
-                                    <Switch
-                                        checked={field.state.value}
-                                        id="mcp-enabled"
-                                        onCheckedChange={field.handleChange}
-                                    />
+                                    <Switch checked={field.state.value} id="mcp-enabled" onCheckedChange={field.handleChange} />
                                 </div>
                             )}
                         </form.AppField>
@@ -373,22 +378,30 @@ const McpServerDialog = ({
                         <form.AppField name="headers">
                             {(field) => (
                                 <div>
-                                    <div className="flex items-center justify-between mb-2">
+                                    <div className="mb-2 flex items-center justify-between">
                                         <Label>{t`Headers`}</Label>
-                                        <Button onClick={() => form.setFieldValue("headers", [...form.state.values.headers, { key: "", value: "" }])} size="sm" type="button" variant="secondary">
-                                            <Plus className="h-4 w-4 mr-1" />
+                                        <Button
+                                            onClick={() => form.setFieldValue("headers", [...form.state.values.headers, { key: "", value: "" }])}
+                                            size="sm"
+                                            type="button"
+                                            variant="secondary"
+                                        >
+                                            <Plus className="mr-1 h-4 w-4" />
                                             {t`Add Header`}
                                         </Button>
                                     </div>
-                                    <div className="flex flex-col gap-2 my-2">
+                                    <div className="my-2 flex flex-col gap-2">
                                         {field.state.value.map((header, index) => (
                                             <div className="flex items-center gap-2" key={`empty-${index}`}>
                                                 <div className="flex flex-col">
                                                     <Input
                                                         aria-label={t`Header Key`}
-                                                        onChange={(event_) => form.setFieldValue(
-                                                            "headers",
-                                                            form.state.values.headers.map((h) => (h.key === header.key ? { ...h, key: event_.target.value } : h)),
+                                                        onChange={(event_) =>
+                                                            form.setFieldValue(
+                                                                "headers",
+                                                                form.state.values.headers.map((h) =>
+                                                                    (h.key === header.key ? { ...h, key: event_.target.value } : h),
+                                                                ),
                                                         )}
                                                         placeholder={t`Header Key`}
                                                         value={header.key}
@@ -397,24 +410,28 @@ const McpServerDialog = ({
                                                 <div className="flex flex-col">
                                                     <Input
                                                         aria-label={t`Header Value`}
-                                                        onChange={(event_) => form.setFieldValue(
-                                                            "headers",
-                                                            form.state.values.headers.map((h) => (h.key === header.key ? { ...h, value: event_.target.value } : h)),
+                                                        onChange={(event_) =>
+                                                            form.setFieldValue(
+                                                                "headers",
+                                                                form.state.values.headers.map((h) =>
+                                                                    (h.key === header.key ? { ...h, value: event_.target.value } : h),
+                                                                ),
                                                         )}
                                                         placeholder={t`Header Value`}
                                                         value={header.value}
                                                     />
                                                     {/* Show error if key is set and value is empty */}
                                                     {header.key && !header.value && (
-                                                        <span className="text-xs text-destructive mt-1">{t`Value is required if key is set`}</span>
+                                                        <span className="text-destructive mt-1 text-xs">{t`Value is required if key is set`}</span>
                                                     )}
                                                 </div>
                                                 <button
                                                     aria-label="Delete header"
                                                     className="text-muted-foreground hover:text-destructive ml-1"
-                                                    onClick={() => form.setFieldValue(
-                                                        "headers",
-                                                        form.state.values.headers.filter((h) => h.key !== header.key),
+                                                    onClick={() =>
+                                                        form.setFieldValue(
+                                                            "headers",
+                                                            form.state.values.headers.filter((h) => h.key !== header.key),
                                                     )}
                                                     style={deleteHeaderButtonStyle}
                                                     type="button"
@@ -433,7 +450,9 @@ const McpServerDialog = ({
                                     {t`Cancel`}
                                 </Button>
                             </DialogClose>
-                            <Button disabled={!form.state.isValid} type="submit">{editServerIndex === undefined ? t`Add Server` : t`Save Changes`}</Button>
+                            <Button disabled={!form.state.isValid} type="submit">
+                                {editServerIndex === undefined ? t`Add Server` : t`Save Changes`}
+                            </Button>
                         </DialogFooterUI>
                     </form>
                 </form.AppForm>

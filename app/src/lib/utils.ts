@@ -30,15 +30,16 @@ export const convertImageToBase64 = async (file: File): Promise<string> =>
  * Format bytes to human readable format
  */
 export const formatBytes = (bytes: number, decimals = 2): string => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0)
+        return "0 Bytes";
 
     const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
+    const dm = Math.max(decimals, 0);
     const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
 
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const index = Math.floor(Math.log(bytes) / Math.log(k));
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+    return `${Number.parseFloat((bytes / k ** index).toFixed(dm))} ${sizes[index]}`;
 };
 
 /**
@@ -51,16 +52,24 @@ export const formatDate = (timestamp: number): string => {
 
     if (diffInHours < 1) {
         const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-        return `${diffInMinutes} minute${diffInMinutes !== 1 ? "s" : ""} ago`;
-    } else if (diffInHours < 24) {
-        const hours = Math.floor(diffInHours);
-        return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
-    } else if (diffInHours < 168) { // 7 days
-        const days = Math.floor(diffInHours / 24);
-        return `${days} day${days !== 1 ? "s" : ""} ago`;
-    } else {
-        return date.toLocaleDateString();
+
+        return `${diffInMinutes} minute${diffInMinutes === 1 ? "" : "s"} ago`;
     }
+
+    if (diffInHours < 24) {
+        const hours = Math.floor(diffInHours);
+
+        return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    }
+
+    if (diffInHours < 168) {
+        // 7 days
+        const days = Math.floor(diffInHours / 24);
+
+        return `${days} day${days === 1 ? "" : "s"} ago`;
+    }
+
+    return date.toLocaleDateString();
 };
 
 /**

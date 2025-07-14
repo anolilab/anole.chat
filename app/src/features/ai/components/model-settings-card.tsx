@@ -31,15 +31,17 @@ const ModelSettingsCard: FC = () => {
     const customModels = useMemo(() => aiSettings?.customModels || {}, [aiSettings]);
 
     // --- Custom Model Form ---
-    const customModelSchema = z.object({
-        abilities: z.array(z.string()),
-        contextLength: z.number(),
-        enabled: z.boolean(),
-        maxTokens: z.number(),
-        modelId: z.string(),
-        name: z.string(),
-        providerId: z.string(),
-    }).strict();
+    const customModelSchema = z
+        .object({
+            abilities: z.array(z.string()),
+            contextLength: z.number(),
+            enabled: z.boolean(),
+            maxTokens: z.number(),
+            modelId: z.string(),
+            name: z.string(),
+            providerId: z.string(),
+        })
+        .strict();
     const initialCustomModel = useMemo(() => {
         return {
             abilities: ["text"],
