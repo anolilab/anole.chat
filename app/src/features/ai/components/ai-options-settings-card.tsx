@@ -3,7 +3,7 @@ import { t } from "@lingui/core/macro";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
 import type { FC, ReactNode } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { z } from "zod/v4";
 
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import {
     DialogFooter as DialogFooterUI,
     DialogHeader,
     DialogTitle as DialogTitleUI,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAppForm } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -149,8 +148,14 @@ const AiOptionsSettingsCard: FC = () => {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <div className="font-semibold">{server.name}</div>
-                                        <div className="text-xs break-all">Url: <span className="text-muted-foreground">{server.url}</span></div>
-                                        <div className="text-xs break-all">Protocol: <span className="text-muted-foreground">{server.protocol}</span></div>
+                                        <div className="text-xs break-all">
+                                            Url:
+                                            <span className="text-muted-foreground">{server.url}</span>
+                                        </div>
+                                        <div className="text-xs break-all">
+                                            Protocol:
+                                            <span className="text-muted-foreground">{server.protocol}</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {server.enabled
