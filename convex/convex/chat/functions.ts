@@ -209,6 +209,15 @@ export const getThreads = authedQuery({
     },
 });
 
+export const getThread = authedQuery({
+    args: {
+        threadId: v.string(),
+    },
+    handler: async (context, { threadId }) => {
+        return await context.runQuery(components.agent.threads.getThread, { threadId });
+    },
+});
+
 export const updateThread = authedAction({
     args: {
         model: v.string(),
@@ -465,7 +474,7 @@ export const getChildThreads = authedQuery({
         // Get the actual thread data for each child
         const childThreads = [];
 
-        for (const relationship of relationships) {
+        for await (const relationship of relationships) {
             const thread = await context.runQuery(
                 components.agent.threads.getThread,
                 {

@@ -85,8 +85,9 @@ export const NavUser = () => {
     );
 
     useEffect(() => {
-        if (!multiSession)
+        if (!multiSession) {
             return;
+        }
 
         setActiveSessionPending(false);
     }, [sessionData, multiSession]);

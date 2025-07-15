@@ -17,7 +17,7 @@ const KeybindingTooltip: React.FC<KeybindingTooltipProperties> = ({ align = "cen
     if (hidden) {
         return <>{children}</>;
     }
-    
+
     return (
         <TooltipProvider delayDuration={0}>
             <div className={cn("inline-flex", className)}>

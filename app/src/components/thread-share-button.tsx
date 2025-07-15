@@ -1,18 +1,25 @@
+import { t } from "@lingui/core/macro";
 import { Share2 } from "lucide-react";
+import type { FC } from "react";
 
 import ThreadShareDialog from "./thread-share-dialog";
 import { Button } from "./ui/button";
 
 interface ThreadShareButtonProperties {
-    size?: "default" | "sm" | "lg" | "icon";
+    classes?: {
+        button?: string;
+        icon?: string;
+    };
     threadId: string;
-    variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 }
 
-export const ThreadShareButton = ({ size = "icon", threadId, variant = "ghost" }: ThreadShareButtonProperties) => (
+const ThreadShareButton: FC<ThreadShareButtonProperties> = ({ classes, threadId }) => (
     <ThreadShareDialog threadId={threadId}>
-        <Button size={size} variant={variant}>
-            <Share2 className="h-4 w-4" />
+        <Button className={classes?.button} size="icon" variant="ghost">
+            <Share2 className={classes?.icon} />
+            <span className="sr-only">{t`Share Thread`}</span>
         </Button>
     </ThreadShareDialog>
 );
+
+export default ThreadShareButton;

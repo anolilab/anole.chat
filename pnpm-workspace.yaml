@@ -8,7 +8,9 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - '@tailwindcss/oxide'
   - core-js
+  - edgedriver
   - esbuild
+  - geckodriver
   - nx
   - protobufjs
   - sharp

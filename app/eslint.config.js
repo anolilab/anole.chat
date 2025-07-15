@@ -14,6 +14,7 @@ export default createConfig(
             tsconfigPath: "./tsconfig.json",
             ignoresTypeAware: ["*.json", "*.md"],
         },
+        vitest: false
     },
     {
         files: ["**/src/routes/**/*.tsx", "**/src/routes/api/**/*.ts"],
@@ -24,10 +25,10 @@ export default createConfig(
         },
     },
     {
-        files: ["**/*.test.tsx"],
+        files: ["**/*"],
         rules: {
             // this need types
             "vitest/prefer-describe-function-title": "off",
-        }
-    }
+        },
+    },
 );
