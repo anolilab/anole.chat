@@ -1,10 +1,11 @@
+import { api } from "@anole/convex/api";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
-import { api } from "@anole/convex/api";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const InvitePage = () => {
     const { inviteToken } = Route.useParams();
@@ -16,10 +17,11 @@ const InvitePage = () => {
     const handleAcceptInvite = async () => {
         try {
             const result = await acceptInvite({ inviteToken });
+
             setStatus("success");
             // Redirect to the thread after a short delay
             setTimeout(() => {
-                window.location.href = `/chat/${result.threadId}`;
+                globalThis.location.href = `/chat/${result.threadId}`;
             }, 2000);
         } catch (error) {
             setStatus("error");
@@ -28,7 +30,7 @@ const InvitePage = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="bg-background flex min-h-screen items-center justify-center">
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -46,21 +48,13 @@ const InvitePage = () => {
                 </CardHeader>
                 <CardContent>
                     {status === "loading" && (
-                        <Button onClick={handleAcceptInvite} className="w-full">
+                        <Button className="w-full" onClick={handleAcceptInvite}>
                             Accept Invite
                         </Button>
                     )}
-                    {status === "success" && (
-                        <div className="text-center text-sm text-muted-foreground">
-                            Redirecting to the thread...
-                        </div>
-                    )}
+                    {status === "success" && <div className="text-muted-foreground text-center text-sm">Redirecting to the thread...</div>}
                     {status === "error" && (
-                        <Button
-                            onClick={() => window.location.href = "/chat"}
-                            variant="outline"
-                            className="w-full"
-                        >
+                        <Button className="w-full" onClick={() => (globalThis.location.href = "/chat")} variant="outline">
                             Go to Chat
                         </Button>
                     )}

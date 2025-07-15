@@ -9,9 +9,19 @@ interface MagicLinkEmailProperties {
     url: string;
 }
 
-export default function MagicLinkEmail({ brandLogoUrl, brandName, brandTagline, url }: MagicLinkEmailProperties) {
+export default function MagicLinkEmail({
+    brandLogoUrl,
+    brandName,
+    brandTagline,
+    url,
+}: MagicLinkEmailProperties) {
     return (
-        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Sign in with this magic link">
+        <BaseEmail
+            brandLogoUrl={brandLogoUrl}
+            brandName={brandName}
+            brandTagline={brandTagline}
+            previewText="Sign in with this magic link"
+        >
             <Heading style={styles.h1}>Sign in</Heading>
             <Link
                 href={url}
@@ -32,7 +42,8 @@ export default function MagicLinkEmail({ brandLogoUrl, brandName, brandTagline, 
                     marginTop: "14px",
                 }}
             >
-                If you didn&apos;t try to sign in, you can safely ignore this email.
+                If you didn&apos;t try to sign in, you can safely ignore this
+                email.
             </Text>
         </BaseEmail>
     );

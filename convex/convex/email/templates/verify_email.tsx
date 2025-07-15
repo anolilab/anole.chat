@@ -9,9 +9,19 @@ interface VerifyEmailProperties {
     url: string;
 }
 
-export default function VerifyEmail({ brandLogoUrl, brandName, brandTagline, url }: VerifyEmailProperties) {
+export default function VerifyEmail({
+    brandLogoUrl,
+    brandName,
+    brandTagline,
+    url,
+}: VerifyEmailProperties) {
     return (
-        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Verify your email address">
+        <BaseEmail
+            brandLogoUrl={brandLogoUrl}
+            brandName={brandName}
+            brandTagline={brandTagline}
+            previewText="Verify your email address"
+        >
             <Heading style={styles.h1}>Verify your email</Heading>
             <Link
                 href={url}
@@ -32,7 +42,8 @@ export default function VerifyEmail({ brandLogoUrl, brandName, brandTagline, url
                     marginTop: "14px",
                 }}
             >
-                If you didn&apos;t create an account, you can safely ignore this email.
+                If you didn&apos;t create an account, you can safely ignore this
+                email.
             </Text>
         </BaseEmail>
     );

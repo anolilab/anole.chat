@@ -3,9 +3,11 @@ import { v } from "convex/values";
 import { authedQuery } from "../auth/functions";
 import { MODELS_SHARED } from "./lib/models";
 
-const getDaysSinceEpoch = (daysAgo: number) => Math.floor(Date.now() / (24 * 60 * 60 * 1000)) - daysAgo;
+const getDaysSinceEpoch = (daysAgo: number) =>
+    Math.floor(Date.now() / (24 * 60 * 60 * 1000)) - daysAgo;
 
-const getHoursSinceEpoch = (hoursAgo: number) => Math.floor(Date.now() / (60 * 60 * 1000)) - hoursAgo;
+const getHoursSinceEpoch = (hoursAgo: number) =>
+    Math.floor(Date.now() / (60 * 60 * 1000)) - hoursAgo;
 
 export const getMyUsageStats = authedQuery({
     args: {
@@ -18,7 +20,10 @@ export const getMyUsageStats = authedQuery({
         // Get user's events in time range - super efficient with the index
         const events = await context.db
             .query("usageEvents")
-            .withIndex("byUserDay", (q) => q.eq("userId", context.user._id).gte("daysSinceEpoch", startDay))
+            .withIndex("byUserDay", (q) =>
+                q
+                    .eq("userId", context.user._id)
+                    .gte("daysSinceEpoch", startDay))
             .collect();
 
         // Post-filter by model and aggregate
@@ -32,7 +37,10 @@ export const getMyUsageStats = authedQuery({
                 promptTokens: modelEvents.reduce((sum, e) => sum + e.p, 0),
                 reasoningTokens: modelEvents.reduce((sum, e) => sum + e.r, 0),
                 requests: modelEvents.length,
-                totalTokens: modelEvents.reduce((sum, e) => sum + e.p + e.c + e.r, 0),
+                totalTokens: modelEvents.reduce(
+                    (sum, e) => sum + e.p + e.c + e.r,
+                    0,
+                ),
             };
         }).filter((stat) => stat.requests > 0);
 
@@ -92,7 +100,11 @@ export const getMyUsageChartData = authedQuery({
             for (let index = hours - 1; index >= 0; index--) {
                 const hourStart = Date.now() - index * 60 * 60 * 1000;
                 const hourEnd = Date.now() - (index - 1) * 60 * 60 * 1000;
-                const hourEvents = events.filter((e) => e._creationTime >= hourStart && e._creationTime < hourEnd);
+                const hourEvents = events.filter(
+                    (e) =>
+                        e._creationTime >= hourStart
+                        && e._creationTime < hourEnd,
+                );
 
                 const hourData = {
                     date: new Date(hourStart).toISOString(),
@@ -108,20 +120,37 @@ export const getMyUsageChartData = authedQuery({
                         }
                     >,
                     totalRequests: hourEvents.length,
-                    totalTokens: hourEvents.reduce((sum, e) => sum + e.p + e.c + e.r, 0),
+                    totalTokens: hourEvents.reduce(
+                        (sum, e) => sum + e.p + e.c + e.r,
+                        0,
+                    ),
                 };
 
                 // Post-filter by model for this hour
                 MODELS_SHARED.forEach((model) => {
-                    const modelEvents = hourEvents.filter((e) => e.modelId === model.id);
+                    const modelEvents = hourEvents.filter(
+                        (e) => e.modelId === model.id,
+                    );
 
                     if (modelEvents.length > 0) {
                         hourData.models[model.id] = {
-                            completionTokens: modelEvents.reduce((sum, e) => sum + e.c, 0),
-                            promptTokens: modelEvents.reduce((sum, e) => sum + e.p, 0),
-                            reasoningTokens: modelEvents.reduce((sum, e) => sum + e.r, 0),
+                            completionTokens: modelEvents.reduce(
+                                (sum, e) => sum + e.c,
+                                0,
+                            ),
+                            promptTokens: modelEvents.reduce(
+                                (sum, e) => sum + e.p,
+                                0,
+                            ),
+                            reasoningTokens: modelEvents.reduce(
+                                (sum, e) => sum + e.r,
+                                0,
+                            ),
                             requests: modelEvents.length,
-                            tokens: modelEvents.reduce((sum, e) => sum + e.p + e.c + e.r, 0),
+                            tokens: modelEvents.reduce(
+                                (sum, e) => sum + e.p + e.c + e.r,
+                                0,
+                            ),
                         };
                     }
                 });
@@ -139,7 +168,10 @@ export const getMyUsageChartData = authedQuery({
         // Get user's events in time range
         const events = await context.db
             .query("usageEvents")
-            .withIndex("byUserDay", (q) => q.eq("userId", context.user._id).gte("daysSinceEpoch", startDay))
+            .withIndex("byUserDay", (q) =>
+                q
+                    .eq("userId", context.user._id)
+                    .gte("daysSinceEpoch", startDay))
             .collect();
 
         // Group by day
@@ -147,10 +179,14 @@ export const getMyUsageChartData = authedQuery({
 
         for (let index = days - 1; index >= 0; index--) {
             const daysSince = getDaysSinceEpoch(index);
-            const dayEvents = events.filter((e) => e.daysSinceEpoch === daysSince);
+            const dayEvents = events.filter(
+                (e) => e.daysSinceEpoch === daysSince,
+            );
 
             const dayData = {
-                date: new Date(daysSince * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+                date: new Date(daysSince * 24 * 60 * 60 * 1000)
+                    .toISOString()
+                    .split("T")[0],
                 daysSinceEpoch: daysSince,
                 models: {} as Record<
                     string,
@@ -163,20 +199,37 @@ export const getMyUsageChartData = authedQuery({
                     }
                 >,
                 totalRequests: dayEvents.length,
-                totalTokens: dayEvents.reduce((sum, e) => sum + e.p + e.c + e.r, 0),
+                totalTokens: dayEvents.reduce(
+                    (sum, e) => sum + e.p + e.c + e.r,
+                    0,
+                ),
             };
 
             // Post-filter by model for this day
             MODELS_SHARED.forEach((model) => {
-                const modelEvents = dayEvents.filter((e) => e.modelId === model.id);
+                const modelEvents = dayEvents.filter(
+                    (e) => e.modelId === model.id,
+                );
 
                 if (modelEvents.length > 0) {
                     dayData.models[model.id] = {
-                        completionTokens: modelEvents.reduce((sum, e) => sum + e.c, 0),
-                        promptTokens: modelEvents.reduce((sum, e) => sum + e.p, 0),
-                        reasoningTokens: modelEvents.reduce((sum, e) => sum + e.r, 0),
+                        completionTokens: modelEvents.reduce(
+                            (sum, e) => sum + e.c,
+                            0,
+                        ),
+                        promptTokens: modelEvents.reduce(
+                            (sum, e) => sum + e.p,
+                            0,
+                        ),
+                        reasoningTokens: modelEvents.reduce(
+                            (sum, e) => sum + e.r,
+                            0,
+                        ),
                         requests: modelEvents.length,
-                        tokens: modelEvents.reduce((sum, e) => sum + e.p + e.c + e.r, 0),
+                        tokens: modelEvents.reduce(
+                            (sum, e) => sum + e.p + e.c + e.r,
+                            0,
+                        ),
                     };
                 }
             });
@@ -200,7 +253,10 @@ export const getMyModelUsage = authedQuery({
         // Get user's events, then filter by model
         const events = await context.db
             .query("usageEvents")
-            .withIndex("byUserDay", (q) => q.eq("userId", context.user._id).gte("daysSinceEpoch", startDay))
+            .withIndex("byUserDay", (q) =>
+                q
+                    .eq("userId", context.user._id)
+                    .gte("daysSinceEpoch", startDay))
             .filter((q) => q.eq(q.field("modelId"), modelId))
             .collect();
 

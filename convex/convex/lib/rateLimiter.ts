@@ -81,21 +81,26 @@ export const rateLimiter = new RateLimiter(components.rateLimiter, {
 /**
  * Rate limit configuration types for type safety
  */
-export type RateLimitName =
-    | "promptImprovement"
-    | "promptImprovementAnonymous"
-    | "chatMessage"
-    | "chatMessageAnonymous"
-    | "globalPromptImprovement"
-    | "authFailure"
-    | "apiUsage";
+export type RateLimitName
+    = | "promptImprovement"
+        | "promptImprovementAnonymous"
+        | "chatMessage"
+        | "chatMessageAnonymous"
+        | "globalPromptImprovement"
+        | "authFailure"
+        | "apiUsage";
 
 /**
  * Helper function to get the appropriate rate limit name based on user authentication
  */
-export function getRateLimitName(operation: "promptImprovement" | "chatMessage", isAuthenticated: boolean): RateLimitName {
+export function getRateLimitName(
+    operation: "promptImprovement" | "chatMessage",
+    isAuthenticated: boolean,
+): RateLimitName {
     if (operation === "promptImprovement") {
-        return isAuthenticated ? "promptImprovement" : "promptImprovementAnonymous";
+        return isAuthenticated
+            ? "promptImprovement"
+            : "promptImprovementAnonymous";
     }
 
     if (operation === "chatMessage") {
@@ -155,7 +160,11 @@ export async function checkRateLimit(
 /**
  * Reset rate limit for a specific key (useful for successful operations)
  */
-export async function resetRateLimit(context: any, operation: RateLimitName, key?: string): Promise<void> {
+export async function resetRateLimit(
+    context: any,
+    operation: RateLimitName,
+    key?: string,
+): Promise<void> {
     await rateLimiter.reset(context, operation, { key });
 }
 

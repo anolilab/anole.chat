@@ -33,5 +33,6 @@ if (typeof MessageChannel === "undefined") {
         }
     }
 
-    globalThis.MessageChannel = MockMessageChannel as unknown as typeof MessageChannel;
+    globalThis.MessageChannel
+        = MockMessageChannel as unknown as typeof MessageChannel;
 }

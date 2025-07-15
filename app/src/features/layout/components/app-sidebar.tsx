@@ -8,31 +8,6 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } fr
 import { NavUser } from "@/features/layout/components/nav-user";
 import { cn } from "@/lib/utils";
 
-const sidebarLinks: {
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    matcher?: (pathname: string) => boolean;
-    to: string;
-}[] = [
-    {
-        icon: MessageSquare,
-        label: t`Open messages`,
-        matcher: (pathname) => pathname.startsWith("/chat"),
-        to: "/chat",
-    },
-    {
-        icon: File,
-        label: t`Files`,
-        to: "/files",
-    },
-    {
-        icon: Cog,
-        label: t`Open Account Settings`,
-        matcher: (pathname) => pathname.startsWith("/dashboard/settings"),
-        to: "/dashboard/settings/auth/account",
-    },
-];
-
 const AppSidebar = ({
     className,
     content,
@@ -40,6 +15,31 @@ const AppSidebar = ({
     header,
 }: React.ComponentProps<typeof Sidebar> & { content: React.ReactNode; footer?: React.ReactNode; header?: React.ReactNode }) => {
     const location = useLocation();
+
+    const sidebarLinks: {
+        icon: React.ComponentType<{ className?: string }>;
+        label: string;
+        matcher?: (pathname: string) => boolean;
+        to: string;
+    }[] = [
+        {
+            icon: MessageSquare,
+            label: t`Open messages`,
+            matcher: (pathname) => pathname.startsWith("/chat"),
+            to: "/chat",
+        },
+        {
+            icon: File,
+            label: t`Files`,
+            to: "/files",
+        },
+        {
+            icon: Cog,
+            label: t`Open Account Settings`,
+            matcher: (pathname) => pathname.startsWith("/dashboard/settings"),
+            to: "/dashboard/settings/auth/account",
+        },
+    ];
 
     return (
         <Sidebar className={cn("py-0 pl-0 [&>div]:flex-row", className)} collapsible="offcanvas" variant="inset">

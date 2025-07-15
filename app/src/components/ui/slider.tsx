@@ -5,7 +5,11 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Slider = ({ className, ref, ...properties }: React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> & { ref?: React.RefObject<React.ElementRef<typeof SliderPrimitive.Root> | null> }) => (
+const Slider = ({
+    className,
+    ref,
+    ...properties
+}: React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> & { ref?: React.RefObject<React.ElementRef<typeof SliderPrimitive.Root> | null> }) => (
     <SliderPrimitive.Root className={cn("relative flex w-full touch-none items-center select-none", className)} ref={ref} {...properties}>
         <SliderPrimitive.Track className="bg-secondary relative h-2 w-full grow overflow-hidden rounded-full">
             <SliderPrimitive.Range className="bg-primary absolute h-full" />

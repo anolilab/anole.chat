@@ -8,7 +8,7 @@
         "paths": {
             "@/*": ["./src/*"]
         },
-        "types": ["vite/client"]
+        "types": ["vite/client", "@vitest/browser/matchers"]
     },
     "include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.js"],
     "exclude": ["**/*.md", "**/*.json"]

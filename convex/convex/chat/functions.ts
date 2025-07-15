@@ -4,17 +4,21 @@ import type { PaginationResult } from "convex/server";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import z from "zod";
-import threadTitlePrompt from "./prompts/thread-title-prompt.txt";
 
 import { components, internal } from "../_generated/api";
 import type { Id } from "../_generated/dataModel";
 import type { ActionCtx as ActionContext } from "../_generated/server";
-import { internalAction, internalMutation, internalQuery } from "../_generated/server";
+import {
+    internalAction,
+    internalMutation,
+    internalQuery,
+} from "../_generated/server";
 import type { AgentModel } from "../ai/lib/agents";
 import { getAgent } from "../ai/lib/agents";
 import createCacheMiddleware from "../ai/middlewares/cacheMiddleware";
-import { authedMutation, authedQuery, authedAction } from "../auth/functions";
+import { authedAction, authedMutation, authedQuery } from "../auth/functions";
 import { checkRateLimit, getRateLimitName } from "../lib/rateLimiter";
+import threadTitlePrompt from "./prompts/thread-title-prompt.txt";
 
 export const createThread = authedMutation({
     args: {
@@ -35,19 +39,25 @@ export const createThread = authedMutation({
             userId,
         };
 
-        const { threadId }: { threadId: string } = await agent.createThread(context, createOptions);
+        const { threadId }: { threadId: string } = await agent.createThread(
+            context,
+            createOptions,
+        );
 
         // TODO: Fix upstream - @convex-dev/agent createThread doesn't support parentThreadIds
         // The agent's createThread function signature doesn't include parentThreadIds parameter
         // Once this is added upstream, we can pass parentThreadIds directly in createOptions above
         // Create thread relationship if this is a branch
         if (arguments_.parentThreadId) {
-            await context.runMutation(internal.chat.functions.createThreadRelationship, {
-                branchPoint: arguments_.branchPoint || 0,
-                branchType: "branch",
-                parentThreadId: arguments_.parentThreadId,
-                threadId,
-            });
+            await context.runMutation(
+                internal.chat.functions.createThreadRelationship,
+                {
+                    branchPoint: arguments_.branchPoint || 0,
+                    branchType: "branch",
+                    parentThreadId: arguments_.parentThreadId,
+                    threadId,
+                },
+            );
         }
 
         return threadId;
@@ -61,15 +71,21 @@ export const getThreadMessages = authedQuery({
         paginationOpts: paginationOptsValidator,
         threadId: v.string(),
     },
-    handler: async (context, { model, paginationOpts, threadId }): Promise<PaginationResult<MessageDoc>> => {
+    handler: async (
+        context,
+        { model, paginationOpts, threadId },
+    ): Promise<PaginationResult<MessageDoc>> => {
         const userId = context.user._id;
 
         // Check if user has access to this thread
-        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
-            threadId,
-            userId,
-            requiredPermission: "read",
-        });
+        const hasAccess = await context.runQuery(
+            internal.chat.sharing.checkThreadAccess,
+            {
+                requiredPermission: "read",
+                threadId,
+                userId,
+            },
+        );
 
         if (!hasAccess) {
             throw new ConvexError("Access denied to this thread");
@@ -78,9 +94,12 @@ export const getThreadMessages = authedQuery({
         const agent = getAgent(model as AgentModel);
 
         // Check if this thread has a parent (is a branch)
-        const threadRelationship = await context.runQuery(internal.chat.functions.getThreadRelationship, {
-            threadId,
-        });
+        const threadRelationship = await context.runQuery(
+            internal.chat.functions.getThreadRelationship,
+            {
+                threadId,
+            },
+        );
 
         if (threadRelationship) {
             // Get parent messages up to the branch point
@@ -96,18 +115,37 @@ export const getThreadMessages = authedQuery({
             });
 
             // Take only parent messages up to the branch point (inclusive)
-            const parentMessagesUpToBranch = parentMessages.page.slice(0, (threadRelationship.branchPoint || 0) + 1);
+            const parentMessagesUpToBranch = parentMessages.page.slice(
+                0,
+                (threadRelationship.branchPoint || 0) + 1,
+            );
 
             // Merge parent messages with current thread messages
-            const mergedMessages = [...parentMessagesUpToBranch, ...currentMessages.page];
+            const mergedMessages = [
+                ...parentMessagesUpToBranch,
+                ...currentMessages.page,
+            ];
 
             // Apply pagination to the merged result
-            const startIndex = paginationOpts.cursor ? mergedMessages.findIndex((m) => m._id === paginationOpts.cursor) + 1 : 0;
-            const endIndex = Math.min(startIndex + paginationOpts.numItems, mergedMessages.length);
-            const paginatedMessages = mergedMessages.slice(startIndex, endIndex);
+            const startIndex = paginationOpts.cursor
+                ? mergedMessages.findIndex(
+                    (m) => m._id === paginationOpts.cursor,
+                ) + 1
+                : 0;
+            const endIndex = Math.min(
+                startIndex + paginationOpts.numItems,
+                mergedMessages.length,
+            );
+            const paginatedMessages = mergedMessages.slice(
+                startIndex,
+                endIndex,
+            );
 
             return {
-                continueCursor: endIndex < mergedMessages.length ? (mergedMessages[endIndex - 1]?._id ?? "") : "",
+                continueCursor:
+                    endIndex < mergedMessages.length
+                        ? mergedMessages[endIndex - 1]?._id ?? ""
+                        : "",
                 isDone: endIndex >= mergedMessages.length,
                 page: paginatedMessages,
             };
@@ -129,11 +167,14 @@ export const continueThread = authedAction({
         const userId = context.user._id;
 
         // Check if user has write access to this thread
-        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
-            threadId,
-            userId,
-            requiredPermission: "write",
-        });
+        const hasAccess = await context.runQuery(
+            internal.chat.sharing.checkThreadAccess,
+            {
+                requiredPermission: "write",
+                threadId,
+                userId,
+            },
+        );
 
         if (!hasAccess) {
             throw new ConvexError("Write access denied to this thread");
@@ -141,7 +182,10 @@ export const continueThread = authedAction({
 
         const agent = getAgent(model as AgentModel);
 
-        const { thread } = await agent.continueThread(context, { threadId, userId });
+        const { thread } = await agent.continueThread(context, {
+            threadId,
+            userId,
+        });
 
         const result = await thread.streamText({ prompt });
 
@@ -151,9 +195,15 @@ export const continueThread = authedAction({
 
 export const getThreads = authedQuery({
     args: { paginationOpts: paginationOptsValidator },
-    handler: async (context, { paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
-        const userId = context.user._id;;
-        const results = await context.runQuery(components.agent.threads.listThreadsByUserId, { paginationOpts, userId });
+    handler: async (
+        context,
+        { paginationOpts },
+    ): Promise<PaginationResult<ThreadDoc>> => {
+        const userId = context.user._id;
+        const results = await context.runQuery(
+            components.agent.threads.listThreadsByUserId,
+            { paginationOpts, userId },
+        );
 
         return results;
     },
@@ -168,15 +218,21 @@ export const updateThread = authedAction({
         threadId: v.string(),
         title: v.optional(v.string()),
     },
-    handler: async (context, { model, order, status, summary, threadId, title }) => {
+    handler: async (
+        context,
+        { model, order, status, summary, threadId, title },
+    ) => {
         const userId = context.user._id;
 
         // Check if user has admin access to this thread
-        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
-            threadId,
-            userId,
-            requiredPermission: "admin",
-        });
+        const hasAccess = await context.runQuery(
+            internal.chat.sharing.checkThreadAccess,
+            {
+                requiredPermission: "admin",
+                threadId,
+                userId,
+            },
+        );
 
         if (!hasAccess) {
             throw new ConvexError("Admin access denied to this thread");
@@ -184,7 +240,10 @@ export const updateThread = authedAction({
 
         const agent = getAgent(model as AgentModel);
 
-        const { thread } = await agent.continueThread(context, { threadId, userId });
+        const { thread } = await agent.continueThread(context, {
+            threadId,
+            userId,
+        });
 
         await thread.updateMetadata({ status, summary, title });
 
@@ -192,7 +251,10 @@ export const updateThread = authedAction({
     },
 });
 
-export const streamHttpAction = async (context: ActionContext, request: Request) => {
+export const streamHttpAction = async (
+    context: ActionContext,
+    request: Request,
+) => {
     const { fileIds, model, prompt, threadId } = (await request.json()) as {
         fileIds?: string[];
         model: string;
@@ -200,12 +262,14 @@ export const streamHttpAction = async (context: ActionContext, request: Request)
         threadId?: string;
     };
 
-    const user = await context.runQuery(internal.auth.functions.getCurrentUser)
+    const user = await context.runQuery(internal.auth.functions.getCurrentUser);
     const userId = user._id;
 
     const agent = getAgent(model as AgentModel);
 
-    const { thread } = threadId ? await agent.continueThread(context, { threadId, userId }) : await agent.createThread(context, { userId });
+    const { thread } = threadId
+        ? await agent.continueThread(context, { threadId, userId })
+        : await agent.createThread(context, { userId });
 
     // Create message content with file support
     const messageContent: any[] = [];
@@ -214,7 +278,11 @@ export const streamHttpAction = async (context: ActionContext, request: Request)
         try {
             for (const fileId of fileIds) {
                 // @ts-ignore - Ignoring TypeScript errors for getFile function
-                const { filePart, imagePart } = await getFile(context, components.agent, fileId);
+                const { filePart, imagePart } = await getFile(
+                    context,
+                    components.agent,
+                    fileId,
+                );
 
                 // Add file content to message (image takes precedence over file)
                 if (imagePart && Object.keys(imagePart).length > 0) {
@@ -245,15 +313,23 @@ export const streamHttpAction = async (context: ActionContext, request: Request)
         threadId: thread.threadId,
     });
 
-    await context.scheduler.runAfter(0, internal.chat.functions.createTitleChat, {
-        prompt: prompt ?? " ", // TODO: add prompt based on image
-        threadId: thread.threadId,
-    });
+    await context.scheduler.runAfter(
+        0,
+        internal.chat.functions.createTitleChat,
+        {
+            prompt: prompt ?? " ", // TODO: add prompt based on image
+            threadId: thread.threadId,
+        },
+    );
 
-    await context.scheduler.runAfter(0, internal.chat.functions.createSummarizeChat, {
-        threadId: thread.threadId,
-        userId,
-    });
+    await context.scheduler.runAfter(
+        0,
+        internal.chat.functions.createSummarizeChat,
+        {
+            threadId: thread.threadId,
+            userId,
+        },
+    );
 
     const result = await thread.streamText({ promptMessageId: messageId });
 
@@ -273,7 +349,9 @@ export const createTitleChat = internalAction({
             middleware: [createCacheMiddleware(`${model}-title-chat`, context)],
         });
 
-        const { thread } = await agent.continueThread(context, { threadId: arguments_.threadId });
+        const { thread } = await agent.continueThread(context, {
+            threadId: arguments_.threadId,
+        });
 
         const metaData = await thread.getMetadata();
 
@@ -304,10 +382,14 @@ export const createSummarizeChat = internalAction({
         const model = "gemini-2.5-flash";
 
         const agent = getAgent(model, {
-            middleware: [createCacheMiddleware(`${model}-summarize-chat`, context)],
+            middleware: [
+                createCacheMiddleware(`${model}-summarize-chat`, context),
+            ],
         });
 
-        const { thread } = await agent.continueThread(context, { threadId: arguments_.threadId });
+        const { thread } = await agent.continueThread(context, {
+            threadId: arguments_.threadId,
+        });
 
         const messageDocs = await agent.fetchContextMessages(context, {
             contextOptions: {},
@@ -336,7 +418,9 @@ export const createSummarizeChat = internalAction({
 export const createThreadRelationship = internalMutation({
     args: {
         branchPoint: v.optional(v.number()),
-        branchType: v.optional(v.union(v.literal("branch"), v.literal("continuation"))),
+        branchType: v.optional(
+            v.union(v.literal("branch"), v.literal("continuation")),
+        ),
         parentThreadId: v.string(),
         threadId: v.string(),
     },
@@ -358,7 +442,8 @@ export const getThreadRelationship = internalQuery({
     handler: async (context, arguments_) => {
         const relationship = await context.db
             .query("threadRelationships")
-            .withIndex("by_thread", (q) => q.eq("threadId", arguments_.threadId))
+            .withIndex("by_thread", (q) =>
+                q.eq("threadId", arguments_.threadId))
             .unique();
 
         return relationship;
@@ -373,16 +458,20 @@ export const getChildThreads = authedQuery({
         // Get all child threads for this parent
         const relationships = await context.db
             .query("threadRelationships")
-            .withIndex("by_parent", (q) => q.eq("parentThreadId", arguments_.parentThreadId))
+            .withIndex("by_parent", (q) =>
+                q.eq("parentThreadId", arguments_.parentThreadId))
             .collect();
 
         // Get the actual thread data for each child
         const childThreads = [];
 
         for (const relationship of relationships) {
-            const thread = await context.runQuery(components.agent.threads.getThread, {
-                threadId: relationship.threadId,
-            });
+            const thread = await context.runQuery(
+                components.agent.threads.getThread,
+                {
+                    threadId: relationship.threadId,
+                },
+            );
 
             if (thread) {
                 childThreads.push({
@@ -405,7 +494,8 @@ export const deleteThreadRelationship = internalMutation({
     handler: async (context, arguments_) => {
         const relationship = await context.db
             .query("threadRelationships")
-            .withIndex("by_thread", (q) => q.eq("threadId", arguments_.threadId))
+            .withIndex("by_thread", (q) =>
+                q.eq("threadId", arguments_.threadId))
             .unique();
 
         if (relationship) {
@@ -419,12 +509,18 @@ export const deleteThreadWithRelationships = authedMutation({
     args: { threadId: v.string() },
     handler: async (context, { threadId }) => {
         // Delete the thread relationship
-        await context.runMutation(internal.chat.functions.deleteThreadRelationship, {
-            threadId,
-        });
+        await context.runMutation(
+            internal.chat.functions.deleteThreadRelationship,
+            {
+                threadId,
+            },
+        );
 
         // Delete the actual thread
-        return await context.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId });
+        return await context.runMutation(
+            components.agent.threads.deleteAllForThreadIdAsync,
+            { threadId },
+        );
     },
 });
 
@@ -432,7 +528,9 @@ export const getAllThreadRelationships = authedQuery({
     args: {},
     handler: async (context) => {
         // Get all thread relationships for building the hierarchy
-        const relationships = await context.db.query("threadRelationships").collect();
+        const relationships = await context.db
+            .query("threadRelationships")
+            .collect();
 
         return relationships;
     },
@@ -445,9 +543,12 @@ export const validateThreadExists = authedQuery({
     handler: async (context, arguments_) => {
         try {
             // Check if the thread exists using the agent API
-            const thread = await context.runQuery(components.agent.threads.getThread, {
-                threadId: arguments_.threadId,
-            });
+            const thread = await context.runQuery(
+                components.agent.threads.getThread,
+                {
+                    threadId: arguments_.threadId,
+                },
+            );
 
             return thread !== null;
         } catch {
@@ -467,7 +568,10 @@ export const pinThread = authedMutation({
         // Check if thread is already pinned
         const existingPin = await context.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", arguments_.threadId))
+            .withIndex("by_user_and_thread", (q) =>
+                q
+                    .eq("userId", userId as Id<"users">)
+                    .eq("threadId", arguments_.threadId))
             .unique();
 
         if (existingPin) {
@@ -475,9 +579,12 @@ export const pinThread = authedMutation({
         }
 
         // Verify thread exists
-        const threadExists = await context.runQuery(components.agent.threads.getThread, {
-            threadId: arguments_.threadId,
-        });
+        const threadExists = await context.runQuery(
+            components.agent.threads.getThread,
+            {
+                threadId: arguments_.threadId,
+            },
+        );
 
         if (!threadExists) {
             throw new ConvexError("Thread not found");
@@ -504,7 +611,10 @@ export const unpinThread = authedMutation({
         // Find the pinned thread record
         const pinnedThread = await context.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", arguments_.threadId))
+            .withIndex("by_user_and_thread", (q) =>
+                q
+                    .eq("userId", userId as Id<"users">)
+                    .eq("threadId", arguments_.threadId))
             .unique();
 
         if (!pinnedThread) {
@@ -544,7 +654,10 @@ export const isThreadPinned = authedQuery({
         // Check if thread is pinned
         const pinnedThread = await context.db
             .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", arguments_.threadId))
+            .withIndex("by_user_and_thread", (q) =>
+                q
+                    .eq("userId", userId as Id<"users">)
+                    .eq("threadId", arguments_.threadId))
             .unique();
 
         return pinnedThread !== null;
@@ -570,7 +683,10 @@ export const updateThreadOrder = authedMutation({
             // Check if order already exists
             const existingOrder = await context.db
                 .query("threadOrders")
-                .withIndex("by_user_and_thread", (q) => q.eq("userId", userId as Id<"users">).eq("threadId", threadId))
+                .withIndex("by_user_and_thread", (q) =>
+                    q
+                        .eq("userId", userId as Id<"users">)
+                        .eq("threadId", threadId))
                 .unique();
 
             if (existingOrder) {
@@ -597,7 +713,7 @@ export const updateThreadOrder = authedMutation({
 export const getThreadOrders = authedQuery({
     args: {},
     handler: async (context, arguments_) => {
-        const userId = context.user._id;;
+        const userId = context.user._id;
 
         // Get all thread orders for the user
         const threadOrders = await context.db
@@ -616,7 +732,10 @@ export const searchThreads = authedQuery({
 
         searchQuery: v.string(),
     },
-    handler: async (context, { paginationOpts, searchQuery }): Promise<PaginationResult<ThreadDoc>> => {
+    handler: async (
+        context,
+        { paginationOpts, searchQuery },
+    ): Promise<PaginationResult<ThreadDoc>> => {
         const identity = await context.auth.getUserIdentity();
 
         if (!identity) {
@@ -626,17 +745,23 @@ export const searchThreads = authedQuery({
         const userId = identity.subject;
 
         // Get all threads for the user
-        const allThreads = await context.runQuery(components.agent.threads.listThreadsByUserId, {
-            paginationOpts: { cursor: null, numItems: 1000 }, // Get all threads for filtering
-            userId,
-        });
+        const allThreads = await context.runQuery(
+            components.agent.threads.listThreadsByUserId,
+            {
+                paginationOpts: { cursor: null, numItems: 1000 }, // Get all threads for filtering
+                userId,
+            },
+        );
 
         // If no search query, return regular threads with pagination
         if (!searchQuery.trim()) {
-            return await context.runQuery(components.agent.threads.listThreadsByUserId, {
-                paginationOpts,
-                userId,
-            });
+            return await context.runQuery(
+                components.agent.threads.listThreadsByUserId,
+                {
+                    paginationOpts,
+                    userId,
+                },
+            );
         }
 
         // Filter threads by title and summary (client-side for now, as agent doesn't have thread search)
@@ -667,8 +792,15 @@ export const searchThreads = authedQuery({
         });
 
         // Apply pagination to filtered results
-        const startIndex = paginationOpts.cursor ? filteredThreads.findIndex((t) => t._id === paginationOpts.cursor) + 1 : 0;
-        const endIndex = Math.min(startIndex + paginationOpts.numItems, filteredThreads.length);
+        const startIndex = paginationOpts.cursor
+            ? filteredThreads.findIndex(
+                (t) => t._id === paginationOpts.cursor,
+            ) + 1
+            : 0;
+        const endIndex = Math.min(
+            startIndex + paginationOpts.numItems,
+            filteredThreads.length,
+        );
         const paginatedThreads = filteredThreads.slice(startIndex, endIndex);
 
         return {
@@ -685,7 +817,12 @@ export const searchMessages = authedQuery({
 
         searchQuery: v.string(),
     },
-    handler: async (context, { paginationOpts, searchQuery }): Promise<PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>> => {
+    handler: async (
+        context,
+        { paginationOpts, searchQuery },
+    ): Promise<
+        PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>
+    > => {
         const userId = context.user._id;
 
         // If no search query, return empty results
@@ -698,25 +835,37 @@ export const searchMessages = authedQuery({
         }
 
         // Search messages using full-text search
-        const searchResults = await context.runQuery(components.agent.messages.textSearch, {
-            limit: 100, // Get more results for better thread matching
-            searchAllMessagesForUserId: userId,
-            text: searchQuery.trim(),
-        });
+        const searchResults = await context.runQuery(
+            components.agent.messages.textSearch,
+            {
+                limit: 100, // Get more results for better thread matching
+                searchAllMessagesForUserId: userId,
+                text: searchQuery.trim(),
+            },
+        );
 
         // Get unique thread IDs from search results
-        const threadIds = [...new Set(searchResults.map((message) => message.threadId))];
+        const threadIds = [
+            ...new Set(searchResults.map((message) => message.threadId)),
+        ];
 
         // Get thread details for each unique thread ID
-        const threadsWithMessages: (ThreadDoc & { relevantMessages?: MessageDoc[] })[] = [];
+        const threadsWithMessages: (ThreadDoc & {
+            relevantMessages?: MessageDoc[];
+        })[] = [];
 
         for (const threadId of threadIds) {
             try {
-                const thread = await context.runQuery(components.agent.threads.getThread, { threadId });
+                const thread = await context.runQuery(
+                    components.agent.threads.getThread,
+                    { threadId },
+                );
 
                 if (thread && thread.userId === userId) {
                     // Get relevant messages for this thread from search results
-                    const relevantMessages = searchResults.filter((message) => message.threadId === threadId);
+                    const relevantMessages = searchResults.filter(
+                        (message) => message.threadId === threadId,
+                    );
 
                     threadsWithMessages.push({
                         ...thread,
@@ -742,12 +891,25 @@ export const searchMessages = authedQuery({
         });
 
         // Apply pagination to the sorted results
-        const startIndex = paginationOpts.cursor ? threadsWithMessages.findIndex((t) => t._id === paginationOpts.cursor) + 1 : 0;
-        const endIndex = Math.min(startIndex + paginationOpts.numItems, threadsWithMessages.length);
-        const paginatedThreads = threadsWithMessages.slice(startIndex, endIndex);
+        const startIndex = paginationOpts.cursor
+            ? threadsWithMessages.findIndex(
+                (t) => t._id === paginationOpts.cursor,
+            ) + 1
+            : 0;
+        const endIndex = Math.min(
+            startIndex + paginationOpts.numItems,
+            threadsWithMessages.length,
+        );
+        const paginatedThreads = threadsWithMessages.slice(
+            startIndex,
+            endIndex,
+        );
 
         return {
-            continueCursor: endIndex < threadsWithMessages.length ? threadsWithMessages[endIndex - 1]?._id || "" : "",
+            continueCursor:
+                endIndex < threadsWithMessages.length
+                    ? threadsWithMessages[endIndex - 1]?._id || ""
+                    : "",
             isDone: endIndex >= threadsWithMessages.length,
             page: paginatedThreads,
         };
@@ -782,7 +944,9 @@ export const improvePrompt = internalAction({
         });
 
         if (!rateLimitResult.ok) {
-            const retryAfterSeconds = Math.ceil((rateLimitResult.retryAfter || 60_000) / 1000);
+            const retryAfterSeconds = Math.ceil(
+                (rateLimitResult.retryAfter || 60_000) / 1000,
+            );
 
             throw new ConvexError({
                 kind: "RateLimitError",
@@ -793,15 +957,20 @@ export const improvePrompt = internalAction({
         }
 
         // Check global rate limit as well
-        const globalRateLimitResult = await checkRateLimit(context, "globalPromptImprovement", {
-            count: 1,
-            key: "global",
-        });
+        const globalRateLimitResult = await checkRateLimit(
+            context,
+            "globalPromptImprovement",
+            {
+                count: 1,
+                key: "global",
+            },
+        );
 
         if (!globalRateLimitResult.ok) {
             throw new ConvexError({
                 kind: "RateLimitError",
-                message: "System is currently busy. Please try again in a moment.",
+                message:
+                    "System is currently busy. Please try again in a moment.",
                 name: "globalPromptImprovement",
                 retryAfter: globalRateLimitResult.retryAfter,
             });
@@ -809,7 +978,9 @@ export const improvePrompt = internalAction({
 
         const model = "gemini-2.5-flash";
         const agent = getAgent(model, {
-            middleware: [createCacheMiddleware(`${model}-improve-prompt`, context)],
+            middleware: [
+                createCacheMiddleware(`${model}-improve-prompt`, context),
+            ],
         });
 
         const { thread } = await agent.continueThread(context, { threadId });
@@ -848,7 +1019,10 @@ Original prompt to improve: "${prompt.trim()}"`;
 });
 
 // HTTP action for prompt improvement (wrapper around the action)
-export const improvePromptHttpAction = async (context: ActionContext, request: Request) => {
+export const improvePromptHttpAction = async (
+    context: ActionContext,
+    request: Request,
+) => {
     // Parse the request body
     const body = await request.json();
     const { improvementInstructions, prompt, threadId } = body;
@@ -861,12 +1035,15 @@ export const improvePromptHttpAction = async (context: ActionContext, request: R
     }
 
     try {
-        const result = await context.runAction(internal.chat.functions.improvePrompt, {
-            improvementInstructions,
+        const result = await context.runAction(
+            internal.chat.functions.improvePrompt,
+            {
+                improvementInstructions,
 
-            prompt,
-            threadId,
-        });
+                prompt,
+                threadId,
+            },
+        );
 
         return new Response(JSON.stringify(result), {
             headers: { "Content-Type": "application/json" },
@@ -875,7 +1052,10 @@ export const improvePromptHttpAction = async (context: ActionContext, request: R
     } catch (error) {
         console.error("Error improving prompt:", error);
 
-        const errorMessage = error instanceof ConvexError ? error.message : "Failed to improve prompt";
+        const errorMessage
+            = error instanceof ConvexError
+                ? error.message
+                : "Failed to improve prompt";
 
         return new Response(JSON.stringify({ error: errorMessage }), {
             headers: { "Content-Type": "application/json" },
@@ -892,7 +1072,10 @@ export const getFullThreadForExport = authedQuery({
     async handler(context, { model, threadId }) {
         const userId = context.user._id;
 
-        const thread = await context.runQuery(components.agent.threads.getThread, { threadId });
+        const thread = await context.runQuery(
+            components.agent.threads.getThread,
+            { threadId },
+        );
 
         if (!thread) {
             throw new Error("Thread not found");
@@ -905,9 +1088,12 @@ export const getFullThreadForExport = authedQuery({
         const agent = getAgent(model as AgentModel);
 
         // This logic is copied from listMessages to handle branches correctly.
-        const threadRelationship = await context.runQuery(internal.chat.functions.getThreadRelationship, {
-            threadId,
-        });
+        const threadRelationship = await context.runQuery(
+            internal.chat.functions.getThreadRelationship,
+            {
+                threadId,
+            },
+        );
 
         let allMessages: MessageDoc[] = [];
 
@@ -925,10 +1111,16 @@ export const getFullThreadForExport = authedQuery({
             });
 
             // Take only parent messages up to the branch point (inclusive)
-            const parentMessagesUpToBranch = parentMessages.page.slice(0, (threadRelationship.branchPoint || 0) + 1);
+            const parentMessagesUpToBranch = parentMessages.page.slice(
+                0,
+                (threadRelationship.branchPoint || 0) + 1,
+            );
 
             // Merge parent messages with current thread messages
-            allMessages = [...parentMessagesUpToBranch, ...currentMessages.page];
+            allMessages = [
+                ...parentMessagesUpToBranch,
+                ...currentMessages.page,
+            ];
         } else {
             const messages = await agent.listMessages(context, {
                 paginationOpts: { cursor: null, numItems: 10_000 }, // Fetch all

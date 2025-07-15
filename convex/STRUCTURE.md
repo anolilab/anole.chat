@@ -194,9 +194,12 @@ export const exampleQuery = query({
     args: { id: v.string() },
     handler: async (context, arguments_) => {
         // Session validation example
-        const sessionData = await context.runQuery(internal.betterAuth.getSession, {
-            sessionToken: arguments_.sessionToken,
-        });
+        const sessionData = await context.runQuery(
+            internal.betterAuth.getSession,
+            {
+                sessionToken: arguments_.sessionToken,
+            },
+        );
 
         if (!sessionData?.user?.id) {
             throw new Error("Unauthorized");

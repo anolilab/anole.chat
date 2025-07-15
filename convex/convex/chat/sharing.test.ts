@@ -5,14 +5,14 @@ import { api } from "../_generated/api";
 
 // Verify that the sharing functions are available in the API
 const sharingFunctions = {
-    getThreadAccess: api.chat.sharing.getThreadAccess,
-    createThreadInvite: api.chat.sharing.createThreadInvite,
-    getThreadInvites: api.chat.sharing.getThreadInvites,
-    revokeThreadInvite: api.chat.sharing.revokeThreadInvite,
     acceptThreadInvite: api.chat.sharing.acceptThreadInvite,
-    removeThreadAccess: api.chat.sharing.removeThreadAccess,
-    toggleThreadVisibility: api.chat.sharing.toggleThreadVisibility,
+    createThreadInvite: api.chat.sharing.createThreadInvite,
     getPublicThread: api.chat.sharing.getPublicThread,
+    getThreadAccess: api.chat.sharing.getThreadAccess,
+    getThreadInvites: api.chat.sharing.getThreadInvites,
+    removeThreadAccess: api.chat.sharing.removeThreadAccess,
+    revokeThreadInvite: api.chat.sharing.revokeThreadInvite,
+    toggleThreadVisibility: api.chat.sharing.toggleThreadVisibility,
 };
 
 export { sharingFunctions };

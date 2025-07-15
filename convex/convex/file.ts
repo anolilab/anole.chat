@@ -17,7 +17,13 @@ export const uploadFile = action({
 
         const {
             file: { fileId, url },
-        } = await storeFile(context, components.agent, new Blob([arguments_.bytes], { type: arguments_.mimeType }), arguments_.filename, arguments_.sha256);
+        } = await storeFile(
+            context,
+            components.agent,
+            new Blob([arguments_.bytes], { type: arguments_.mimeType }),
+            arguments_.filename,
+            arguments_.sha256,
+        );
 
         return { fileId, url };
     },

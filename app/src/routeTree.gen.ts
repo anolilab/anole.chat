@@ -27,6 +27,8 @@ import { Route as filesFilesRouteImport } from './routes/(files)/files'
 import { Route as AuthTwoFactorIndexRouteImport } from './routes/auth/two-factor/index'
 import { Route as chatChatIndexRouteImport } from './routes/(chat)/chat/index'
 import { Route as AuthTwoFactorOtpRouteImport } from './routes/auth/two-factor/otp'
+import { Route as publicThreadPublicTokenRouteImport } from './routes/(public)/thread/$publicToken'
+import { Route as publicInviteInviteTokenRouteImport } from './routes/(public)/invite/$inviteToken'
 import { Route as chatChatThreadIdRouteImport } from './routes/(chat)/chat/$threadId'
 import { Route as AuthAcceptInvitationInvitationIdIndexRouteImport } from './routes/auth/accept-invitation/$invitationId/index'
 import { Route as DashboardSettingsAuthSecurityRouteImport } from './routes/dashboard/settings/auth/security'
@@ -122,6 +124,16 @@ const AuthTwoFactorOtpRoute = AuthTwoFactorOtpRouteImport.update({
   id: '/two-factor/otp',
   path: '/two-factor/otp',
   getParentRoute: () => AuthLayoutRoute,
+} as any)
+const publicThreadPublicTokenRoute = publicThreadPublicTokenRouteImport.update({
+  id: '/(public)/thread/$publicToken',
+  path: '/thread/$publicToken',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicInviteInviteTokenRoute = publicInviteInviteTokenRouteImport.update({
+  id: '/(public)/invite/$inviteToken',
+  path: '/invite/$inviteToken',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const chatChatThreadIdRoute = chatChatThreadIdRouteImport.update({
   id: '/chat/$threadId',
@@ -224,6 +236,8 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/chat/$threadId': typeof chatChatThreadIdRoute
+  '/invite/$inviteToken': typeof publicInviteInviteTokenRoute
+  '/thread/$publicToken': typeof publicThreadPublicTokenRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
   '/chat': typeof chatChatIndexRoute
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
@@ -252,6 +266,8 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/dashboard': typeof DashboardIndexRoute
   '/chat/$threadId': typeof chatChatThreadIdRoute
+  '/invite/$inviteToken': typeof publicInviteInviteTokenRoute
+  '/thread/$publicToken': typeof publicThreadPublicTokenRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
   '/chat': typeof chatChatIndexRoute
   '/auth/two-factor': typeof AuthTwoFactorIndexRoute
@@ -284,6 +300,8 @@ export interface FileRoutesById {
   '/(public)/': typeof publicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/(chat)/chat/$threadId': typeof chatChatThreadIdRoute
+  '/(public)/invite/$inviteToken': typeof publicInviteInviteTokenRoute
+  '/(public)/thread/$publicToken': typeof publicThreadPublicTokenRoute
   '/auth/two-factor/otp': typeof AuthTwoFactorOtpRoute
   '/(chat)/chat/': typeof chatChatIndexRoute
   '/auth/two-factor/': typeof AuthTwoFactorIndexRoute
@@ -315,6 +333,8 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/dashboard/'
     | '/chat/$threadId'
+    | '/invite/$inviteToken'
+    | '/thread/$publicToken'
     | '/auth/two-factor/otp'
     | '/chat'
     | '/auth/two-factor'
@@ -343,6 +363,8 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/dashboard'
     | '/chat/$threadId'
+    | '/invite/$inviteToken'
+    | '/thread/$publicToken'
     | '/auth/two-factor/otp'
     | '/chat'
     | '/auth/two-factor'
@@ -374,6 +396,8 @@ export interface FileRouteTypes {
     | '/(public)/'
     | '/dashboard/'
     | '/(chat)/chat/$threadId'
+    | '/(public)/invite/$inviteToken'
+    | '/(public)/thread/$publicToken'
     | '/auth/two-factor/otp'
     | '/(chat)/chat/'
     | '/auth/two-factor/'
@@ -397,6 +421,8 @@ export interface RootRouteChildren {
   AuthLayoutRoute: typeof AuthLayoutRouteWithChildren
   DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
   publicIndexRoute: typeof publicIndexRoute
+  publicInviteInviteTokenRoute: typeof publicInviteInviteTokenRoute
+  publicThreadPublicTokenRoute: typeof publicThreadPublicTokenRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatServerRoute
@@ -537,6 +563,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/two-factor/otp'
       preLoaderRoute: typeof AuthTwoFactorOtpRouteImport
       parentRoute: typeof AuthLayoutRoute
+    }
+    '/(public)/thread/$publicToken': {
+      id: '/(public)/thread/$publicToken'
+      path: '/thread/$publicToken'
+      fullPath: '/thread/$publicToken'
+      preLoaderRoute: typeof publicThreadPublicTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/invite/$inviteToken': {
+      id: '/(public)/invite/$inviteToken'
+      path: '/invite/$inviteToken'
+      fullPath: '/invite/$inviteToken'
+      preLoaderRoute: typeof publicInviteInviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(chat)/chat/$threadId': {
       id: '/(chat)/chat/$threadId'
@@ -749,6 +789,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLayoutRoute: AuthLayoutRouteWithChildren,
   DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
   publicIndexRoute: publicIndexRoute,
+  publicInviteInviteTokenRoute: publicInviteInviteTokenRoute,
+  publicThreadPublicTokenRoute: publicThreadPublicTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

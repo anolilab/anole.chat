@@ -1,20 +1,15 @@
 "use client";
 
 import { useThreadListItem } from "@assistant-ui/react";
-import { useParams } from "@tanstack/react-router";
+import type { FC } from "react";
 
-import { SiteHeader } from "@/features/layout/components/site-header";
 import { ThreadShareButton } from "@/components/thread-share-button";
+import { SiteHeader } from "@/features/layout/components/site-header";
 
-export const ChatSiteHeader = () => {
+const ChatSiteHeader: FC<{ threadId?: string }> = ({ threadId }) => {
     const title = useThreadListItem((t) => t.title);
-    const { threadId } = useParams({ from: "/(chat)/chat/$threadId" });
 
-    return (
-        <SiteHeader title={title || "New Chat"}>
-            {threadId && threadId !== "new" && (
-                <ThreadShareButton threadId={threadId} />
-            )}
-        </SiteHeader>
-    );
+    return <SiteHeader title={title || "New Chat"}>{threadId && threadId !== "new" && <ThreadShareButton threadId={threadId} />}</SiteHeader>;
 };
+
+export default ChatSiteHeader;

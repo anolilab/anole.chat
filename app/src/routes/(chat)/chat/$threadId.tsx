@@ -3,7 +3,7 @@ import { api } from "@anole/convex/api";
 import { convexQuery } from "@convex-dev/react-query";
 import { createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
 
-import { Assistant } from "@/features/chat/components/assistant";
+import Assistant from "@/features/chat/components/assistant";
 
 const ChatPage = () => {
     const context = useRouteContext({ from: "/(chat)/chat/$threadId" });

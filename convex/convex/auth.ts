@@ -1,13 +1,26 @@
-import type { AuthFunctions, PublicAuthFunctions } from "@convex-dev/better-auth";
+import type {
+    AuthFunctions,
+    PublicAuthFunctions,
+} from "@convex-dev/better-auth";
 import { BetterAuth, convexAdapter } from "@convex-dev/better-auth";
 import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
-import { emailOTP, magicLink, organization, twoFactor } from "better-auth/plugins";
+import {
+    emailOTP,
+    magicLink,
+    organization,
+    twoFactor,
+} from "better-auth/plugins";
 
 import { api, components, internal } from "./_generated/api";
 import type { DataModel, Id } from "./_generated/dataModel";
 import type { GenericCtx as GenericContext } from "./_generated/server";
-import { sendEmailVerification, sendMagicLink, sendOTPVerification, sendResetPassword } from "./email/functions";
+import {
+    sendEmailVerification,
+    sendMagicLink,
+    sendOTPVerification,
+    sendResetPassword,
+} from "./email/functions";
 import { SITE_URL } from "./env";
 
 const authFunctions: AuthFunctions = internal.auth;
@@ -99,11 +112,17 @@ export const createAuth = (context: GenericContext) =>
         },
     });
 
-export const { createSession, createUser, deleteUser, isAuthenticated, updateUser } = betterAuthComponent.createAuthFunctions<DataModel>({
+export const {
+    createSession,
+    createUser,
+    deleteUser,
+    isAuthenticated,
+    updateUser,
+} = betterAuthComponent.createAuthFunctions<DataModel>({
     onCreateUser: async (context, user) => {
         const userId = await context.db.insert("extendedUsers", {
             email: user.email,
-            role: "user"
+            role: "user",
         });
 
         return userId;

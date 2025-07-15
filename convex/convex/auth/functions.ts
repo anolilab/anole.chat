@@ -1,12 +1,22 @@
 import { v } from "convex/values";
-import { customAction, customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions";
+import {
+    customAction,
+    customCtx,
+    customMutation,
+    customQuery,
+} from "convex-helpers/server/customFunctions";
 
-import { action, internalMutation, mutation, query } from "../_generated/server";
-import { requireUserId, getCurrentUserInternal } from "../auth/lib/helper";
+import {
+    action,
+    internalMutation,
+    mutation,
+    query,
+} from "../_generated/server";
+import { getCurrentUserInternal, requireUserId } from "../auth/lib/helper";
+import { encryptKey } from "../lib/encryption";
 import type { Role } from "../lib/types";
 import { ROLES } from "../lib/types";
-import { userSettingsFields, aiUserPreferencesFields } from "./fields";
-import { encryptKey } from "../lib/encryption";
+import { aiUserPreferencesFields, userSettingsFields } from "./fields";
 
 export const getCurrentUser = query({
     args: {},
@@ -80,10 +90,17 @@ export const initializeNewUser = internalMutation({
 // --- Admin Functions ---
 export const setUserRole = mutation({
     args: {
-        role: v.union(v.literal(ROLES.USER), v.literal(ROLES.BANNED), v.literal(ROLES.ADMIN)),
+        role: v.union(
+            v.literal(ROLES.USER),
+            v.literal(ROLES.BANNED),
+            v.literal(ROLES.ADMIN),
+        ),
         userId: v.id("users"),
     },
-    handler: async (context, { role, userId }): Promise<{ success: boolean }> => {
+    handler: async (
+        context,
+        { role, userId },
+    ): Promise<{ success: boolean }> => {
         const loggedInUserId = await requireUserId(context);
         const targetUser = await context.db.get(userId);
 
@@ -106,7 +123,10 @@ export const setUserRole = mutation({
 
 export const toggleUserBanStatus = mutation({
     args: { ban: v.boolean(), userId: v.id("users") },
-    handler: async (context, { ban, userId }): Promise<{ message: string; success: boolean }> => {
+    handler: async (
+        context,
+        { ban, userId },
+    ): Promise<{ message: string; success: boolean }> => {
         const loggedInUserId = await requireUserId(context);
 
         // TODO: Check if user is admin
@@ -125,78 +145,83 @@ export const toggleUserBanStatus = mutation({
 
         await context.db.patch(userId, { role: newRole });
 
-        return { message: `User ${userId} has been ${ban ? "banned" : "unbanned"}.`, success: true };
+        return {
+            message: `User ${userId} has been ${ban ? "banned" : "unbanned"}.`,
+            success: true,
+        };
     },
     returns: v.object({ message: v.string(), success: v.boolean() }),
 });
 
-async function deepEncryptKeys(obj: any): Promise<any> {
-    if (Array.isArray(obj)) {
-        return Promise.all(obj.map(deepEncryptKeys));
-    } else if (obj && typeof obj === "object") {
-        const result: Record<string, any> = {};
-        for (const [key, value] of Object.entries(obj)) {
-            if (key === "encryptedKey" && typeof value === "string" && value) {
-                result[key] = await encryptKey(value);
-            } else {
-                result[key] = await deepEncryptKeys(value);
-            }
-        }
-        return result;
-    } else {
-        return obj;
+async function deepEncryptKeys(object: any): Promise<any> {
+    if (Array.isArray(object)) {
+        return Promise.all(object.map(deepEncryptKeys));
     }
+
+    if (object && typeof object === "object") {
+        const result: Record<string, any> = {};
+
+        for (const [key, value] of Object.entries(object)) {
+            result[key] = await (key === "encryptedKey" && typeof value === "string" && value ? encryptKey(value) : deepEncryptKeys(value));
+        }
+
+        return result;
+    }
+
+    return object;
 }
 
 const makeSettingsUpsertMutation = (
     // TODO: find the correct typing
     tableName: any,
-    args: Record<string, any>,
-) => {
-    return authedMutation({
-        args,
-        handler: async (context, inputArgs) => {
-            const userId = context.user._id;
+    arguments_: Record<string, any>,
+) => authedMutation({
+    args: arguments_,
+    handler: async (context, inputArguments) => {
+        const userId = context.user._id;
 
-            // Recursively encrypt all encryptedKey fields
-            const toStore = await deepEncryptKeys(inputArgs);
+        // Recursively encrypt all encryptedKey fields
+        const toStore = await deepEncryptKeys(inputArguments);
 
-            const settings = await context.db
-                .query(tableName)
-                .withIndex("by_userId", (q) => q.eq("userId", userId))
-                .unique();
+        const settings = await context.db
+            .query(tableName)
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .unique();
 
-            if (settings) {
-                await context.db.patch(settings._id, toStore);
-            } else {
-                await context.db.insert(tableName, {
-                    ["userId"]: userId,
-                    ...toStore,
-                });
-            }
-        },
-    });
-};
+        if (settings) {
+            await context.db.patch(settings._id, toStore);
+        } else {
+            await context.db.insert(tableName, {
+                userId,
+                ...toStore,
+            });
+        }
+    },
+});
 
 const makeSettingsGetQuery = (
     // TODO: find the correct typing
     tableName: any,
-) => {
-    return authedQuery({
-        args: {},
-        handler: async (context) => {
-            const userId = context.user._id;
+) => authedQuery({
+    args: {},
+    handler: async (context) => {
+        const userId = context.user._id;
 
-            return await context.db
-                .query(tableName)
-                .withIndex("by_userId", (q) => q.eq("userId", userId))
-                .unique();
-        },
-    });
-};
+        return await context.db
+            .query(tableName)
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
+            .unique();
+    },
+});
 
-export const updateUserSettings = makeSettingsUpsertMutation("userSettings", userSettingsFields);
+export const updateUserSettings = makeSettingsUpsertMutation(
+    "userSettings",
+    userSettingsFields,
+);
 export const getUserSettings = makeSettingsGetQuery("userSettings");
 
-export const updateAIUserPreferences = makeSettingsUpsertMutation("aiUserPreferences", aiUserPreferencesFields);
+export const updateAIUserPreferences = makeSettingsUpsertMutation(
+    "aiUserPreferences",
+    aiUserPreferencesFields,
+);
 export const getAIUserPreferences = makeSettingsGetQuery("aiUserPreferences");

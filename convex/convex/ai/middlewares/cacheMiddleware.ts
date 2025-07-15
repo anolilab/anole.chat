@@ -15,17 +15,27 @@ const createCacheMiddleware = (name: string, context: ActionContext) => {
             const ttl = ONE_HOUR_IN_MS;
             const cacheName = `${name}-generate`;
 
-            const cached = await context.runQuery(components.actionCache.lib.get, {
-                args: cacheKey,
-                name: cacheName,
-                ttl,
-            });
+            const cached = await context.runQuery(
+                components.actionCache.lib.get,
+                {
+                    args: cacheKey,
+                    name: cacheName,
+                    ttl,
+                },
+            );
 
             if (cached.kind === "hit" && cached.value) {
-                const result = cached.value as Awaited<ReturnType<typeof doGenerate>>;
+                const result = cached.value as Awaited<
+                    ReturnType<typeof doGenerate>
+                >;
 
-                if (result.response?.timestamp && typeof result.response.timestamp === "string") {
-                    result.response.timestamp = new Date(result.response.timestamp);
+                if (
+                    result.response?.timestamp
+                    && typeof result.response.timestamp === "string"
+                ) {
+                    result.response.timestamp = new Date(
+                        result.response.timestamp,
+                    );
                 }
 
                 return result;
@@ -48,14 +58,19 @@ const createCacheMiddleware = (name: string, context: ActionContext) => {
             const ttl = ONE_HOUR_IN_MS;
             const cacheName = `${name}-stream`;
 
-            const cached = await context.runQuery(components.actionCache.lib.get, {
-                args: cacheKey,
-                name: cacheName,
-                ttl,
-            });
+            const cached = await context.runQuery(
+                components.actionCache.lib.get,
+                {
+                    args: cacheKey,
+                    name: cacheName,
+                    ttl,
+                },
+            );
 
             if (cached.kind === "hit" && cached.value) {
-                const formattedChunks = (cached.value as LanguageModelV1StreamPart[]).map((p) => {
+                const formattedChunks = (
+                    cached.value as LanguageModelV1StreamPart[]
+                ).map((p) => {
                     if (p.type === "response-metadata" && p.timestamp) {
                         return { ...p, timestamp: new Date(p.timestamp) };
                     }
@@ -77,7 +92,10 @@ const createCacheMiddleware = (name: string, context: ActionContext) => {
 
             const fullResponse: LanguageModelV1StreamPart[] = [];
 
-            const transformStream = new TransformStream<LanguageModelV1StreamPart, LanguageModelV1StreamPart>({
+            const transformStream = new TransformStream<
+                LanguageModelV1StreamPart,
+                LanguageModelV1StreamPart
+            >({
                 flush() {
                     void context.runMutation(components.actionCache.lib.put, {
                         args: cacheKey,

@@ -16,25 +16,51 @@ export class BaseError extends ConvexError<{
     data: any;
     message: string;
 }> {
-    constructor({ code, data, message }: { code: number; data?: any; message: string }) {
+    constructor({
+        code,
+        data,
+        message,
+    }: {
+        code: number;
+        data?: any;
+        message: string;
+    }) {
         super({ code, data, message });
     }
 }
 
 export class UnauthorizedError extends BaseError {
-    constructor({ data, message = "Unauthorized" }: { data?: any; message?: string }) {
+    constructor({
+        data,
+        message = "Unauthorized",
+    }: {
+        data?: any;
+        message?: string;
+    }) {
         super({ code: 401, data, message });
     }
 }
 
 export class NotFoundError extends BaseError {
-    constructor({ data, message = "Not Found" }: { data?: any; message?: string }) {
+    constructor({
+        data,
+        message = "Not Found",
+    }: {
+        data?: any;
+        message?: string;
+    }) {
         super({ code: 404, data, message });
     }
 }
 
 export class ServerError extends BaseError {
-    constructor({ data, message = "Server Error" }: { data?: any; message?: string }) {
+    constructor({
+        data,
+        message = "Server Error",
+    }: {
+        data?: any;
+        message?: string;
+    }) {
         super({ code: 500, data, message });
     }
 }
@@ -48,9 +74,16 @@ export type NotAuthenticated = ReturnType<typeof notAuthenticated>;
 
 export type UserNotFound = ReturnType<typeof userNotFound>;
 
-export type SummaryGenerationFailed = ReturnType<typeof summaryGenerationFailed>;
+export type SummaryGenerationFailed = ReturnType<
+    typeof summaryGenerationFailed
+>;
 
-export type BackendErrors = NotAuthenticated | UserNotFound | SummaryGenerationFailed | CreateThreadFailed | RateLimitExceeded;
+export type BackendErrors
+    = | NotAuthenticated
+        | UserNotFound
+        | SummaryGenerationFailed
+        | CreateThreadFailed
+        | RateLimitExceeded;
 
 export type RateLimitExceeded = ReturnType<typeof rateLimitExceeded>;
 
@@ -175,7 +208,9 @@ export function aiAgentPersonaNotFound(context: ErrorContext) {
     } as const satisfies BackendErrorSchema;
 }
 
-export function rateLimitExceeded(context: ErrorContext & { name: string; retryAfter: number }) {
+export function rateLimitExceeded(
+    context: ErrorContext & { name: string; retryAfter: number },
+) {
     return {
         _tag: "RateLimitExceeded",
         context,
