@@ -379,7 +379,8 @@ const SidebarRail = <T extends string>({
           className={cn(
             "transition-[left,right,translate] fixed top-1/2 in-data-[side=left]:left-(--sidebar-width) in-data-[side=right]:right-(--sidebar-width) h-20 w-8 -translate-y-1/2 cursor-pointer duration-300 ease-in-out in-data-[side=left]:group-data-[collapsible=offcanvas]:left-0 in-data-[side=left]:group-data-[collapsible=icon]:left-(--sidebar-width-icon) in-data-[side=right]:group-data-[collapsible=offcanvas]:right-0 in-data-[side=right]:group-data-[collapsible=icon]:right-(--sidebar-width-icon) max-md:hidden",
             {
-                "in-data-[side=left]:translate-x-1 in-data-[side=right]:-translate-x-1": !isOpen
+                "in-data-[side=left]:translate-x-1 in-data-[side=right]:-translate-x-1": !isOpen,
+                "in-data-[side=left]:-translate-x-2 hover:in-data-[side=left]:translate-x-1 in-data-[side=right]:translate-x-1 hover:in-data-[side=right]:-translate-x-2": isOpen
             },
             className
           )}

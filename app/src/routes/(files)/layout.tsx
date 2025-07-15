@@ -132,7 +132,7 @@ const RouteComponent = () => {
             >
                 <div className="flex h-dvh w-full">
                     <AppSidebar content={sidebarContent} header={sidebarHeader} />
-                    <SidebarInset>
+                    <SidebarInset className="bg-white">
                         <SiteHeader>
                             <Breadcrumb>
                                 <BreadcrumbList>
@@ -159,10 +159,8 @@ const RouteComponent = () => {
                             </Breadcrumb>
                         </SiteHeader>
 
-                        <ScrollArea className="h-full w-full">
-                            <div className="flex flex-1 flex-col items-center bg-inherit px-4 pt-8 [&>div]:w-full">
-                                <Outlet />
-                            </div>
+                        <ScrollArea className="h-full w-full p-4 overflow-hidden">
+                            <Outlet />
                         </ScrollArea>
                     </SidebarInset>
                 </div>
