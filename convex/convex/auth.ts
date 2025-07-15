@@ -6,6 +6,8 @@ import { BetterAuth, convexAdapter } from "@convex-dev/better-auth";
 import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import {
+    anonymous,
+    admin,
     emailOTP,
     magicLink,
     organization,
@@ -66,7 +68,9 @@ export const createAuth = (context: GenericContext) =>
             },
         },
         plugins: [
+            anonymous(),
             organization(),
+            admin(),
             magicLink({
                 sendMagicLink: async ({ email, url }) => {
                     await sendMagicLink({

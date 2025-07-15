@@ -3,7 +3,6 @@ import { v } from "convex/values";
 export const extendedUserFields = {
     customerId: v.optional(v.string()),
     email: v.string(),
-    role: v.union(v.literal("user"), v.literal("admin"), v.literal("banned")),
 };
 
 export const userSettingsFields = {

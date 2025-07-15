@@ -110,10 +110,11 @@ const RouteComponent = () => {
 
     const { apiKey, organization } = useAuth();
     const navigationItems = getNavigationItems(apiKey, organization);
+    
     const sidebarContent = (
         <>
-            <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
-            <NavItems classes={{ group: "pr-0" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
+            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
+            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
         </>
     );
 
@@ -132,7 +133,7 @@ const RouteComponent = () => {
             >
                 <div className="flex h-dvh w-full">
                     <AppSidebar content={sidebarContent} header={sidebarHeader} />
-                    <SidebarInset>
+                    <SidebarInset className="bg-white">
                         <SiteHeader>
                             <Breadcrumb>
                                 <BreadcrumbList>
@@ -159,10 +160,8 @@ const RouteComponent = () => {
                             </Breadcrumb>
                         </SiteHeader>
 
-                        <ScrollArea className="h-full w-full">
-                            <div className="flex flex-1 flex-col items-center bg-inherit px-4 pt-8 [&>div]:w-full">
-                                <Outlet />
-                            </div>
+                        <ScrollArea className="h-full w-full p-4 overflow-hidden">
+                            <Outlet />
                         </ScrollArea>
                     </SidebarInset>
                 </div>
