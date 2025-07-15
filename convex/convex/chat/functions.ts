@@ -62,6 +62,19 @@ export const getThreadMessages = authedQuery({
         threadId: v.string(),
     },
     handler: async (context, { model, paginationOpts, threadId }): Promise<PaginationResult<MessageDoc>> => {
+        const userId = context.user._id;
+
+        // Check if user has access to this thread
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            threadId,
+            userId,
+            requiredPermission: "read",
+        });
+
+        if (!hasAccess) {
+            throw new ConvexError("Access denied to this thread");
+        }
+
         const agent = getAgent(model as AgentModel);
 
         // Check if this thread has a parent (is a branch)
@@ -113,7 +126,19 @@ export const getThreadMessages = authedQuery({
 export const continueThread = authedAction({
     args: { model: v.string(), prompt: v.string(), threadId: v.string() },
     handler: async (context, { model, prompt, threadId }) => {
-        const userId = context.user._id;;
+        const userId = context.user._id;
+
+        // Check if user has write access to this thread
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            threadId,
+            userId,
+            requiredPermission: "write",
+        });
+
+        if (!hasAccess) {
+            throw new ConvexError("Write access denied to this thread");
+        }
+
         const agent = getAgent(model as AgentModel);
 
         const { thread } = await agent.continueThread(context, { threadId, userId });
@@ -145,6 +170,18 @@ export const updateThread = authedAction({
     },
     handler: async (context, { model, order, status, summary, threadId, title }) => {
         const userId = context.user._id;
+
+        // Check if user has admin access to this thread
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            threadId,
+            userId,
+            requiredPermission: "admin",
+        });
+
+        if (!hasAccess) {
+            throw new ConvexError("Admin access denied to this thread");
+        }
+
         const agent = getAgent(model as AgentModel);
 
         const { thread } = await agent.continueThread(context, { threadId, userId });
