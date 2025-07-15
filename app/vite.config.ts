@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
             browser: {
                 enabled: true,
                 instances: [
-                    { browser: "chromium" },
+                    { browser: "chrome" },
                 ],
                 provider: "webdriverio",
             },
