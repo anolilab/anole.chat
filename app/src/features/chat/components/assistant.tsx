@@ -10,6 +10,7 @@ import AppSidebar from "@/features/layout/components/app-sidebar";
 
 import { useAiModelContext } from "../providers/ai-model-provider";
 import ChatSiteHeader from "./chat-header";
+import SettingsPanel from "./settings-panel";
 import { ThreadProvider } from "./thread-context";
 
 const Assistant: FC<{ jwtToken: string; threadId?: string }> = ({ jwtToken, threadId }) => {
@@ -18,13 +19,12 @@ const Assistant: FC<{ jwtToken: string; threadId?: string }> = ({ jwtToken, thre
     return (
         <ThreadProvider model={selectedModel}>
             <ConvexExternalRuntimeProvider jwtToken={jwtToken} model={selectedModel} threadId={threadId}>
-                <div className="flex h-dvh w-full">
-                    <AppSidebar content={<ThreadList />} header={null} />
-                    <SidebarInset>
-                        <ChatSiteHeader threadId={threadId} />
-                        <Thread threadId={threadId} />
-                    </SidebarInset>
-                </div>
+                <AppSidebar content={<ThreadList />} header={null} />
+                <SidebarInset className="bg-white md:peer-data-[variant=inset]:m-1">
+                    <ChatSiteHeader threadId={threadId} />
+                    <Thread threadId={threadId} />
+                </SidebarInset>
+                <SettingsPanel />
             </ConvexExternalRuntimeProvider>
         </ThreadProvider>
     );

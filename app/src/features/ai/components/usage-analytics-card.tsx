@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { ChartConfig } from "@/components/ui/chart";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useIsMobile } from "@/hooks/use-mobile";
+import useIsMobile from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 const MODEL_COLORS = [

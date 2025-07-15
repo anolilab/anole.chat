@@ -15,7 +15,7 @@ const ScreenSizeDebug: FC = () => {
     }
 
     return (
-        <div className="pointer-events-none fixed right-2 z-[9999] select-none md:top-6 lg:top-8">
+        <div className="pointer-events-none fixed right-1 bottom-1 z-[9999] select-none">
             {screens.map((screen) => (
                 <span className={`hidden ${screen.className} rounded bg-black/80 px-3 py-1 font-mono text-xs text-lime-300 shadow-lg`} key={screen.name}>
                     {screen.name}

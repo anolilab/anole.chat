@@ -42,7 +42,7 @@ const AppSidebar = ({
     ];
 
     return (
-        <Sidebar className={cn("py-0 pl-0 [&>div]:flex-row", className)} collapsible="offcanvas" variant="inset">
+        <Sidebar className={cn("py-0 pl-0 [&>div]:flex-row", className)} collapsible="offcanvas" name="left" variant="inset">
             <div className="flex h-screen w-3/12 flex-col items-center justify-center gap-2 bg-black pr-5">
                 {sidebarLinks.map(({ icon: Icon, label, matcher, to }) => {
                     const isActive = matcher ? matcher(location.pathname) : location.pathname === to;
@@ -70,7 +70,7 @@ const AppSidebar = ({
                     <NavUser />
                 </SidebarFooter>
             </div>
-            <SidebarRail />
+            <SidebarRail name="left" />
         </Sidebar>
     );
 };

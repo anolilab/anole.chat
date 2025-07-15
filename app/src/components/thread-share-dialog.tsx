@@ -1,9 +1,9 @@
+import { api } from "@anole/convex/api";
 import { useMutation, useQuery } from "convex/react";
 import { Clock, Copy, Globe, Mail, Share2, Trash2, Users } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
-import { api } from "@anole/convex/api";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";

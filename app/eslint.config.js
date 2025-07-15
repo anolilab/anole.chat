@@ -23,4 +23,11 @@ export default createConfig(
             "@typescript-eslint/no-use-before-define": "off",
         },
     },
+    {
+        files: ["**/*.test.tsx"],
+        rules: {
+            // this need types
+            "vitest/prefer-describe-function-title": "off",
+        }
+    }
 );

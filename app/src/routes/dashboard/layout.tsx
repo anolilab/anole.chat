@@ -10,7 +10,7 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import AppSidebar from "@/features/layout/components/app-sidebar";
 import type { NavItem } from "@/features/layout/components/nav-items";
 import { NavItems } from "@/features/layout/components/nav-items";
-import { SiteHeader } from "@/features/layout/components/site-header";
+import SiteHeader from "@/features/layout/components/site-header";
 import { getAuthRedirectUrl } from "@/lib/utils";
 
 const sidebarHeader = (
@@ -120,6 +120,9 @@ const RouteComponent = () => {
     return (
         <Authenticated>
             <SidebarProvider
+                defaultOpen={["left"]}
+                keyboardShortcuts={{ left: "b", right: "l" }}
+                sidebarNames={["left", "right"]}
                 style={
                     {
                         "--header-height": "calc(var(--spacing) * 8.5)",

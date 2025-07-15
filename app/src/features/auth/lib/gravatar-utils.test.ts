@@ -1,6 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import { sha256 } from "crypto-hash";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GravatarOptions } from "../types/ui-configuration-types";
 import { getGravatarUrl } from "./gravatar-utils";
@@ -146,7 +145,7 @@ describe("gravatar utilities", () => {
         it("should handle errors gracefully", async () => {
             mockSha256.mockRejectedValue(new Error("Crypto error"));
 
-            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
+            const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
             const result = await getGravatarUrl("test@example.com");
 

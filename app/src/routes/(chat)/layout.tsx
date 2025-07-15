@@ -21,6 +21,9 @@ const RouteComponent = () => (
             <AiModelProvider>
                 {/* TODO: check why the bg-sidebar with inset variant is not working */}
                 <SidebarProvider
+                    defaultOpen={["left"]}
+                    keyboardShortcuts={{ left: "b", right: "l" }}
+                    sidebarNames={["left", "right"]}
                     style={
                         {
                             "--header-height": "calc(var(--spacing) * 8.5)",

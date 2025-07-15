@@ -67,9 +67,7 @@ export default defineConfig(({ mode }) => {
         test: {
             browser: {
                 enabled: true,
-                instances: [
-                    { browser: "chrome" },
-                ],
+                instances: [{ browser: "chrome" }],
                 provider: "webdriverio",
             },
             setupFiles: ["./vitest.setup.ts"],
