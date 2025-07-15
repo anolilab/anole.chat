@@ -14,7 +14,7 @@ export default createConfig(
             tsconfigPath: "./tsconfig.json",
             ignoresTypeAware: ["*.json", "*.md"],
         },
-        vitest: false
+        vitest: false,
     },
     {
         files: ["**/src/routes/**/*.tsx", "**/src/routes/api/**/*.ts"],

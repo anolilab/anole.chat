@@ -10,8 +10,8 @@ import AppSidebar from "@/features/layout/components/app-sidebar";
 
 import { useAiModelContext } from "../providers/ai-model-provider";
 import ChatSiteHeader from "./chat-header";
-import ThreadSidebar from "./thread-sidebar";
 import { ThreadProvider } from "./thread-context";
+import ThreadSidebar from "./thread-sidebar";
 
 const Assistant: FC<{ jwtToken: string; threadId?: string }> = ({ jwtToken, threadId }) => {
     const { selectedModel } = useAiModelContext();

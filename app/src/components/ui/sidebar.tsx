@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import useLocalStorage from "../../hooks/use-local-storage";
 import useIsMobile from "../../hooks/use-mobile";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -13,7 +14,7 @@ import KeybindingTooltip from "./keybinding-tooltip";
 import { Separator } from "./separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./sheet";
 import { Skeleton } from "./skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "./tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 
 /**
  * &lt;SidebarProvider
@@ -24,10 +25,10 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "./tool
  * &lt;SidebarLeft name="left" />
  * &lt;SidebarInset className="h-screen flex-1 min-w-0 ">
  * &lt;header className="flex h-10 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10 bg-sidebar">
-            <div className="flex flex-row justify-between items-center gap-2 px-2 pt-4">
-                <SidebarTrigger name="left" className="hover:bg-gray-200" />
-                <SidebarTrigger
-                  name="right"
+ * &lt;div className="flex flex-row justify-between items-center gap-2 px-2 pt-4">
+ * &lt;SidebarTrigger name="left" className="hover:bg-gray-200" />
+ * &lt;SidebarTrigger
+                  * name="right"
                   className="hover:bg-gray-200"
                   icon={<PanelRightIcon />}
                 />
@@ -39,7 +40,6 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "./tool
       </SidebarProvider>
  */
 
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
@@ -95,20 +95,34 @@ const SidebarProvider = <T extends string>({
 }) => {
     const isMobile = useIsMobile();
 
-    // Initialize sidebar states
+    // Use localStorage to persist sidebar open state
+    const [sidebarOpenState, setSidebarOpenState] = useLocalStorage(
+        "sidebar-open-state",
+        React.useMemo(() => {
+            const defaultOpenState = defaultOpen === "all" ? sidebarNames : defaultOpen;
+            const initial: Record<string, boolean> = {};
+
+            sidebarNames.forEach((name) => {
+                initial[name] = defaultOpenState.includes(name);
+            });
+
+            return initial;
+        }, [defaultOpen, sidebarNames]),
+    );
+
+    // Initialize sidebar states from localStorage
     const initialSidebars = React.useMemo(() => {
         const states: Record<T, SidebarState> = {} as Record<T, SidebarState>;
-        const defaultOpenState = defaultOpen === "all" ? sidebarNames : defaultOpen;
 
         sidebarNames.forEach((name) => {
             states[name] = {
                 isMobileOpen: false,
-                isOpen: defaultOpenState.includes(name),
+                isOpen: !!sidebarOpenState?.[name],
             };
         });
 
         return states;
-    }, [defaultOpen, sidebarNames]);
+    }, [sidebarNames, sidebarOpenState]);
 
     const [sidebars, setSidebars] = React.useState<Record<T, SidebarState>>(initialSidebars);
 
@@ -130,6 +144,16 @@ const SidebarProvider = <T extends string>({
         }
     }, [openProperty, sidebarNames]);
 
+    // Update localStorage when sidebars state changes
+    React.useEffect(() => {
+        const openState: Record<string, boolean> = {};
+
+        sidebarNames.forEach((name) => {
+            openState[name] = sidebars[name]?.isOpen ?? false;
+        });
+        setSidebarOpenState(openState);
+    }, [sidebars, sidebarNames, setSidebarOpenState]);
+
     const setSidebarState = React.useCallback(
         (name: T, state: Partial<SidebarState> | ((previous: SidebarState) => Partial<SidebarState>)) => {
             setSidebars((previous) => {
@@ -139,15 +163,12 @@ const SidebarProvider = <T extends string>({
 
                 next[name] = { ...currentState, ...newState };
 
-                // Update cookie
-                const openState = Object.entries(next)
-                    .filter(([_, state]) => (state as SidebarState).isOpen)
-                    .map(([name]) => name as T);
-
-                document.cookie = `${openState.map((sidebarName) => `${sidebarName}:state=${next[sidebarName].isOpen}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`).join("; ")}`;
-
                 // Call onOpenChange if provided
                 if (setOpenProperty) {
+                    const openState = Object.entries(next)
+                        .filter(([_, s]) => (s as SidebarState).isOpen)
+                        .map(([n]) => n as T);
+
                     setOpenProperty(openState);
                 }
 
@@ -364,38 +385,39 @@ const SidebarRail = <T extends string>({
 }: React.ComponentProps<"button"> & {
     name: T;
 }) => {
-    const { toggle, isOpen } = useSidebar(name);
+    const { isOpen, toggle } = useSidebar(name);
 
     return (
         <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          data-sidebar="rail"
-          data-slot="sidebar-rail"
-          aria-label="Toggle Sidebar"
-          tabIndex={-1}
-          onClick={toggle}
-          title="Toggle Sidebar"
-          className={cn(
-            "transition-[left,right,translate] fixed top-1/2 in-data-[side=left]:left-(--sidebar-width) in-data-[side=right]:right-(--sidebar-width) h-20 w-8 -translate-y-1/2 cursor-pointer duration-300 ease-in-out in-data-[side=left]:group-data-[collapsible=offcanvas]:left-0 in-data-[side=left]:group-data-[collapsible=icon]:left-(--sidebar-width-icon) in-data-[side=right]:group-data-[collapsible=offcanvas]:right-0 in-data-[side=right]:group-data-[collapsible=icon]:right-(--sidebar-width-icon) max-md:hidden",
-            {
-                "in-data-[side=left]:translate-x-1 in-data-[side=right]:-translate-x-1": !isOpen,
-                "in-data-[side=left]:-translate-x-2 hover:in-data-[side=left]:translate-x-1 in-data-[side=right]:translate-x-1 hover:in-data-[side=right]:-translate-x-2": isOpen
-            },
-            className
-          )}
-          {...properties}
-        >
-          <div
-            className="in-data-[side=right]:ml-auto before:bg-muted-foreground after:bg-muted-foreground pointer-events-none h-6 w-4 in-data-[side=left]:translate-x-2 in-data-[side=right]:-translate-x-2 opacity-50 transition-all ease-in-out group-data-[state=collapsed]:translate-x-0 before:absolute before:top-[calc(50%-7px)] in-data-[side=left]:before:left-[calc(50%-1px)] in-data-[side=right]:before:left-[calc(50%+1)] before:h-[9px] before:w-0.5 before:rounded-full before:transition-all after:absolute after:bottom-[calc(50%-7px)] in-data-[side=left]:after:left-[calc(50%-1px)] in-data-[side=right]:after:left-[calc(50%+1)] after:h-[9px] after:w-0.5 after:rounded-full after:transition-all in-[[data-slot=sidebar-rail]:hover]:opacity-100 in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:translate-x-1 group-data-[state=collapsed]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:translate-x-3 group-data-[state=collapsed]:group-data-[collapsible=icon]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:translate-x-1 in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:before:rotate-45 group-data-[state=collapsed]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:before:-rotate-45 in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:after:-rotate-45 group-data-[state=collapsed]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:after:rotate-45 in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:-translate-x-1 group-data-[state=collapsed]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:-translate-x-3 group-data-[state=collapsed]:group-data-[collapsible=icon]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:-translate-x-1 in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:before:-rotate-45 group-data-[state=collapsed]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:before:rotate-45 in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:after:rotate-45 group-data-[state=collapsed]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:after:-rotate-45"
-            aria-hidden="true"
-          ></div>
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side={side === "right" ? "left" : "right"} className="[&_span]:hidden">
-        {!isOpen ? "Expand" : "Collapse"}
-      </TooltipContent>
-    </Tooltip>
+            <TooltipTrigger asChild>
+                <button
+                    aria-label="Toggle Sidebar"
+                    className={cn(
+                        "fixed top-1/2 h-20 w-8 -translate-y-1/2 cursor-pointer transition-[left,right,translate] duration-300 ease-in-out in-data-[side=left]:left-(--sidebar-width) in-data-[side=left]:group-data-[collapsible=icon]:left-(--sidebar-width-icon) in-data-[side=left]:group-data-[collapsible=offcanvas]:left-0 in-data-[side=right]:right-(--sidebar-width) in-data-[side=right]:group-data-[collapsible=icon]:right-(--sidebar-width-icon) in-data-[side=right]:group-data-[collapsible=offcanvas]:right-0 max-md:hidden",
+                        {
+                            "in-data-[side=left]:-translate-x-2 hover:in-data-[side=left]:translate-x-1 in-data-[side=right]:translate-x-1 hover:in-data-[side=right]:-translate-x-2":
+                                isOpen,
+                            "in-data-[side=left]:translate-x-1 in-data-[side=right]:-translate-x-1": !isOpen,
+                        },
+                        className,
+                    )}
+                    data-sidebar="rail"
+                    data-slot="sidebar-rail"
+                    onClick={toggle}
+                    tabIndex={-1}
+                    title="Toggle Sidebar"
+                    {...properties}
+                >
+                    <div
+                        aria-hidden="true"
+                        className="before:bg-muted-foreground after:bg-muted-foreground pointer-events-none h-6 w-4 opacity-50 transition-all ease-in-out group-data-[state=collapsed]:translate-x-0 before:absolute before:top-[calc(50%-7px)] before:h-[9px] before:w-0.5 before:rounded-full before:transition-all after:absolute after:bottom-[calc(50%-7px)] after:h-[9px] after:w-0.5 after:rounded-full after:transition-all in-data-[side=left]:translate-x-2 in-data-[side=left]:before:left-[calc(50%-1px)] in-data-[side=left]:after:left-[calc(50%-1px)] in-data-[side=right]:ml-auto in-data-[side=right]:-translate-x-2 in-data-[side=right]:before:left-[calc(50%+1)] in-data-[side=right]:after:left-[calc(50%+1)] in-[[data-slot=sidebar-rail]:hover]:opacity-100 in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:translate-x-1 group-data-[state=collapsed]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:translate-x-3 group-data-[state=collapsed]:group-data-[collapsible=icon]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:translate-x-1 in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:before:rotate-45 group-data-[state=collapsed]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:before:-rotate-45 in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:after:-rotate-45 group-data-[state=collapsed]:in-data-[side=left]:in-[[data-slot=sidebar-rail]:hover]:after:rotate-45 in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:-translate-x-1 group-data-[state=collapsed]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:-translate-x-3 group-data-[state=collapsed]:group-data-[collapsible=icon]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:-translate-x-1 in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:before:-rotate-45 group-data-[state=collapsed]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:before:rotate-45 in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:after:rotate-45 group-data-[state=collapsed]:in-data-[side=right]:in-[[data-slot=sidebar-rail]:hover]:after:-rotate-45"
+                    />
+                </button>
+            </TooltipTrigger>
+            <TooltipContent className="[&_span]:hidden" side={side === "right" ? "left" : "right"}>
+                {isOpen ? "Collapse" : "Expand"}
+            </TooltipContent>
+        </Tooltip>
     );
 };
 

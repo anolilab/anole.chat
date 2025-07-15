@@ -1,24 +1,29 @@
 "use client";
 
+import { api } from "@anole/convex/api";
+import { t } from "@lingui/core/macro";
+import { useQuery } from "convex/react";
 import type { FC } from "react";
 
-import { t } from "@lingui/core/macro";
 import { Sidebar, SidebarContent, SidebarRail } from "@/components/ui/sidebar";
-import { useQuery } from "convex/react";
-import { api } from "@anole/convex/api"
 
 const ThreadSummery: FC<{ threadId?: string }> = ({ threadId }) => {
-    const data = useQuery(api.chat.functions.getThread, threadId ? {
+    const data = useQuery(
+        api.chat.functions.getThread,
         threadId
-    } : "skip")
+            ? {
+                threadId,
+            }
+            : "skip",
+    );
 
     return (
         <div className="space-y-2">
             <h2 className="text-lg font-semibold text-gray-900">{t`Thread summary`}</h2>
-            <p className="text-gray-700 whitespace-pre-line">{data?.summary || t`No summary available.`}</p>
+            <p className="whitespace-pre-line text-gray-700">{data?.summary || t`No summary available.`}</p>
         </div>
     );
-}
+};
 
 const ThreadSidebar: FC<{ threadId?: string }> = ({ threadId }) => (
     <Sidebar className="py-1 [&>div]:rounded-l-xl [&>div]:bg-white" collapsible="offcanvas" name="right" side="right" variant="inset">

@@ -110,7 +110,7 @@ const RouteComponent = () => {
 
     const { apiKey, organization } = useAuth();
     const navigationItems = getNavigationItems(apiKey, organization);
-    
+
     const sidebarContent = (
         <>
             <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
@@ -160,7 +160,7 @@ const RouteComponent = () => {
                             </Breadcrumb>
                         </SiteHeader>
 
-                        <ScrollArea className="h-full w-full p-4 overflow-hidden">
+                        <ScrollArea className="h-full w-full overflow-hidden p-4">
                             <Outlet />
                         </ScrollArea>
                     </SidebarInset>
