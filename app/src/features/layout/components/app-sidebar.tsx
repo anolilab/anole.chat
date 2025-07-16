@@ -28,11 +28,13 @@ const AppSidebar = ({
             matcher: (pathname) => pathname.startsWith("/chat"),
             to: "/chat",
         },
+        /**
         {
             icon: File,
             label: t`Files`,
             to: "/files",
         },
+        */
         {
             icon: Cog,
             label: t`Open Account Settings`,
