@@ -28,16 +28,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tool
  * &lt;div className="flex flex-row justify-between items-center gap-2 px-2 pt-4">
  * &lt;SidebarTrigger name="left" className="hover:bg-gray-200" />
  * &lt;SidebarTrigger
-                  * name="right"
-                  className="hover:bg-gray-200"
-                  icon={<PanelRightIcon />}
-                />
-            </div>
-          </header>
-          {children}
-        </SidebarInset>
-        <SidebarRight name="right" />
-      </SidebarProvider>
+ * name="right"
+ * className="hover:bg-gray-200"
+ * icon={&lt;PanelRightIcon />}
+ * />
+ * &lt;/div>
+ * &lt;/header>
+ * {children}
+ * &lt;/SidebarInset>
+ * &lt;SidebarRight name="right" />
+ * &lt;/SidebarProvider>
  */
 
 const SIDEBAR_WIDTH = "16rem";

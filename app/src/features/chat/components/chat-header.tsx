@@ -4,8 +4,8 @@ import { useThreadListItem } from "@assistant-ui/react";
 import { PanelRightIcon } from "lucide-react";
 import type { FC } from "react";
 
-import ThreadShareButton from "@/components/thread-share-button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import ThreadShareButton from "@/features/chat/components/thread-share-button";
 import SiteHeader from "@/features/layout/components/site-header";
 
 const ChatSiteHeader: FC<{ threadId?: string }> = ({ threadId }) => {
@@ -19,6 +19,7 @@ const ChatSiteHeader: FC<{ threadId?: string }> = ({ threadId }) => {
                     <SidebarTrigger className="text-white" icon={<PanelRightIcon />} name="right" />
                 </>
             )}
+            subMenuWidth={threadId && threadId !== "new" ? 148 : 128}
             title={title || "New Chat"}
         />
     );

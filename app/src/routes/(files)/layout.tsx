@@ -159,7 +159,7 @@ const RouteComponent = () => {
                             </Breadcrumb>
                         </SiteHeader>
 
-                        <ScrollArea className="h-full w-full p-4 overflow-hidden">
+                        <ScrollArea className="h-full w-full overflow-hidden p-4">
                             <Outlet />
                         </ScrollArea>
                     </SidebarInset>
