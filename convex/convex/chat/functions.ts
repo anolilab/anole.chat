@@ -361,9 +361,17 @@ export const streamHttpAction = async (
 
     const result = await thread.streamText({ promptMessageId: messageId });
 
-    // Deduct credits after successful message processing
-    await context.runMutation(internal.auth.functions.deductCredits, {
+    // Deduct credits after successful message processing with detailed tracking
+    await context.runMutation(internal.auth.functions.deductCreditsWithTracking, {
         amount: 1,
+        description: `AI message using ${model}`,
+        metadata: {
+            model,
+            threadId: thread.threadId,
+            messageId,
+            hasFiles: fileIds && fileIds.length > 0,
+            fileCount: fileIds?.length || 0,
+        },
     });
 
     return result.toDataStreamResponse({

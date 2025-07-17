@@ -124,9 +124,21 @@ export const {
     updateUser,
 } = betterAuthComponent.createAuthFunctions<DataModel>({
     onCreateUser: async (context, user) => {
+        // Get default credits from environment or use 100 as fallback
+        const defaultCredits = parseInt(process.env.DEFAULT_USER_CREDITS || "100", 10);
+        
         const userId = await context.db.insert("extendedUsers", {
+            credits: defaultCredits,
             email: user.email,
             role: "user",
+        });
+
+        // Log the initial credit allocation
+        await context.runMutation(internal.auth.functions.logCreditTransaction, {
+            amount: defaultCredits,
+            description: "Initial credit allocation for new user",
+            transactionType: "initial_allocation",
+            userId,
         });
 
         return userId;
