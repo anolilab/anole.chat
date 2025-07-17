@@ -2,7 +2,7 @@
 
 import { t } from "@lingui/core/macro";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, PlusCircleIcon, SettingsIcon, Sparkles } from "lucide-react";
+import { BadgeCheck, ChevronsUpDown, Coins, CreditCard, LogOut, PlusCircleIcon, SettingsIcon, Sparkles } from "lucide-react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -127,6 +127,10 @@ export const NavUser = () => {
                             <DropdownMenuItem>
                                 <Sparkles />
                                 Upgrade to Pro
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Coins className="mr-2 h-4 w-4" />
+                                {user?.credits ?? 0} Credits
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />

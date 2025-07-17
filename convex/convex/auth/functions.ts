@@ -17,6 +17,7 @@ import { encryptKey } from "../lib/encryption";
 import type { Role } from "../lib/types";
 import { ROLES } from "../lib/types";
 import { aiUserPreferencesFields, userSettingsFields } from "./fields";
+import { ConvexError } from "convex/values";
 
 export const getCurrentUser = query({
     args: {},
@@ -158,4 +159,66 @@ export const updateAIUserPreferences = makeSettingsUpsertMutation(
     "aiUserPreferences",
     aiUserPreferencesFields,
 );
+
+// Credit Management Functions
+export const getUserCredits = authedQuery({
+    args: {},
+    handler: async (context) => {
+        const userId = context.user._id;
+        const user = await context.db.get(userId);
+        return user?.credits ?? 0;
+    },
+    returns: v.number(),
+});
+
+export const updateUserCredits = authedMutation({
+    args: { credits: v.number() },
+    handler: async (context, { credits }) => {
+        const userId = context.user._id;
+        await context.db.patch(userId, { credits });
+    },
+    returns: v.null(),
+});
+
+export const deductCredits = authedMutation({
+    args: { amount: v.number() },
+    handler: async (context, { amount }) => {
+        const userId = context.user._id;
+        const user = await context.db.get(userId);
+        
+        if (!user) {
+            throw new ConvexError("User not found");
+        }
+        
+        const currentCredits = user.credits ?? 0;
+        
+        if (currentCredits < amount) {
+            throw new ConvexError("Insufficient credits");
+        }
+        
+        await context.db.patch(userId, { credits: currentCredits - amount });
+    },
+    returns: v.null(),
+});
+
+export const checkUserCredits = authedQuery({
+    args: { requiredAmount: v.number() },
+    handler: async (context, { requiredAmount }) => {
+        const userId = context.user._id;
+        const user = await context.db.get(userId);
+        const currentCredits = user?.credits ?? 0;
+        
+        return {
+            hasSufficientCredits: currentCredits >= requiredAmount,
+            currentCredits,
+            requiredAmount,
+        };
+    },
+    returns: v.object({
+        hasSufficientCredits: v.boolean(),
+        currentCredits: v.number(),
+        requiredAmount: v.number(),
+    }),
+});
+
 export const getAIUserPreferences = makeSettingsGetQuery("aiUserPreferences");
