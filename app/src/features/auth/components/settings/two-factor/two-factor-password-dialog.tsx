@@ -7,13 +7,13 @@ import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
-import { use, useState } from "react";
+import { useState } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 
-import { PasswordInput } from "../../../../../components/form/password-input";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { BackupCodesDialog } from "./backup-codes-dialog";
 

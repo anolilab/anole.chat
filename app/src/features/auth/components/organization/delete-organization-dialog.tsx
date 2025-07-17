@@ -21,12 +21,6 @@ export interface DeleteOrganizationDialogProperties extends ComponentProps<typeo
     classNames?: SettingsCardClassNames;
 }
 
-const formSchema = z
-    .object({
-        slug: z.string().min(1, { message: t`Organization slug is required` }),
-    })
-    .strict();
-
 export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properties }: DeleteOrganizationDialogProperties) => {
     const {
         authClient,
@@ -36,6 +30,12 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
         toast,
     } = useAuth();
     const { t } = useLingui();
+    
+    const formSchema = z
+        .object({
+            slug: z.string().min(1, { message: t`Organization slug is required` }),
+        })
+        .strict();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();

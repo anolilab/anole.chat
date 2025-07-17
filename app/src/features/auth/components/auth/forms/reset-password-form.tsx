@@ -6,7 +6,7 @@ import { PasswordInput } from "@anole/ui/components/form/password-input";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
-import { use, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";

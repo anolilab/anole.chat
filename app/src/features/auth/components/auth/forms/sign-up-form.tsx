@@ -9,10 +9,10 @@ import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { Input } from "@anole/ui/components/input";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
-import { Link, useSearch } from "@tanstack/react-router";
+import { useSearch } from "@tanstack/react-router";
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2, Trash2Icon, UploadCloudIcon } from "lucide-react";
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod/v4";
 
 import { useCaptcha } from "@/features/auth/hooks/use-captcha";

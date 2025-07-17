@@ -10,7 +10,7 @@ import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2 } from "lucide-react";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 import { z } from "zod/v4";
 
 import { useCaptcha } from "@/features/auth/hooks/use-captcha";

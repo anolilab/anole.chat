@@ -45,12 +45,6 @@ export const OrganizationNameCard = ({ className, classNames, ...properties }: S
     return <OrganizationNameForm className={className} classNames={classNames} {...properties} />;
 };
 
-const formSchema = z
-    .object({
-        name: z.string().min(1, { message: t`Organization name is required` }),
-    })
-    .strict();
-
 const OrganizationNameForm = ({ className, classNames, ...properties }: SettingsCardProperties) => {
     const {
         authClient,
@@ -59,6 +53,12 @@ const OrganizationNameForm = ({ className, classNames, ...properties }: Settings
         toast,
     } = useAuth();
     const { t } = useLingui();
+
+    const formSchema = z
+        .object({
+            name: z.string().min(1, { message: t`Organization name is required` }),
+        })
+        .strict();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();

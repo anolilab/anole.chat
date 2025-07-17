@@ -21,7 +21,12 @@ const SUGGESTED_TRAITS_OPTIONS = SUGGESTED_TRAITS.map((trait) => {
     };
 });
 
-const aiCustomizationSchema = z
+const AiCustomizationCard: FC = () => {
+    const { t } = useLingui();
+    const [formError, setFormError] = useState<string | undefined>(undefined);
+    const [loading, setLoading] = useState(false);
+    
+    const aiCustomizationSchema = z
     .object({
         aiBehavior: z
             .string()
@@ -41,11 +46,6 @@ const aiCustomizationSchema = z
             .default([]),
     })
     .strict();
-
-const AiCustomizationCard: FC = () => {
-    const { t } = useLingui();
-    const [formError, setFormError] = useState<string | undefined>(undefined);
-    const [loading, setLoading] = useState(false);
 
     const aiUserPreferences = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserPreferences = useMutation(api.auth.functions.updateAIUserPreferences);

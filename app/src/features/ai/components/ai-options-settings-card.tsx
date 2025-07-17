@@ -66,192 +66,6 @@ const SettingsSection: FC<{
     </Card>
 );
 
-const headerSchema = z
-    .object({
-        key: z.string(),
-        value: z.string(),
-    })
-    .strict()
-    .superRefine((data, context) => {
-        if (data.key && !data.value) {
-            context.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: t`Value is required if key is set`,
-                path: ["value"],
-            });
-        }
-    });
-
-const mcpServerSchema = z
-    .object({
-        enabled: z.boolean(),
-        headers: z.array(headerSchema),
-        protocol: z.string().min(1, t`Protocol is required`),
-        serverName: z.string().min(1, t`Server name is required`),
-        serverUrl: z.url(t`Must be a valid URL`).min(1, t`Server URL is required`),
-    })
-    .strict();
-
-const AiOptionsSettingsCard: FC = () => {
-    const { t } = useLingui();
-    const aiUserPreferences = useQuery(api.auth.functions.getAIUserPreferences, {});
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [editServerIndex, setEditServerIndex] = useState<number | undefined>(undefined);
-    const [deleteServerIndex, setDeleteServerIndex] = useState<number | undefined>(undefined);
-    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-    const updateAIUserPreferences = useMutation(api.auth.functions.updateAIUserPreferences);
-
-    const handleSearchProviderChange = async (value: string) => {
-        await updateAIUserPreferences({
-            ...aiUserPreferences,
-            searchProvider: value,
-        });
-    };
-
-    const handleSearchIncludeSourcesChange = async (value: boolean) => {
-        await updateAIUserPreferences({
-            ...aiUserPreferences,
-            searchIncludeSourcesByDefault: value,
-        });
-    };
-
-    const handleEditServer = (index: number) => {
-        setEditServerIndex(index);
-        setDialogOpen(true);
-    };
-
-    const handleDeleteServer = (index: number) => {
-        setDeleteServerIndex(index);
-        setConfirmDeleteOpen(true);
-    };
-
-    const confirmDelete = async () => {
-        if (deleteServerIndex !== null && aiUserPreferences?.mcpServers) {
-            const updatedServers = aiUserPreferences.mcpServers.filter((_, index) => index !== deleteServerIndex);
-
-            await updateAIUserPreferences({
-                ...aiUserPreferences,
-                mcpServers: updatedServers,
-            });
-        }
-
-        setConfirmDeleteOpen(false);
-        setDeleteServerIndex(undefined);
-    };
-
-    return (
-        <Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
-            <SettingsSection description={t`Store and retrieve information across conversations for enhanced AI context`} title={t`AI Memory`}>
-                <div className="text-muted-foreground text-sm italic">{t`(Coming soon)`}</div>
-            </SettingsSection>
-
-            <SettingsSection description={t`Connect to Model Context Protocol servers for additional AI capabilities`} title={t`MCP Servers`}>
-                <div className="mb-2">
-                    <div className="mb-2 grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {(aiUserPreferences?.mcpServers || []).map((server: any, index: number) => (
-                            <Card className="flex flex-col gap-2 p-4" key={server.url + index}>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <div className="font-semibold">{server.name}</div>
-                                        <div className="text-xs break-all">
-                                            Url:
-                                            <span className="text-muted-foreground">{server.url}</span>
-                                        </div>
-                                        <div className="text-xs break-all">
-                                            Protocol:
-                                            <span className="text-muted-foreground">{server.protocol}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {server.enabled
-                                            ? (
-                                                <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">{t`Active`}</span>
-                                            )
-                                            : (
-                                                <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">{t`Inactive`}</span>
-                                            )}
-                                        <Button aria-label={t`Edit`} onClick={() => handleEditServer(index)} size="icon" variant="ghost">
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button aria-label={t`Delete`} onClick={() => handleDeleteServer(index)} size="icon" variant="ghost">
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                    <Button
-                        onClick={() => {
-                            setEditServerIndex(undefined);
-                            setDialogOpen(true);
-                        }}
-                        size="sm"
-                        type="button"
-                        variant="outline"
-                    >
-                        {t`Add MCP Server`}
-                    </Button>
-                    <McpServerDialog
-                        aiUserPreferences={aiUserPreferences}
-                        editServerIndex={editServerIndex === undefined ? undefined : editServerIndex}
-                        onOpenChange={(open) => {
-                            setDialogOpen(open);
-
-                            if (!open)
-                                setEditServerIndex(undefined);
-                        }}
-                        onSubmit={async (newServer) => {
-                            let updatedServers;
-
-                            updatedServers
-                                = editServerIndex !== undefined && aiUserPreferences?.mcpServers
-                                    ? aiUserPreferences.mcpServers.map((srv, index) => (index === editServerIndex ? newServer : srv))
-                                    : [...aiUserPreferences?.mcpServers ?? [], newServer];
-
-                            await updateAIUserPreferences({
-                                mcpServers: updatedServers,
-                            });
-                        }}
-                        open={dialogOpen}
-                    />
-                </div>
-            </SettingsSection>
-
-            <SettingsSection
-                description={t`Choose which service to use for web searches. BYOK providers take priority over server providers.`}
-                title={t`Web Search Provider`}
-            >
-                <RadioGroup className="mb-2" onValueChange={handleSearchProviderChange} value={aiUserPreferences?.searchProvider ?? "firecrawl"}>
-                    {WEB_SEARCH_PROVIDERS.map((provider) => (
-                        <div className="mb-2 flex items-start gap-2" key={provider.id}>
-                            <RadioGroupItem id={provider.id} value={provider.id} />
-                            <label className="flex cursor-pointer flex-col" htmlFor={provider.id}>
-                                <span className="font-medium">{provider.name}</span>
-                                <span className="text-muted-foreground text-xs">{provider.description}</span>
-                            </label>
-                        </div>
-                    ))}
-                </RadioGroup>
-            </SettingsSection>
-
-            <SettingsSection title={t`Search Sources`}>
-                <div className="flex items-center gap-4">
-                    <Switch checked={aiUserPreferences?.searchIncludeSourcesByDefault ?? false} onCheckedChange={handleSearchIncludeSourcesChange} />
-                    <span className="text-muted-foreground text-sm">{t`Automatically include source links and citations in search responses`}</span>
-                </div>
-            </SettingsSection>
-            <ConfirmDialog
-                description={t`Are you sure you want to delete this MCP server? This action cannot be undone.`}
-                onConfirm={confirmDelete}
-                onOpenChange={setConfirmDeleteOpen}
-                open={confirmDeleteOpen}
-                title={t`Delete MCP Server`}
-            />
-        </Dialog>
-    );
-};
-
 // New component for MCP Server Add/Edit Dialog
 const McpServerDialog = ({
     aiUserPreferences,
@@ -266,6 +80,8 @@ const McpServerDialog = ({
     onSubmit: (values: any) => Promise<void>;
     open: boolean;
 }) => {
+    const { t } = useLingui();
+    
     const getDialogDefaultValues = () => {
         if (editServerIndex !== undefined && aiUserPreferences?.mcpServers) {
             const editDefaults = aiUserPreferences.mcpServers[editServerIndex];
@@ -287,6 +103,33 @@ const McpServerDialog = ({
             serverUrl: "",
         };
     };
+
+    const headerSchema = z
+    .object({
+        key: z.string(),
+        value: z.string(),
+    })
+    .strict()
+    .superRefine((data, context) => {
+        if (data.key && !data.value) {
+            context.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: t`Value is required if key is set`,
+                path: ["value"],
+            });
+        }
+    });
+
+    const mcpServerSchema = z
+        .object({
+            enabled: z.boolean(),
+            headers: z.array(headerSchema),
+            protocol: z.string().min(1, t`Protocol is required`),
+            serverName: z.string().min(1, t`Server name is required`),
+            serverUrl: z.url(t`Must be a valid URL`).min(1, t`Server URL is required`),
+        })
+        .strict();
+
     const form = useAppForm({
         defaultValues: getDialogDefaultValues(),
         onSubmit: async () => {
@@ -457,6 +300,166 @@ const McpServerDialog = ({
                     </form>
                 </form.AppForm>
             </DialogContent>
+        </Dialog>
+    );
+};
+
+const AiOptionsSettingsCard: FC = () => {
+    const { t } = useLingui();
+    const aiUserPreferences = useQuery(api.auth.functions.getAIUserPreferences, {});
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editServerIndex, setEditServerIndex] = useState<number | undefined>(undefined);
+    const [deleteServerIndex, setDeleteServerIndex] = useState<number | undefined>(undefined);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const updateAIUserPreferences = useMutation(api.auth.functions.updateAIUserPreferences);
+
+    const handleSearchProviderChange = async (value: string) => {
+        await updateAIUserPreferences({
+            ...aiUserPreferences,
+            searchProvider: value,
+        });
+    };
+
+    const handleSearchIncludeSourcesChange = async (value: boolean) => {
+        await updateAIUserPreferences({
+            ...aiUserPreferences,
+            searchIncludeSourcesByDefault: value,
+        });
+    };
+
+    const handleEditServer = (index: number) => {
+        setEditServerIndex(index);
+        setDialogOpen(true);
+    };
+
+    const handleDeleteServer = (index: number) => {
+        setDeleteServerIndex(index);
+        setConfirmDeleteOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (deleteServerIndex !== null && aiUserPreferences?.mcpServers) {
+            const updatedServers = aiUserPreferences.mcpServers.filter((_, index) => index !== deleteServerIndex);
+
+            await updateAIUserPreferences({
+                ...aiUserPreferences,
+                mcpServers: updatedServers,
+            });
+        }
+
+        setConfirmDeleteOpen(false);
+        setDeleteServerIndex(undefined);
+    };
+
+    return (
+        <Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
+            <SettingsSection description={t`Store and retrieve information across conversations for enhanced AI context`} title={t`AI Memory`}>
+                <div className="text-muted-foreground text-sm italic">{t`(Coming soon)`}</div>
+            </SettingsSection>
+
+            <SettingsSection description={t`Connect to Model Context Protocol servers for additional AI capabilities`} title={t`MCP Servers`}>
+                <div className="mb-2">
+                    <div className="mb-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {(aiUserPreferences?.mcpServers || []).map((server: any, index: number) => (
+                            <Card className="flex flex-col gap-2 p-4" key={server.url + index}>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="font-semibold">{server.name}</div>
+                                        <div className="text-xs break-all">
+                                            Url:
+                                            <span className="text-muted-foreground">{server.url}</span>
+                                        </div>
+                                        <div className="text-xs break-all">
+                                            Protocol:
+                                            <span className="text-muted-foreground">{server.protocol}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {server.enabled
+                                            ? (
+                                                <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">{t`Active`}</span>
+                                            )
+                                            : (
+                                                <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">{t`Inactive`}</span>
+                                            )}
+                                        <Button aria-label={t`Edit`} onClick={() => handleEditServer(index)} size="icon" variant="ghost">
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button aria-label={t`Delete`} onClick={() => handleDeleteServer(index)} size="icon" variant="ghost">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                    <Button
+                        onClick={() => {
+                            setEditServerIndex(undefined);
+                            setDialogOpen(true);
+                        }}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                    >
+                        {t`Add MCP Server`}
+                    </Button>
+                    <McpServerDialog
+                        aiUserPreferences={aiUserPreferences}
+                        editServerIndex={editServerIndex === undefined ? undefined : editServerIndex}
+                        onOpenChange={(open) => {
+                            setDialogOpen(open);
+
+                            if (!open)
+                                setEditServerIndex(undefined);
+                        }}
+                        onSubmit={async (newServer) => {
+                            let updatedServers;
+
+                            updatedServers
+                                = editServerIndex !== undefined && aiUserPreferences?.mcpServers
+                                    ? aiUserPreferences.mcpServers.map((srv, index) => (index === editServerIndex ? newServer : srv))
+                                    : [...aiUserPreferences?.mcpServers ?? [], newServer];
+
+                            await updateAIUserPreferences({
+                                mcpServers: updatedServers,
+                            });
+                        }}
+                        open={dialogOpen}
+                    />
+                </div>
+            </SettingsSection>
+
+            <SettingsSection
+                description={t`Choose which service to use for web searches. BYOK providers take priority over server providers.`}
+                title={t`Web Search Provider`}
+            >
+                <RadioGroup className="mb-2" onValueChange={handleSearchProviderChange} value={aiUserPreferences?.searchProvider ?? "firecrawl"}>
+                    {WEB_SEARCH_PROVIDERS.map((provider) => (
+                        <div className="mb-2 flex items-start gap-2" key={provider.id}>
+                            <RadioGroupItem id={provider.id} value={provider.id} />
+                            <label className="flex cursor-pointer flex-col" htmlFor={provider.id}>
+                                <span className="font-medium">{provider.name}</span>
+                                <span className="text-muted-foreground text-xs">{provider.description}</span>
+                            </label>
+                        </div>
+                    ))}
+                </RadioGroup>
+            </SettingsSection>
+
+            <SettingsSection title={t`Search Sources`}>
+                <div className="flex items-center gap-4">
+                    <Switch checked={aiUserPreferences?.searchIncludeSourcesByDefault ?? false} onCheckedChange={handleSearchIncludeSourcesChange} />
+                    <span className="text-muted-foreground text-sm">{t`Automatically include source links and citations in search responses`}</span>
+                </div>
+            </SettingsSection>
+            <ConfirmDialog
+                description={t`Are you sure you want to delete this MCP server? This action cannot be undone.`}
+                onConfirm={confirmDelete}
+                onOpenChange={setConfirmDeleteOpen}
+                open={confirmDeleteOpen}
+                title={t`Delete MCP Server`}
+            />
         </Dialog>
     );
 };

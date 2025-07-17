@@ -14,15 +14,6 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import type { SettingsCardProperties } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
 
-const formSchema = z
-    .object({
-        email: z
-            .string()
-            .min(1, { message: t`Email is required` })
-            .email({ message: t`Invalid email` }),
-    })
-    .strict();
-
 export const ChangeEmailCard = ({ className, classNames, ...properties }: SettingsCardProperties) => {
     const {
         authClient,
@@ -31,6 +22,15 @@ export const ChangeEmailCard = ({ className, classNames, ...properties }: Settin
         toast,
     } = useAuth();
     const { t } = useLingui();
+
+    const formSchema = z
+        .object({
+            email: z
+                .string()
+                .min(1, { message: t`Email is required` })
+                .email({ message: t`Invalid email` }),
+        })
+        .strict();
 
     const { data: sessionData, isPending, refetch } = useSession();
     const [resendDisabled, setResendDisabled] = useState(false);

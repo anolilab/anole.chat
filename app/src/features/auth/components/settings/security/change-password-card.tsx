@@ -9,8 +9,8 @@ import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
-import { PasswordInput } from "../../../../../components/form/password-input";
-import { getLocalizedError } from "../../../lib/utils";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
+import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
