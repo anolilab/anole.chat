@@ -3,23 +3,23 @@
 import { Button } from "@anole/ui/components/button";
 import { Checkbox } from "@anole/ui/components/checkbox";
 import { useAppForm } from "@anole/ui/components/form";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { Input } from "@anole/ui/components/input";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2 } from "lucide-react";
 import { use, useEffect } from "react";
 import { z } from "zod/v4";
 
-import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
-import { PasswordInput } from "@anole/ui/components/form/password-input";
-import { useIsHydrated } from "@/hooks/use-hydrated";
 import { useCaptcha } from "@/features/auth/hooks/use-captcha";
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError, isValidEmail } from "@/features/auth/lib/utils";
 import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
+import { useIsHydrated } from "@/hooks/use-hydrated";
+
 import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";
 
@@ -33,6 +33,7 @@ export interface SignInFormProperties {
 }
 
 export const SignInForm = ({ className, classNames, isSubmitting, passwordValidation, redirectTo, setIsSubmitting }: SignInFormProperties) => {
+    const { t } = useLingui();
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
@@ -52,16 +53,16 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
         .object({
             email: usernameEnabled
                 ? z.string().min(1, {
-                      message: t`Username is required`,
-                  })
+                    message: t`Username is required`,
+                })
                 : z
-                      .string()
-                      .min(1, {
-                          message: t`Email is required`,
-                      })
-                      .email({
-                          message: t`Email is invalid`,
-                      }),
+                    .string()
+                    .min(1, {
+                        message: t`Email is required`,
+                    })
+                    .email({
+                        message: t`Email is invalid`,
+                    }),
             password: (() => {
                 let schema = z.string().min(1, {
                     message: t`Password is required`,
@@ -136,7 +137,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                 form.setFieldValue("password", "");
 
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }

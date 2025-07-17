@@ -12,7 +12,8 @@ export const getGravatarUrl = async (
     email?: string | ArrayBuffer | ArrayBufferView<ArrayBufferLike>,
     options?: GravatarOptions,
 ): Promise<string | undefined> => {
-    if (!email || typeof email !== "string") return undefined;
+    if (!email || typeof email !== "string")
+        return undefined;
 
     try {
         // Normalize email: trim and lowercase

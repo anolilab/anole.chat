@@ -17,7 +17,7 @@ import { Label } from "@anole/ui/components/label";
 import { RadioGroup, RadioGroupItem } from "@anole/ui/components/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 import { Switch } from "@anole/ui/components/switch";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
 import type { FC, ReactNode } from "react";
@@ -93,6 +93,7 @@ const mcpServerSchema = z
     .strict();
 
 const AiOptionsSettingsCard: FC = () => {
+    const { t } = useLingui();
     const aiUserPreferences = useQuery(api.auth.functions.getAIUserPreferences, {});
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editServerIndex, setEditServerIndex] = useState<number | undefined>(undefined);
@@ -162,11 +163,13 @@ const AiOptionsSettingsCard: FC = () => {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        {server.enabled ? (
-                                            <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">{t`Active`}</span>
-                                        ) : (
-                                            <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">{t`Inactive`}</span>
-                                        )}
+                                        {server.enabled
+                                            ? (
+                                                <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">{t`Active`}</span>
+                                            )
+                                            : (
+                                                <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">{t`Inactive`}</span>
+                                            )}
                                         <Button aria-label={t`Edit`} onClick={() => handleEditServer(index)} size="icon" variant="ghost">
                                             <Pencil className="h-4 w-4" />
                                         </Button>
@@ -195,15 +198,16 @@ const AiOptionsSettingsCard: FC = () => {
                         onOpenChange={(open) => {
                             setDialogOpen(open);
 
-                            if (!open) setEditServerIndex(undefined);
+                            if (!open)
+                                setEditServerIndex(undefined);
                         }}
                         onSubmit={async (newServer) => {
                             let updatedServers;
 
-                            updatedServers =
-                                editServerIndex !== undefined && aiUserPreferences?.mcpServers
+                            updatedServers
+                                = editServerIndex !== undefined && aiUserPreferences?.mcpServers
                                     ? aiUserPreferences.mcpServers.map((srv, index) => (index === editServerIndex ? newServer : srv))
-                                    : [...(aiUserPreferences?.mcpServers ?? []), newServer];
+                                    : [...aiUserPreferences?.mcpServers ?? [], newServer];
 
                             await updateAIUserPreferences({
                                 mcpServers: updatedServers,
@@ -396,10 +400,9 @@ const McpServerDialog = ({
                                                             form.setFieldValue(
                                                                 "headers",
                                                                 form.state.values.headers.map((h) =>
-                                                                    h.key === header.key ? { ...h, key: event_.target.value } : h,
+                                                                    (h.key === header.key ? { ...h, key: event_.target.value } : h),
                                                                 ),
-                                                            )
-                                                        }
+                                                        )}
                                                         placeholder={t`Header Key`}
                                                         value={header.key}
                                                     />
@@ -411,10 +414,9 @@ const McpServerDialog = ({
                                                             form.setFieldValue(
                                                                 "headers",
                                                                 form.state.values.headers.map((h) =>
-                                                                    h.key === header.key ? { ...h, value: event_.target.value } : h,
+                                                                    (h.key === header.key ? { ...h, value: event_.target.value } : h),
                                                                 ),
-                                                            )
-                                                        }
+                                                        )}
                                                         placeholder={t`Header Value`}
                                                         value={header.value}
                                                     />
@@ -430,8 +432,7 @@ const McpServerDialog = ({
                                                         form.setFieldValue(
                                                             "headers",
                                                             form.state.values.headers.filter((h) => h.key !== header.key),
-                                                        )
-                                                    }
+                                                    )}
                                                     style={deleteHeaderButtonStyle}
                                                     type="button"
                                                 >

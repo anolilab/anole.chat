@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { FingerprintIcon, Loader2 } from "lucide-react";
 import { use, useState } from "react";
 
@@ -25,6 +25,7 @@ export const PasskeyCell = ({ className, classNames, passkey }: PasskeyCellPrope
         mutators: { deletePasskey },
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { refetch } = useListPasskeys();
 

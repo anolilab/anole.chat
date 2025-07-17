@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { Organization } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
@@ -28,6 +28,7 @@ export const LeaveOrganizationDialog = ({ className, classNames, onOpenChange, o
         hooks: { useActiveOrganization, useListOrganizations },
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -59,7 +60,7 @@ export const LeaveOrganizationDialog = ({ className, classNames, onOpenChange, o
             onOpenChange?.(false);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }

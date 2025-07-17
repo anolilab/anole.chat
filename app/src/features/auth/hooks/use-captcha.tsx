@@ -1,5 +1,5 @@
 import type HCaptcha from "@hcaptcha/react-hcaptcha";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import type { RefObject } from "react";
 import { use, useRef } from "react";
@@ -11,11 +11,13 @@ const DEFAULT_CAPTCHA_ENDPOINTS = ["/sign-up/email", "/sign-in/email", "/forget-
 
 export function useCaptcha() {
     const { captcha } = useAuth();
+    const { t } = useLingui();
 
     const captchaReference = useRef<any>(null);
 
     const executeCaptcha = async () => {
-        if (!captcha) throw new Error(t`Missing captcha response`);
+        if (!captcha)
+            throw new Error(t`Missing captcha response`);
 
         // Sanitize the action name for reCAPTCHA
         let response: string | undefined | null;
@@ -43,7 +45,8 @@ export function useCaptcha() {
     };
 
     const getCaptchaHeaders = async (action: string) => {
-        if (!captcha) return undefined;
+        if (!captcha)
+            return undefined;
 
         // Use custom endpoints if provided, otherwise use defaults
         const endpoints = captcha.endpoints || DEFAULT_CAPTCHA_ENDPOINTS;

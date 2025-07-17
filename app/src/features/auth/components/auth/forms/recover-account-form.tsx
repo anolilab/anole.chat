@@ -4,16 +4,16 @@ import { Button } from "@anole/ui/components/button";
 import { useAppForm } from "@anole/ui/components/form";
 import { InputOTP } from "@anole/ui/components/input-otp";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import { use, useEffect } from "react";
 import { z } from "zod/v4";
 
-import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
-import { useIsHydrated } from "@/hooks/use-hydrated";
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
+import { useIsHydrated } from "@/hooks/use-hydrated";
+
 import type { AuthFormClassNames } from "../auth-form";
 import { OTPInputGroup } from "../otp-input-group";
 
@@ -27,6 +27,7 @@ export interface RecoverAccountFormProperties {
 }
 
 export const RecoverAccountForm = ({ className, classNames, isSubmitting, otpSeparators = 0, redirectTo, setIsSubmitting }: RecoverAccountFormProperties) => {
+    const { t } = useLingui();
     const isHydrated = useIsHydrated();
 
     const { authClient, toast } = useAuth();
@@ -62,7 +63,7 @@ export const RecoverAccountForm = ({ className, classNames, isSubmitting, otpSep
                 await onSuccess();
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
 

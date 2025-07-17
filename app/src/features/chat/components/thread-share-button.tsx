@@ -2,7 +2,6 @@ import { api } from "@anole/convex/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import { Badge } from "@anole/ui/components/badge";
 import { Button } from "@anole/ui/components/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import { Input } from "@anole/ui/components/input";
 import { Label } from "@anole/ui/components/label";
@@ -10,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@anole/ui/components/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@anole/ui/components/tabs";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useMutation, useQuery } from "convex/react";
 import { Share2 } from "lucide-react";
 import React, { useCallback, useState } from "react";
@@ -32,6 +31,7 @@ type ExpirationType = "1_day" | "7_days" | "custom";
 
 const ThreadShareButton: React.FC<ThreadShareButtonProperties> = ({ classes, threadId }) => {
     const [inviteEmail, setInviteEmail] = useState("");
+    const { t } = useLingui();
     const [invitePermission, setInvitePermission] = useState<Permission>("read");
     const [expirationType, setExpirationType] = useState<ExpirationType>("7_days");
     const [customHours, setCustomHours] = useState<number>(24);
@@ -212,10 +212,11 @@ const ThreadShareButton: React.FC<ThreadShareButtonProperties> = ({ classes, thr
                         <TabsTrigger value="public">Public</TabsTrigger>
                     </TabsList>
                     <TabsContent className="px-4 py-2" value="access">
-                        {threadAccess.users.length === 0 ? (
-                            <p className="text-muted-foreground text-sm">No additional users have access to this thread.</p>
-                        ) : (
-                            threadAccess.users.map((user) => (
+                        {threadAccess.users.length === 0
+                            ? (
+                                <p className="text-muted-foreground text-sm">No additional users have access to this thread.</p>
+                            )
+                            : threadAccess.users.map((user) => (
                                 <div className="flex items-center justify-between rounded-lg border p-3" key={user.userId}>
                                     <div className="flex items-center gap-3">
                                         <Avatar className="h-8 w-8">
@@ -249,8 +250,7 @@ const ThreadShareButton: React.FC<ThreadShareButtonProperties> = ({ classes, thr
                                         )}
                                     </div>
                                 </div>
-                            ))
-                        )}
+                            ))}
                     </TabsContent>
                     <TabsContent className="flex flex-col gap-2 px-4 py-2" value="invites">
                         <div className="space-y-2">
@@ -303,7 +303,9 @@ const ThreadShareButton: React.FC<ThreadShareButtonProperties> = ({ classes, thr
                                             <div>
                                                 <p className="text-sm font-medium">{invite.invitedEmail}</p>
                                                 <p className="text-muted-foreground flex items-center gap-1 text-xs">
-                                                    Expires: {formatExpirationTime(invite.expiresAt)}
+                                                    Expires:
+                                                    {" "}
+                                                    {formatExpirationTime(invite.expiresAt)}
                                                 </p>
                                             </div>
                                         </div>

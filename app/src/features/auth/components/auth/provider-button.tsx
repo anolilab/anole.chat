@@ -1,6 +1,6 @@
 import { Button } from "@anole/ui/components/button";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useSearch } from "@tanstack/react-router";
 import type { SocialProvider } from "better-auth/social-providers";
 import { use, useCallback } from "react";
@@ -34,6 +34,7 @@ export const ProviderButton = ({
     setIsSubmitting,
     socialLayout,
 }: ProviderButtonProperties) => {
+    const { t } = useLingui();
     const { authClient, basePath, baseURL, genericOAuth, persistClient, redirectTo: contextRedirectTo, social, toast, viewPaths } = useAuth();
 
     const search = useSearch({ strict: false });
@@ -87,7 +88,7 @@ export const ProviderButton = ({
             }
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
 

@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
@@ -29,6 +29,7 @@ export const UpdateMemberRoleDialog = ({ classNames, member, onOpenChange, ...pr
         organization,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { refetch } = useActiveOrganization();
     const { data: sessionData } = useSession();
@@ -43,7 +44,7 @@ export const UpdateMemberRoleDialog = ({ classNames, member, onOpenChange, ...pr
         { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
 
     const currentUserRole = activeOrganization?.members.find((m) => m.user.id === sessionData?.user.id)?.role;
 
@@ -91,7 +92,7 @@ export const UpdateMemberRoleDialog = ({ classNames, member, onOpenChange, ...pr
             onOpenChange?.(false);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }

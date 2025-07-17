@@ -24,7 +24,8 @@ export function useOnSuccessTransition({ redirectTo: redirectToProperty }: { red
     const { refetch: refetchSession } = useSession();
 
     useEffect(() => {
-        if (!success || isPending) return;
+        if (!success || isPending)
+            return;
 
         startTransition(() => {
             navigate(getRedirectTo());
@@ -35,7 +36,8 @@ export function useOnSuccessTransition({ redirectTo: redirectToProperty }: { red
         await refetchSession?.();
         setSuccess(true);
 
-        if (onSessionChange) startTransition(onSessionChange);
+        if (onSessionChange)
+            startTransition(onSessionChange);
     }, [refetchSession, onSessionChange]);
 
     return { isPending, onSuccess };

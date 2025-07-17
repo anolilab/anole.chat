@@ -2,12 +2,12 @@
 
 import { CardContent } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
 import { useIsHydrated } from "@/hooks/use-hydrated";
+
 import type { SettingsCardProperties } from "../settings/shared/settings-card";
 import { SettingsCard } from "../settings/shared/settings-card";
 import { CreateOrganizationDialog } from "./create-organization-dialog";
@@ -17,6 +17,7 @@ export const OrganizationsCard = ({ className, classNames, ...properties }: Sett
     const {
         hooks: { useListOrganizations },
     } = useAuth();
+    const { t } = useLingui();
 
     const isHydrated = useIsHydrated();
     const { data: organizations, isPending: organizationsPending } = useListOrganizations();

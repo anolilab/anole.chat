@@ -217,7 +217,9 @@ export const GlobalErrorBoundaryProvider = ({ children }: GlobalErrorBoundaryPro
                     <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
                         <p>If this problem persists, please contact support.</p>
                         <p className="mt-1">
-                            Error ID: <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">{`global_${Date.now().toString(36)}`}</code>
+                            Error ID:
+                            {" "}
+                            <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">{`global_${Date.now().toString(36)}`}</code>
                         </p>
                     </div>
                 </div>

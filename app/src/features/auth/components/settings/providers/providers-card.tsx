@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@anole/ui/components/card";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
@@ -28,6 +28,7 @@ export const ProvidersCard = ({ accounts, className, classNames, isPending, refe
         hooks: { useListAccounts },
         social,
     } = useAuth();
+    const { t } = useLingui();
 
     if (!skipHook) {
         const result = useListAccounts();
@@ -46,8 +47,8 @@ export const ProvidersCard = ({ accounts, className, classNames, isPending, refe
             title={t`Connected Accounts`}
         >
             <CardContent className={cn("grid gap-4", classNames?.content)}>
-                {isPending ? (
-                    social?.providers?.map((provider) => (
+                {isPending
+                    ? social?.providers?.map((provider) => (
                         <Card className={cn("flex-row items-center gap-3 px-4 py-3", classNames?.cell)} key={provider}>
                             <div className="flex items-center gap-2">
                                 <Skeleton className={cn("size-5 rounded-full", classNames?.skeleton)} />
@@ -60,36 +61,37 @@ export const ProvidersCard = ({ accounts, className, classNames, isPending, refe
                             <Skeleton className={cn("ms-auto size-8 w-12", classNames?.skeleton)} />
                         </Card>
                     ))
-                ) : (
-                    <>
-                        {social?.providers?.map((provider) => {
-                            const socialProvider = socialProviders.find((socialProvider) => socialProvider.provider === provider);
+                    : (
+                        <>
+                            {social?.providers?.map((provider) => {
+                                const socialProvider = socialProviders.find((socialProvider) => socialProvider.provider === provider);
 
-                            if (!socialProvider) return null;
+                                if (!socialProvider)
+                                    return null;
 
-                            return (
+                                return (
+                                    <ProviderCell
+                                        account={accounts?.find((accumulator) => accumulator.provider === provider)}
+                                        classNames={classNames}
+                                        key={provider}
+                                        provider={socialProvider}
+                                        refetch={refetch}
+                                    />
+                                );
+                            })}
+
+                            {genericOAuth?.providers?.map((provider) => (
                                 <ProviderCell
-                                    account={accounts?.find((accumulator) => accumulator.provider === provider)}
+                                    account={accounts?.find((accumulator) => accumulator.provider === provider.provider)}
                                     classNames={classNames}
-                                    key={provider}
-                                    provider={socialProvider}
+                                    key={provider.provider}
+                                    other
+                                    provider={provider}
                                     refetch={refetch}
                                 />
-                            );
-                        })}
-
-                        {genericOAuth?.providers?.map((provider) => (
-                            <ProviderCell
-                                account={accounts?.find((accumulator) => accumulator.provider === provider.provider)}
-                                classNames={classNames}
-                                key={provider.provider}
-                                other
-                                provider={provider}
-                                refetch={refetch}
-                            />
-                        ))}
-                    </>
-                )}
+                            ))}
+                        </>
+                    )}
             </CardContent>
         </SettingsCard>
     );

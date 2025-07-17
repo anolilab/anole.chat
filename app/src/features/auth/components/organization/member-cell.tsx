@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
 import { EllipsisIcon, UserCogIcon, UserXIcon } from "lucide-react";
@@ -29,6 +29,7 @@ export const MemberCell = ({ className, classNames, hideActions, member }: Membe
         hooks: { useActiveOrganization, useSession },
         organization,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData } = useSession();
     const { data: activeOrganization } = useActiveOrganization();
@@ -42,7 +43,7 @@ export const MemberCell = ({ className, classNames, hideActions, member }: Membe
     ];
 
     const myRole = activeOrganization?.members.find((m) => m.user.id === sessionData?.user.id)?.role;
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
     const role = roles.find((r) => r.role === member.role);
 
     return (

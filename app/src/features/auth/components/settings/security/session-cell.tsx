@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { MonitorIcon, MoreHorizontalIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -48,13 +48,15 @@ function getDeviceIcon(deviceType: Session["deviceType"]) {
 
 export const SessionCell = ({ classNames, onRevokeSession, session }: SessionCellProperties) => {
     const [isRevoking, setIsRevoking] = useState(false);
+    const { t } = useLingui();
 
     const DeviceIcon = getDeviceIcon(session.deviceType);
     const createdDate = new Date(session.createdAt).toLocaleDateString();
     const lastActiveDate = new Date(session.lastActiveAt).toLocaleDateString();
 
     const handleRevoke = async () => {
-        if (!onRevokeSession || session.isCurrent) return;
+        if (!onRevokeSession || session.isCurrent)
+            return;
 
         setIsRevoking(true);
 

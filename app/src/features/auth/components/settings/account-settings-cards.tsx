@@ -1,7 +1,7 @@
 "use client";
 
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
@@ -24,6 +24,7 @@ export const AccountSettingsCards = ({ className, classNames }: AuthCardProperti
         multiSession,
         settings,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData } = useSession();
 
@@ -38,13 +39,16 @@ export const AccountSettingsCards = ({ className, classNames }: AuthCardProperti
             {changeEmail && <ChangeEmailCard classNames={classNames} />}
 
             {settings?.fields?.map((field) => {
-                if (field === "image") return null;
+                if (field === "image")
+                    return null;
 
-                if (field === "name") return null;
+                if (field === "name")
+                    return null;
 
                 const additionalField = additionalFields?.[field];
 
-                if (!additionalField) return null;
+                if (!additionalField)
+                    return null;
 
                 const { description, instructions, label, placeholder, required, type, validate } = additionalField;
 

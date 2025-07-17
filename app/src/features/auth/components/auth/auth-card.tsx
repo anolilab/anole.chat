@@ -4,17 +4,17 @@ import { Button } from "@anole/ui/components/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { Separator } from "@anole/ui/components/separator";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { use, useEffect, useState } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
-import { useIsHydrated } from "@/hooks/use-hydrated";
 import type { AuthView } from "@/features/auth/lib/auth-view-paths";
 import { socialProviders } from "@/features/auth/lib/social-providers";
+import { useIsHydrated } from "@/hooks/use-hydrated";
+
 import { AcceptInvitationCard } from "../organization/accept-invitation-card";
 import { AuthCallback } from "./auth-callback";
 import type { AuthFormClassNames } from "./auth-form";
@@ -78,12 +78,13 @@ export const AuthCard = ({
     socialLayout = "auto",
     view = "SIGN_IN",
 }: AuthCardProperties) => {
+    const { t } = useLingui();
     const isHydrated = useIsHydrated();
 
     const { basePath, credentials, emailOTP, genericOAuth, magicLink, oneTap, passkey, signUp, social, viewPaths } = useAuth();
 
     if (socialLayout === "auto") {
-        socialLayout = credentials ? (social?.providers && social.providers.length > 2 ? "horizontal" : "vertical") : "vertical";
+        socialLayout = credentials ? social?.providers && social.providers.length > 2 ? "horizontal" : "vertical" : "vertical";
     }
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,11 +102,14 @@ export const AuthCard = ({
         };
     }, []);
 
-    if (view === "CALLBACK") return <AuthCallback redirectTo={redirectTo} />;
+    if (view === "CALLBACK")
+        return <AuthCallback redirectTo={redirectTo} />;
 
-    if (view === "SIGN_OUT") return <SignOut />;
+    if (view === "SIGN_OUT")
+        return <SignOut />;
 
-    if (view === "ACCEPT_INVITATION") return <AcceptInvitationCard className={className} classNames={classNames} />;
+    if (view === "ACCEPT_INVITATION")
+        return <AcceptInvitationCard className={className} classNames={classNames} />;
 
     const getCardContent = () => {
         switch (view) {
@@ -195,15 +199,15 @@ export const AuthCard = ({
                             view={view}
                         />
 
-                        {magicLink &&
-                            ((credentials && ["EMAIL_OTP", "FORGOT_PASSWORD", "MAGIC_LINK", "SIGN_IN", "SIGN_UP"].includes(view)) ||
-                                (emailOTP && view === "EMAIL_OTP")) && <MagicLinkButton classNames={classNames} isSubmitting={isSubmitting} view={view} />}
+                        {magicLink
+                            && ((credentials && ["EMAIL_OTP", "FORGOT_PASSWORD", "MAGIC_LINK", "SIGN_IN", "SIGN_UP"].includes(view))
+                                || (emailOTP && view === "EMAIL_OTP")) && <MagicLinkButton classNames={classNames} isSubmitting={isSubmitting} view={view} />}
 
-                        {emailOTP &&
-                            ((credentials && ["EMAIL_OTP", "FORGOT_PASSWORD", "MAGIC_LINK", "SIGN_IN", "SIGN_UP"].includes(view)) ||
-                                (magicLink && ["MAGIC_LINK", "SIGN_IN"].includes(view))) && (
-                                <EmailOTPButton classNames={classNames} isSubmitting={isSubmitting} view={view} />
-                            )}
+                        {emailOTP
+                            && ((credentials && ["EMAIL_OTP", "FORGOT_PASSWORD", "MAGIC_LINK", "SIGN_IN", "SIGN_UP"].includes(view))
+                                || (magicLink && ["MAGIC_LINK", "SIGN_IN"].includes(view))) && (
+                                    <EmailOTPButton classNames={classNames} isSubmitting={isSubmitting} view={view} />
+                        )}
                     </div>
                 )}
 
@@ -232,7 +236,8 @@ export const AuthCard = ({
                                     {social?.providers?.map((provider) => {
                                         const socialProvider = socialProviders.find((socialProvider) => socialProvider.provider === provider);
 
-                                        if (!socialProvider) return null;
+                                        if (!socialProvider)
+                                            return null;
 
                                         return (
                                             <ProviderButton
@@ -274,35 +279,37 @@ export const AuthCard = ({
 
             {credentials && signUp && (
                 <CardFooter className={cn("text-muted-foreground justify-center gap-1.5 text-sm", classNames?.footer)}>
-                    {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? (
-                        t`Don't have an account?`
-                    ) : view === "SIGN_UP" ? (
-                        t`Already have an account?`
-                    ) : (
-                        <ArrowLeftIcon className="size-3" />
-                    )}
+                    {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP"
+                        ? t`Don't have an account?`
+                        : view === "SIGN_UP"
+                            ? t`Already have an account?`
+                            : (
+                                <ArrowLeftIcon className="size-3" />
+                            )}
 
-                    {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" || view === "SIGN_UP" ? (
-                        <Link
-                            className={cn("text-foreground underline", classNames?.footerLink)}
-                            to={`${basePath}/${viewPaths[view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? "SIGN_UP" : "SIGN_IN"]}${isHydrated ? globalThis.location.search : ""}`}
-                        >
-                            <Button className={cn("text-foreground px-0 underline", classNames?.footerLink)} size="sm" variant="link">
-                                {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? t`Sign up` : t`Sign in`}
+                    {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" || view === "SIGN_UP"
+                        ? (
+                            <Link
+                                className={cn("text-foreground underline", classNames?.footerLink)}
+                                to={`${basePath}/${viewPaths[view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? "SIGN_UP" : "SIGN_IN"]}${isHydrated ? globalThis.location.search : ""}`}
+                            >
+                                <Button className={cn("text-foreground px-0 underline", classNames?.footerLink)} size="sm" variant="link">
+                                    {view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? t`Sign up` : t`Sign in`}
+                                </Button>
+                            </Link>
+                        )
+                        : (
+                            <Button
+                                className={cn("text-foreground px-0 underline", classNames?.footerLink)}
+                                onClick={() => {
+                                    globalThis.history.back();
+                                }}
+                                size="sm"
+                                variant="link"
+                            >
+                                {t`Go back`}
                             </Button>
-                        </Link>
-                    ) : (
-                        <Button
-                            className={cn("text-foreground px-0 underline", classNames?.footerLink)}
-                            onClick={() => {
-                                globalThis.history.back();
-                            }}
-                            size="sm"
-                            variant="link"
-                        >
-                            {t`Go back`}
-                        </Button>
-                    )}
+                        )}
                 </CardFooter>
             )}
         </Card>

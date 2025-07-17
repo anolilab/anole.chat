@@ -37,13 +37,16 @@ const useFileSource = (file: File | undefined) => {
 const useAttachmentSource = () => {
     const { file, src } = useAttachment(
         useShallow((a): { file?: File; src?: string } => {
-            if (a.type !== "image") return {};
+            if (a.type !== "image")
+                return {};
 
-            if (a.file) return { file: a.file };
+            if (a.file)
+                return { file: a.file };
 
             const source = a.content?.filter((c) => c.type === "image")[0]?.image;
 
-            if (!source) return {};
+            if (!source)
+                return {};
 
             return { src: source };
         }),
@@ -82,7 +85,8 @@ const AttachmentPreview: FC<AttachmentPreviewProperties> = ({ src }) => {
 const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
     const source = useAttachmentSource();
 
-    if (!source) return children;
+    if (!source)
+        return children;
 
     return (
         <Dialog>

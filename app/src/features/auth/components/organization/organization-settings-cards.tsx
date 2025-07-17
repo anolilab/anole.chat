@@ -24,9 +24,11 @@ export const OrganizationSettingsCards = ({ className, classNames }: AuthCardPro
     const { data: activeOrganization, isPending: organizationPending, isRefetching: organizationFetching } = useActiveOrganization();
 
     useEffect(() => {
-        if (organizationPending || organizationFetching) return;
+        if (organizationPending || organizationFetching)
+            return;
 
-        if (!activeOrganization) replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
+        if (!activeOrganization)
+            replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
     }, [activeOrganization, organizationPending, organizationFetching, basePath, settings?.basePath, replace, viewPaths.SETTINGS]);
 
     return (

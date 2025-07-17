@@ -1,6 +1,6 @@
 import { Button } from "@anole/ui/components/button";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { LockIcon, MailIcon } from "lucide-react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -16,6 +16,7 @@ interface EmailOTPButtonProperties {
 
 export const EmailOTPButton = ({ classNames, isSubmitting, view }: EmailOTPButtonProperties) => {
     const { basePath, navigate, viewPaths } = useAuth();
+    const { t } = useLingui();
 
     return (
         <Button

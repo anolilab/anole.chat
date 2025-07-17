@@ -1,12 +1,12 @@
 import { Button } from "@anole/ui/components/button";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { FingerprintIcon } from "lucide-react";
 
-import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
+
 import type { AuthCardClassNames } from "./auth-card";
 
 interface PasskeyButtonProperties {
@@ -18,6 +18,7 @@ interface PasskeyButtonProperties {
 
 export const PasskeyButton = ({ classNames, isSubmitting, redirectTo, setIsSubmitting }: PasskeyButtonProperties) => {
     const { authClient, toast } = useAuth();
+    const { t } = useLingui();
 
     const { onSuccess } = useOnSuccessTransition({ redirectTo });
 
@@ -33,6 +34,7 @@ export const PasskeyButton = ({ classNames, isSubmitting, redirectTo, setIsSubmi
                 toast({
                     message: getLocalizedError({
                         error: response.error,
+                        t,
                     }),
                     variant: "error",
                 });
@@ -43,7 +45,7 @@ export const PasskeyButton = ({ classNames, isSubmitting, redirectTo, setIsSubmi
             }
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
 

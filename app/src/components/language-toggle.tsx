@@ -1,5 +1,4 @@
 import { ToggleGroup, ToggleGroupItem } from "@anole/ui/components/toggle-group";
-import { i18n } from "@lingui/core";
 import { createServerFn } from "@tanstack/react-start";
 import { setHeader } from "@tanstack/react-start/server";
 import { serialize } from "cookie-es";
@@ -19,29 +18,33 @@ const updateLanguage = createServerFn({ method: "POST" })
         );
     });
 
-export const LanguageToggle: FC = () => (
-    <ToggleGroup
-        className="gap-1 rounded-md border-none bg-transparent p-0"
-        onValueChange={(value) => {
-            if (value) {
-                updateLanguage({ data: value }).then(() => {
-                    location.reload();
-                });
-            }
-        }}
-        type="single"
-        value={i18n.locale ?? DEFAULT_LOCALE}
-        variant="outline"
-    >
-        {Object.entries(appLocales).map(([locale, label]) => (
-            <ToggleGroupItem
-                aria-label={`Switch to ${label}`}
-                className="h-auto rounded-sm border-none p-1 text-sm text-white hover:bg-white/10 hover:text-white focus-visible:ring-0 focus-visible:ring-offset-0"
-                key={locale}
-                value={locale}
-            >
-                {label}
-            </ToggleGroupItem>
-        ))}
-    </ToggleGroup>
-);
+export const LanguageToggle: FC = () => {
+    const { i18n } = useLingui();
+
+    return (
+        <ToggleGroup
+            className="gap-1 rounded-md border-none bg-transparent p-0"
+            onValueChange={(value) => {
+                if (value) {
+                    updateLanguage({ data: value }).then(() => {
+                        location.reload();
+                    });
+                }
+            }}
+            type="single"
+            value={i18n.locale ?? DEFAULT_LOCALE}
+            variant="outline"
+        >
+            {Object.entries(appLocales).map(([locale, label]) => (
+                <ToggleGroupItem
+                    aria-label={`Switch to ${label}`}
+                    className="h-auto rounded-sm border-none p-1 text-sm text-white hover:bg-white/10 hover:text-white focus-visible:ring-0 focus-visible:ring-offset-0"
+                    key={locale}
+                    value={locale}
+                >
+                    {label}
+                </ToggleGroupItem>
+            ))}
+        </ToggleGroup>
+    );
+};

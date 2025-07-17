@@ -41,31 +41,33 @@ export const SettingsCardFooter = ({
             classNames?.footer,
         )}
     >
-        {isPending ? (
-            <>
-                {instructions && <Skeleton className={cn("my-0.5 h-3 w-48 max-w-full md:h-4 md:w-56", classNames?.skeleton)} />}
+        {isPending
+            ? (
+                <>
+                    {instructions && <Skeleton className={cn("my-0.5 h-3 w-48 max-w-full md:h-4 md:w-56", classNames?.skeleton)} />}
 
-                {actionLabel && <Skeleton className={cn("h-8 w-14 md:ms-auto", classNames?.skeleton)} />}
-            </>
-        ) : (
-            <>
-                {instructions && (
-                    <CardDescription className={cn("text-muted-foreground text-center text-xs md:text-start md:text-sm", classNames?.instructions)}>
-                        {instructions}
-                    </CardDescription>
-                )}
+                    {actionLabel && <Skeleton className={cn("h-8 w-14 md:ms-auto", classNames?.skeleton)} />}
+                </>
+            )
+            : (
+                <>
+                    {instructions && (
+                        <CardDescription className={cn("text-muted-foreground text-center text-xs md:text-start md:text-sm", classNames?.instructions)}>
+                            {instructions}
+                        </CardDescription>
+                    )}
 
-                {actionLabel && (
-                    <SettingsActionButton
-                        actionLabel={actionLabel}
-                        classNames={classNames}
-                        disabled={disabled}
-                        isSubmitting={isSubmitting}
-                        onClick={action}
-                        variant={variant}
-                    />
-                )}
-            </>
-        )}
+                    {actionLabel && (
+                        <SettingsActionButton
+                            actionLabel={actionLabel}
+                            classNames={classNames}
+                            disabled={disabled}
+                            isSubmitting={isSubmitting}
+                            onClick={action}
+                            variant={variant}
+                        />
+                    )}
+                </>
+            )}
     </CardFooter>
 );

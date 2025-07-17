@@ -34,7 +34,8 @@ export function useTanstackOptions({ authClient }: { authClient: AnyAuthClient }
                         fetchOptions: { throw: false },
                     });
 
-                    if (error) throw error;
+                    if (error)
+                        throw error;
                 },
                 revokeDeviceSession: async (parameters) => {
                     const { error } = await revokeDeviceSessionAsync({
@@ -42,7 +43,8 @@ export function useTanstackOptions({ authClient }: { authClient: AnyAuthClient }
                         fetchOptions: { throw: false },
                     });
 
-                    if (error) throw error;
+                    if (error)
+                        throw error;
                 },
                 revokeSession: async (parameters) => {
                     const { error } = await revokeSessionAsync({
@@ -50,7 +52,8 @@ export function useTanstackOptions({ authClient }: { authClient: AnyAuthClient }
                         fetchOptions: { throw: false },
                     });
 
-                    if (error) throw error;
+                    if (error)
+                        throw error;
                 },
                 setActiveSession: async (parameters) => {
                     const { error } = await setActiveSessionAsync({
@@ -58,7 +61,8 @@ export function useTanstackOptions({ authClient }: { authClient: AnyAuthClient }
                         fetchOptions: { throw: false },
                     });
 
-                    if (error) throw error;
+                    if (error)
+                        throw error;
                 },
                 unlinkAccount: async (parameters) => {
                     const { error } = await unlinkAccountAsync({
@@ -66,7 +70,8 @@ export function useTanstackOptions({ authClient }: { authClient: AnyAuthClient }
                         fetchOptions: { throw: false },
                     });
 
-                    if (error) throw error;
+                    if (error)
+                        throw error;
                 },
                 updateUser: async (parameters) => {
                     const { error } = await updateUserAsync({
@@ -74,7 +79,8 @@ export function useTanstackOptions({ authClient }: { authClient: AnyAuthClient }
                         fetchOptions: { throw: false },
                     });
 
-                    if (error) throw error;
+                    if (error)
+                        throw error;
                 },
             }) as AuthMutators,
         [updateUserAsync, deletePasskeyAsync, unlinkAccountAsync, revokeSessionAsync, revokeDeviceSessionAsync, setActiveSessionAsync],

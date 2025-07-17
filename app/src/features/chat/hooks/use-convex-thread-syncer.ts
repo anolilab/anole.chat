@@ -25,7 +25,9 @@ export const useConvexThreadSyncer = ({ isRunning, model }: UseConvexThreadSynce
 
     useEffect(() => {
         if (isRunning) {
-            if (pauseTimeoutReference.current) clearTimeout(pauseTimeoutReference.current);
+            if (pauseTimeoutReference.current) {
+                clearTimeout(pauseTimeoutReference.current);
+            }
 
             if (!isSyncPaused) {
                 providerLogger.debug("[Syncer] Pausing sync due to running stream.");
@@ -41,7 +43,9 @@ export const useConvexThreadSyncer = ({ isRunning, model }: UseConvexThreadSynce
         }
 
         return () => {
-            if (pauseTimeoutReference.current) clearTimeout(pauseTimeoutReference.current);
+            if (pauseTimeoutReference.current) {
+                clearTimeout(pauseTimeoutReference.current);
+            }
         };
     }, [isRunning, isSyncPaused]);
 
@@ -49,12 +53,12 @@ export const useConvexThreadSyncer = ({ isRunning, model }: UseConvexThreadSynce
 
     const paginatedMessagesArguments = useMemo(
         () =>
-            shouldSkip
+            (shouldSkip
                 ? "skip"
                 : {
-                      model,
-                      threadId: currentThreadId,
-                  },
+                    model,
+                    threadId: currentThreadId,
+                }),
         [currentThreadId, model],
     );
 
@@ -67,9 +71,13 @@ export const useConvexThreadSyncer = ({ isRunning, model }: UseConvexThreadSynce
     const { results: convexThreads } = usePaginatedQuery(api.chat.functions.getThreads, {}, { initialNumItems: 10 });
 
     const shouldUpdateMessages = useCallback((current: ThreadMessageLike[], newMessages: ThreadMessageLike[]) => {
-        if (current.length !== newMessages.length) return true;
+        if (current.length !== newMessages.length) {
+            return true;
+        }
 
-        if (current.length === 0) return false;
+        if (current.length === 0) {
+            return false;
+        }
 
         for (const message of newMessages) {
             if (!isValidThreadMessage(message)) {
@@ -83,15 +91,20 @@ export const useConvexThreadSyncer = ({ isRunning, model }: UseConvexThreadSynce
         for (const [index, currentMessage] of current.entries()) {
             const newMessage = newMessages[index];
 
-            if (!currentMessage || !newMessage || currentMessage.id !== newMessage.id || currentMessage.role !== newMessage.role) return true;
+            if (!currentMessage || !newMessage || currentMessage.id !== newMessage.id || currentMessage.role !== newMessage.role)
+                return true;
 
             if (Array.isArray(currentMessage.content) && Array.isArray(newMessage.content)) {
-                if (currentMessage.content.length !== newMessage.content.length) return true;
+                if (currentMessage.content.length !== newMessage.content.length) {
+                    return true;
+                }
 
                 const currentTextPart = currentMessage.content.find((c) => c.type === "text");
                 const newTextPart = newMessage.content.find((c) => c.type === "text");
 
-                if (currentTextPart?.type === "text" && newTextPart?.type === "text" && currentTextPart.text !== newTextPart.text) return true;
+                if (currentTextPart?.type === "text" && newTextPart?.type === "text" && currentTextPart.text !== newTextPart.text) {
+                    return true;
+                }
             }
         }
 

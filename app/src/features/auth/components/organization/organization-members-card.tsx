@@ -2,7 +2,7 @@
 
 import { CardContent } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { use, useEffect, useState } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -20,13 +20,16 @@ export const OrganizationMembersCard = ({ className, classNames, ...properties }
         settings,
         viewPaths,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization, isPending: organizationPending, isRefetching: organizationFetching } = useActiveOrganization();
 
     useEffect(() => {
-        if (organizationPending || organizationFetching) return;
+        if (organizationPending || organizationFetching)
+            return;
 
-        if (!activeOrganization) replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
+        if (!activeOrganization)
+            replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
     }, [activeOrganization, organizationPending, organizationFetching, basePath, settings?.basePath, replace, viewPaths]);
 
     if (!activeOrganization) {
@@ -51,6 +54,7 @@ const OrganizationMembersContent = ({ className, classNames, ...properties }: Se
     const {
         hooks: { useActiveOrganization, useHasPermission },
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization } = useActiveOrganization();
     const { data: hasPermissionInvite, isPending: isPendingInvite } = useHasPermission({

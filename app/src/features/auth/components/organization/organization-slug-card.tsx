@@ -5,7 +5,7 @@ import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -18,6 +18,7 @@ export const OrganizationSlugCard = ({ className, classNames, ...properties }: S
     const {
         hooks: { useActiveOrganization },
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization } = useActiveOrganization();
 
@@ -60,6 +61,7 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
         optimistic,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -74,7 +76,8 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
             slug: activeOrganization?.slug || "",
         },
         onSubmit: async ({ value }) => {
-            if (!activeOrganization) return;
+            if (!activeOrganization)
+                return;
 
             if (activeOrganization.slug === value.slug) {
                 toast({
@@ -102,7 +105,7 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
                 });
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }
@@ -144,31 +147,33 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
                     {...properties}
                 >
                     <CardContent className={classNames?.content}>
-                        {isPending ? (
-                            <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
-                        ) : (
-                            <form.AppField
-                                children={(field) => (
-                                    <field.FormItem>
-                                        <field.FormControl>
-                                            <Input
-                                                className={classNames?.input}
-                                                disabled={isSubmitting || !hasPermission?.success}
-                                                onBlur={field.handleBlur}
-                                                onChange={(e) => {
-                                                    field.handleChange(e.target.value);
-                                                }}
-                                                placeholder={t`Enter organization slug`}
-                                                value={field.state.value}
-                                            />
-                                        </field.FormControl>
+                        {isPending
+                            ? (
+                                <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                            )
+                            : (
+                                <form.AppField
+                                    children={(field) => (
+                                        <field.FormItem>
+                                            <field.FormControl>
+                                                <Input
+                                                    className={classNames?.input}
+                                                    disabled={isSubmitting || !hasPermission?.success}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => {
+                                                        field.handleChange(e.target.value);
+                                                    }}
+                                                    placeholder={t`Enter organization slug`}
+                                                    value={field.state.value}
+                                                />
+                                            </field.FormControl>
 
-                                        <field.FormMessage className={classNames?.error} />
-                                    </field.FormItem>
-                                )}
-                                name="slug"
-                            />
-                        )}
+                                            <field.FormMessage className={classNames?.error} />
+                                        </field.FormItem>
+                                    )}
+                                    name="slug"
+                                />
+                            )}
                     </CardContent>
                 </SettingsCard>
             </form>

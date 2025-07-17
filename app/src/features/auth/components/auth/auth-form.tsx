@@ -80,32 +80,40 @@ export const AuthForm = ({ callbackURL, className, classNames, isSubmitting, otp
         }
     }, [basePath, view, viewPaths, credentials, replace, emailOTP, signUpEnabled, magicLink, twoFactorEnabled]);
 
-    if (view === "SIGN_OUT") return <SignOut />;
+    if (view === "SIGN_OUT")
+        return <SignOut />;
 
-    if (view === "CALLBACK") return <AuthCallback redirectTo={redirectTo} />;
+    if (view === "CALLBACK")
+        return <AuthCallback redirectTo={redirectTo} />;
 
     if (view === "SIGN_IN") {
-        return credentials ? (
-            <SignInForm className={className} classNames={classNames} isSubmitting={isSubmitting} redirectTo={redirectTo} setIsSubmitting={setIsSubmitting} />
-        ) : magicLink ? (
-            <MagicLinkForm
-                callbackURL={callbackURL}
-                className={className}
-                classNames={classNames}
-                isSubmitting={isSubmitting}
-                redirectTo={redirectTo}
-                setIsSubmitting={setIsSubmitting}
-            />
-        ) : emailOTP ? (
-            <EmailOTPForm
-                callbackURL={callbackURL}
-                className={className}
-                classNames={classNames}
-                isSubmitting={isSubmitting}
-                redirectTo={redirectTo}
-                setIsSubmitting={setIsSubmitting}
-            />
-        ) : null;
+        return credentials
+            ? (
+                <SignInForm className={className} classNames={classNames} isSubmitting={isSubmitting} redirectTo={redirectTo} setIsSubmitting={setIsSubmitting} />
+            )
+            : magicLink
+                ? (
+                    <MagicLinkForm
+                        callbackURL={callbackURL}
+                        className={className}
+                        classNames={classNames}
+                        isSubmitting={isSubmitting}
+                        redirectTo={redirectTo}
+                        setIsSubmitting={setIsSubmitting}
+                    />
+                )
+                : emailOTP
+                    ? (
+                        <EmailOTPForm
+                            callbackURL={callbackURL}
+                            className={className}
+                            classNames={classNames}
+                            isSubmitting={isSubmitting}
+                            redirectTo={redirectTo}
+                            setIsSubmitting={setIsSubmitting}
+                        />
+                    )
+                    : null;
     }
 
     if (view === "TWO_FACTOR") {

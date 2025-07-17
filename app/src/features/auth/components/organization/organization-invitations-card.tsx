@@ -2,7 +2,7 @@
 
 import { CardContent } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
@@ -14,6 +14,7 @@ export const OrganizationInvitationsCard = ({ className, classNames, ...properti
     const {
         hooks: { useActiveOrganization },
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization } = useActiveOrganization();
     const invitations = activeOrganization?.invitations;
@@ -22,7 +23,9 @@ export const OrganizationInvitationsCard = ({ className, classNames, ...properti
 
     const isPending = !activeOrganization;
 
-    if (!pendingInvitations?.length) return null;
+    if (!pendingInvitations?.length) {
+        return null;
+    }
 
     return (
         <SettingsCard

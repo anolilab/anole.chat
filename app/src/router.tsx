@@ -10,12 +10,12 @@ import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { ConvexQueryCacheProvider } from "convex-helpers/react/cache";
 import type { ReactNode } from "react";
 
+import DefaultLoading from "@/components/default-loading";
 import { GlobalErrorBoundaryProvider } from "@/components/error-boundaries/global-error-boundary-provider";
+import NotFound from "@/components/not-found";
 import { env } from "@/lib/env";
 import { AnalyticsProvider } from "@/providers/analytics-provider";
 
-import DefaultLoading from "@/components/default-loading";
-import NotFound from "@/components/not-found";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 

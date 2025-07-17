@@ -134,7 +134,12 @@ export const EmailTemplate = ({
                         <Hr className={cn("border-color mx-0 my-[26px] w-full border border-solid", classNames?.hr)} />
 
                         <Text className={cn("text-[12px] leading-[24px] text-[#666666]", classNames?.footer)}>
-                            {siteName && <>{siteName} </>}
+                            {siteName && (
+                                <>
+                                    {siteName}
+                                    {" "}
+                                </>
+                            )}
 
                             {baseUrl && (
                                 <Link className={cn("no-underline", classNames?.link)} href={baseUrl}>

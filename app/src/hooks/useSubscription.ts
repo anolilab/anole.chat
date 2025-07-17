@@ -1,31 +1,27 @@
-import { useQuery, useMutation } from "convex/react";
 import { api } from "@anole/convex/api";
-import { Id } from "@anole/convex/dataModel";
+import type { Id } from "@anole/convex/dataModel";
+import { useMutation, useQuery } from "convex/react";
 
 export function useSubscription(userId: Id<"users">) {
     // Queries
     const customer = useQuery(api.polar.getCustomer, { userId });
     const subscriptions = useQuery(api.polar.getCustomerSubscriptions, { userId });
     const products = useQuery(api.polar.getProducts);
-    
+
     // Get the active subscription
-    const activeSubscription = subscriptions?.find(sub => sub.status === "active");
-    
+    const activeSubscription = subscriptions?.find((sub) => sub.status === "active");
+
     // Get the first (and only) product
     const product = products?.[0];
-    
+
     // Check if user has active subscription
     const hasActiveSubscription = !!activeSubscription;
-    
+
     // Check if subscription is expired
-    const isExpired = activeSubscription ? 
-        new Date(activeSubscription.currentPeriodEnd * 1000) < new Date() : 
-        false;
-    
+    const isExpired = activeSubscription ? new Date(activeSubscription.currentPeriodEnd * 1000) < new Date() : false;
+
     // Calculate days until expiry
-    const daysUntilExpiry = activeSubscription ? 
-        Math.ceil((activeSubscription.currentPeriodEnd * 1000 - Date.now()) / (1000 * 60 * 60 * 24)) : 
-        null;
+    const daysUntilExpiry = activeSubscription ? Math.ceil((activeSubscription.currentPeriodEnd * 1000 - Date.now()) / (1000 * 60 * 60 * 24)) : null;
 
     // Mutations
     const createCheckout = useMutation(api.polar.createCheckoutSession);
@@ -36,17 +32,19 @@ export function useSubscription(userId: Id<"users">) {
 
     // Helper functions
     const subscribe = async () => {
-        if (!product) throw new Error("No product available");
-        
+        if (!product)
+            throw new Error("No product available");
+
         try {
             const checkoutUrl = await createCheckout({
-                productId: product.id,
+                cancelUrl: `${globalThis.location.origin}/cancel`,
                 customerId: customer?.id,
+                productId: product.id,
+                successUrl: `${globalThis.location.origin}/success`,
                 userId,
-                successUrl: `${window.location.origin}/success`,
-                cancelUrl: `${window.location.origin}/cancel`,
             });
-            window.location.href = checkoutUrl;
+
+            globalThis.location.href = checkoutUrl;
         } catch (error) {
             console.error("Failed to create checkout session:", error);
             throw error;
@@ -54,7 +52,9 @@ export function useSubscription(userId: Id<"users">) {
     };
 
     const cancel = async () => {
-        if (!activeSubscription) throw new Error("No active subscription to cancel");
+        if (!activeSubscription)
+            throw new Error("No active subscription to cancel");
+
         try {
             await cancelSubscription({ subscriptionId: activeSubscription.id });
         } catch (error) {
@@ -64,7 +64,9 @@ export function useSubscription(userId: Id<"users">) {
     };
 
     const reactivate = async () => {
-        if (!activeSubscription) throw new Error("No subscription to reactivate");
+        if (!activeSubscription)
+            throw new Error("No subscription to reactivate");
+
         try {
             await reactivateSubscription({ subscriptionId: activeSubscription.id });
         } catch (error) {
@@ -74,23 +76,23 @@ export function useSubscription(userId: Id<"users">) {
     };
 
     return {
+        activeSubscription,
+        cancel,
+        createCustomer,
         // Data
         customer,
-        subscriptions,
-        activeSubscription,
-        product,
+        daysUntilExpiry,
         hasActiveSubscription,
         isExpired,
-        daysUntilExpiry,
-        
-        // Actions
-        subscribe,
-        cancel,
-        reactivate,
-        createCustomer,
-        updateCustomer,
-        
+
         // Loading states
         isLoading: subscriptions === undefined || products === undefined,
+        product,
+        reactivate,
+        // Actions
+        subscribe,
+        subscriptions,
+
+        updateCustomer,
     };
 }

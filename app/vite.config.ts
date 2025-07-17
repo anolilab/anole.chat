@@ -75,6 +75,7 @@ export default defineConfig(({ mode }) => {
             },
             dangerouslyIgnoreUnhandledErrors: true,
             environment: "jsdom",
+            globals: true,
             include: [
                 "__tests__/browser/**/*.{test,spec}.ts",
                 "__tests__/**/*.browser.{test,spec}.ts",
@@ -82,8 +83,10 @@ export default defineConfig(({ mode }) => {
                 "__tests__/unit/**/*.{test,spec}.ts",
                 "__tests__/**/*.unit.{test,spec}.ts",
                 "**/*.unit.{test,spec}.ts",
+                "__tests__/chat/**/*.{test,spec}.{ts,tsx}",
             ],
             setupFiles: ["./vitest.setup.ts"],
+            testTimeout: 10_000,
         },
     };
 });

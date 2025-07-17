@@ -139,16 +139,18 @@ const RouteComponent = () => {
                                     {breadcrumbItems.map((item, index) => (
                                         <Fragment key={item.href}>
                                             <BreadcrumbItem>
-                                                {item.isLast ? (
-                                                    <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
-                                                ) : (
-                                                    <BreadcrumbLink
-                                                        className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
-                                                        href={item.href}
-                                                    >
-                                                        {item.label}
-                                                    </BreadcrumbLink>
-                                                )}
+                                                {item.isLast
+                                                    ? (
+                                                        <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
+                                                    )
+                                                    : (
+                                                        <BreadcrumbLink
+                                                            className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
+                                                            href={item.href}
+                                                        >
+                                                            {item.label}
+                                                        </BreadcrumbLink>
+                                                    )}
                                             </BreadcrumbItem>
                                             {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
                                         </Fragment>

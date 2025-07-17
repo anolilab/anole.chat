@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { useState } from "react";
@@ -18,6 +18,7 @@ interface APIKeyDisplayDialogProperties extends ComponentProps<typeof Dialog> {
 
 export const APIKeyDisplayDialog = ({ apiKey, classNames, onOpenChange, ...properties }: APIKeyDisplayDialogProperties) => {
     const [copied, setCopied] = useState(false);
+    const { t } = useLingui();
 
     const handleCopy = () => {
         navigator.clipboard.writeText(apiKey);
@@ -53,17 +54,19 @@ export const APIKeyDisplayDialog = ({ apiKey, classNames, onOpenChange, ...prope
                         type="button"
                         variant="outline"
                     >
-                        {copied ? (
-                            <>
-                                <CheckIcon className={classNames?.icon} />
-                                {t`Copied to clipboard`}
-                            </>
-                        ) : (
-                            <>
-                                <CopyIcon className={classNames?.icon} />
-                                {t`Copy to clipboard`}
-                            </>
-                        )}
+                        {copied
+                            ? (
+                                <>
+                                    <CheckIcon className={classNames?.icon} />
+                                    {t`Copied to clipboard`}
+                                </>
+                            )
+                            : (
+                                <>
+                                    <CopyIcon className={classNames?.icon} />
+                                    {t`Copy to clipboard`}
+                                </>
+                            )}
                     </Button>
 
                     <Button className={cn(classNames?.button, classNames?.primaryButton)} onClick={() => onOpenChange?.(false)} type="button" variant="default">

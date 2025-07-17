@@ -17,15 +17,15 @@ export type ConvexMessage = {
         content:
             | string
             | (
-                  | {
-                        text: string;
-                        type: "text";
-                    }
-                  | {
-                        image: string;
-                        type: "image";
-                    }
-              )[];
+                | {
+                    text: string;
+                    type: "text";
+                }
+                | {
+                    image: string;
+                    type: "image";
+                }
+            )[];
         role: "user" | "assistant" | "system";
     };
     tool: boolean;
@@ -43,14 +43,14 @@ export const generateId = () => `${Date.now()}-${Math.random().toString(36).slic
 
 // Validation function to ensure a message is valid
 export const isValidThreadMessage = (message: any): message is ThreadMessageLike =>
-    message &&
-    typeof message === "object" &&
-    typeof message.id === "string" &&
-    message.id.length > 0 &&
-    typeof message.role === "string" &&
-    (message.role === "user" || message.role === "assistant" || message.role === "system") &&
-    Array.isArray(message.content) &&
-    message.content.length > 0;
+    message
+    && typeof message === "object"
+    && typeof message.id === "string"
+    && message.id.length > 0
+    && typeof message.role === "string"
+    && (message.role === "user" || message.role === "assistant" || message.role === "system")
+    && Array.isArray(message.content)
+    && message.content.length > 0;
 
 export const convertConvexMessage = (message: ConvexMessage): ThreadMessageLike => {
     try {

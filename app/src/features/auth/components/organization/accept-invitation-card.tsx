@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useSearch } from "@tanstack/react-router";
 import { CheckIcon, Loader2, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,29 +16,33 @@ import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { OrganizationView } from "./organization-view";
 
-const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => (
-    <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
-        <CardHeader className={cn("justify-items-center", classNames?.header)}>
-            <Skeleton className={cn("my-1 h-5 w-full max-w-32 md:h-5.5 md:w-40", classNames?.skeleton)} />
+const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => {
+    const { t } = useLingui();
 
-            <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
-        </CardHeader>
+    return (
+        <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
+            <CardHeader className={cn("justify-items-center", classNames?.header)}>
+                <Skeleton className={cn("my-1 h-5 w-full max-w-32 md:h-5.5 md:w-40", classNames?.skeleton)} />
 
-        <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
-            <Card className={cn("flex-row items-center p-4")}>
-                <OrganizationView isPending />
+                <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
+            </CardHeader>
 
-                <Skeleton className="mt-0.5 ml-auto h-4 w-full max-w-14 shrink-2" />
-            </Card>
+            <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
+                <Card className={cn("flex-row items-center p-4")}>
+                    <OrganizationView isPending />
 
-            <div className="grid grid-cols-2 gap-3">
-                <Skeleton className="h-9 w-full" />
+                    <Skeleton className="mt-0.5 ml-auto h-4 w-full max-w-14 shrink-2" />
+                </Card>
 
-                <Skeleton className="h-9 w-full" />
-            </div>
-        </CardContent>
-    </Card>
-);
+                <div className="grid grid-cols-2 gap-3">
+                    <Skeleton className="h-9 w-full" />
+
+                    <Skeleton className="h-9 w-full" />
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
 
 const AcceptInvitationContent = ({ className, classNames, invitationId }: AcceptInvitationCardProperties & { invitationId: string }) => {
     const {
@@ -49,6 +53,7 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
         replace,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const [isRejecting, setIsRejecting] = useState(false);
     const [isAccepting, setIsAccepting] = useState(false);
@@ -61,7 +66,8 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
     });
 
     useEffect(() => {
-        if (isPending || !invitationId) return;
+        if (isPending || !invitationId)
+            return;
 
         if (!invitation) {
             toast({
@@ -85,7 +91,8 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
     }, [invitation, isPending, invitationId, toast, replace, redirectTo]);
 
     const acceptInvitation = async () => {
-        if (!invitationId) return;
+        if (!invitationId)
+            return;
 
         setIsAccepting(true);
 
@@ -103,7 +110,7 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
             replace(redirectTo);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
             setIsAccepting(false);
@@ -111,7 +118,8 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
     };
 
     const rejectInvitation = async () => {
-        if (!invitationId) return;
+        if (!invitationId)
+            return;
 
         setIsRejecting(true);
 
@@ -129,7 +137,7 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
             replace(redirectTo);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
 
@@ -143,10 +151,11 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
         { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
     const roleLabel = roles.find((r) => r.role === invitation?.role)?.label || invitation?.role;
 
-    if (isPending) return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
+    if (isPending)
+        return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
 
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
@@ -164,12 +173,12 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
                         organization={
                             invitation
                                 ? {
-                                      createdAt: new Date(),
-                                      id: invitation.organizationId,
-                                      logo: invitation.organizationLogo,
-                                      name: invitation.organizationName,
-                                      slug: invitation.organizationSlug,
-                                  }
+                                    createdAt: new Date(),
+                                    id: invitation.organizationId,
+                                    logo: invitation.organizationLogo,
+                                    name: invitation.organizationName,
+                                    slug: invitation.organizationSlug,
+                                }
                                 : null
                         }
                     />
@@ -207,6 +216,7 @@ export const AcceptInvitationCard = ({ className, classNames }: AcceptInvitation
         replace,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData } = useSession();
     const [invitationId, setInvitationId] = useState<string | null>(null);

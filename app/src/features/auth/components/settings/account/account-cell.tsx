@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { Session, User } from "better-auth";
 import { EllipsisIcon, Loader2, LogOutIcon, RepeatIcon } from "lucide-react";
 import { use, useState } from "react";
@@ -33,6 +33,7 @@ export const AccountCell = ({ className, classNames, deviceSession, refetch }: A
         toast,
         viewPaths,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData } = useSession();
     const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +50,7 @@ export const AccountCell = ({ className, classNames, deviceSession, refetch }: A
             setIsLoading(false);
 
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }
@@ -67,7 +68,7 @@ export const AccountCell = ({ className, classNames, deviceSession, refetch }: A
             setIsLoading(false);
 
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }

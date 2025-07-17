@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
 import { useAppForm } from "@anole/ui/components/form";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useState } from "react";
@@ -33,6 +33,7 @@ export const TwoFactorPasswordDialog = ({ classNames, isTwoFactorEnabled, onOpen
     const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
     const [totpURI, setTotpURI] = useState<string | null>(null);
+    const { t } = useLingui();
 
     const form = useAppForm({
         defaultValues: {
@@ -73,7 +74,7 @@ export const TwoFactorPasswordDialog = ({ classNames, isTwoFactorEnabled, onOpen
             }, 250);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }
@@ -94,7 +95,7 @@ export const TwoFactorPasswordDialog = ({ classNames, isTwoFactorEnabled, onOpen
             onOpenChange?.(false);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }

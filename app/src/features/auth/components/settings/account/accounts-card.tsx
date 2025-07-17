@@ -2,7 +2,7 @@
 
 import { CardContent } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
@@ -22,6 +22,7 @@ export const AccountsCard = ({ className, classNames }: AccountsCardProperties) 
         navigate,
         viewPaths,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: deviceSessions, isPending, refetch } = useListDeviceSessions();
 

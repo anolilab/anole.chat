@@ -5,7 +5,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useRef, useState } from "react";
@@ -31,13 +31,15 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
         optimistic,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData, isPending, refetch } = useSession();
     const fileInputReference = useRef<HTMLInputElement | null>(null);
     const [loading, setLoading] = useState(false);
 
     const handleAvatarChange = async (file: File) => {
-        if (!sessionData || !avatar) return;
+        if (!sessionData || !avatar)
+            return;
 
         setLoading(true);
         const resizedFile = await resizeAndCropImage(file, crypto.randomUUID(), avatar.size, avatar.extension);
@@ -52,14 +54,15 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
             return;
         }
 
-        if (optimistic && !avatar.upload) setLoading(false);
+        if (optimistic && !avatar.upload)
+            setLoading(false);
 
         try {
             await updateUser({ image });
             await refetch?.();
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }
@@ -68,7 +71,8 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
     };
 
     const handleDeleteAvatar = async () => {
-        if (!sessionData) return;
+        if (!sessionData)
+            return;
 
         setLoading(true);
 
@@ -77,7 +81,7 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
             await refetch?.();
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }
@@ -96,7 +100,8 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
                 onChange={(e) => {
                     const file = e.target.files?.item(0);
 
-                    if (file) handleAvatarChange(file);
+                    if (file)
+                        handleAvatarChange(file);
 
                     e.target.value = "";
                 }}

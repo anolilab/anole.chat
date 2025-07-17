@@ -1,6 +1,6 @@
 "use client";
 
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { use, useState } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -13,6 +13,7 @@ export const DeleteOrganizationCard = ({ className, classNames }: SettingsCardPr
     const {
         hooks: { useActiveOrganization, useSession },
     } = useAuth();
+    const { t } = useLingui();
     const [showDialog, setShowDialog] = useState(false);
 
     const { data: activeOrganization, isPending: organizationPending } = useActiveOrganization();
@@ -23,7 +24,8 @@ export const DeleteOrganizationCard = ({ className, classNames }: SettingsCardPr
     const membership = activeOrganization?.members?.find((member) => member.userId === sessionData?.user.id);
     const isOwner = membership?.role === "owner";
 
-    if (!isPending && !isOwner) return null;
+    if (!isPending && !isOwner)
+        return null;
 
     return (
         <>

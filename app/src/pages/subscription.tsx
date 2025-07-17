@@ -1,5 +1,6 @@
-import React from "react";
 import { useAuth } from "@clerk/clerk-react";
+import React from "react";
+
 import { SubscriptionManager } from "@/components/polar";
 
 export default function SubscriptionPage() {
@@ -9,10 +10,8 @@ export default function SubscriptionPage() {
         return (
             <div className="container mx-auto py-8">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Authentication Required</h1>
-                    <p className="text-muted-foreground">
-                        Please sign in to manage your subscription.
-                    </p>
+                    <h1 className="mb-4 text-2xl font-bold">Authentication Required</h1>
+                    <p className="text-muted-foreground">Please sign in to manage your subscription.</p>
                 </div>
             </div>
         );
@@ -20,8 +19,8 @@ export default function SubscriptionPage() {
 
     return (
         <div className="container mx-auto py-8">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8">Subscription Management</h1>
+            <div className="mx-auto max-w-4xl">
+                <h1 className="mb-8 text-3xl font-bold">Subscription Management</h1>
                 <SubscriptionManager userId={userId} />
             </div>
         </div>

@@ -2,6 +2,7 @@ import type { AgentModel } from "@anole/convex/ai/lib/agents";
 import { agents } from "@anole/convex/ai/lib/agents";
 import { Button } from "@anole/ui/components/button";
 import { ScrollBar } from "@anole/ui/components/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 import cn from "@anole/ui/utils/cn";
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import { useLingui } from "@lingui/react/macro";
@@ -15,8 +16,6 @@ import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement"
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 
 export const Thread: FC<{ threadId?: string }> = ({ threadId }) => (
     <ScrollAreaPrimitive.Root asChild>
@@ -296,7 +295,9 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({ className, ...rest
             </TooltipIconButton>
         </BranchPickerPrimitive.Previous>
         <span className="font-medium">
-            <BranchPickerPrimitive.Number /> /
+            <BranchPickerPrimitive.Number />
+            {" "}
+            /
             <BranchPickerPrimitive.Count />
         </span>
         <BranchPickerPrimitive.Next asChild>

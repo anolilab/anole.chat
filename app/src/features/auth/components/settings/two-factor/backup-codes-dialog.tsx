@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { useState } from "react";
@@ -17,6 +17,7 @@ interface BackupCodesDialogProperties extends ComponentProps<typeof Dialog> {
 
 export const BackupCodesDialog = ({ backupCodes, classNames, onOpenChange, ...properties }: BackupCodesDialogProperties) => {
     const [copied, setCopied] = useState(false);
+    const { t } = useLingui();
 
     const handleCopy = () => {
         const codesText = backupCodes.join("\n");
@@ -90,17 +91,19 @@ export const BackupCodesDialog = ({ backupCodes, classNames, onOpenChange, ...pr
                         type="button"
                         variant="outline"
                     >
-                        {copied ? (
-                            <>
-                                <CheckIcon className="h-4 w-4" />
-                                {t`Copied!`}
-                            </>
-                        ) : (
-                            <>
-                                <CopyIcon className="h-4 w-4" />
-                                {t`Copy`}
-                            </>
-                        )}
+                        {copied
+                            ? (
+                                <>
+                                    <CheckIcon className="h-4 w-4" />
+                                    {t`Copied!`}
+                                </>
+                            )
+                            : (
+                                <>
+                                    <CopyIcon className="h-4 w-4" />
+                                    {t`Copy`}
+                                </>
+                            )}
                     </Button>
 
                     <Button

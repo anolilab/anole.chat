@@ -13,12 +13,12 @@ const ChatSiteHeader: FC<{ threadId?: string }> = ({ threadId }) => {
 
     return (
         <SiteHeader
-            menu={
+            menu={(
                 <>
                     {threadId && threadId !== "new" && <ThreadShareButton classes={{ button: "size-6 text-white" }} threadId={threadId} />}
                     <SidebarTrigger className="text-white" icon={<PanelRightIcon />} name="right" />
                 </>
-            }
+            )}
             subMenuWidth={threadId && threadId !== "new" ? 148 : 128}
             title={title || "New Chat"}
         />

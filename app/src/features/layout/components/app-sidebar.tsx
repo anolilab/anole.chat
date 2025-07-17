@@ -2,7 +2,7 @@
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@anole/ui/components/sidebar";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Cog, File, MessageSquare } from "lucide-react";
 
@@ -15,6 +15,7 @@ const AppSidebar = ({
     header,
 }: React.ComponentProps<typeof Sidebar> & { content: React.ReactNode; footer?: React.ReactNode; header?: React.ReactNode }) => {
     const location = useLocation();
+    const { t } = useLingui();
 
     const sidebarLinks: {
         icon: React.ComponentType<{ className?: string }>;

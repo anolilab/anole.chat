@@ -54,11 +54,14 @@ const OrganizationRefetcher = () => {
     const { data: organizations, refetch: refetchListOrganizations } = hooks.useListOrganizations();
 
     useEffect(() => {
-        if (!sessionData?.user.id) return;
+        if (!sessionData?.user.id)
+            return;
 
-        if (activeOrganization) refetchActiveOrganization?.();
+        if (activeOrganization)
+            refetchActiveOrganization?.();
 
-        if (organizations) refetchListOrganizations?.();
+        if (organizations)
+            refetchListOrganizations?.();
     }, [sessionData?.user.id, refetchActiveOrganization, refetchListOrganizations]);
 
     return null;
@@ -75,16 +78,16 @@ export type AuthUIContextType = {
      */
     apiKey?:
         | {
-              /**
-               * Metadata for API Keys
-               */
-              metadata?: Record<string, unknown>;
+            /**
+             * Metadata for API Keys
+             */
+            metadata?: Record<string, unknown>;
 
-              /**
-               * Prefix for API Keys
-               */
-              prefix?: string;
-          }
+            /**
+             * Prefix for API Keys
+             */
+            prefix?: string;
+        }
         | boolean;
     authClient: AuthClient;
 
@@ -367,7 +370,8 @@ export const AuthUIProvider = ({
     }, [settingsProperty]);
 
     const deleteUser = useMemo<DeleteUserOptions | undefined>(() => {
-        if (!deleteUserProperty) return;
+        if (!deleteUserProperty)
+            return;
 
         return deleteUserProperty;
     }, [deleteUserProperty]);
@@ -518,7 +522,8 @@ export const AuthUIProvider = ({
     const errorShown = useRef(false);
 
     useEffect(() => {
-        if (errorShown.current) return;
+        if (errorShown.current)
+            return;
 
         const error = search?.error;
 
@@ -526,7 +531,7 @@ export const AuthUIProvider = ({
             errorShown.current = true;
             console.log({ error });
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }
@@ -564,10 +569,10 @@ export const AuthUIProvider = ({
                 ...properties,
             }}
         >
-            {sessionData &&
-                (hooks.useActiveOrganization === authClient.useActiveOrganization || hooks.useListOrganizations === authClient.useListOrganizations) && (
+            {sessionData
+                && (hooks.useActiveOrganization === authClient.useActiveOrganization || hooks.useListOrganizations === authClient.useListOrganizations) && (
                     <OrganizationRefetcher />
-                )}
+            )}
             {children}
         </AuthUIContext>
     );

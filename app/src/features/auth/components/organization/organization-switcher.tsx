@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar
 import { Button } from "@anole/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { ChevronsUpDown, LogInIcon, PlusCircleIcon, SettingsIcon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
@@ -77,6 +77,7 @@ export const OrganizationSwitcher = ({
     ...properties
 }: OrganizationSwitcherProperties) => {
     const authContext = useAuth();
+    const { t } = useLingui();
 
     const [activeOrganizationPending, setActiveOrganizationPending] = useState(false);
     const [isCreateOrgDialogOpen, setIsCreateOrgDialogOpen] = useState(false);
@@ -96,7 +97,8 @@ export const OrganizationSwitcher = ({
     const isPending = sessionPending || activeOrganizationPending || organizationPending;
 
     useEffect(() => {
-        if (isRefetching) return;
+        if (isRefetching)
+            return;
 
         setActiveOrganizationPending(false);
     }, [activeOrganization, isRefetching]);
@@ -121,7 +123,7 @@ export const OrganizationSwitcher = ({
                 await refetchActiveOrganization?.();
             } catch (error) {
                 authContext.toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
 
@@ -137,13 +139,13 @@ export const OrganizationSwitcher = ({
     // Auto-select first organization when hidePersonal is true
     useEffect(() => {
         if (
-            hidePersonal &&
-            !activeOrganization &&
-            !activeOrganizationPending &&
-            organizations &&
-            organizations.length > 0 &&
-            !sessionPending &&
-            !organizationPending
+            hidePersonal
+            && !activeOrganization
+            && !activeOrganizationPending
+            && organizations
+            && organizations.length > 0
+            && !sessionPending
+            && !organizationPending
         ) {
             switchOrganization(organizations[0].id);
         }
@@ -153,55 +155,61 @@ export const OrganizationSwitcher = ({
         <>
             <DropdownMenu onOpenChange={setDropdownOpen} open={dropdownOpen}>
                 <DropdownMenuTrigger asChild>
-                    {trigger ||
-                        (size === "icon" ? (
-                            <Button
-                                className={cn("size-fit rounded-full", className, classNames?.trigger?.base)}
-                                size="icon"
-                                type="button"
-                                variant="ghost"
-                                {...properties}
-                            >
-                                {(!sessionData && !isPending) ||
-                                activeOrganizationPending ||
-                                activeOrganization ||
-                                (user as User)?.isAnonymous ||
-                                hidePersonal ? (
-                                    <OrganizationLogo
-                                        aria-label={t`Organization`}
-                                        className={cn(className, classNames?.base)}
-                                        classNames={classNames?.trigger?.avatar}
-                                        isPending={isPending || activeOrganizationPending}
-                                        key={activeOrganization?.logo}
-                                        organization={activeOrganization}
-                                    />
-                                ) : (
-                                    <Avatar className={cn(className, classNames?.base)}>
-                                        {user?.image && <AvatarImage alt={user?.name || "User"} src={user.image} />}
-                                        <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
-                                    </Avatar>
-                                )}
-                            </Button>
-                        ) : (
-                            <Button className={cn("!p-2", className, classNames?.trigger?.base)} size={size} {...properties}>
-                                {(!sessionData && !isPending) ||
-                                activeOrganizationPending ||
-                                activeOrganization ||
-                                (user as User)?.isAnonymous ||
-                                hidePersonal ? (
-                                    <OrganizationView
-                                        classNames={classNames?.trigger?.organization}
-                                        isPending={isPending || activeOrganizationPending}
-                                        organization={activeOrganization}
-                                        size={size}
-                                    />
-                                ) : (
-                                    <PersonalAccountView classNames={classNames?.trigger?.user} isPending={isPending} size={size} user={user} />
-                                )}
+                    {trigger
+                        || (size === "icon"
+                            ? (
+                                <Button
+                                    className={cn("size-fit rounded-full", className, classNames?.trigger?.base)}
+                                    size="icon"
+                                    type="button"
+                                    variant="ghost"
+                                    {...properties}
+                                >
+                                    {(!sessionData && !isPending)
+                                        || activeOrganizationPending
+                                        || activeOrganization
+                                        || (user as User)?.isAnonymous
+                                        || hidePersonal
+                                        ? (
+                                            <OrganizationLogo
+                                                aria-label={t`Organization`}
+                                                className={cn(className, classNames?.base)}
+                                                classNames={classNames?.trigger?.avatar}
+                                                isPending={isPending || activeOrganizationPending}
+                                                key={activeOrganization?.logo}
+                                                organization={activeOrganization}
+                                            />
+                                        )
+                                        : (
+                                            <Avatar className={cn(className, classNames?.base)}>
+                                                {user?.image && <AvatarImage alt={user?.name || "User"} src={user.image} />}
+                                                <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                                            </Avatar>
+                                        )}
+                                </Button>
+                            )
+                            : (
+                                <Button className={cn("!p-2", className, classNames?.trigger?.base)} size={size} {...properties}>
+                                    {(!sessionData && !isPending)
+                                        || activeOrganizationPending
+                                        || activeOrganization
+                                        || (user as User)?.isAnonymous
+                                        || hidePersonal
+                                        ? (
+                                            <OrganizationView
+                                                classNames={classNames?.trigger?.organization}
+                                                isPending={isPending || activeOrganizationPending}
+                                                organization={activeOrganization}
+                                                size={size}
+                                            />
+                                        )
+                                        : (
+                                            <PersonalAccountView classNames={classNames?.trigger?.user} isPending={isPending} size={size} user={user} />
+                                        )}
 
-                                <ChevronsUpDown className="ml-auto" />
-                            </Button>
-                        ))}
+                                    <ChevronsUpDown className="ml-auto" />
+                                </Button>
+                            ))}
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
@@ -212,38 +220,42 @@ export const OrganizationSwitcher = ({
                     }}
                 >
                     <div className={cn("flex items-center justify-between gap-2 p-2", classNames?.content?.menuItem)}>
-                        {(user && !user.isAnonymous) || isPending ? (
-                            <>
-                                {activeOrganizationPending || activeOrganization || hidePersonal ? (
-                                    <OrganizationView
-                                        classNames={classNames?.content?.organization}
-                                        isPending={isPending || activeOrganizationPending}
-                                        organization={activeOrganization}
-                                    />
-                                ) : (
-                                    <PersonalAccountView classNames={classNames?.content?.user} isPending={isPending} user={user} />
-                                )}
+                        {(user && !user.isAnonymous) || isPending
+                            ? (
+                                <>
+                                    {activeOrganizationPending || activeOrganization || hidePersonal
+                                        ? (
+                                            <OrganizationView
+                                                classNames={classNames?.content?.organization}
+                                                isPending={isPending || activeOrganizationPending}
+                                                organization={activeOrganization}
+                                            />
+                                        )
+                                        : (
+                                            <PersonalAccountView classNames={classNames?.content?.user} isPending={isPending} user={user} />
+                                        )}
 
-                                {!isPending && (
-                                    <Link
-                                        to={`${authContext.settings?.basePath || authContext.basePath}/${activeOrganization ? authContext.viewPaths.ORGANIZATION : authContext.viewPaths.SETTINGS}`}
-                                    >
-                                        <Button
-                                            className="ml-auto !size-8"
-                                            onClick={() => {
-                                                setDropdownOpen(false);
-                                            }}
-                                            size="icon"
-                                            variant="outline"
+                                    {!isPending && (
+                                        <Link
+                                            to={`${authContext.settings?.basePath || authContext.basePath}/${activeOrganization ? authContext.viewPaths.ORGANIZATION : authContext.viewPaths.SETTINGS}`}
                                         >
-                                            <SettingsIcon className="size-4" />
-                                        </Button>
-                                    </Link>
-                                )}
-                            </>
-                        ) : (
-                            <div className="text-muted-foreground -my-1 text-xs">{t`Organization`}</div>
-                        )}
+                                            <Button
+                                                className="ml-auto !size-8"
+                                                onClick={() => {
+                                                    setDropdownOpen(false);
+                                                }}
+                                                size="icon"
+                                                variant="outline"
+                                            >
+                                                <SettingsIcon className="size-4" />
+                                            </Button>
+                                        </Link>
+                                    )}
+                                </>
+                            )
+                            : (
+                                <div className="text-muted-foreground -my-1 text-xs">{t`Organization`}</div>
+                            )}
                     </div>
 
                     <DropdownMenuSeparator className={classNames?.content?.separator} />
@@ -267,24 +279,26 @@ export const OrganizationSwitcher = ({
                         <DropdownMenuSeparator className={classNames?.content?.separator} />
                     )}
 
-                    {!isPending && sessionData && !(user as User).isAnonymous ? (
-                        <DropdownMenuItem
-                            className={cn(classNames?.content?.menuItem)}
-                            onClick={() => {
-                                setIsCreateOrgDialogOpen(true);
-                            }}
-                        >
-                            <PlusCircleIcon />
-                            {t`Create Organization`}
-                        </DropdownMenuItem>
-                    ) : (
-                        <Link to={`${authContext.basePath}/${authContext.viewPaths.SIGN_IN}`}>
-                            <DropdownMenuItem className={cn(classNames?.content?.menuItem)}>
-                                <LogInIcon />
-                                {t`Sign In`}
+                    {!isPending && sessionData && !(user as User).isAnonymous
+                        ? (
+                            <DropdownMenuItem
+                                className={cn(classNames?.content?.menuItem)}
+                                onClick={() => {
+                                    setIsCreateOrgDialogOpen(true);
+                                }}
+                            >
+                                <PlusCircleIcon />
+                                {t`Create Organization`}
                             </DropdownMenuItem>
-                        </Link>
-                    )}
+                        )
+                        : (
+                            <Link to={`${authContext.basePath}/${authContext.viewPaths.SIGN_IN}`}>
+                                <DropdownMenuItem className={cn(classNames?.content?.menuItem)}>
+                                    <LogInIcon />
+                                    {t`Sign In`}
+                                </DropdownMenuItem>
+                            </Link>
+                        )}
                 </DropdownMenuContent>
             </DropdownMenu>
 

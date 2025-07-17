@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { Organization } from "better-auth/plugins/organization";
 import { BuildingIcon } from "lucide-react";
 import type { ComponentProps } from "react";
@@ -38,6 +38,7 @@ export const OrganizationLogo = ({
     size,
     ...properties
 }: ComponentProps<typeof Avatar> & OrganizationLogoProperties) => {
+    const { t } = useLingui();
     const name = organization?.name;
     const source = organization?.logo;
 

@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 
 import type { UserViewProperties } from "../user-view";
 
@@ -18,40 +18,50 @@ import type { UserViewProperties } from "../user-view";
  * - Supports customization through classNames prop
  */
 // TODO: check this classNames
-export const PersonalAccountView = ({ className, classNames, isPending, size, user }: UserViewProperties) => (
-    <div className={cn("flex items-center gap-2", className, classNames?.base)}>
-        <Avatar className="h-8 w-8 rounded-lg">
-            {user?.image && <AvatarImage alt={user?.name || "User"} src={user.image} />}
-            <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
-        </Avatar>
+export const PersonalAccountView = ({ className, classNames, isPending, size, user }: UserViewProperties) => {
+    const { t } = useLingui();
 
-        <div className={cn("grid flex-1 text-left leading-tight", classNames?.content)}>
-            {isPending ? (
-                <>
-                    <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
+    return (
+        <div className={cn("flex items-center gap-2", className, classNames?.base)}>
+            <Avatar className="h-8 w-8 rounded-lg">
+                {user?.image && <AvatarImage alt={user?.name || "User"} src={user.image} />}
+                <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+            </Avatar>
 
-                    {size !== "sm" && (
-                        <Skeleton className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-40" : "h-3 w-32", classNames?.subtitle, classNames?.skeleton)} />
+            <div className={cn("grid flex-1 text-left leading-tight", classNames?.content)}>
+                {isPending
+                    ? (
+                        <>
+                            <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
+
+                            {size !== "sm" && (
+                                <Skeleton
+                                    className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-40" : "h-3 w-32", classNames?.subtitle, classNames?.skeleton)}
+                                />
+                            )}
+                        </>
+                    )
+                    : (
+                        <>
+                            <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
+                                {user?.displayUsername
+                                    || user?.username
+                                    || user?.displayName
+                                    || user?.firstName
+                                    || user?.name
+                                    || user?.fullName
+                                    || user?.email
+                                    || t`User`}
+                            </span>
+
+                            {size !== "sm" && (
+                                <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>
+                                    {t`Personal Account`}
+                                </span>
+                            )}
+                        </>
                     )}
-                </>
-            ) : (
-                <>
-                    <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
-                        {user?.displayUsername ||
-                            user?.username ||
-                            user?.displayName ||
-                            user?.firstName ||
-                            user?.name ||
-                            user?.fullName ||
-                            user?.email ||
-                            t`User`}
-                    </span>
-
-                    {size !== "sm" && (
-                        <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>{t`Personal Account`}</span>
-                    )}
-                </>
-            )}
+            </div>
         </div>
-    </div>
-);
+    );
+};

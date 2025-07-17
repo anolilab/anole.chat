@@ -5,7 +5,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { Invitation } from "better-auth/plugins/organization";
 import { EllipsisIcon, Loader2, XIcon } from "lucide-react";
 import { use, useState } from "react";
@@ -28,6 +28,7 @@ export const InvitationCell = ({ className, classNames, invitation }: Invitation
         organization,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -39,7 +40,7 @@ export const InvitationCell = ({ className, classNames, invitation }: Invitation
         { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
     const role = roles.find((r) => r.role === invitation.role);
 
     const handleCancelInvitation = async () => {
@@ -59,7 +60,7 @@ export const InvitationCell = ({ className, classNames, invitation }: Invitation
             });
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }
@@ -78,7 +79,9 @@ export const InvitationCell = ({ className, classNames, invitation }: Invitation
                     <span className="truncate text-sm font-semibold">{invitation.email}</span>
 
                     <span className="text-muted-foreground truncate text-xs">
-                        {t`Expires`} {invitation.expiresAt.toLocaleDateString()}
+                        {t`Expires`}
+                        {" "}
+                        {invitation.expiresAt.toLocaleDateString()}
                     </span>
                 </div>
             </div>

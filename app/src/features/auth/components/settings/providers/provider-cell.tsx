@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { SocialProvider } from "better-auth/social-providers";
 import { Loader2 } from "lucide-react";
 import { use, useState } from "react";
@@ -33,6 +33,7 @@ export const ProviderCell = ({ account, className, classNames, other, provider, 
         toast,
         viewPaths,
     } = useAuth();
+    const { t } = useLingui();
 
     const [isLoading, setIsLoading] = useState(false);
 

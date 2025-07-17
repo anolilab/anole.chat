@@ -1,14 +1,15 @@
 import { Button } from "@anole/ui/components/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@anole/ui/components/tooltip";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Check, Copy } from "lucide-react";
+import type { FC } from "react";
 import { useEffect, useState } from "react";
 
-interface CopyButtonProperties {
+const CopyButton: FC<{
     textToCopy: string;
-}
+}> = ({ textToCopy }) => {
+    const { t } = useLingui();
 
-const CopyButton = ({ textToCopy }: CopyButtonProperties) => {
     const [isCopied, setIsCopied] = useState(false);
 
     useEffect(() => {
@@ -40,7 +41,10 @@ const CopyButton = ({ textToCopy }: CopyButtonProperties) => {
                 <TooltipTrigger asChild>
                     <Button className="h-8 w-8" onClick={handleCopy} size="icon" variant="link">
                         {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                        <span className="sr-only">${t`Copy to clipboard`}</span>
+                        <span className="sr-only">
+                            $
+                            {t`Copy to clipboard`}
+                        </span>
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>

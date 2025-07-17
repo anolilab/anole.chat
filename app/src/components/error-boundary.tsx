@@ -228,7 +228,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProperties, ErrorBound
     private renderErrorDetails = () => {
         const { error, errorId, errorInfo } = this.state;
 
-        if (!error) return null;
+        if (!error)
+            return null;
 
         return (
             <Collapsible onOpenChange={this.toggleDetails} open={this.state.isDetailsOpen}>
@@ -243,13 +244,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProperties, ErrorBound
                     <div className="bg-muted rounded-lg p-4">
                         <div className="space-y-2 text-sm">
                             <div>
-                                <strong>Error ID:</strong> <code className="bg-background rounded px-1">{errorId}</code>
+                                <strong>Error ID:</strong>
+                                {" "}
+                                <code className="bg-background rounded px-1">{errorId}</code>
                             </div>
                             <div>
-                                <strong>Error Type:</strong> <Badge variant="destructive">{error.name}</Badge>
+                                <strong>Error Type:</strong>
+                                {" "}
+                                <Badge variant="destructive">{error.name}</Badge>
                             </div>
                             <div>
-                                <strong>Message:</strong> {error.message}
+                                <strong>Message:</strong>
+                                {" "}
+                                {error.message}
                             </div>
                             {error.stack && (
                                 <div>
@@ -274,7 +281,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProperties, ErrorBound
         const { error, retryCount } = this.state;
         const { level = "component", maxRetries = 3 } = this.props;
 
-        if (!error) return null;
+        if (!error)
+            return null;
 
         const canRetry = retryCount < maxRetries;
         const isAppError = error instanceof AppError;
@@ -301,7 +309,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProperties, ErrorBound
                                 {canRetry && (
                                     <Button onClick={this.handleRetry} size="sm">
                                         <RefreshCw className="mr-1 h-3 w-3" />
-                                        Retry {retryCount > 0 && `(${retryCount})`}
+                                        Retry
+                                        {" "}
+                                        {retryCount > 0 && `(${retryCount})`}
                                     </Button>
                                 )}
                                 <Button onClick={this.handleReload} size="sm" variant="outline">
@@ -330,7 +340,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProperties, ErrorBound
                                     {canRetry && (
                                         <Button className="w-full" onClick={this.handleRetry}>
                                             <RefreshCw className="mr-2 h-4 w-4" />
-                                            Try Again {retryCount > 0 && `(${retryCount}/${maxRetries})`}
+                                            Try Again
+                                            {" "}
+                                            {retryCount > 0 && `(${retryCount}/${maxRetries})`}
                                         </Button>
                                     )}
                                     <Button className="w-full" onClick={this.handleGoHome} variant="outline">

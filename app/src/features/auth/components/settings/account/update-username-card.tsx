@@ -1,6 +1,6 @@
 "use client";
 
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
@@ -12,6 +12,7 @@ export const UpdateUsernameCard = ({ className, classNames, ...properties }: Set
     const {
         hooks: { useSession },
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData } = useSession();
     const value = (sessionData?.user as User)?.displayUsername || (sessionData?.user as User)?.username;

@@ -11,7 +11,7 @@ import {
     DropdownMenuTrigger,
 } from "@anole/ui/components/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@anole/ui/components/sidebar";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, PlusCircleIcon, SettingsIcon, Sparkles } from "lucide-react";
 import { Fragment, useCallback, useEffect, useState } from "react";
@@ -32,6 +32,7 @@ export const NavUser = () => {
     const { isMobile } = useSidebar();
     const router = useRouter();
     const navigate = useNavigate();
+    const { t } = useLingui();
 
     const {
         authClient,
@@ -75,7 +76,7 @@ export const NavUser = () => {
                 onSessionChange?.();
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
                 setActiveSessionPending(false);

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod/v4";
@@ -38,6 +38,7 @@ export const DeleteAccountDialog = ({ accounts, classNames, onOpenChange, ...pro
         toast,
         viewPaths,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData } = useSession();
     const session = sessionData?.session;
@@ -87,7 +88,7 @@ export const DeleteAccountDialog = ({ accounts, classNames, onOpenChange, ...pro
                 }
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@anole/ui/components/input";
 import { Label } from "@anole/ui/components/label";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { ComponentProps } from "react";
 import { useState } from "react";
 
@@ -21,11 +21,13 @@ export const SessionFreshnessDialog = ({ classNames, onOpenChange, onVerified, .
     const [password, setPassword] = useState("");
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState("");
+    const { t } = useLingui();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!password.trim()) return;
+        if (!password.trim())
+            return;
 
         setIsPending(true);
         setError("");

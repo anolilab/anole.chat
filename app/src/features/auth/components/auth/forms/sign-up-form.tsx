@@ -5,24 +5,24 @@ import { Button } from "@anole/ui/components/button";
 import { Checkbox } from "@anole/ui/components/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import { useAppForm } from "@anole/ui/components/form";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { Input } from "@anole/ui/components/input";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link, useSearch } from "@tanstack/react-router";
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2, Trash2Icon, UploadCloudIcon } from "lucide-react";
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod/v4";
 
-import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
-import { PasswordInput } from "@anole/ui/components/form/password-input";
-import { useIsHydrated } from "@/hooks/use-hydrated";
 import { useCaptcha } from "@/features/auth/hooks/use-captcha";
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "@/features/auth/lib/image-utils";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
+import { useIsHydrated } from "@/hooks/use-hydrated";
+
 import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";
 
@@ -37,6 +37,7 @@ export interface SignUpFormProperties {
 }
 
 export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, passwordValidation, redirectTo, setIsSubmitting }: SignUpFormProperties) => {
+    const { t } = useLingui();
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
@@ -152,8 +153,8 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
     if (signUpFields?.includes("name")) {
         schemaFields.name = nameRequired
             ? z.string().min(1, {
-                  message: t`Name is required`,
-              })
+                message: t`Name is required`,
+            })
             : z.string().optional();
     }
 
@@ -172,13 +173,16 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
     // Add additional fields from signUpFields
     if (signUpFields) {
         for (const field of signUpFields) {
-            if (field === "name") continue; // Already handled above
+            if (field === "name")
+                continue; // Already handled above
 
-            if (field === "image") continue; // Already handled above
+            if (field === "image")
+                continue; // Already handled above
 
             const additionalField = additionalFields?.[field];
 
-            if (!additionalField) continue;
+            if (!additionalField)
+                continue;
 
             let fieldSchema: z.ZodTypeAny;
 
@@ -186,37 +190,37 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
             if (additionalField.type === "number") {
                 fieldSchema = additionalField.required
                     ? z.preprocess(
-                          (value) => (value ? Number(value) : undefined),
-                          z.number({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
-                          }),
-                      )
+                        (value) => (value ? Number(value) : undefined),
+                        z.number({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                            required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                        }),
+                    )
                     : z.coerce
-                          .number({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .optional();
+                        .number({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        })
+                        .optional();
             } else if (additionalField.type === "boolean") {
                 fieldSchema = additionalField.required
                     ? z.coerce
-                          .boolean({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                              required_error: `${String(additionalField.label || "")} ${t`is required`}`,
-                          })
-                          .refine((value) => value, {
-                              message: `${String(additionalField.label || "")} ${t`is required`}`,
-                          })
+                        .boolean({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                            required_error: `${String(additionalField.label || "")} ${t`is required`}`,
+                        })
+                        .refine((value) => value, {
+                            message: `${String(additionalField.label || "")} ${t`is required`}`,
+                        })
                     : z.coerce
-                          .boolean({
-                              invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
-                          })
-                          .optional();
+                        .boolean({
+                            invalid_type_error: `${String(additionalField.label || "")} ${t`is invalid`}`,
+                        })
+                        .optional();
             } else {
                 fieldSchema = additionalField.required
                     ? z.string().min(1, {
-                          message: `${String(additionalField.label || "")} ${t`is required`}`,
-                      })
+                        message: `${String(additionalField.label || "")} ${t`is required`}`,
+                    })
                     : z.string().optional();
             }
 
@@ -234,20 +238,22 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
     const defaultValues: Record<string, any> = {
         email: "",
         password: "",
-        ...(confirmPasswordEnabled && { confirmPassword: "" }),
-        ...(signUpFields?.includes("name") && { name: "" }),
-        ...(usernameEnabled && { username: "" }),
-        ...(signUpFields?.includes("image") && avatar && { image: "" }),
+        ...confirmPasswordEnabled && { confirmPassword: "" },
+        ...signUpFields?.includes("name") && { name: "" },
+        ...usernameEnabled && { username: "" },
+        ...signUpFields?.includes("image") && avatar && { image: "" },
     };
 
     // Add default values for additional fields
     if (signUpFields) {
         for (const field of signUpFields) {
-            if (field === "name" || field === "image") continue;
+            if (field === "name" || field === "image")
+                continue;
 
             const additionalField = additionalFields?.[field];
 
-            if (!additionalField) continue;
+            if (!additionalField)
+                continue;
 
             if (additionalField.type === "boolean") {
                 defaultValues[field] = false;
@@ -266,21 +272,22 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                 // Validate additional fields with custom validators if provided
                 for (const [field, fieldValue] of Object.entries(value)) {
                     if (
-                        field === "email" ||
-                        field === "password" ||
-                        field === "confirmPassword" ||
-                        field === "name" ||
-                        field === "username" ||
-                        field === "image"
+                        field === "email"
+                        || field === "password"
+                        || field === "confirmPassword"
+                        || field === "name"
+                        || field === "username"
+                        || field === "image"
                     ) {
                         continue;
                     }
 
                     const additionalField = additionalFields?.[field];
 
-                    if (!additionalField?.validate) continue;
+                    if (!additionalField?.validate)
+                        continue;
 
-                    if (typeof fieldValue === "string" && !(await additionalField.validate(fieldValue))) {
+                    if (typeof fieldValue === "string" && !await additionalField.validate(fieldValue)) {
                         toast({
                             message: `${String(additionalField.label || "")} ${t`is invalid`}`,
                             variant: "error",
@@ -301,8 +308,8 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                     email,
                     name: name || "",
                     password,
-                    ...(username !== undefined && { username }),
-                    ...(image !== undefined && { image }),
+                    ...username !== undefined && { username },
+                    ...image !== undefined && { image },
                     ...additionalFieldValues,
                     callbackURL: getCallbackURL(),
                     fetchOptions,
@@ -327,7 +334,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                 }
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
 
@@ -346,7 +353,8 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
     }, [form.state.isSubmitting, transitionPending, setIsSubmitting]);
 
     const handleAvatarChange = async (file: File) => {
-        if (!file) return;
+        if (!file)
+            return;
 
         setUploadingAvatar(true);
 
@@ -393,7 +401,8 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                             onChange={(e) => {
                                 const file = e.target.files?.item(0);
 
-                                if (file) handleAvatarChange(file);
+                                if (file)
+                                    handleAvatarChange(file);
 
                                 e.target.value = "";
                             }}
@@ -605,57 +614,59 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                             return null;
                         }
 
-                        return additionalField.type === "boolean" ? (
-                            <form.AppField
-                                children={(formField) => (
-                                    <formField.FormItem className="flex">
-                                        <formField.FormControl>
-                                            <Checkbox
-                                                checked={formField.state.value}
-                                                disabled={isSubmitting}
-                                                onCheckedChange={(checked) => {
-                                                    formField.handleChange(checked === true);
-                                                }}
-                                            />
-                                        </formField.FormControl>
+                        return additionalField.type === "boolean"
+                            ? (
+                                <form.AppField
+                                    children={(formField) => (
+                                        <formField.FormItem className="flex">
+                                            <formField.FormControl>
+                                                <Checkbox
+                                                    checked={formField.state.value}
+                                                    disabled={isSubmitting}
+                                                    onCheckedChange={(checked) => {
+                                                        formField.handleChange(checked === true);
+                                                    }}
+                                                />
+                                            </formField.FormControl>
 
-                                        <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
+                                            <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
 
-                                        <formField.FormMessage className={classNames?.error} />
-                                    </formField.FormItem>
-                                )}
-                                key={field}
-                                name={field}
-                            />
-                        ) : (
-                            <form.AppField
-                                children={(formField) => (
-                                    <formField.FormItem>
-                                        <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
+                                            <formField.FormMessage className={classNames?.error} />
+                                        </formField.FormItem>
+                                    )}
+                                    key={field}
+                                    name={field}
+                                />
+                            )
+                            : (
+                                <form.AppField
+                                    children={(formField) => (
+                                        <formField.FormItem>
+                                            <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
 
-                                        <formField.FormControl>
-                                            <Input
-                                                className={classNames?.input}
-                                                disabled={isSubmitting}
-                                                onBlur={formField.handleBlur}
-                                                onChange={(e) => {
-                                                    formField.handleChange(e.target.value);
-                                                }}
-                                                placeholder={
+                                            <formField.FormControl>
+                                                <Input
+                                                    className={classNames?.input}
+                                                    disabled={isSubmitting}
+                                                    onBlur={formField.handleBlur}
+                                                    onChange={(e) => {
+                                                        formField.handleChange(e.target.value);
+                                                    }}
+                                                    placeholder={
                                                     additionalField.placeholder || (typeof additionalField.label === "string" ? additionalField.label : "")
                                                 }
-                                                type={additionalField.type === "number" ? "number" : "text"}
-                                                value={formField.state.value}
-                                            />
-                                        </formField.FormControl>
+                                                    type={additionalField.type === "number" ? "number" : "text"}
+                                                    value={formField.state.value}
+                                                />
+                                            </formField.FormControl>
 
-                                        <formField.FormMessage className={classNames?.error} />
-                                    </formField.FormItem>
-                                )}
-                                key={field}
-                                name={field}
-                            />
-                        );
+                                            <formField.FormMessage className={classNames?.error} />
+                                        </formField.FormItem>
+                                    )}
+                                    key={field}
+                                    name={field}
+                                />
+                            );
                     })}
 
                 <Captcha action="/sign-up/email" ref={captchaRef} />

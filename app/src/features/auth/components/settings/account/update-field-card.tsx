@@ -6,7 +6,7 @@ import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { z } from "zod/v4";
 
@@ -51,6 +51,7 @@ export const UpdateFieldCard = ({
         optimistic,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { isPending, refetch } = useSession();
 
@@ -60,30 +61,30 @@ export const UpdateFieldCard = ({
     if (type === "number") {
         fieldSchema = required
             ? z.preprocess(
-                  (value_) => (value_ ? Number(value_) : undefined),
-                  z.number({
-                      invalid_type_error: `${label} ${t`is invalid`}`,
-                      required_error: `${label} ${t`is required`}`,
-                  }),
-              )
+                (value_) => (value_ ? Number(value_) : undefined),
+                z.number({
+                    invalid_type_error: `${label} ${t`is invalid`}`,
+                    required_error: `${label} ${t`is required`}`,
+                }),
+            )
             : z.coerce
-                  .number({
-                      invalid_type_error: `${label} ${t`is invalid`}`,
-                  })
-                  .optional();
+                .number({
+                    invalid_type_error: `${label} ${t`is invalid`}`,
+                })
+                .optional();
     } else if (type === "boolean") {
         fieldSchema = required
             ? z.coerce
-                  .boolean({
-                      invalid_type_error: `${label} ${t`is invalid`}`,
-                      required_error: `${label} ${t`is required`}`,
-                  })
-                  .refine((value_) => value_, {
-                      message: `${label} ${t`is required`}`,
-                  })
+                .boolean({
+                    invalid_type_error: `${label} ${t`is invalid`}`,
+                    required_error: `${label} ${t`is required`}`,
+                })
+                .refine((value_) => value_, {
+                    message: `${label} ${t`is required`}`,
+                })
             : z.coerce.boolean({
-                  invalid_type_error: `${label} ${t`is invalid`}`,
-              });
+                invalid_type_error: `${label} ${t`is invalid`}`,
+            });
     } else {
         fieldSchema = required ? z.string().min(1, `${label} ${t`is required`}`) : z.string().optional();
     }
@@ -105,7 +106,7 @@ export const UpdateFieldCard = ({
                 return;
             }
 
-            if (validate && typeof newValue === "string" && !(await validate(newValue))) {
+            if (validate && typeof newValue === "string" && !await validate(newValue)) {
                 form.setErrorMap({
                     [name]: `${label} ${t`is invalid`}`,
                 });
@@ -123,7 +124,7 @@ export const UpdateFieldCard = ({
                 });
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }
@@ -163,55 +164,59 @@ export const UpdateFieldCard = ({
                     title={label}
                 >
                     <CardContent className={classNames?.content}>
-                        {type === "boolean" ? (
-                            <form.AppField
-                                children={(field) => (
-                                    <field.FormItem className="flex">
-                                        <field.FormControl>
-                                            <Checkbox
-                                                checked={field.state.value as boolean}
-                                                className={classNames?.checkbox}
-                                                disabled={isSubmitting}
-                                                onCheckedChange={(checked) => {
-                                                    field.handleChange(checked as boolean);
-                                                }}
-                                            />
-                                        </field.FormControl>
+                        {type === "boolean"
+                            ? (
+                                <form.AppField
+                                    children={(field) => (
+                                        <field.FormItem className="flex">
+                                            <field.FormControl>
+                                                <Checkbox
+                                                    checked={field.state.value as boolean}
+                                                    className={classNames?.checkbox}
+                                                    disabled={isSubmitting}
+                                                    onCheckedChange={(checked) => {
+                                                        field.handleChange(checked as boolean);
+                                                    }}
+                                                />
+                                            </field.FormControl>
 
-                                        <field.FormLabel className={classNames?.label}>{label}</field.FormLabel>
+                                            <field.FormLabel className={classNames?.label}>{label}</field.FormLabel>
 
-                                        <field.FormMessage className={classNames?.error} />
-                                    </field.FormItem>
+                                            <field.FormMessage className={classNames?.error} />
+                                        </field.FormItem>
+                                    )}
+                                    name={name}
+                                />
+                            )
+                            : isPending
+                                ? (
+                                    <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                                )
+                                : (
+                                    <form.AppField
+                                        children={(field) => (
+                                            <field.FormItem>
+                                                <field.FormControl>
+                                                    <Input
+                                                        autoComplete={name === "name" ? "name" : name === "username" ? "username" : "off"}
+                                                        className={classNames?.input}
+                                                        disabled={isSubmitting}
+                                                        onBlur={field.handleBlur}
+                                                        onChange={(e) => {
+                                                            field.handleChange(e.target.value);
+                                                        }}
+                                                        placeholder={placeholder}
+                                                        type={type === "number" ? "number" : "text"}
+                                                        value={field.state.value as string}
+                                                    />
+                                                </field.FormControl>
+
+                                                <field.FormMessage className={classNames?.error} />
+                                            </field.FormItem>
+                                        )}
+                                        name={name}
+                                    />
                                 )}
-                                name={name}
-                            />
-                        ) : isPending ? (
-                            <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
-                        ) : (
-                            <form.AppField
-                                children={(field) => (
-                                    <field.FormItem>
-                                        <field.FormControl>
-                                            <Input
-                                                autoComplete={name === "name" ? "name" : name === "username" ? "username" : "off"}
-                                                className={classNames?.input}
-                                                disabled={isSubmitting}
-                                                onBlur={field.handleBlur}
-                                                onChange={(e) => {
-                                                    field.handleChange(e.target.value);
-                                                }}
-                                                placeholder={placeholder}
-                                                type={type === "number" ? "number" : "text"}
-                                                value={field.state.value as string}
-                                            />
-                                        </field.FormControl>
-
-                                        <field.FormMessage className={classNames?.error} />
-                                    </field.FormItem>
-                                )}
-                                name={name}
-                            />
-                        )}
                     </CardContent>
                 </SettingsCard>
             </form>

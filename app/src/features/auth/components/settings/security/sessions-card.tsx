@@ -3,7 +3,7 @@
 import { CardContent } from "@anole/ui/components/card";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import clsx from "clsx";
 import { UAParser } from "my-ua-parser";
 
@@ -54,6 +54,7 @@ export const SessionsCard = ({ className, classNames }: SessionsCardProperties) 
         mutators: { revokeSession },
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessions, isPending, refetch } = useListSessions();
     const { data: currentSession } = useSession();
@@ -90,8 +91,8 @@ export const SessionsCard = ({ className, classNames }: SessionsCardProperties) 
                         </div>
                         <Skeleton className={cn("h-8 w-8 rounded", classNames?.skeleton)} />
                     </div>
-                ) : (
-                    sessions?.map((session) => {
+                )
+                    : sessions?.map((session) => {
                         const isCurrent = session.id === currentSession?.session?.id;
                         const parsedUA = parseUserAgent(session.userAgent);
 
@@ -116,8 +117,7 @@ export const SessionsCard = ({ className, classNames }: SessionsCardProperties) 
                                 session={sessionData}
                             />
                         );
-                    })
-                )}
+                    })}
             </CardContent>
         </SettingsCard>
     );

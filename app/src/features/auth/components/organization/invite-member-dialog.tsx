@@ -6,7 +6,7 @@ import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod/v4";
@@ -27,6 +27,7 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
         organization,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { data: sessionData } = useSession();
@@ -38,7 +39,7 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
         { label: t`Member`, role: "member" },
     ] as const;
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
     const availableRoles = roles.filter((role) => membership?.role === "owner" || role.role !== "owner");
 
     const formSchema = z
@@ -80,7 +81,7 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
                 });
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }

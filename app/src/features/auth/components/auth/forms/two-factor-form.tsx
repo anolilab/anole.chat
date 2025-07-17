@@ -5,7 +5,7 @@ import { Checkbox } from "@anole/ui/components/checkbox";
 import { useAppForm } from "@anole/ui/components/form";
 import { InputOTP } from "@anole/ui/components/input-otp";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link, useSearch } from "@tanstack/react-router";
 import type { BetterFetchError } from "better-auth/react";
 import { Loader2, QrCodeIcon, SendIcon } from "lucide-react";
@@ -58,6 +58,7 @@ const extractSecretFromTotpUri = (totpURI: string): string | null => {
 };
 
 export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparators = 0, redirectTo, setIsSubmitting }: TwoFactorFormProperties) => {
+    const { t } = useLingui();
     const isHydrated = useIsHydrated();
     const search = useSearch({ strict: false }) as any;
 
@@ -114,7 +115,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                 }
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
 
@@ -140,7 +141,8 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
     }, [method]);
 
     useEffect(() => {
-        if (cooldownSeconds <= 0) return;
+        if (cooldownSeconds <= 0)
+            return;
 
         const timer = setTimeout(() => {
             setCooldownSeconds((previous) => previous - 1);
@@ -152,7 +154,8 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
     }, [cooldownSeconds]);
 
     const sendOtp = async () => {
-        if (isSendingOtp || cooldownSeconds > 0) return;
+        if (isSendingOtp || cooldownSeconds > 0)
+            return;
 
         try {
             setIsSendingOtp(true);
@@ -162,7 +165,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
             setCooldownSeconds(60);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
 
@@ -188,7 +191,8 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                 {twoFactor?.includes("totp") && totpURI && method === "totp" && (
                     <div className="space-y-4">
                         <div className={classNames?.label}>
-                            {t`Using an authenticator app like`}{" "}
+                            {t`Using an authenticator app like`}
+                            {" "}
                             <a
                                 className="text-blue-500 hover:underline"
                                 href="https://www.google.com/search?q=google+authenticator"
@@ -197,7 +201,8 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                             >
                                 Google Authenticator
                             </a>
-                            ,{" "}
+                            ,
+                            {" "}
                             <a
                                 className="text-blue-500 hover:underline"
                                 href="https://www.google.com/search?q=google+authenticator"
@@ -205,8 +210,10 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                                 target="_blank"
                             >
                                 Microsoft Authenticator
-                            </a>{" "}
-                            {t`or`}{" "}
+                            </a>
+                            {" "}
+                            {t`or`}
+                            {" "}
                             <a
                                 className="text-blue-500 hover:underline"
                                 href="https://www.google.com/search?q=google+authenticator"
@@ -215,7 +222,9 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                             >
                                 Authy
                             </a>
-                            , {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
+                            ,
+                            {" "}
+                            {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
                         </div>
                         <QRCode className={cn("mx-auto border shadow-xs", classNames?.qrCode)} value={totpURI} />
 

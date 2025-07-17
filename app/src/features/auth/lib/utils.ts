@@ -1,44 +1,7 @@
-import { t } from "@lingui/core/macro";
-
-export function isValidEmail(email: string) {
-    const emailRegex: RegExp = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
-
-    return emailRegex.test(email);
-}
-
-/**
- * Converts error codes from SNAKE_CASE to camelCase
- * Example: INVALID_TWO_FACTOR_COOKIE -> invalidTwoFactorCookie
- */
-export function errorCodeToCamelCase(errorCode: string): string {
-    return errorCode.toLowerCase().replaceAll(/_([a-z])/g, (_, char) => char.toUpperCase());
-}
-
-/**
- * Gets a localized error message from an error object
- */
-export function getLocalizedError({ error }: { error: any }) {
-    // Handle string error codes directly
-    if (typeof error === "string") {
-        return getErrorTranslation(error);
-    }
-
-    // Handle error objects with nested error property
-    if (error?.error) {
-        if (error.error.code) {
-            return getErrorTranslation(error.error.code);
-        }
-
-        return error.error.message || error.error.code || error.error.statusText || t`Request failed`;
-    }
-
-    return error?.message || t`Request failed`;
-}
-
 /**
  * Maps error codes to Lingui translations
  */
-function getErrorTranslation(errorCode: string): string {
+const getErrorTranslation = (errorCode: string, t): string => {
     switch (errorCode) {
         case "ACCOUNT_LOCKED": {
             return t`Account locked`;
@@ -531,8 +494,43 @@ function getErrorTranslation(errorCode: string): string {
             return t`Request failed`;
         }
     }
+};
+
+export function isValidEmail(email: string) {
+    const emailRegex: RegExp = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/;
+
+    return emailRegex.test(email);
 }
 
-export function getKeyByValue<T extends Record<string, unknown>>(object: T, value?: T[keyof T]): keyof T | undefined {
-    return (Object.keys(object) as (keyof T)[]).find((key) => object[key] === value);
+/**
+ * Converts error codes from SNAKE_CASE to camelCase
+ * Example: INVALID_TWO_FACTOR_COOKIE -> invalidTwoFactorCookie
+ */
+export function errorCodeToCamelCase(errorCode: string): string {
+    return errorCode.toLowerCase().replaceAll(/_([a-z])/g, (_, char) => char.toUpperCase());
 }
+
+/**
+ * Gets a localized error message from an error object
+ */
+// TODO: fix types
+export const getLocalizedError = ({ error, t }: { error: any; t: any }) => {
+    // Handle string error codes directly
+    if (typeof error === "string") {
+        return getErrorTranslation(error, t);
+    }
+
+    // Handle error objects with nested error property
+    if (error?.error) {
+        if (error.error.code) {
+            return getErrorTranslation(error.error.code, t);
+        }
+
+        return error.error.message || error.error.code || error.error.statusText || t`Request failed`;
+    }
+
+    return error?.message || t`Request failed`;
+};
+
+export const getKeyByValue = <T extends Record<string, unknown>>(object: T, value?: T[keyof T]): keyof T | undefined =>
+    (Object.keys(object) as (keyof T)[]).find((key) => object[key] === value);

@@ -126,11 +126,11 @@ export const useMessageHandlers = ({ jwtToken, model }: UseMessageHandlersProper
             if (message.attachments) {
                 for (const attachment of message.attachments) {
                     if (
-                        attachment &&
-                        "metadata" in attachment &&
-                        attachment.metadata &&
-                        (attachment.metadata as any).fileId &&
-                        !fileIds.includes((attachment.metadata as any).fileId)
+                        attachment
+                        && "metadata" in attachment
+                        && attachment.metadata
+                        && (attachment.metadata as any).fileId
+                        && !fileIds.includes((attachment.metadata as any).fileId)
                     ) {
                         fileIds.push((attachment.metadata as any).fileId);
                     }
@@ -258,11 +258,15 @@ export const useMessageHandlers = ({ jwtToken, model }: UseMessageHandlersProper
             if (!parentId) {
                 const currentThreadMessages = threads.get(currentThreadId);
 
-                if (!currentThreadMessages || currentThreadMessages.length === 0) return;
+                if (!currentThreadMessages || currentThreadMessages.length === 0) {
+                    return;
+                }
 
                 const lastUserMessage = [...currentThreadMessages].reverse().find((m) => m.role === "user");
 
-                if (!lastUserMessage) return;
+                if (!lastUserMessage) {
+                    return;
+                }
 
                 const newMessages = [...currentThreadMessages.slice(0, currentThreadMessages.indexOf(lastUserMessage) + 1)];
 

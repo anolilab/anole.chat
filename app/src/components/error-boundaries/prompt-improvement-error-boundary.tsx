@@ -49,21 +49,23 @@ export const PromptImprovementErrorBoundary = ({ children, fallbackToInput = tru
                 <CardHeader>
                     <div className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
-                            {isRateLimit ? (
-                                <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                            ) : (
-                                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                            )}
+                            {isRateLimit
+                                ? (
+                                    <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                )
+                                : (
+                                    <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                )}
                         </div>
                         <div>
                             <CardTitle className="text-base text-amber-800 dark:text-amber-200">
                                 {isRateLimit
                                     ? "Rate Limit Reached"
                                     : isValidation
-                                      ? "Invalid Input"
-                                      : isNetwork
-                                        ? "Connection Issue"
-                                        : "Improvement Unavailable"}
+                                        ? "Invalid Input"
+                                        : isNetwork
+                                            ? "Connection Issue"
+                                            : "Improvement Unavailable"}
                             </CardTitle>
                             <CardDescription className="text-amber-700 dark:text-amber-300">{userMessage}</CardDescription>
                         </div>

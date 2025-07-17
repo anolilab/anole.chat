@@ -35,21 +35,23 @@ export default function ErrorComponent({ error }: { error: Error }) {
                     <Button asChild className="w-full" variant="outline">
                         <Link to="/">Return to home</Link>
                     </Button>
-                    {import.meta.env.DEV ? (
-                        <Accordion className="w-full" collapsible type="single">
-                            <AccordionItem value="error-details">
-                                <AccordionTrigger>View error details</AccordionTrigger>
-                                <AccordionContent>
-                                    <div className="bg-muted rounded-md p-4">
-                                        <h3 className="mb-2 font-semibold">Error details:</h3>
-                                        <p className="mb-4 text-sm">{error.message}</p>
-                                        <h3 className="mb-2 font-semibold">Error trace:</h3>
-                                        <pre className="overflow-x-auto text-xs whitespace-pre-wrap">{error.stack}</pre>
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                    ) : null}
+                    {import.meta.env.DEV
+                        ? (
+                            <Accordion className="w-full" collapsible type="single">
+                                <AccordionItem value="error-details">
+                                    <AccordionTrigger>View error details</AccordionTrigger>
+                                    <AccordionContent>
+                                        <div className="bg-muted rounded-md p-4">
+                                            <h3 className="mb-2 font-semibold">Error details:</h3>
+                                            <p className="mb-4 text-sm">{error.message}</p>
+                                            <h3 className="mb-2 font-semibold">Error trace:</h3>
+                                            <pre className="overflow-x-auto text-xs whitespace-pre-wrap">{error.stack}</pre>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        )
+                        : null}
                 </div>
             </div>
         </div>

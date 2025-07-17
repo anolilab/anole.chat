@@ -3,7 +3,7 @@
 import { CardContent } from "@anole/ui/components/card";
 import { useAppForm } from "@anole/ui/components/form";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { use, useState } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -25,6 +25,7 @@ export const PasskeysCard = ({ className, classNames }: PasskeysCardProperties) 
         hooks: { useListPasskeys, useSession },
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: passkeys, isPending, refetch } = useListPasskeys();
 

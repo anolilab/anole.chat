@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useSearch } from "@tanstack/react-router";
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2 } from "lucide-react";
@@ -12,8 +12,8 @@ import { useCallback, useEffect } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
 import { useIsHydrated } from "@/hooks/use-hydrated";
+
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { getLocalizedError } from "../../../lib/utils";
 import { Captcha } from "../../captcha/captcha";
@@ -36,6 +36,7 @@ export const MagicLinkForm = ({
     redirectTo: redirectToProperty,
     setIsSubmitting,
 }: MagicLinkFormProperties) => {
+    const { t } = useLingui();
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
@@ -91,7 +92,7 @@ export const MagicLinkForm = ({
                 form.reset();
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }

@@ -4,7 +4,7 @@ import { Toaster } from "@anole/ui/components/sonner";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
-import { i18n } from "@lingui/core";
+import { useLingui } from "@lingui/react/macro";
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts, useRouteContext, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
@@ -56,6 +56,8 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+    ssr: true,
+    component: () => <RootDocument />,
     beforeLoad: async (ctx) => {
         const auth = await ctx.context.queryClient.fetchQuery({
             queryKey: ["session"],
@@ -88,7 +90,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             token,
         };
     },
-    component: () => <RootDocument />,
     head: () => ({
         meta: [
             {
@@ -109,13 +110,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             { rel: "icon", href: "/favicon.ico" },
         ],
     }),
-    ssr: true,
     wrapInSuspense: true,
 });
 
 const RootDocument = () => {
     const context = useRouteContext({ from: Route.id });
     const router = useRouter();
+    const { i18n } = useLingui();
 
     return (
         <html lang={i18n.locale ?? DEFAULT_LOCALE} suppressHydrationWarning>

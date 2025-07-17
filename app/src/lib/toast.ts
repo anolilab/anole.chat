@@ -149,21 +149,23 @@ export const showPromiseToast = <T>(
  */
 export const promptToast = {
     failed: (error: Error, retryFunction?: () => void, id?: string) => {
-        if (id) dismissToast(id);
+        if (id)
+            dismissToast(id);
 
         return showError(error, {
             action:
                 retryFunction && ErrorUtilities.isRetryable(error)
                     ? {
-                          label: "Retry",
-                          onClick: retryFunction,
-                      }
+                        label: "Retry",
+                        onClick: retryFunction,
+                    }
                     : undefined,
         });
     },
 
     improved: (id?: string) => {
-        if (id) dismissToast(id);
+        if (id)
+            dismissToast(id);
 
         return showSuccess("Prompt improved successfully!");
     },
@@ -216,9 +218,9 @@ export const networkToast = {
         showError("Request timed out", {
             action: retryFunction
                 ? {
-                      label: "Retry",
-                      onClick: retryFunction,
-                  }
+                    label: "Retry",
+                    onClick: retryFunction,
+                }
                 : undefined,
         }),
 };

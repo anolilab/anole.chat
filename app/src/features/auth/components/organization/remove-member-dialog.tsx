@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
@@ -28,6 +28,7 @@ export const RemoveMemberDialog = ({ classNames, member, onOpenChange, ...proper
         organization,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { refetch } = useActiveOrganization();
 
@@ -37,7 +38,7 @@ export const RemoveMemberDialog = ({ classNames, member, onOpenChange, ...proper
         { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
+    const roles = [...builtInRoles, ...organization?.customRoles || []];
     const role = roles.find((r) => r.role === member.role);
 
     const [isRemoving, setIsRemoving] = useState(false);
@@ -63,7 +64,7 @@ export const RemoveMemberDialog = ({ classNames, member, onOpenChange, ...proper
             onOpenChange?.(false);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         }

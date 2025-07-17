@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod/v4";
@@ -35,6 +35,7 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
         redirectTo,
         toast,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const { refetch: refetchOrganizations } = useListOrganizations();
@@ -44,7 +45,8 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
             slug: "",
         },
         onSubmit: async ({ value }) => {
-            if (!activeOrganization) return;
+            if (!activeOrganization)
+                return;
 
             try {
                 await authClient.organization.delete({
@@ -65,7 +67,7 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
                 onOpenChange?.(false);
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }
@@ -117,7 +119,11 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel className={classNames?.label}>
-                                        {t`Please type`} <span className="font-bold">{activeOrganization?.slug}</span> {t`to confirm`}
+                                        {t`Please type`}
+                                        {" "}
+                                        <span className="font-bold">{activeOrganization?.slug}</span>
+                                        {" "}
+                                        {t`to confirm`}
                                     </field.FormLabel>
 
                                     <field.FormControl>

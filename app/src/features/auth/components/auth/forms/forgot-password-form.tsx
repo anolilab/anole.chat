@@ -4,15 +4,15 @@ import { Button } from "@anole/ui/components/button";
 import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { BetterFetchOption } from "better-auth/react";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
 import { useIsHydrated } from "@/hooks/use-hydrated";
+
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { getLocalizedError } from "../../../lib/utils";
 import { Captcha } from "../../captcha/captcha";
@@ -26,6 +26,7 @@ export interface ForgotPasswordFormProperties {
 }
 
 export const ForgotPasswordForm = ({ className, classNames, isSubmitting, setIsSubmitting }: ForgotPasswordFormProperties) => {
+    const { t } = useLingui();
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
 
@@ -69,7 +70,7 @@ export const ForgotPasswordForm = ({ className, classNames, isSubmitting, setIsS
                 navigate(`${basePath}/${viewPaths.SIGN_IN}${globalThis.location.search}`);
             } catch (error) {
                 toast({
-                    message: getLocalizedError({ error }),
+                    message: getLocalizedError({ error, t }),
                     variant: "error",
                 });
             }

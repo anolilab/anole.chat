@@ -27,14 +27,15 @@ export function useAuthenticate<TAuthClient extends AuthClient>(options?: Authen
     const { data, error, isPending, refetch } = useSession();
     const sessionData = data as
         | {
-              session: Session;
-              user: User;
-          }
+            session: Session;
+            user: User;
+        }
         | null
         | undefined;
 
     useEffect(() => {
-        if (!enabled || isPending || sessionData) return;
+        if (!enabled || isPending || sessionData)
+            return;
 
         replace(`${basePath}/${viewPaths[authView]}?redirectTo=${globalThis.location.href.replace(globalThis.location.origin, "")}`);
     }, [isPending, sessionData, basePath, viewPaths, replace, authView, enabled]);

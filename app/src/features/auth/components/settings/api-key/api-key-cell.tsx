@@ -3,8 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
-import { i18n } from "@lingui/core";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { KeyRoundIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -25,10 +24,12 @@ export interface APIKeyCellProperties {
 
 export const APIKeyCell = ({ apiKey, className, classNames, refetch }: APIKeyCellProperties) => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const { i18n, t } = useLingui();
 
     // Format expiration date or show "Never expires"
     const formatExpiration = () => {
-        if (!apiKey.expiresAt) return t`Never expires`;
+        if (!apiKey.expiresAt)
+            return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
 

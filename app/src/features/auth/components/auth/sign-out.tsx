@@ -3,9 +3,8 @@
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 export const SignOut = () => {
     const signingOut = useRef(false);
@@ -16,7 +15,8 @@ export const SignOut = () => {
     });
 
     useEffect(() => {
-        if (signingOut.current) return;
+        if (signingOut.current)
+            return;
 
         signingOut.current = true;
 

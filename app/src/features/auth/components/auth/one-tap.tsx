@@ -1,9 +1,8 @@
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useRef } from "react";
 
-import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 interface OneTapProperties {
     redirectTo?: string;
@@ -11,6 +10,7 @@ interface OneTapProperties {
 
 export const OneTap = ({ redirectTo }: OneTapProperties) => {
     const { authClient, toast } = useAuth();
+    const { t } = useLingui();
     const oneTapFetched = useRef(false);
 
     const { onSuccess } = useOnSuccessTransition({ redirectTo });

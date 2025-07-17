@@ -3,7 +3,7 @@
 import { api } from "@anole/convex/api";
 import type { Doc } from "@anole/convex/dataModel";
 import type { ThreadMessageLike } from "@assistant-ui/react";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache";
@@ -70,10 +70,10 @@ export const useThreadContext = () => {
 let debugEffectCounter = 0;
 
 export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
+    const { t } = useLingui();
     const [threads, setThreads] = useState<Map<string, ThreadMessageLike[]>>(() => new Map([["default", []]]));
     const [currentThreadId, setCurrentThreadId] = useState("default");
     const [threadMetadata, setThreadMetadata] = useState<Map<string, ThreadMetadata>>(() => new Map([]));
-    const [lastThreadIds, setLastThreadIds] = useState<{ backend: string[]; local: string[] }>({ backend: [], local: [] });
 
     const navigate = useNavigate({ from: "/chat/$threadId" });
 
@@ -94,14 +94,13 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
             : [];
         const allIds = new Set([...backendThreadIds, ...localThreadIds]);
 
-        setLastThreadIds({ backend: backendThreadIds, local: localThreadIds });
-
         if (allIds.has(currentThreadId)) {
             console.log(`[ThreadProvider][${now}][Effect #${debugEffectCounter}] currentThreadId is valid, no redirect needed.`);
         } else {
             let fallbackId: string = localThreadIds.find((id) => id !== currentThreadId) || backendThreadIds.find((id) => id !== currentThreadId) || "default";
 
-            if (!fallbackId) fallbackId = "default";
+            if (!fallbackId)
+                fallbackId = "default";
 
             let reason = "";
 

@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
 import cn from "@anole/ui/utils/cn";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { Organization } from "better-auth/plugins/organization";
 import { EllipsisIcon, Loader2, LogOutIcon, SettingsIcon } from "lucide-react";
 import { use, useCallback, useState } from "react";
@@ -32,6 +32,7 @@ export const OrganizationCell = ({ className, classNames, organization }: Organi
         toast,
         viewPaths,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: activeOrganization, refetch: refetchActiveOrganization } = useActiveOrganization();
     const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
@@ -59,7 +60,7 @@ export const OrganizationCell = ({ className, classNames, organization }: Organi
             navigate(`${settings?.basePath || basePath}/${viewPaths.ORGANIZATION}`);
         } catch (error) {
             toast({
-                message: getLocalizedError({ error }),
+                message: getLocalizedError({ error, t }),
                 variant: "error",
             });
         } finally {

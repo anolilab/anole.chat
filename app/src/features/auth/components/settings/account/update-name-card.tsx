@@ -1,6 +1,6 @@
 "use client";
 
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
@@ -12,6 +12,7 @@ export const UpdateNameCard = ({ className, classNames, ...properties }: Setting
         hooks: { useSession },
         nameRequired,
     } = useAuth();
+    const { t } = useLingui();
 
     const { data: sessionData } = useSession();
 

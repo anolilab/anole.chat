@@ -1,6 +1,8 @@
 {
     "nxConsole.generateAiAgentRules": true,
-    "i18n-ally.localesPaths": ["src/lib/intl/locales"],
+    "i18n-ally.localesPaths": [
+        "src/lib/intl/locales"
+    ],
     "editor.renderWhitespace": "all",
     "prettier.enable": true,
     "editor.formatOnSave": true,

@@ -1,6 +1,6 @@
 "use client";
 
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { use, useState } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -22,6 +22,7 @@ export const DeleteAccountCard = ({ accounts, className, classNames, isPending, 
     const {
         hooks: { useListAccounts },
     } = useAuth();
+    const { t } = useLingui();
 
     const [showDialog, setShowDialog] = useState(false);
 

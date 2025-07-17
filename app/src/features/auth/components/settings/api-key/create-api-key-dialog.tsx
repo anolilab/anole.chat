@@ -6,8 +6,7 @@ import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 import cn from "@anole/ui/utils/cn";
-import { i18n } from "@lingui/core";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod/v4";
@@ -26,6 +25,7 @@ interface CreateAPIKeyDialogProperties extends ComponentProps<typeof Dialog> {
 
 export const CreateAPIKeyDialog = ({ classNames, onOpenChange, onSuccess, refetch, ...properties }: CreateAPIKeyDialogProperties) => {
     const { apiKey, authClient, toast } = useAuth();
+    const { i18n, t } = useLingui();
 
     const formSchema = z
         .object({
