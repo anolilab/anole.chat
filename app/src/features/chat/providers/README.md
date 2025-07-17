@@ -67,6 +67,9 @@ function ChatInterface({ model, threadId, jwtToken }) {
 }
 ```
 
+### Defensive Thread Guard
+> **Note:** The provider now includes a defensive effect that prevents switching to a thread that does not exist or has been deleted. It fetches all threads from Convex and only allows navigation to valid, non-deleted threads. This prevents UI bugs and navigation errors.
+
 ## Debug Information
 
 The provider logs key events to the console to aid in debugging:
