@@ -214,8 +214,7 @@ const HierarchicalThreadList: FC<
 
             // Find direct children using relationships
             const childRelationships = threadRelationships?.filter((rel: MinimalThreadRelationship) => rel.parentThreadId === threadId);
-            const children = childRelationships
-                .map((rel: MinimalThreadRelationship) => buildHierarchy(rel.threadId, depth + 1))
+            const children = childRelationships?.map((rel: MinimalThreadRelationship) => buildHierarchy(rel.threadId, depth + 1))
                 .filter((node): node is BranchNode => node !== null);
 
             return {
@@ -235,7 +234,7 @@ const HierarchicalThreadList: FC<
             };
         };
 
-        const allThreads = rootThreads.map((thread: any) => buildHierarchy(thread._id)).filter((node): node is BranchNode => node !== null);
+        const allThreads = rootThreads?.map((thread: any) => buildHierarchy(thread._id)).filter((node): node is BranchNode => node !== null);
 
         // If searching, return all threads in a single group
         if (searchQuery.trim()) {
@@ -969,9 +968,9 @@ const HierarchicalThreadList: FC<
 
     const renderThreadNode = (node: BranchNode, dragListeners?: any, isKeyboardSelected?: boolean): JSX.Element => {
         const isActive = currentThreadId === node.threadId;
-        const hasChildren = node.children.length > 0;
+        const hasChildren = node?.children?.length > 0;
         const isExpanded = expandedThreads.has(node.threadId);
-        const isRootThread = node.depth === 0;
+        const isRootThread = node?.depth === 0;
 
         // Check loading states for this thread
         const isPinning = loadingStates.pinning.has(node.threadId);

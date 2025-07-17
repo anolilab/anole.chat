@@ -17,8 +17,6 @@ import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { OrganizationView } from "./organization-view";
 
 const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => {
-    const { t } = useLingui();
-
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
             <CardHeader className={cn("justify-items-center", classNames?.header)}>
