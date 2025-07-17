@@ -130,7 +130,14 @@ export const NavUser = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <Coins className="mr-2 h-4 w-4" />
-                                {user?.credits ?? 0} Credits
+                                {user?.skipCreditChecks ? (
+                                    <span className="flex items-center gap-1">
+                                        <Crown className="h-3 w-3" />
+                                        Unlimited
+                                    </span>
+                                ) : (
+                                    `${user?.credits ?? 0} Credits`
+                                )}
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />

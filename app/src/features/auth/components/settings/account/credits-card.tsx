@@ -1,7 +1,7 @@
 "use client";
 
 import { t } from "@lingui/core/macro";
-import { Coins } from "lucide-react";
+import { Coins, Crown } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useConvexQuery } from "@/lib/convex/use-query";
@@ -17,6 +17,7 @@ export interface CreditsCardProperties {
 
 export const CreditsCard = ({ className, classNames }: CreditsCardProperties) => {
     const credits = useConvexQuery(api.auth.functions.getUserCredits);
+    const creditStatus = useConvexQuery(api.auth.functions.getUserCreditStatus);
 
     return (
         <Card className={cn("", className, classNames?.card)}>
@@ -34,12 +35,23 @@ export const CreditsCard = ({ className, classNames }: CreditsCardProperties) =>
                     <div className="text-2xl font-bold">
                         {credits ?? 0} {t`credits`}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                        {t`1 credit per message`}
+                    <div className="flex items-center gap-2">
+                        <div className="text-sm text-muted-foreground">
+                            {t`1 credit per message`}
+                        </div>
+                        {creditStatus?.skipCreditChecks && (
+                            <Badge variant="default" className="bg-purple-500">
+                                <Crown className="mr-1 h-3 w-3" />
+                                {t`Unlimited`}
+                            </Badge>
+                        )}
                     </div>
                 </div>
                 <div className="mt-4 text-sm text-muted-foreground">
-                    {t`Credits are consumed when you send messages to AI models. Get more credits by upgrading your plan.`}
+                    {creditStatus?.skipCreditChecks 
+                        ? t`You have unlimited messaging enabled. Credits are not consumed when sending messages.`
+                        : t`Credits are consumed when you send messages to AI models. Get more credits by upgrading your plan.`
+                    }
                 </div>
             </CardContent>
         </Card>

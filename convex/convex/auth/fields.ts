@@ -4,6 +4,7 @@ export const extendedUserFields = {
     customerId: v.optional(v.string()),
     credits: v.number().default(100), // Default 100 credits for new users
     email: v.string(),
+    skipCreditChecks: v.optional(v.boolean()), // Skip credit checks for this user (admin/premium)
 };
 
 export const userSettingsFields = {

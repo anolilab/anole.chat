@@ -210,16 +210,28 @@ export const checkUserCredits = authedQuery({
         const user = await context.db.get(userId);
         const currentCredits = user?.credits ?? 0;
         
+        // Skip credit checks if user has skipCreditChecks enabled
+        if (user?.skipCreditChecks) {
+            return {
+                hasSufficientCredits: true,
+                currentCredits,
+                requiredAmount,
+                skipCreditChecks: true,
+            };
+        }
+        
         return {
             hasSufficientCredits: currentCredits >= requiredAmount,
             currentCredits,
             requiredAmount,
+            skipCreditChecks: false,
         };
     },
     returns: v.object({
         hasSufficientCredits: v.boolean(),
         currentCredits: v.number(),
         requiredAmount: v.number(),
+        skipCreditChecks: v.boolean(),
     }),
 });
 
@@ -321,6 +333,19 @@ export const deductCreditsWithTracking = authedMutation({
         
         if (!user) {
             throw new ConvexError("User not found");
+        }
+        
+        // Skip credit deduction if user has skipCreditChecks enabled
+        if (user.skipCreditChecks) {
+            // Still log the transaction but with 0 amount to track usage
+            await context.runMutation(internal.auth.functions.logCreditTransaction, {
+                amount: 0, // No credit deduction
+                description: `${description} (credit check skipped)`,
+                metadata: { ...metadata, skipCreditChecks: true },
+                transactionType: "message_consumption",
+                userId,
+            });
+            return;
         }
         
         const currentCredits = user.credits ?? 0;
@@ -661,3 +686,101 @@ export const getSystemUsageStats = authedQuery({
 });
 
 export const getAIUserPreferences = makeSettingsGetQuery("aiUserPreferences");
+
+// Admin Functions for Credit Management
+export const toggleSkipCreditChecks = authedMutation({
+    args: { 
+        userId: v.id("users"),
+        skipCreditChecks: v.boolean(),
+    },
+    handler: async (context, { userId, skipCreditChecks }) => {
+        // Check if current user is admin
+        const currentUser = await context.db.get(context.user._id);
+        if (currentUser?.role !== "admin") {
+            throw new ConvexError("Admin access required");
+        }
+        
+        // Update the target user's skipCreditChecks setting
+        await context.db.patch(userId, { skipCreditChecks });
+        
+        // Log the admin action
+        await context.runMutation(internal.auth.functions.logCreditTransaction, {
+            amount: 0,
+            description: `Admin ${currentUser.email} ${skipCreditChecks ? 'enabled' : 'disabled'} skip credit checks`,
+            metadata: { 
+                adminAction: true,
+                adminUserId: context.user._id,
+                skipCreditChecks,
+            },
+            transactionType: "manual_adjustment",
+            userId,
+        });
+    },
+    returns: v.null(),
+});
+
+export const getUserCreditStatus = authedQuery({
+    args: { 
+        userId: v.optional(v.id("users")), // If not provided, get current user's status
+    },
+    handler: async (context, { userId }) => {
+        const targetUserId = userId || context.user._id;
+        const user = await context.db.get(targetUserId);
+        
+        if (!user) {
+            throw new ConvexError("User not found");
+        }
+        
+        // Check if current user is admin or the target user
+        const currentUser = await context.db.get(context.user._id);
+        const isAdmin = currentUser?.role === "admin";
+        const isOwnProfile = context.user._id === targetUserId;
+        
+        if (!isAdmin && !isOwnProfile) {
+            throw new ConvexError("Access denied");
+        }
+        
+        return {
+            credits: user.credits ?? 0,
+            skipCreditChecks: user.skipCreditChecks ?? false,
+            canManage: isAdmin, // Only admins can change the setting
+        };
+    },
+    returns: v.object({
+        credits: v.number(),
+        skipCreditChecks: v.boolean(),
+        canManage: v.boolean(),
+    }),
+});
+
+export const getUsersWithSkipCreditChecks = authedQuery({
+    args: {},
+    handler: async (context) => {
+        // Check if current user is admin
+        const currentUser = await context.db.get(context.user._id);
+        if (currentUser?.role !== "admin") {
+            throw new ConvexError("Admin access required");
+        }
+        
+        // Get all users with skipCreditChecks enabled
+        const users = await context.db
+            .query("users")
+            .filter((q) => q.eq(q.field("skipCreditChecks"), true))
+            .collect();
+        
+        return users.map(user => ({
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            credits: user.credits ?? 0,
+            skipCreditChecks: user.skipCreditChecks ?? false,
+        }));
+    },
+    returns: v.array(v.object({
+        _id: v.id("users"),
+        email: v.string(),
+        name: v.optional(v.string()),
+        credits: v.number(),
+        skipCreditChecks: v.boolean(),
+    })),
+});

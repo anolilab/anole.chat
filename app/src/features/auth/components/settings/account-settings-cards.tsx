@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 import type { AuthCardProperties } from "../../types/ui-configuration-types";
 import { AccountsCard } from "./account/accounts-card";
+import { AdminUserManagementCard } from "./account/admin-user-management-card";
+import { CreditManagementCard } from "./account/credit-management-card";
 import { CreditsCard } from "./account/credits-card";
 import { DeleteAccountCard } from "./account/delete-account-card";
 import { TransactionHistoryCard } from "./account/transaction-history-card";
@@ -42,9 +44,16 @@ export const AccountSettingsCards = ({ className, classNames }: AuthCardProperti
 
             <CreditsCard classNames={classNames} />
 
+            <CreditManagementCard classNames={classNames} />
+
             <UsageAnalyticsCard classNames={classNames} />
 
             <TransactionHistoryCard classNames={classNames} />
+
+            {/* Admin-only components */}
+            {sessionData?.user?.role === "admin" && (
+                <AdminUserManagementCard classNames={classNames} />
+            )}
 
             {settings?.fields?.map((field) => {
                 if (field === "image")

@@ -279,7 +279,7 @@ export const streamHttpAction = async (
         requiredAmount: 1,
     });
 
-    if (!creditCheck.hasSufficientCredits) {
+    if (!creditCheck.hasSufficientCredits && !creditCheck.skipCreditChecks) {
         return new Response(
             JSON.stringify({
                 error: "Insufficient credits",
