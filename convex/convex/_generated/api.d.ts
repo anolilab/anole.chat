@@ -17,6 +17,7 @@ import type * as auth_functions from "../auth/functions.js";
 import type * as auth_lib_helper from "../auth/lib/helper.js";
 import type * as auth from "../auth.js";
 import type * as chat_functions from "../chat/functions.js";
+import type * as chat_http from "../chat/http.js";
 import type * as chat_sharing from "../chat/sharing.js";
 import type * as crons from "../crons.js";
 import type * as email_functions from "../email/functions.js";
@@ -63,6 +64,7 @@ declare const fullApi: ApiFromModules<{
   "auth/lib/helper": typeof auth_lib_helper;
   auth: typeof auth;
   "chat/functions": typeof chat_functions;
+  "chat/http": typeof chat_http;
   "chat/sharing": typeof chat_sharing;
   crons: typeof crons;
   "email/functions": typeof email_functions;

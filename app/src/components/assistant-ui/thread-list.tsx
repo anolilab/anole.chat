@@ -48,6 +48,7 @@ import { useThreadContext } from "@/features/chat/components/thread-context";
 import type { DownloadFormat } from "@/lib/download";
 import { handleDownload } from "@/lib/download";
 import { ValidationError } from "@/lib/errors";
+import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 // Type definitions for thread hierarchy
@@ -73,196 +74,6 @@ interface ThreadGroup {
 }
 
 type GroupType = "pinned" | "today" | "last7days" | "lastMonth" | "older" | "archived";
-
-export const ThreadList: FC = () => {
-    const { t } = useLingui();
-    const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
-    const [collapsedGroups, setCollapsedGroups] = useState<Set<GroupType>>(new Set());
-    const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [showSearch, setShowSearch] = useState(false);
-    const [searchType, setSearchType] = useState<"threads" | "messages">("threads");
-    const [loadingStates, setLoadingStates] = useState<{
-        archiving: Set<string>;
-        branching: Set<string>;
-        deleting: Set<string>;
-        downloading: Set<string>;
-        pinning: Set<string>;
-        reordering: boolean;
-    }>({
-        archiving: new Set(),
-        branching: new Set(),
-        deleting: new Set(),
-        downloading: new Set(),
-        pinning: new Set(),
-        reordering: false,
-    });
-
-    // Search threads when there's a search query and search type is "threads"
-    const threadSearchResults = useQuery(
-        api.chat.functions.searchThreads,
-        searchType === "threads"
-            ? {
-                paginationOpts: { cursor: null, numItems: 100 },
-                searchQuery: searchQuery.trim(),
-            }
-            : "skip",
-    );
-
-    // Search messages when there's a search query and search type is "messages"
-    const messageSearchResults = useQuery(
-        api.chat.functions.searchMessages,
-        searchType === "messages"
-            ? {
-                paginationOpts: { cursor: null, numItems: 100 },
-                searchQuery: searchQuery.trim(),
-            }
-            : "skip",
-    );
-
-    // Check if search is loading
-    const isSearchLoading = searchQuery.trim() && ((searchType === "threads" && !threadSearchResults) || (searchType === "messages" && !messageSearchResults));
-
-    const toggleExpanded = (threadId: string) => {
-        setExpandedThreads((previous) => {
-            const next = new Set(previous);
-
-            if (next.has(threadId)) {
-                next.delete(threadId);
-            } else {
-                next.add(threadId);
-            }
-
-            return next;
-        });
-    };
-
-    const toggleGroupCollapsed = (groupType: GroupType) => {
-        setCollapsedGroups((previous) => {
-            const next = new Set(previous);
-
-            if (next.has(groupType)) {
-                next.delete(groupType);
-            } else {
-                next.add(groupType);
-            }
-
-            return next;
-        });
-    };
-
-    return (
-        <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5 pl-2 text-white">
-            <div className="flex w-full items-center gap-2">
-                <ThreadListNew />
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
-                                onClick={() => {
-                                    setShowSearch(!showSearch);
-                                }}
-                                size="sm"
-                                variant="icon"
-                            >
-                                <Search className="h-4 w-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{t`Search threads (Ctrl+F)`}</TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
-                                onClick={() => {
-                                    setShowKeyboardHelp(!showKeyboardHelp);
-                                }}
-                                size="sm"
-                                variant="icon"
-                            >
-                                <HelpCircle className="h-4 w-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{t`Keyboard shortcuts (?)`}</TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-            {showSearch && (
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                        <Button
-                            className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
-                            onClick={() => {
-                                setSearchType("threads");
-                            }}
-                            size="sm"
-                            variant={searchType === "threads" ? "default" : "outline"}
-                        >
-                            {t`Threads`}
-                        </Button>
-                        <Button
-                            className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
-                            onClick={() => {
-                                setSearchType("messages");
-                            }}
-                            size="sm"
-                            variant={searchType === "messages" ? "default" : "outline"}
-                        >
-                            {t`Messages`}
-                        </Button>
-                    </div>
-                    <div className="relative">
-                        <Input
-                            autoFocus
-                            className="border-white/20 bg-white/5 pr-8 text-white placeholder:text-white/60"
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                            }}
-                            placeholder={searchType === "threads" ? t`Search thread titles...` : t`Search message content...`}
-                            value={searchQuery}
-                        />
-                        {searchQuery && (
-                            <Button
-                                className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 p-0"
-                                onClick={() => {
-                                    setSearchQuery("");
-                                }}
-                                size="sm"
-                                variant="icon"
-                            >
-                                <X className="h-3 w-3" />
-                            </Button>
-                        )}
-                        {isSearchLoading && (
-                            <div className="absolute top-1/2 right-8 -translate-y-1/2">
-                                <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-            <HierarchicalThreadList
-                collapsedGroups={collapsedGroups}
-                expandedThreads={expandedThreads}
-                isSearchLoading={isSearchLoading}
-                loadingStates={loadingStates}
-                messageSearchResults={messageSearchResults}
-                searchQuery={searchQuery}
-                searchType={searchType}
-                setLoadingStates={setLoadingStates}
-                setShowKeyboardHelp={setShowKeyboardHelp}
-                setShowSearch={setShowSearch}
-                showKeyboardHelp={showKeyboardHelp}
-                threadSearchResults={threadSearchResults}
-                toggleExpanded={toggleExpanded}
-                toggleGroupCollapsed={toggleGroupCollapsed}
-            />
-        </ThreadListPrimitive.Root>
-    );
-};
 
 const ThreadListNew: FC = () => {
     const { t } = useLingui();
@@ -331,7 +142,7 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
     toggleGroupCollapsed,
 }) => {
     const { t } = useLingui();
-    const { createBranch, currentThreadId, deleteBranch, threads } = useThreadContext();
+    const { createBranch, currentThreadId, deleteBranch, setCurrentThreadId, threads } = useThreadContext();
     const navigate = useNavigate();
     const convex = useConvex();
 
@@ -341,24 +152,24 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
 
     // Get all threads to build the hierarchy
     const threadsData = useQuery(api.chat.functions.getThreads, { paginationOpts: { cursor: null, numItems: 100 } });
-
-    // Get thread relationships to build hierarchy
     const threadRelationships = useQuery(api.chat.functions.getAllThreadRelationships);
-
-    // Get pinned threads
     const pinnedThreads = useQuery(api.chat.functions.getPinnedThreads);
-
-    // Get thread orders
     const threadOrders = useQuery(api.chat.functions.getThreadOrders);
-
-    // Pin/unpin mutations
     const pinThreadMutation = useMutation(api.chat.functions.pinThread);
     const unpinThreadMutation = useMutation(api.chat.functions.unpinThread);
-
     const updateThreadAction = useAction(api.chat.functions.updateThread);
-
-    // Thread order mutation
     const updateThreadOrderMutation = useMutation(api.chat.functions.updateThreadOrder);
+    const undoDeleteThreadMutation = useMutation(api.chat.functions.undoDeleteThread);
+
+    const handleUndoDeleteThread = useCallback(
+        async (threadId) => {
+            try {
+                await undoDeleteThreadMutation({ threadId });
+                setCurrentThreadId(threadId);
+            } catch {}
+        },
+        [undoDeleteThreadMutation, setCurrentThreadId],
+    );
 
     // Group threads by time periods
     const threadGroups = useMemo(() => {
@@ -390,8 +201,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
         const buildHierarchy = (threadId: string, depth: number = 0): BranchNode | null => {
             const thread = threadMap.get(threadId);
 
-            if (!thread)
+            if (!thread) {
                 return null;
+            }
 
             // Find direct children using relationships
             const childRelationships = threadRelationships.filter((rel: any) => rel.parentThreadId === threadId);
@@ -638,147 +450,169 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
         [convex, setLoadingStates],
     );
 
-    const handleCreateBranch = async (threadId: string) => {
-        setLoadingStates((previous) => {
-            return {
-                ...previous,
-                branching: new Set(previous.branching).add(threadId),
-            };
-        });
+    const handleCreateBranch = useCallback(
+        async (threadId: string, branchName?: string) => {
+            setLoadingStates((previous) => {
+                return {
+                    ...previous,
+                    branching: new Set(previous.branching).add(threadId),
+                };
+            });
 
-        try {
-            const currentMessages = threads.get(threadId) || [];
+            try {
+                const currentMessages = threads.get(threadId) || [];
 
-            if (currentMessages.length > 0) {
-                await createBranch(threadId, currentMessages.length - 1, "New Branch");
+                await createBranch(threadId, currentMessages.length === 0 ? 0 : currentMessages.length - 1, branchName);
+            } catch (error) {
+                console.error("Failed to create branch:", error);
+                showError("Failed to create branch");
+            } finally {
+                setLoadingStates((previous) => {
+                    const newBranching = new Set(previous.branching);
+
+                    newBranching.delete(threadId);
+
+                    return {
+                        ...previous,
+                        branching: newBranching,
+                    };
+                });
             }
-        } catch (error) {
-            console.error("Failed to create branch:", error);
-        } finally {
-            setLoadingStates((previous) => {
-                const newBranching = new Set(previous.branching);
+        },
+        [setLoadingStates, createBranch, threads],
+    );
 
-                newBranching.delete(threadId);
-
+    const handleDeleteThread = useCallback(
+        async (threadId: string) => {
+            setLoadingStates((previous: typeof loadingStates) => {
                 return {
                     ...previous,
-                    branching: newBranching,
+                    deleting: new Set(previous.deleting).add(threadId),
                 };
             });
-        }
-    };
 
-    const handleDeleteThread = async (threadId: string) => {
-        setLoadingStates((previous) => {
-            return {
-                ...previous,
-                deleting: new Set(previous.deleting).add(threadId),
-            };
-        });
+            try {
+                await deleteBranch(threadId);
+            } finally {
+                setLoadingStates((previous: typeof loadingStates) => {
+                    const newDeleting = new Set(previous.deleting);
 
-        try {
-            await deleteBranch(threadId);
-        } catch (error) {
-            console.error("Failed to delete thread:", error);
-        } finally {
+                    newDeleting.delete(threadId);
+
+                    return {
+                        ...previous,
+                        deleting: newDeleting,
+                    };
+                });
+            }
+
+            showSuccess(
+                <>
+                    Thread deleted.
+                    {" "}
+                    <button onClick={() => handleUndoDeleteThread(threadId)}>Undo</button>
+                </>,
+            );
+        },
+        [currentThreadId, setLoadingStates, handleUndoDeleteThread],
+    );
+
+    const handlePinThread = useCallback(
+        async (threadId: string) => {
             setLoadingStates((previous) => {
-                const newDeleting = new Set(previous.deleting);
-
-                newDeleting.delete(threadId);
-
                 return {
                     ...previous,
-                    deleting: newDeleting,
+                    pinning: new Set(previous.pinning).add(threadId),
                 };
             });
-        }
-    };
 
-    const handlePinThread = async (threadId: string) => {
-        setLoadingStates((previous) => {
-            return {
-                ...previous,
-                pinning: new Set(previous.pinning).add(threadId),
-            };
-        });
+            try {
+                await pinThreadMutation({
+                    threadId,
+                });
+            } catch (error) {
+                console.error("Failed to pin thread:", error);
+                showError(t`Failed to pin thread`);
+            } finally {
+                setLoadingStates((previous) => {
+                    const newPinning = new Set(previous.pinning);
 
-        try {
-            await pinThreadMutation({
-                threadId,
-            });
-        } catch (error) {
-            console.error("Failed to pin thread:", error);
-        } finally {
+                    newPinning.delete(threadId);
+
+                    return {
+                        ...previous,
+                        pinning: newPinning,
+                    };
+                });
+            }
+        },
+        [pinThreadMutation, setLoadingStates],
+    );
+
+    const handleUnpinThread = useCallback(
+        async (threadId: string) => {
             setLoadingStates((previous) => {
-                const newPinning = new Set(previous.pinning);
-
-                newPinning.delete(threadId);
-
                 return {
                     ...previous,
-                    pinning: newPinning,
+                    pinning: new Set(previous.pinning).add(threadId),
                 };
             });
-        }
-    };
 
-    const handleUnpinThread = async (threadId: string) => {
-        setLoadingStates((previous) => {
-            return {
-                ...previous,
-                pinning: new Set(previous.pinning).add(threadId),
-            };
-        });
+            try {
+                await unpinThreadMutation({
+                    threadId,
+                });
+            } catch (error) {
+                console.error("Failed to unpin thread:", error);
+            } finally {
+                setLoadingStates((previous) => {
+                    const newPinning = new Set(previous.pinning);
 
-        try {
-            await unpinThreadMutation({
-                threadId,
-            });
-        } catch (error) {
-            console.error("Failed to unpin thread:", error);
-        } finally {
+                    newPinning.delete(threadId);
+
+                    return {
+                        ...previous,
+                        pinning: newPinning,
+                    };
+                });
+            }
+        },
+        [setLoadingStates, unpinThreadMutation],
+    );
+
+    const updateThread = useCallback(
+        async (threadId: string, model: string, status: "archived" | "active") => {
             setLoadingStates((previous) => {
-                const newPinning = new Set(previous.pinning);
-
-                newPinning.delete(threadId);
-
                 return {
                     ...previous,
-                    pinning: newPinning,
+                    archiving: new Set(previous.archiving).add(threadId),
                 };
             });
-        }
-    };
 
-    const updateThread = async (threadId: string, model: string, status: "archived" | "active") => {
-        setLoadingStates((previous) => {
-            return {
-                ...previous,
-                archiving: new Set(previous.archiving).add(threadId),
-            };
-        });
+            try {
+                await updateThreadAction({
+                    model,
+                    status,
+                    threadId,
+                });
+            } catch (error) {
+                console.error(`Failed to ${status === "archived" ? "archive" : "unarchive"} thread:`, error);
+                showError(t`Failed to ${status === "archived" ? "archive" : "unarchive"} thread`);
+            } finally {
+                setLoadingStates((previous) => {
+                    const newArchiving = new Set(previous.archiving);
 
-        try {
-            await updateThreadAction({
-                model,
-                status,
-                threadId,
-            });
-        } catch (error) {
-            console.error(`Failed to ${status === "archived" ? "archive" : "unarchive"} thread:`, error);
-        } finally {
-            setLoadingStates((previous) => {
-                const newArchiving = new Set(previous.archiving);
+                    newArchiving.delete(threadId);
 
-                newArchiving.delete(threadId);
-
-                return {
-                    ...previous,
-                    archiving: newArchiving,
-                };
-            });
-        }
-    };
+                    return {
+                        ...previous,
+                        archiving: newArchiving,
+                    };
+                });
+            }
+        },
+        [setLoadingStates, updateThreadAction],
+    );
 
     // Drag and drop sensors
     const sensors = useSensors(
@@ -789,67 +623,71 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
     );
 
     // Handle drag end - implement thread reordering
-    const handleDragEnd = async (event: any) => {
-        const { active, over } = event;
+    const handleDragEnd = useCallback(
+        async (event: any) => {
+            const { active, over } = event;
 
-        if (!over || active.id === over.id)
-            return;
-
-        setLoadingStates((previous) => {
-            return { ...previous, reordering: true };
-        });
-
-        try {
-            // Find which group the active and over items belong to
-            let activeGroup: ThreadGroup | null = null;
-            let overGroup: ThreadGroup | null = null;
-            let activeIndex = -1;
-            let overIndex = -1;
-
-            for (const group of threadGroups) {
-                const activeThreadIndex = group.threads.findIndex((t) => t.threadId === active.id);
-                const overThreadIndex = group.threads.findIndex((t) => t.threadId === over.id);
-
-                if (activeThreadIndex !== -1) {
-                    activeGroup = group;
-                    activeIndex = activeThreadIndex;
-                }
-
-                if (overThreadIndex !== -1) {
-                    overGroup = group;
-                    overIndex = overThreadIndex;
-                }
-            }
-
-            // Only allow reordering within the same group for now
-            if (!activeGroup || !overGroup || activeGroup.title !== overGroup.title) {
-                console.log("Cross-group reordering not supported yet");
-
+            if (!over || active.id === over.id)
                 return;
-            }
 
-            // Reorder threads within the group
-            const reorderedThreads = arrayMove(activeGroup.threads, activeIndex, overIndex);
-
-            // Update the order in the database
-            const threadOrders = reorderedThreads.map((thread, index) => {
-                return {
-                    order: index,
-                    threadId: thread.threadId,
-                };
-            });
-
-            await updateThreadOrderMutation({
-                threadOrders,
-            });
-        } catch (error) {
-            console.error("Failed to reorder threads:", error);
-        } finally {
             setLoadingStates((previous) => {
-                return { ...previous, reordering: false };
+                return { ...previous, reordering: true };
             });
-        }
-    };
+
+            try {
+                // Find which group the active and over items belong to
+                let activeGroup: ThreadGroup | null = null;
+                let overGroup: ThreadGroup | null = null;
+                let activeIndex = -1;
+                let overIndex = -1;
+
+                for (const group of threadGroups) {
+                    const activeThreadIndex = group.threads.findIndex((t) => t.threadId === active.id);
+                    const overThreadIndex = group.threads.findIndex((t) => t.threadId === over.id);
+
+                    if (activeThreadIndex !== -1) {
+                        activeGroup = group;
+                        activeIndex = activeThreadIndex;
+                    }
+
+                    if (overThreadIndex !== -1) {
+                        overGroup = group;
+                        overIndex = overThreadIndex;
+                    }
+                }
+
+                // Only allow reordering within the same group for now
+                if (!activeGroup || !overGroup || activeGroup.title !== overGroup.title) {
+                    showError(t`Cross-group reordering not supported yet`);
+
+                    return;
+                }
+
+                // Reorder threads within the group
+                const reorderedThreads = arrayMove(activeGroup.threads, activeIndex, overIndex);
+
+                // Update the order in the database
+                const threadOrders = reorderedThreads.map((thread, index) => {
+                    return {
+                        order: index,
+                        threadId: thread.threadId,
+                    };
+                });
+
+                await updateThreadOrderMutation({
+                    threadOrders,
+                });
+            } catch (error) {
+                console.error("Failed to reorder threads:", error);
+                showError(t`Failed to reorder threads`);
+            } finally {
+                setLoadingStates((previous) => {
+                    return { ...previous, reordering: false };
+                });
+            }
+        },
+        [setLoadingStates, updateThreadOrderMutation],
+    );
 
     // Keyboard shortcuts handlers
     const handleKeyDown = useCallback(
@@ -1225,8 +1063,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
                                         onClick={(e) => {
                                             e.stopPropagation();
 
-                                            if (isBranching)
+                                            if (isBranching) {
                                                 return; // Prevent multiple clicks
+                                            }
 
                                             handleCreateBranch(node.threadId);
                                         }}
@@ -1300,7 +1139,6 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
                                 </TooltipContent>
                             </Tooltip>
 
-                            {/* Delete button */}
                             <AlertDialog>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -1332,8 +1170,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
                                         <AlertDialogAction
                                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                             onClick={() => {
-                                                if (isDeleting)
+                                                if (isDeleting) {
                                                     return; // Prevent multiple clicks
+                                                }
 
                                                 handleDeleteThread(node.threadId);
                                             }}
@@ -1360,14 +1199,17 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
 
                 {hasChildren && isExpanded && (
                     <div className="relative">
-                        <div
-                            className="bg-border absolute w-px"
-                            style={{
+                        {/**
+                          * TODO: find a good way to show the children threads
+                          * &lt;div
+                          * className="bg-border absolute w-px"
+                          * style={{
                                 height: `${node.children.length * 44}px`,
                                 left: `${node.depth * 20 + 10}px`,
                                 top: "0px",
                             }}
                         />
+                          */}
                         {node.children.map((child, childIndex) => (
                             <SortableThreadItem index={childIndex} key={child.threadId} node={child} />
                         ))}
@@ -1644,3 +1486,195 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties> = ({
         </div>
     );
 };
+
+const ThreadList: FC = () => {
+    const { t } = useLingui();
+    const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
+    const [collapsedGroups, setCollapsedGroups] = useState<Set<GroupType>>(new Set());
+    const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showSearch, setShowSearch] = useState(false);
+    const [searchType, setSearchType] = useState<"threads" | "messages">("threads");
+    const [loadingStates, setLoadingStates] = useState<{
+        archiving: Set<string>;
+        branching: Set<string>;
+        deleting: Set<string>;
+        downloading: Set<string>;
+        pinning: Set<string>;
+        reordering: boolean;
+    }>({
+        archiving: new Set(),
+        branching: new Set(),
+        deleting: new Set(),
+        downloading: new Set(),
+        pinning: new Set(),
+        reordering: false,
+    });
+
+    // Search threads when there's a search query and search type is "threads"
+    const threadSearchResults = useQuery(
+        api.chat.functions.searchThreads,
+        searchType === "threads"
+            ? {
+                paginationOpts: { cursor: null, numItems: 100 },
+                searchQuery: searchQuery.trim(),
+            }
+            : "skip",
+    );
+
+    // Search messages when there's a search query and search type is "messages"
+    const messageSearchResults = useQuery(
+        api.chat.functions.searchMessages,
+        searchType === "messages"
+            ? {
+                paginationOpts: { cursor: null, numItems: 100 },
+                searchQuery: searchQuery.trim(),
+            }
+            : "skip",
+    );
+
+    // Check if search is loading
+    const isSearchLoading = searchQuery.trim() && ((searchType === "threads" && !threadSearchResults) || (searchType === "messages" && !messageSearchResults));
+
+    const toggleExpanded = (threadId: string) => {
+        setExpandedThreads((previous) => {
+            const next = new Set(previous);
+
+            if (next.has(threadId)) {
+                next.delete(threadId);
+            } else {
+                next.add(threadId);
+            }
+
+            return next;
+        });
+    };
+
+    const toggleGroupCollapsed = (groupType: GroupType) => {
+        setCollapsedGroups((previous) => {
+            const next = new Set(previous);
+
+            if (next.has(groupType)) {
+                next.delete(groupType);
+            } else {
+                next.add(groupType);
+            }
+
+            return next;
+        });
+    };
+
+    return (
+        <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5 pl-2 text-white">
+            <div className="flex w-full items-center gap-2">
+                <ThreadListNew />
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
+                                onClick={() => {
+                                    setShowSearch(!showSearch);
+                                }}
+                                size="sm"
+                                variant="icon"
+                            >
+                                <Search className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t`Search threads (Ctrl+F)`}</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                className="h-8 w-8 p-0 text-white hover:bg-white/10 hover:text-white"
+                                onClick={() => {
+                                    setShowKeyboardHelp(!showKeyboardHelp);
+                                }}
+                                size="sm"
+                                variant="icon"
+                            >
+                                <HelpCircle className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t`Keyboard shortcuts (?)`}</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+            {showSearch && (
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <Button
+                            className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
+                            onClick={() => {
+                                setSearchType("threads");
+                            }}
+                            size="sm"
+                            variant={searchType === "threads" ? "default" : "outline"}
+                        >
+                            {t`Threads`}
+                        </Button>
+                        <Button
+                            className="border-white/20 text-xs text-white hover:bg-white/10 data-[active]:bg-white/20"
+                            onClick={() => {
+                                setSearchType("messages");
+                            }}
+                            size="sm"
+                            variant={searchType === "messages" ? "default" : "outline"}
+                        >
+                            {t`Messages`}
+                        </Button>
+                    </div>
+                    <div className="relative">
+                        <Input
+                            autoFocus
+                            className="border-white/20 bg-white/5 pr-8 text-white placeholder:text-white/60"
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                            }}
+                            placeholder={searchType === "threads" ? t`Search thread titles...` : t`Search message content...`}
+                            value={searchQuery}
+                        />
+                        {searchQuery && (
+                            <Button
+                                className="absolute top-1/2 right-1 h-6 w-6 -translate-y-1/2 p-0"
+                                onClick={() => {
+                                    setSearchQuery("");
+                                }}
+                                size="sm"
+                                variant="icon"
+                            >
+                                <X className="h-3 w-3" />
+                            </Button>
+                        )}
+                        {isSearchLoading && (
+                            <div className="absolute top-1/2 right-8 -translate-y-1/2">
+                                <Loader2 className="text-muted-foreground h-3 w-3 animate-spin" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+            <HierarchicalThreadList
+                collapsedGroups={collapsedGroups}
+                expandedThreads={expandedThreads}
+                isSearchLoading={isSearchLoading}
+                loadingStates={loadingStates}
+                messageSearchResults={messageSearchResults}
+                searchQuery={searchQuery}
+                searchType={searchType}
+                setLoadingStates={setLoadingStates}
+                setShowKeyboardHelp={setShowKeyboardHelp}
+                setShowSearch={setShowSearch}
+                showKeyboardHelp={showKeyboardHelp}
+                threadSearchResults={threadSearchResults}
+                toggleExpanded={toggleExpanded}
+                toggleGroupCollapsed={toggleGroupCollapsed}
+            />
+        </ThreadListPrimitive.Root>
+    );
+};
+
+export default ThreadList;

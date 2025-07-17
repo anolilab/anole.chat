@@ -6,8 +6,8 @@ import { BetterAuth, convexAdapter } from "@convex-dev/better-auth";
 import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import {
-    anonymous,
     admin,
+    anonymous,
     emailOTP,
     magicLink,
     organization,

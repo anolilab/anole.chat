@@ -1,13 +1,10 @@
 import type { MessageDoc, ThreadDoc } from "@convex-dev/agent";
-import { getFile } from "@convex-dev/agent";
 import type { PaginationResult } from "convex/server";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
-import z from "zod";
+import z from "zod/v4";
 
 import { components, internal } from "../_generated/api";
-import type { Id } from "../_generated/dataModel";
-import type { ActionCtx as ActionContext } from "../_generated/server";
 import {
     internalAction,
     internalMutation,
@@ -22,42 +19,37 @@ import threadTitlePrompt from "./prompts/thread-title-prompt.txt";
 
 export const createThread = authedMutation({
     args: {
-        branchName: v.optional(v.string()),
-        branchPoint: v.optional(v.number()),
         model: v.string(),
-        parentThreadId: v.optional(v.string()),
+        title: v.string(),
     },
-    handler: async (context, arguments_) => {
+    handler: async (context, { model, title }) => {
         const userId = context.user._id;
 
-        const agent = getAgent(arguments_.model as AgentModel);
-
-        // Create the thread using the standard agent API
-        const createOptions = {
-            agentName: "chat",
-            title: arguments_.branchName || undefined,
-            userId,
-        };
+        const agent = getAgent(model as AgentModel);
 
         const { threadId }: { threadId: string } = await agent.createThread(
             context,
-            createOptions,
+            {
+                agentName: "chat",
+                title,
+                userId,
+            },
         );
 
-        // TODO: Fix upstream - @convex-dev/agent createThread doesn't support parentThreadIds
-        // The agent's createThread function signature doesn't include parentThreadIds parameter
-        // Once this is added upstream, we can pass parentThreadIds directly in createOptions above
-        // Create thread relationship if this is a branch
-        if (arguments_.parentThreadId) {
-            await context.runMutation(
-                internal.chat.functions.createThreadRelationship,
-                {
-                    branchPoint: arguments_.branchPoint || 0,
-                    branchType: "branch",
-                    parentThreadId: arguments_.parentThreadId,
-                    threadId,
-                },
-            );
+        // Insert into threads table if not already present
+        const existing = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!existing) {
+            await context.db.insert("threads", {
+                createdBy: userId,
+                model,
+                threadId,
+                updatedAt: Date.now(),
+                userId,
+            });
         }
 
         return threadId;
@@ -205,7 +197,21 @@ export const getThreads = authedQuery({
             { paginationOpts, userId },
         );
 
-        return results;
+        const appThreads = await context.db
+            .query("threads")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .collect();
+
+        return {
+            ...results,
+            page: results.page.filter(
+                (t) =>
+                    !appThreads.some(
+                        (appThread) =>
+                            appThread.threadId === t._id && appThread.deleted,
+                    ),
+            ),
+        };
     },
 });
 
@@ -213,9 +219,10 @@ export const getThread = authedQuery({
     args: {
         threadId: v.string(),
     },
-    handler: async (context, { threadId }) => {
-        return await context.runQuery(components.agent.threads.getThread, { threadId });
-    },
+    handler: async (context, { threadId }) =>
+        await context.runQuery(components.agent.threads.getThread, {
+            threadId,
+        }),
 });
 
 export const updateThread = authedAction({
@@ -259,95 +266,6 @@ export const updateThread = authedAction({
         return thread.threadId;
     },
 });
-
-export const streamHttpAction = async (
-    context: ActionContext,
-    request: Request,
-) => {
-    const { fileIds, model, prompt, threadId } = (await request.json()) as {
-        fileIds?: string[];
-        model: string;
-        prompt?: string;
-        threadId?: string;
-    };
-
-    const user = await context.runQuery(internal.auth.functions.getCurrentUser);
-    const userId = user._id;
-
-    const agent = getAgent(model as AgentModel);
-
-    const { thread } = threadId
-        ? await agent.continueThread(context, { threadId, userId })
-        : await agent.createThread(context, { userId });
-
-    // Create message content with file support
-    const messageContent: any[] = [];
-
-    if (fileIds) {
-        try {
-            for (const fileId of fileIds) {
-                // @ts-ignore - Ignoring TypeScript errors for getFile function
-                const { filePart, imagePart } = await getFile(
-                    context,
-                    components.agent,
-                    fileId,
-                );
-
-                // Add file content to message (image takes precedence over file)
-                if (imagePart && Object.keys(imagePart).length > 0) {
-                    messageContent.push(imagePart);
-                } else if (filePart && Object.keys(filePart).length > 0) {
-                    messageContent.push(filePart);
-                }
-            }
-        } catch (error) {
-            console.error("Error processing file:", error);
-            // TODO: Show a message to the user that the file is not supported
-            // Continue without file if there's an error
-        }
-    }
-
-    // Always ensure we have text content (never empty)
-    const textContent = prompt?.trim() || "Please analyze the uploaded file.";
-
-    messageContent.push({ text: textContent, type: "text" });
-
-    const { messageId } = await agent.saveMessage(context, {
-        message: {
-            content: messageContent,
-            role: "user",
-        },
-        // This will track the usage of the file, so we can delete old ones
-        metadata: fileIds && fileIds.length > 0 ? { fileIds } : undefined,
-        threadId: thread.threadId,
-    });
-
-    await context.scheduler.runAfter(
-        0,
-        internal.chat.functions.createTitleChat,
-        {
-            prompt: prompt ?? " ", // TODO: add prompt based on image
-            threadId: thread.threadId,
-        },
-    );
-
-    await context.scheduler.runAfter(
-        0,
-        internal.chat.functions.createSummarizeChat,
-        {
-            threadId: thread.threadId,
-            userId,
-        },
-    );
-
-    const result = await thread.streamText({ promptMessageId: messageId });
-
-    return result.toDataStreamResponse({
-        sendReasoning: true,
-        sendSources: true,
-        sendUsage: true,
-    });
-};
 
 export const createTitleChat = internalAction({
     args: { prompt: v.string(), threadId: v.string() },
@@ -513,11 +431,30 @@ export const deleteThreadRelationship = internalMutation({
     },
 });
 
-// Update deleteThread to also clean up relationships
-export const deleteThreadWithRelationships = authedMutation({
+export const deleteAppThread = internalMutation({
+    args: {
+        threadId: v.string(),
+    },
+    handler: async (context, { threadId }) => {
+        const threads = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (threads) {
+            await context.db.delete(threads._id);
+        }
+    },
+});
+
+// Update deleteThread to also clean up relationships and threads options
+export const deleteThread = authedMutation({
     args: { threadId: v.string() },
     handler: async (context, { threadId }) => {
-        // Delete the thread relationship
+        await context.runMutation(internal.chat.functions.deleteAppThread, {
+            threadId,
+        });
+
         await context.runMutation(
             internal.chat.functions.deleteThreadRelationship,
             {
@@ -571,38 +508,25 @@ export const pinThread = authedMutation({
     args: {
         threadId: v.string(),
     },
-    handler: async (context, arguments_) => {
+    handler: async (context, { threadId }) => {
         const userId = context.user._id;
-
-        // Check if thread is already pinned
-        const existingPin = await context.db
-            .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) =>
-                q
-                    .eq("userId", userId as Id<"users">)
-                    .eq("threadId", arguments_.threadId))
+        // Find the user's thread record
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
             .unique();
 
-        if (existingPin) {
-            throw new ConvexError("Thread is already pinned");
-        }
-
-        // Verify thread exists
-        const threadExists = await context.runQuery(
-            components.agent.threads.getThread,
-            {
-                threadId: arguments_.threadId,
-            },
-        );
-
-        if (!threadExists) {
+        if (!thread) {
             throw new ConvexError("Thread not found");
         }
 
-        // Pin the thread
-        await context.db.insert("pinnedThreads", {
+        if (thread.userId && thread.userId !== userId) {
+            throw new ConvexError("Cannot pin thread for another user");
+        }
+
+        // Pin the thread for this user
+        await context.db.patch(thread._id, {
             pinnedAt: Date.now(),
-            threadId: arguments_.threadId,
             userId,
         });
 
@@ -614,24 +538,23 @@ export const unpinThread = authedMutation({
     args: {
         threadId: v.string(),
     },
-    handler: async (context, arguments_) => {
+    handler: async (context, { threadId }) => {
         const userId = context.user._id;
-
-        // Find the pinned thread record
-        const pinnedThread = await context.db
-            .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) =>
-                q
-                    .eq("userId", userId as Id<"users">)
-                    .eq("threadId", arguments_.threadId))
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
             .unique();
 
-        if (!pinnedThread) {
-            throw new ConvexError("Thread is not pinned");
+        if (!thread)
+            throw new ConvexError("Thread not found");
+
+        if (thread.userId !== userId) {
+            throw new ConvexError("Thread is not pinned by this user");
         }
 
-        // Unpin the thread
-        await context.db.delete(pinnedThread._id);
+        await context.db.patch(thread._id, {
+            pinnedAt: undefined,
+        });
 
         return { success: true };
     },
@@ -639,39 +562,20 @@ export const unpinThread = authedMutation({
 
 export const getPinnedThreads = authedQuery({
     args: {},
-    handler: async (context, arguments_) => {
+    handler: async (context) => {
         const userId = context.user._id;
-
-        // Get all pinned threads for the user
         const pinnedThreads = await context.db
-            .query("pinnedThreads")
-            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
+            .query("threads")
+            .withIndex("by_thread", (q) => q)
             .collect();
 
-        return pinnedThreads;
+        // Filter for threads pinned by this user and not deleted
+        return pinnedThreads.filter(
+            (thread) =>
+                thread.userId === userId && thread.pinnedAt && !thread.deleted,
+        );
     },
     returns: v.array(v.any()),
-});
-
-export const isThreadPinned = authedQuery({
-    args: {
-        threadId: v.string(),
-    },
-    handler: async (context, arguments_) => {
-        const userId = context.user._id;
-
-        // Check if thread is pinned
-        const pinnedThread = await context.db
-            .query("pinnedThreads")
-            .withIndex("by_user_and_thread", (q) =>
-                q
-                    .eq("userId", userId as Id<"users">)
-                    .eq("threadId", arguments_.threadId))
-            .unique();
-
-        return pinnedThread !== null;
-    },
-    returns: v.boolean(),
 });
 
 export const updateThreadOrder = authedMutation({
@@ -683,34 +587,19 @@ export const updateThreadOrder = authedMutation({
             }),
         ),
     },
-    handler: async (context, arguments_) => {
+    handler: async (context, { threadOrders }) => {
         const userId = context.user._id;
-        const now = Date.now();
 
-        // Update or insert thread orders
-        for (const { order, threadId } of arguments_.threadOrders) {
-            // Check if order already exists
-            const existingOrder = await context.db
-                .query("threadOrders")
-                .withIndex("by_user_and_thread", (q) =>
-                    q
-                        .eq("userId", userId as Id<"users">)
-                        .eq("threadId", threadId))
+        for (const { order, threadId } of threadOrders) {
+            const thread = await context.db
+                .query("threads")
+                .withIndex("by_thread", (q) => q.eq("threadId", threadId))
                 .unique();
 
-            if (existingOrder) {
-                // Update existing order
-                await context.db.patch(existingOrder._id, {
+            if (thread && thread.userId === userId) {
+                await context.db.patch(thread._id, {
                     order,
-                    updatedAt: now,
-                });
-            } else {
-                // Insert new order
-                await context.db.insert("threadOrders", {
-                    order,
-                    threadId,
-                    updatedAt: now,
-                    userId: userId as Id<"users">,
+                    updatedAt: Date.now(),
                 });
             }
         }
@@ -721,18 +610,54 @@ export const updateThreadOrder = authedMutation({
 
 export const getThreadOrders = authedQuery({
     args: {},
-    handler: async (context, arguments_) => {
+    handler: async (context) => {
         const userId = context.user._id;
-
-        // Get all thread orders for the user
-        const threadOrders = await context.db
-            .query("threadOrders")
-            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
+        const threads = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q)
             .collect();
 
-        return threadOrders;
+        return threads.filter(
+            (thread) =>
+                thread.userId === userId
+                && thread.order !== undefined
+                && !thread.deleted,
+        );
     },
     returns: v.array(v.any()),
+});
+
+export const updateThreadVisibility = authedMutation({
+    args: {
+        isPublic: v.optional(v.boolean()),
+        publicAccessToken: v.optional(v.string()),
+        threadId: v.string(),
+    },
+    handler: async (context, { isPublic, publicAccessToken, threadId }) => {
+        const userId = context.user._id;
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!thread) {
+            throw new ConvexError("Thread not found");
+        }
+
+        if (thread.userId !== userId) {
+            throw new ConvexError(
+                "Cannot update visibility for another user's thread",
+            );
+        }
+
+        await context.db.patch(thread._id, {
+            isPublic,
+            publicAccessToken,
+            updatedAt: Date.now(),
+        });
+
+        return { success: true };
+    },
 });
 
 export const searchThreads = authedQuery({
@@ -925,7 +850,6 @@ export const searchMessages = authedQuery({
     },
 });
 
-// Action for prompt improvement
 export const improvePrompt = internalAction({
     args: {
         improvementInstructions: v.optional(v.string()),
@@ -1027,52 +951,6 @@ Original prompt to improve: "${prompt.trim()}"`;
     },
 });
 
-// HTTP action for prompt improvement (wrapper around the action)
-export const improvePromptHttpAction = async (
-    context: ActionContext,
-    request: Request,
-) => {
-    // Parse the request body
-    const body = await request.json();
-    const { improvementInstructions, prompt, threadId } = body;
-
-    if (!prompt) {
-        return new Response(JSON.stringify({ error: "Missing prompt" }), {
-            headers: { "Content-Type": "application/json" },
-            status: 400,
-        });
-    }
-
-    try {
-        const result = await context.runAction(
-            internal.chat.functions.improvePrompt,
-            {
-                improvementInstructions,
-
-                prompt,
-                threadId,
-            },
-        );
-
-        return new Response(JSON.stringify(result), {
-            headers: { "Content-Type": "application/json" },
-            status: 200,
-        });
-    } catch (error) {
-        console.error("Error improving prompt:", error);
-
-        const errorMessage
-            = error instanceof ConvexError
-                ? error.message
-                : "Failed to improve prompt";
-
-        return new Response(JSON.stringify({ error: errorMessage }), {
-            headers: { "Content-Type": "application/json" },
-            status: 500,
-        });
-    }
-};
-
 export const getFullThreadForExport = authedQuery({
     args: {
         model: v.string(),
@@ -1140,5 +1018,150 @@ export const getFullThreadForExport = authedQuery({
         }
 
         return { messages: allMessages, thread };
+    },
+});
+
+export const branchThread = authedMutation({
+    args: {
+        branchName: v.optional(v.string()),
+        branchPoint: v.optional(v.number()),
+        threadId: v.string(), // parent thread
+    },
+    handler: async (context, { branchName, branchPoint, threadId }) => {
+        const userId = context.user._id;
+
+        // Get the parent thread to copy its model from the new threads table
+        const parentThread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!parentThread) {
+            throw new ConvexError("Parent thread not found");
+        }
+
+        const { model } = parentThread;
+
+        if (!model) {
+            throw new ConvexError("Parent thread is missing model");
+        }
+
+        const newThreadId: string = await context.runMutation(
+            internal.chat.functions.createThread,
+            {
+                model,
+                title: branchName || "",
+            },
+        );
+
+        const agent = getAgent(model as AgentModel);
+
+        if (branchName) {
+            const { thread } = await agent.continueThread(context, {
+                threadId: newThreadId,
+                userId,
+            });
+
+            await thread.updateMetadata({ title: branchName });
+        }
+
+        await context.runMutation(
+            internal.chat.functions.createThreadRelationship,
+            {
+                branchPoint: branchPoint || 0,
+                branchType: "branch",
+                parentThreadId: threadId,
+                threadId: newThreadId,
+            },
+        );
+
+        // Copy messages up to branchPoint (inclusive), or all if branchPoint is undefined
+        const parentMessagesResult = await agent.listMessages(context, {
+            paginationOpts: { cursor: null, numItems: 10_000 },
+            threadId,
+        });
+        const parentMessages = parentMessagesResult.page;
+
+        if (branchPoint !== undefined && branchPoint >= parentMessages.length) {
+            await context.runMutation(
+                internal.chat.functions.deleteThreadRelationship,
+                {
+                    threadId: newThreadId,
+                },
+            );
+            await context.runMutation(
+                components.agent.threads.deleteAllForThreadIdAsync,
+                { threadId: newThreadId },
+            );
+
+            throw new ConvexError(
+                "Branch point is greater than the parent messages length",
+            );
+        }
+
+        return newThreadId;
+    },
+    returns: v.string(),
+});
+
+export const softDeleteThread = authedMutation({
+    args: { threadId: v.string() },
+    handler: async (context, { threadId }) => {
+        const userId = context.user._id;
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!thread || thread.userId !== userId) {
+            throw new ConvexError("Not allowed");
+        }
+
+        await context.db.patch(thread._id, {
+            deleted: true,
+            deletedAt: Date.now(),
+        });
+
+        // Schedule hard delete in 24 hours (adjust as needed)
+        await context.scheduler.runAfter(
+            24 * 60 * 60 * 1000,
+            internal.chat.functions.hardDeleteThread,
+            { threadId },
+        );
+    },
+});
+
+export const hardDeleteThread = internalMutation({
+    args: { threadId: v.string() },
+    handler: async (context, { threadId }) => {
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (thread) {
+            await context.db.delete(thread._id);
+        }
+    },
+});
+
+export const undoDeleteThread = authedMutation({
+    args: { threadId: v.string() },
+    handler: async (context, { threadId }) => {
+        const userId = context.user._id;
+
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!thread || thread.userId !== userId) {
+            throw new ConvexError("Not allowed");
+        }
+
+        await context.db.patch(thread._id, {
+            deleted: false,
+            deletedAt: undefined,
+        });
     },
 });

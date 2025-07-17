@@ -38,17 +38,14 @@ const ThreadShareButton: React.FC<ThreadShareButtonProperties> = ({ classes, thr
     const [customHours, setCustomHours] = useState<number>(24);
     const [tab, setTab] = useState("access");
 
-    // Queries
     const threadAccess = useQuery(api.chat.sharing.getThreadAccess, { threadId });
     const threadInvites = useQuery(api.chat.sharing.getThreadInvites, { threadId });
 
-    // Mutations
     const createInviteMutation = useMutation(api.chat.sharing.createThreadInvite);
     const revokeInviteMutation = useMutation(api.chat.sharing.revokeThreadInvite);
     const removeAccessMutation = useMutation(api.chat.sharing.removeThreadAccess);
     const toggleVisibilityMutation = useMutation(api.chat.sharing.toggleThreadVisibility);
 
-    // Handlers for controlled components
     const handleTabChange = useCallback((value: string) => setTab(value), []);
     const handleInviteEmailChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setInviteEmail(event.target.value), []);
     const handleInvitePermissionChange = useCallback((value: string) => setInvitePermission(value as Permission), []);

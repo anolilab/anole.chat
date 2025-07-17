@@ -20,3 +20,8 @@ export const systemFields = (tableName: TableNames) => {
         _id: v.id(tableName),
     };
 };
+
+export const softDeleteFields = {
+    deleted: v.optional(v.boolean()),
+    deletedAt: v.optional(v.number()),
+};

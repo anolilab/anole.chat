@@ -1,16 +1,9 @@
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 
-const chatTables = {
-    pinnedThreads: defineTable({
-        pinnedAt: v.number(),
-        threadId: v.string(),
-        userId: v.id("users"),
-    })
-        .index("by_user", ["userId"])
-        .index("by_thread", ["threadId"])
-        .index("by_user_and_thread", ["userId", "threadId"]),
+import { softDeleteFields } from "../lib/systemFields";
 
+const chatTables = {
     // Thread sharing and access control
     threadAccess: defineTable({
         expiresAt: v.optional(v.number()), // Optional expiration timestamp
@@ -56,16 +49,6 @@ const chatTables = {
         .index("by_status", ["status"])
         .index("by_expires_at", ["expiresAt"]),
 
-    threadOrders: defineTable({
-        order: v.number(),
-        threadId: v.string(),
-        updatedAt: v.number(),
-        userId: v.id("users"),
-    })
-        .index("by_user", ["userId"])
-        .index("by_user_and_order", ["userId", "order"])
-        .index("by_user_and_thread", ["userId", "threadId"]),
-
     // Thread relationships for branching and hierarchy
     threadRelationships: defineTable({
         branchPoint: v.optional(v.number()), // Which message index the branch started from (0-based)
@@ -80,17 +63,20 @@ const chatTables = {
         .index("by_parent", ["parentThreadId"])
         .index("by_parent_and_thread", ["parentThreadId", "threadId"]),
 
-    // Thread visibility settings
-    threadVisibility: defineTable({
-        createdBy: v.id("users"),
-        isPublic: v.boolean(), // true = public, false = private
-        publicAccessToken: v.optional(v.string()), // Optional token for public access
-        threadId: v.string(),
-        updatedAt: v.number(),
+    threads: defineTable({
+        createdBy: v.optional(v.id("users")),
+        isPublic: v.optional(v.boolean()),
+        model: v.optional(v.string()),
+        order: v.optional(v.number()),
+        pinnedAt: v.optional(v.number()),
+        publicAccessToken: v.optional(v.string()),
+        threadId: v.string(), // required
+        updatedAt: v.optional(v.number()),
+        userId: v.optional(v.id("users")),
+        ...softDeleteFields,
     })
         .index("by_thread", ["threadId"])
-        .index("by_public_access_token", ["publicAccessToken"])
-        .index("by_is_public", ["isPublic"]),
+        .index("by_user", ["userId"]),
 };
 
 export default chatTables;

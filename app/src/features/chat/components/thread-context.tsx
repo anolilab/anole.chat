@@ -1,14 +1,16 @@
 "use client";
 
-import type { AgentModel } from "@anole/convex/ai/lib/agents";
 import { api } from "@anole/convex/api";
 import type { Doc } from "@anole/convex/dataModel";
 import type { ThreadMessageLike } from "@assistant-ui/react";
+import { t } from "@lingui/core/macro";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache";
-import type { ReactNode } from "react";
-import { createContext, use, useMemo, useState } from "react";
+import type { FC, PropsWithChildren } from "react";
+import { createContext, use, useCallback, useMemo, useState } from "react";
+
+import { showError } from "@/lib/toast";
 
 type ThreadDocument = Doc<"threads">;
 
@@ -65,40 +67,29 @@ export const useThreadContext = () => {
     return context;
 };
 
-export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { children: ReactNode; model?: AgentModel }) => {
-    const [threads, setThreads] = useState<Map<string, ThreadMessageLike[]>>(new Map([["default", []]]));
+export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
+    const [threads, setThreads] = useState<Map<string, ThreadMessageLike[]>>(() => new Map([["default", []]]));
     const [currentThreadId, setCurrentThreadId] = useState("default");
-    const [threadMetadata, setThreadMetadata] = useState<Map<string, ThreadMetadata>>(new Map([]));
+    const [threadMetadata, setThreadMetadata] = useState<Map<string, ThreadMetadata>>(() => new Map([]));
 
-    // Navigation hook
     const navigate = useNavigate({ from: "/chat/$threadId" });
 
-    // Convex hooks
-    const createThreadMutation = useMutation(api.chat.functions.createThread);
-    const deleteThreadMutation = useMutation(api.chat.functions.deleteThreadWithRelationships);
+    const branchThreadMutation = useMutation(api.chat.functions.branchThread);
+    const deleteThreadMutation = useMutation(api.chat.functions.softDeleteThread);
 
     // Query to get all threads for building the hierarchy
     const allThreads = useQuery(api.chat.functions.getThreads, { paginationOpts: { cursor: null, numItems: 100 } });
 
     // Create a new branch from a specific message in a thread
     const createBranch = async (fromThreadId: string, fromMessageIndex: number, branchName?: string): Promise<string> => {
-        const sourceThread = threads.get(fromThreadId);
-        const sourceMetadata = threadMetadata.get(fromThreadId);
-
-        if (!sourceThread || !sourceMetadata) {
-            throw new Error(`Thread ${fromThreadId} not found`);
-        }
-
-        if (fromMessageIndex < 0 || fromMessageIndex >= sourceThread.length) {
+        if (fromMessageIndex < 0) {
             throw new Error(`Invalid message index ${fromMessageIndex}`);
         }
 
-        // Create the branch in Convex and wait for the real thread ID
-        const branchId = await createThreadMutation({
+        const branchId = await branchThreadMutation({
             branchName,
             branchPoint: fromMessageIndex,
-            model,
-            parentThreadId: fromThreadId,
+            threadId: fromThreadId,
         });
 
         // Create branch metadata (messages will be merged dynamically when fetched)
@@ -109,7 +100,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
             lastActivity: new Date(),
             parentThreadId: fromThreadId,
             status: "active",
-            title: branchName || `Branch from ${sourceMetadata.title}`,
+            title: branchName,
         };
 
         // Update state with empty messages initially (will be merged dynamically when fetched)
@@ -128,92 +119,6 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
 
         return branchId;
     };
-
-    // Delete a branch and all its children
-    const deleteBranch = async (threadId: string) => {
-        if (threadId === "default") {
-            throw new Error("Cannot delete the default thread");
-        }
-
-        const childBranches = getChildBranches(threadId);
-
-        // Recursively delete child branches
-        for (const childId of childBranches) {
-            await deleteBranch(childId);
-        }
-
-        // Delete from backend if session available
-        try {
-            await deleteThreadMutation({
-                threadId,
-            });
-        } catch (error) {
-            console.error("Failed to delete thread from backend:", error);
-            // Continue with local deletion even if backend fails
-        }
-
-        // Delete the branch from local state
-        setThreads((previous) => {
-            const newThreads = new Map(previous);
-
-            newThreads.delete(threadId);
-
-            return newThreads;
-        });
-
-        setThreadMetadata((previous) => {
-            const newMetadata = new Map(previous);
-
-            newMetadata.delete(threadId);
-
-            return newMetadata;
-        });
-
-        // Switch to parent if current thread is being deleted
-        if (currentThreadId === threadId) {
-            const parentId = getParentThread(threadId);
-
-            if (parentId && parentId !== "default") {
-                setCurrentThreadId(parentId);
-                navigate({
-                    params: { threadId: parentId },
-                    search: (previous) => {
-                        return { ...previous };
-                    },
-                    to: "/chat/$threadId",
-                });
-            } else {
-                // Redirect to main chat with notification
-                navigate({
-                    search: { redirectReason: "thread-deleted" },
-                    to: "/chat",
-                });
-            }
-        }
-    };
-
-    // Get parent thread ID - now uses Convex threads data
-    const getParentThread = useMemo(
-        () =>
-            (threadId: string): string | null => {
-                // First check local metadata for local threads
-                const localMetadata = threadMetadata.get(threadId);
-
-                if (localMetadata?.parentThreadId) {
-                    return localMetadata.parentThreadId;
-                }
-
-                // Then check Convex threads data
-                if (allThreads?.page) {
-                    const thread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
-
-                    return thread?.parentThreadIds?.[0] || null;
-                }
-
-                return null;
-            },
-        [threadMetadata, allThreads?.page],
-    );
 
     // Get child branch IDs - now uses Convex threads data
     const getChildBranches = useMemo(
@@ -240,6 +145,98 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
                 return children;
             },
         [threadMetadata, allThreads?.page],
+    );
+
+    // Get parent thread ID - now uses Convex threads data
+    const getParentThread = useMemo(
+        () =>
+            (threadId: string): string | null => {
+                // First check local metadata for local threads
+                const localMetadata = threadMetadata.get(threadId);
+
+                if (localMetadata?.parentThreadId) {
+                    return localMetadata.parentThreadId;
+                }
+
+                // Then check Convex threads data
+                if (allThreads?.page) {
+                    const thread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
+
+                    return thread?.parentThreadIds?.[0] || null;
+                }
+
+                return null;
+            },
+        [threadMetadata, allThreads?.page],
+    );
+
+    // Delete a branch and all its children
+    const deleteBranch = useCallback(
+        async (threadId: string) => {
+            if (threadId === "default") {
+                throw new Error("Cannot delete the default thread");
+            }
+
+            // Delete the branch from local state
+            setThreads((previous) => {
+                const newThreads = new Map(previous);
+
+                newThreads.delete(threadId);
+
+                return newThreads;
+            });
+
+            setThreadMetadata((previous) => {
+                const newMetadata = new Map(previous);
+
+                newMetadata.delete(threadId);
+
+                return newMetadata;
+            });
+
+            const childBranches = getChildBranches(threadId);
+
+            try {
+                for await (const childId of childBranches) {
+                    await deleteBranch(childId);
+                }
+
+                // Delete from backend if session available
+                await deleteThreadMutation({
+                    threadId,
+                });
+            } catch (error) {
+                console.error("Failed to delete thread:", error);
+                showError(t`Failed to delete thread`);
+            }
+
+            // Switch to parent if current thread is being deleted
+            if (currentThreadId === threadId) {
+                const parentId = getParentThread(threadId);
+
+                if (parentId && parentId !== "default") {
+                    setCurrentThreadId(parentId);
+
+                    await navigate({
+                        params: { threadId: parentId },
+                        search: (previous) => {
+                            return { ...previous };
+                        },
+                        to: "/chat/$threadId",
+                    });
+                } else {
+                    setCurrentThreadId("default");
+                    // Redirect to main chat with notification
+                    await navigate({
+                        search: { redirectReason: "thread-deleted" },
+                        to: "/chat",
+                    });
+                }
+            }
+
+            setCurrentThreadId(currentThreadId);
+        },
+        [setThreads, currentThreadId, deleteThreadMutation, getChildBranches, getParentThread],
     );
 
     // Get the hierarchical tree structure of branches
@@ -386,6 +383,7 @@ export const ThreadProvider = ({ children, model = "gemini-1.5-flash" }: { child
     const switchToBranch = (threadId: string) => {
         if (threads.has(threadId)) {
             setCurrentThreadId(threadId);
+
             navigate({
                 params: { threadId },
                 search: (previous) => {

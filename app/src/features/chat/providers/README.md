@@ -52,7 +52,7 @@ This hook encapsulates all the complex logic related to creating, sending, and s
 ## Usage Example
 
 ```typescript
-import { ConvexExternalRuntimeProvider } from './convex-external-runtime-provider';
+import ConvexExternalRuntimeProvider from './convex-external-runtime-provider';
 
 function ChatInterface({ model, threadId, jwtToken }) {
     return (

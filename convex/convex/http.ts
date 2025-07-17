@@ -7,7 +7,7 @@ import { requestId } from "hono/request-id";
 
 import type { ActionCtx as ActionContext } from "./_generated/server";
 import { createAuth } from "./auth";
-import { improvePromptHttpAction, streamHttpAction } from "./chat/functions";
+import { improvePromptHttpAction, streamHttpAction } from "./chat/http";
 import { resend } from "./email/functions";
 import { CONVEX_SITE_URL } from "./env";
 

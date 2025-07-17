@@ -1,15 +1,18 @@
+import type { MouseEvent, ReactNode } from "react";
 import { toast } from "sonner";
 
 import { ErrorUtils as ErrorUtilities, RateLimitError } from "./errors";
 
+type ToastMessage = (() => ReactNode) | ReactNode;
+
 export interface ToastOptions {
     action?: {
         label: string;
-        onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+        onClick: (event: MouseEvent<HTMLButtonElement>) => void;
     };
     cancel?: {
         label: string;
-        onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+        onClick: (event: MouseEvent<HTMLButtonElement>) => void;
     };
     duration?: number;
     id?: string | number;
@@ -18,19 +21,17 @@ export interface ToastOptions {
 /**
  * Show success toast
  */
-export function showSuccess(message: string, options?: ToastOptions) {
-    return toast.success(message, {
-        action: options?.action,
-        cancel: options?.cancel,
-        duration: options?.duration || 4000,
-        id: options?.id,
-    });
-}
+export const showSuccess = (message: ToastMessage | ReactNode, options?: ToastOptions) => toast.success(message, {
+    action: options?.action,
+    cancel: options?.cancel,
+    duration: options?.duration || 4000,
+    id: options?.id,
+});
 
 /**
  * Show error toast with appropriate styling and actions
  */
-export function showError(error: Error | string, options?: ToastOptions) {
+export const showError = (error: Error | string, options?: ToastOptions) => {
     const message = typeof error === "string" ? error : ErrorUtilities.getUserMessage(error);
 
     const toastOptions: any = {
@@ -68,61 +69,55 @@ export function showError(error: Error | string, options?: ToastOptions) {
     }
 
     return toast.error(message, toastOptions);
-}
+};
 
 /**
  * Show warning toast
  */
-export function showWarning(message: string, options?: ToastOptions) {
-    return toast.warning(message, {
-        action: options?.action,
-        cancel: options?.cancel,
-        duration: options?.duration || 5000,
-        id: options?.id,
-    });
-}
+export const showWarning = (message: ToastMessage | ReactNode, options?: ToastOptions) => toast.warning(message, {
+    action: options?.action,
+    cancel: options?.cancel,
+    duration: options?.duration || 5000,
+    id: options?.id,
+});
 
 /**
  * Show info toast
  */
-export function showInfo(message: string, options?: ToastOptions) {
-    return toast.info(message, {
-        action: options?.action,
-        cancel: options?.cancel,
-        duration: options?.duration || 4000,
-        id: options?.id,
-    });
-}
+export const showInfo = (message: ToastMessage | ReactNode, options?: ToastOptions) => toast.info(message, {
+    action: options?.action,
+    cancel: options?.cancel,
+    duration: options?.duration || 4000,
+    id: options?.id,
+});
 
 /**
  * Show loading toast
  */
-export function showLoading(message: string, options?: Omit<ToastOptions, "duration">) {
-    return toast.loading(message, {
-        action: options?.action,
-        cancel: options?.cancel,
-        id: options?.id,
-    });
-}
+export const showLoading = (message: ToastMessage | ReactNode, options?: Omit<ToastOptions, "duration">) => toast.loading(message, {
+    action: options?.action,
+    cancel: options?.cancel,
+    id: options?.id,
+});
 
 /**
  * Dismiss a specific toast
  */
-export function dismissToast(id: string | number) {
+export const dismissToast = (id: string | number) => {
     toast.dismiss(id);
-}
+};
 
 /**
  * Dismiss all toasts
  */
-export function dismissAllToasts() {
+export const dismissAllToasts = () => {
     toast.dismiss();
-}
+};
 
 /**
  * Promise-based toast for async operations
  */
-export function showPromiseToast<T>(
+export const showPromiseToast = <T>(
     promise: Promise<T>,
     messages: {
         error: string | ((error: Error) => string);
@@ -130,21 +125,19 @@ export function showPromiseToast<T>(
         success: string | ((data: T) => string);
     },
     options?: ToastOptions,
-) {
-    return toast.promise(promise, {
-        action: options?.action,
-        cancel: options?.cancel,
-        duration: options?.duration,
-        error: (error) => {
-            const errorMessage = typeof messages.error === "function" ? messages.error(error) : ErrorUtilities.getUserMessage(error);
+) => toast.promise(promise, {
+    action: options?.action,
+    cancel: options?.cancel,
+    duration: options?.duration,
+    error: (error) => {
+        const errorMessage = typeof messages.error === "function" ? messages.error(error) : ErrorUtilities.getUserMessage(error);
 
-            return errorMessage;
-        },
-        id: options?.id,
-        loading: messages.loading,
-        success: (data) => (typeof messages.success === "function" ? messages.success(data) : messages.success),
-    });
-}
+        return errorMessage;
+    },
+    id: options?.id,
+    loading: messages.loading,
+    success: (data) => (typeof messages.success === "function" ? messages.success(data) : messages.success),
+});
 
 /**
  * Specialized toast for prompt improvement operations
@@ -192,7 +185,7 @@ export const promptToast = {
         );
     },
 
-    validationError: (field: string, message: string) => showError(`${field}: ${message}`, { duration: 5000 }),
+    validationError: (field: string, message: ToastMessage | ReactNode) => showError(`${field}: ${message}`, { duration: 5000 }),
 };
 
 /**

@@ -36,6 +36,37 @@ const defaultToast: RenderToast = ({ message, variant = "default" }) => {
     }
 };
 
+const useAuthUISearch = () => {
+    try {
+        const search = useSearch({ strict: false }) as any;
+
+        return search;
+    } catch {
+        // If useSearch fails (e.g., outside of router context), return null
+        return null;
+    }
+};
+
+const OrganizationRefetcher = () => {
+    const { hooks } = useAuth();
+    const { data: sessionData } = hooks.useSession();
+    const { data: activeOrganization, refetch: refetchActiveOrganization } = hooks.useActiveOrganization();
+    const { data: organizations, refetch: refetchListOrganizations } = hooks.useListOrganizations();
+
+    useEffect(() => {
+        if (!sessionData?.user.id)
+            return;
+
+        if (activeOrganization)
+            refetchActiveOrganization?.();
+
+        if (organizations)
+            refetchListOrganizations?.();
+    }, [sessionData?.user.id, refetchActiveOrganization, refetchListOrganizations]);
+
+    return null;
+};
+
 export type AuthUIContextType = {
     /**
      * Additional fields for users
@@ -284,17 +315,6 @@ export type AuthUIProviderProps = Partial<
 export const AuthUIContext = createContext<AuthUIContextType>({} as unknown as AuthUIContextType);
 
 export const useAuth = () => use(AuthUIContext);
-
-function useAuthUISearch() {
-    try {
-        const search = useSearch({ strict: false }) as any;
-
-        return search;
-    } catch {
-        // If useSearch fails (e.g., outside of router context), return null
-        return null;
-    }
-}
 
 export const AuthUIProvider = ({
     authClient: authClientProperty,
@@ -556,24 +576,4 @@ export const AuthUIProvider = ({
             {children}
         </AuthUIContext>
     );
-};
-
-const OrganizationRefetcher = () => {
-    const { hooks } = useAuth();
-    const { data: sessionData } = hooks.useSession();
-    const { data: activeOrganization, refetch: refetchActiveOrganization } = hooks.useActiveOrganization();
-    const { data: organizations, refetch: refetchListOrganizations } = hooks.useListOrganizations();
-
-    useEffect(() => {
-        if (!sessionData?.user.id)
-            return;
-
-        if (activeOrganization)
-            refetchActiveOrganization?.();
-
-        if (organizations)
-            refetchListOrganizations?.();
-    }, [sessionData?.user.id, refetchActiveOrganization, refetchListOrganizations]);
-
-    return null;
 };

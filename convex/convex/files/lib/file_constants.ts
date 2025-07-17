@@ -92,7 +92,9 @@ export const isImageExtension = (filename: string) => {
     const extension = filename.toLowerCase().match(/\.[^.]+$/)?.[0];
 
     return extension
-        ? (SUPPORTED_IMAGE_EXTENSIONS as ReadonlyArray<string>).includes(extension)
+        ? (SUPPORTED_IMAGE_EXTENSIONS as ReadonlyArray<string>).includes(
+            extension,
+        )
         : false;
 };
 
@@ -100,19 +102,19 @@ export const isTextExtension = (filename: string) => {
     const extension = filename.toLowerCase().match(/\.[^.]+$/)?.[0];
 
     return extension
-        ? (SUPPORTED_TEXT_EXTENSIONS as ReadonlyArray<string>).includes(extension)
+        ? (SUPPORTED_TEXT_EXTENSIONS as ReadonlyArray<string>).includes(
+            extension,
+        )
         : false;
 };
 
 export const isImageMimeType = (mimeType: string) =>
     mimeType.startsWith("image/")
-    || (SUPPORTED_IMAGE_MIME_TYPES as ReadonlyArray<string>).includes(mimeType)
-    ;
+    || (SUPPORTED_IMAGE_MIME_TYPES as ReadonlyArray<string>).includes(mimeType);
 
 export const isTextMimeType = (mimeType: string) =>
     mimeType.startsWith("text/")
-    || (SUPPORTED_TEXT_MIME_TYPES as ReadonlyArray<string>).includes(mimeType)
-    ;
+    || (SUPPORTED_TEXT_MIME_TYPES as ReadonlyArray<string>).includes(mimeType);
 
 export const isSupportedFile = (filename: string, mimeType?: string) => {
     // For text files, prioritize extension over MIME type since browsers often return
@@ -159,7 +161,9 @@ export const getFileTypeInfo = (filename: string, mimeType?: string) => {
     // Check by extension first (more reliable than MIME type)
     const isImage = isImageExtension(fileName);
     const isCode = extension
-        ? (SUPPORTED_CODE_EXTENSIONS as ReadonlyArray<string>).includes(extension)
+        ? (SUPPORTED_CODE_EXTENSIONS as ReadonlyArray<string>).includes(
+            extension,
+        )
         : false;
     const isPlainText = extension
         ? (SUPPORTED_PLAIN_TEXT_EXTENSIONS as ReadonlyArray<string>).includes(

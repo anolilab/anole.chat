@@ -12,7 +12,7 @@ interface UseThreadListAdapterProperties {
     model: AgentModel;
 }
 
-export const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAdapterProperties): ExternalStoreThreadListAdapter => {
+const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAdapterProperties): ExternalStoreThreadListAdapter => {
     const navigate = useNavigate();
     const threadContext = useThreadContext();
 
@@ -20,7 +20,7 @@ export const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAd
 
     const convexThreads = usePaginatedQuery(api.chat.functions.getThreads, {}, { initialNumItems: 10 });
     const updateThreadMutation = useAction(api.chat.functions.updateThread);
-    const deleteThread = useMutation(api.chat.functions.deleteThreadWithRelationships);
+    const deleteThreadMutation = useMutation(api.chat.functions.softDeleteThread);
     const createThreadMutation = useMutation(api.chat.functions.createThread);
 
     return useMemo(() => {
@@ -90,15 +90,15 @@ export const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAd
                     return next;
                 });
 
+                await deleteThreadMutation({
+                    threadId: deleteThreadId,
+                });
+
                 // Switch to default thread if deleting current thread
                 if (currentThreadId === deleteThreadId) {
                     setCurrentThreadId("default");
                     navigate({ to: "/chat" });
                 }
-
-                await deleteThread({
-                    threadId: deleteThreadId,
-                });
             },
 
             onRename: async (renameThreadId, newTitle) => {
@@ -129,8 +129,8 @@ export const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAd
 
                 // Create the real Convex thread immediately
                 const newThreadId = await createThreadMutation({
-                    branchName: "New Chat",
                     model,
+                    title: "New Chat",
                 });
 
                 console.log("Created new thread:", newThreadId);
@@ -211,8 +211,10 @@ export const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAd
         setThreadMetadata,
         navigate,
         updateThreadMutation,
-        deleteThread,
+        deleteThreadMutation,
         model,
         createThreadMutation,
     ]);
 };
+
+export default useThreadListAdapter;
