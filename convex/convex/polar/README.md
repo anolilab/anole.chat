@@ -4,7 +4,7 @@ This project uses the official `@convex-dev/polar` package to integrate Polar (s
 
 ## Features
 
-- **Product Management**: Store and retrieve Polar products
+- **Single Plan Subscription**: Simple subscription management with one plan
 - **Subscription Management**: Handle subscription creation, updates, and cancellations
 - **Customer Management**: Create and manage customers in Polar
 - **Webhook Processing**: Secure webhook handling with signature verification
@@ -33,6 +33,8 @@ POLAR_CANCEL_URL=https://yourdomain.com/cancel
 The integration is configured in `convex/convex/polar.ts`:
 
 ```typescript
+import { polar } from "@convex-dev/polar";
+
 export const polarConfig = polar({
     organizationId: process.env.POLAR_ORGANIZATION_ID!,
     accessToken: process.env.POLAR_ACCESS_TOKEN!,
@@ -45,12 +47,7 @@ export const polarConfig = polar({
 
 ### 3. Database Schema
 
-The integration automatically creates the following tables:
-
-- `polarProducts`: Store product information
-- `polarSubscriptions`: Store subscription data
-- `polarCustomers`: Store customer information
-- `polarWebhookEvents`: Store webhook events for debugging
+The `@convex-dev/polar` package automatically handles the database schema. No manual schema definition is required.
 
 ## Usage
 
@@ -76,11 +73,11 @@ function MyComponent() {
         hasActiveSubscription, 
         subscribe, 
         cancel, 
-        activeSubscription 
+        product 
     } = useSubscription(userId);
 
     const handleSubscribe = () => {
-        subscribe("product_id");
+        subscribe(); // No productId needed - uses the single plan
     };
 
     return (
@@ -88,7 +85,7 @@ function MyComponent() {
             {hasActiveSubscription ? (
                 <button onClick={cancel}>Cancel Subscription</button>
             ) : (
-                <button onClick={handleSubscribe}>Subscribe</button>
+                <button onClick={handleSubscribe}>Subscribe to {product?.name}</button>
             )}
         </div>
     );
@@ -100,7 +97,7 @@ function MyComponent() {
 The `@convex-dev/polar` package provides the following functions:
 
 #### Queries
-- `getProducts()`: Get all available products
+- `getProducts()`: Get all available products (use first one for single plan)
 - `getProduct(id)`: Get a specific product
 - `getSubscriptions(userId)`: Get user's subscriptions
 - `getSubscription(id)`: Get a specific subscription
@@ -131,18 +128,22 @@ The integration automatically handles webhooks at `/webhooks/polar`. Configure t
 
 ## Example Implementation
 
-### Creating a Subscription
+### Creating a Subscription (Single Plan)
 
 ```tsx
 import { useMutation } from "convex/react";
 import { api } from "@anole/convex/api";
 
-function SubscribeButton({ productId, userId }) {
+function SubscribeButton({ userId }) {
     const createCheckout = useMutation(api.polar.createCheckoutSession);
+    const products = useQuery(api.polar.getProducts);
+    const product = products?.[0]; // Get the single plan
 
     const handleSubscribe = async () => {
+        if (!product) return;
+        
         const checkoutUrl = await createCheckout({
-            productId,
+            productId: product.id,
             userId,
             successUrl: `${window.location.origin}/success`,
             cancelUrl: `${window.location.origin}/cancel`,
@@ -171,6 +172,14 @@ function SubscriptionStatus({ userId }) {
     return <div>No active subscription</div>;
 }
 ```
+
+## Single Plan Setup
+
+This implementation is designed for a single subscription plan. To set this up:
+
+1. Create one product in your Polar dashboard
+2. The frontend will automatically use the first product from the list
+3. All subscription operations will work with this single plan
 
 ## Error Handling
 
@@ -201,7 +210,7 @@ The integration includes comprehensive error handling:
 
 ### Debugging
 
-Check the `polarWebhookEvents` table for webhook processing logs:
+The package automatically creates tables for debugging. You can query them directly:
 
 ```typescript
 // Query webhook events

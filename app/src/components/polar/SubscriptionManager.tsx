@@ -18,16 +18,21 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
     
     // Get the active subscription
     const activeSubscription = subscriptions?.find(sub => sub.status === "active");
+    
+    // Get the first (and only) product
+    const product = products?.[0];
 
     // Mutations
     const createCheckout = useMutation(api.polar.createCheckoutSession);
     const cancelSubscription = useMutation(api.polar.cancelSubscription);
     const reactivateSubscription = useMutation(api.polar.reactivateSubscription);
 
-    const handleSubscribe = async (productId: string) => {
+    const handleSubscribe = async () => {
+        if (!product) return;
+        
         try {
             const checkoutUrl = await createCheckout({
-                productId,
+                productId: product.id,
                 customerId: customer?.id,
                 userId,
                 successUrl: `${window.location.origin}/success`,
@@ -59,6 +64,10 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
 
     if (products === undefined) {
         return <div>Loading...</div>;
+    }
+
+    if (!product) {
+        return <div>No subscription plan available.</div>;
     }
 
     return (
@@ -98,44 +107,58 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
                 </CardContent>
             </Card>
 
-            {/* Available Plans */}
+            {/* Subscription Plan */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Available Plans</CardTitle>
+                    <CardTitle>Subscription Plan</CardTitle>
                     <CardDescription>
-                        Choose a plan that fits your needs
+                        {product.description || "Premium access to all features"}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {products.map((product) => (
-                            <Card key={product.id} className="relative">
-                                <CardHeader>
-                                    <CardTitle className="text-lg">{product.name}</CardTitle>
-                                    <CardDescription>
-                                        {product.description}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="mb-4">
-                                        <span className="text-3xl font-bold">
-                                            ${product.price / 100}
-                                        </span>
-                                        <span className="text-muted-foreground">
-                                            /{product.interval}
-                                        </span>
-                                    </div>
-                                    <Button 
-                                        onClick={() => handleSubscribe(product.id)}
-                                        className="w-full"
-                                        disabled={!!activeSubscription}
-                                    >
-                                        {activeSubscription ? "Already Subscribed" : "Subscribe"}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))}
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-2xl font-bold">{product.name}</h3>
+                            <p className="text-muted-foreground">{product.description}</p>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-3xl font-bold">
+                                ${product.price / 100}
+                            </div>
+                            <div className="text-muted-foreground">
+                                per {product.interval}
+                            </div>
+                        </div>
                     </div>
+                    
+                    {activeSubscription ? (
+                        <div className="space-y-2">
+                            <Button 
+                                variant="outline" 
+                                onClick={handleCancel}
+                                className="w-full"
+                                disabled={activeSubscription.cancelAtPeriodEnd}
+                            >
+                                {activeSubscription.cancelAtPeriodEnd ? "Already Canceled" : "Cancel Subscription"}
+                            </Button>
+                            {activeSubscription.cancelAtPeriodEnd && (
+                                <Button 
+                                    onClick={handleReactivate}
+                                    className="w-full"
+                                >
+                                    Reactivate Subscription
+                                </Button>
+                            )}
+                        </div>
+                    ) : (
+                        <Button 
+                            onClick={handleSubscribe}
+                            className="w-full"
+                            size="lg"
+                        >
+                            Subscribe Now
+                        </Button>
+                    )}
                 </CardContent>
             </Card>
 
@@ -164,19 +187,6 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
                                     <span className="text-muted-foreground">Cancellation:</span>
                                     <span className="text-orange-600">Will cancel at period end</span>
                                 </div>
-                            )}
-                        </div>
-                        
-                        <div className="flex gap-2 mt-4">
-                            {activeSubscription.status === "active" && !activeSubscription.cancelAtPeriodEnd && (
-                                <Button variant="outline" onClick={handleCancel}>
-                                    Cancel Subscription
-                                </Button>
-                            )}
-                            {activeSubscription.cancelAtPeriodEnd && (
-                                <Button onClick={handleReactivate}>
-                                    Reactivate Subscription
-                                </Button>
                             )}
                         </div>
                     </CardContent>

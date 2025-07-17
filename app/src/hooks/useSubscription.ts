@@ -11,6 +11,9 @@ export function useSubscription(userId: Id<"users">) {
     // Get the active subscription
     const activeSubscription = subscriptions?.find(sub => sub.status === "active");
     
+    // Get the first (and only) product
+    const product = products?.[0];
+    
     // Check if user has active subscription
     const hasActiveSubscription = !!activeSubscription;
     
@@ -32,10 +35,12 @@ export function useSubscription(userId: Id<"users">) {
     const reactivateSubscription = useMutation(api.polar.reactivateSubscription);
 
     // Helper functions
-    const subscribe = async (productId: string) => {
+    const subscribe = async () => {
+        if (!product) throw new Error("No product available");
+        
         try {
             const checkoutUrl = await createCheckout({
-                productId,
+                productId: product.id,
                 customerId: customer?.id,
                 userId,
                 successUrl: `${window.location.origin}/success`,
@@ -73,7 +78,7 @@ export function useSubscription(userId: Id<"users">) {
         customer,
         subscriptions,
         activeSubscription,
-        products,
+        product,
         hasActiveSubscription,
         isExpired,
         daysUntilExpiry,
