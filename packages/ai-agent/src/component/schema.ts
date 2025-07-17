@@ -23,11 +23,12 @@ export const schema = defineSchema({
     title: v.optional(v.string()),
     summary: v.optional(v.string()),
     status: vThreadStatus,
+    deletedAt: v.optional(v.number()), // Timestamp when thread was soft deleted
     // DEPRECATED
     defaultSystemPrompt: v.optional(v.string()),
     parentThreadIds: v.optional(v.array(v.id("threads"))),
     order: /*DEPRECATED*/ v.optional(v.number()),
-  }).index("userId", ["userId"]),
+  }).index("userId", ["userId"]).index("deletedAt", ["deletedAt"]),
   messages: defineTable({
     id: v.optional(v.string()), // external id, e.g. from Vercel AI SDK
     userId: v.optional(v.string()), // useful for searching across threads
@@ -172,6 +173,7 @@ export const vThreadDoc = v.object({
   title: v.optional(v.string()),
   summary: v.optional(v.string()),
   status: vThreadStatus,
+  deletedAt: v.optional(v.number()), // Timestamp when thread was soft deleted
 });
 export type ThreadDoc = Infer<typeof vThreadDoc>;
 

@@ -23,7 +23,8 @@ export type ProviderMetadata = Infer<typeof providerMetadata>;
 
 export const vThreadStatus = v.union(
   v.literal("active"),
-  v.literal("archived") // unused
+  v.literal("archived"), // unused
+  v.literal("deleted") // soft deleted
 );
 export const vMessageStatus = v.union(
   v.literal("pending"),

@@ -533,6 +533,139 @@ export const deleteThreadWithRelationships = authedMutation({
     },
 });
 
+export const softDeleteThread = authedMutation({
+    args: { threadId: v.string() },
+    handler: async (context, { threadId }) => {
+        const userId = context.user._id;
+
+        // Check if user has admin access to this thread
+        const hasAccess = await context.runQuery(
+            internal.chat.sharing.checkThreadAccess,
+            {
+                requiredPermission: "admin",
+                threadId,
+                userId,
+            },
+        );
+
+        if (!hasAccess) {
+            throw new ConvexError("Admin access denied to this thread");
+        }
+
+        // Soft delete the thread by updating its status and adding deletedAt timestamp
+        const agent = getAgent(gemini-20.5ash as AgentModel);
+        const { thread } = await agent.continueThread(context, {
+            threadId,
+            userId,
+        });
+
+        await thread.updateMetadata({ 
+            status: "deleted",
+            deletedAt: Date.now()
+        });
+
+        return { success: true };
+    },
+});
+
+export const getSoftDeletedThreads = authedQuery({
+    args: { paginationOpts: paginationOptsValidator },
+    handler: async (
+        context,
+        { paginationOpts },
+    ): Promise<PaginationResult<ThreadDoc>> => {
+        const userId = context.user._id;
+        
+        // Get soft deleted threads for the user
+        const results = await context.runQuery(
+            components.agent.threads.listThreadsByUserId,
+            { 
+                paginationOpts, 
+                userId,
+                status: "deleted" // Filter for deleted threads
+            },
+        );
+
+        return results;
+    },
+});
+
+export const permanentlyDeleteThreads = authedMutation({
+    args: { threadIds: v.array(v.string()) },
+    handler: async (context, { threadIds }) => {
+        const userId = context.user._id;
+        let deletedCount = 0;
+        for (const threadId of threadIds) {
+            // Check if user has admin access to this thread
+            const hasAccess = await context.runQuery(
+                internal.chat.sharing.checkThreadAccess,
+                {
+                    requiredPermission: "admin",
+                    threadId,
+                    userId,
+                },
+            );
+
+            if (!hasAccess) {
+                throw new ConvexError(`Admin access denied to thread ${threadId}`);
+            }
+
+            // Delete the thread relationship
+            await context.runMutation(
+                internal.chat.functions.deleteThreadRelationship,
+                {
+                    threadId,
+                },
+            );
+
+            // Permanently delete the thread
+            await context.runMutation(
+                components.agent.threads.deleteAllForThreadIdAsync,
+                { threadId },
+            );
+
+            deletedCount++;
+        }
+
+        return { success: true, deletedCount };
+    },
+});
+
+export const restoreThread = authedMutation({
+    args: { threadId: v.string() },
+    handler: async (context, { threadId }) => {
+        const userId = context.user._id;
+
+        // Check if user has admin access to this thread
+        const hasAccess = await context.runQuery(
+            internal.chat.sharing.checkThreadAccess,
+            {
+                requiredPermission: "admin",
+                threadId,
+                userId,
+            },
+        );
+
+        if (!hasAccess) {
+            throw new ConvexError("Admin access denied to this thread");
+        }
+
+        // Restore the thread by updating its status and removing deletedAt timestamp
+        const agent = getAgent(gemini-20.5ash as AgentModel);
+        const { thread } = await agent.continueThread(context, {
+            threadId,
+            userId,
+        });
+
+        await thread.updateMetadata({ 
+            status: "active",
+            deletedAt: undefined
+        });
+
+        return { success: true };
+    },
+});
+
 export const getAllThreadRelationships = authedQuery({
     args: {},
     handler: async (context) => {
