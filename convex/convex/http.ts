@@ -9,6 +9,7 @@ import type { ActionCtx as ActionContext } from "./_generated/server";
 import { createAuth } from "./auth";
 import { improvePromptHttpAction, streamHttpAction } from "./chat/http";
 import { resend } from "./email/functions";
+import { polarWebhook } from "./polar/webhook";
 import { CONVEX_SITE_URL } from "./env";
 
 const app: HonoWithConvex<ActionContext> = new Hono();
@@ -78,6 +79,9 @@ app.post(
     "/email/resend/webhook",
     async (c) => await resend.handleResendEventWebhook(c.env, c.req.raw),
 );
+
+// Polar webhook endpoint
+app.post("/webhooks/polar", async (c) => await polarWebhook(c.env, c.req.raw));
 
 // Example API endpoint demonstrating Hono's health check
 app.get("/api/health", async (c) =>
