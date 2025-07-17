@@ -2,15 +2,21 @@
 
 ## Phase 1: Core Infrastructure Setup
 
-### 1.1 Database Schema Integration
-- [ ] Create `convex/convex/rag/schema.ts`
-  - [ ] Define `documents` table
-  - [ ] Define `embeddings` table
-  - [ ] Define `ragConversations` table
-  - [ ] Define `documentCollections` table
-- [ ] Update main schema in `convex/convex/schema.ts`
-  - [ ] Import RAG schema
-  - [ ] Add RAG tables to main schema
+### 1.1 Convex Configuration Setup
+- [ ] Update `convex/convex.config.ts`
+  - [ ] Import `defineApp` from "convex/server"
+  - [ ] Import `rag` from "@convex-dev/rag/convex.config"
+  - [ ] Create app with `defineApp()`
+  - [ ] Add `app.use(rag)`
+  - [ ] Export the configured app
+
+### 1.2 RAG Component Setup
+- [ ] Create `convex/convex/rag/setup.ts`
+  - [ ] Import `components` from "./_generated/api"
+  - [ ] Import `RAG` from "@convex-dev/rag"
+  - [ ] Import AI SDK embedding model (e.g., OpenAI)
+  - [ ] Configure RAG with embedding model and dimension
+  - [ ] Export configured RAG instance
 
 ### 1.2 Convex Functions Structure
 - [ ] Create `convex/convex/rag/` directory
@@ -23,69 +29,69 @@
 
 ## Phase 2: Backend Implementation
 
-### 2.1 Document Processing Pipeline
-- [ ] Implement `uploadDocument()` function
-  - [ ] Handle file uploads (PDF, DOCX, TXT, Markdown)
-  - [ ] Extract text content
-  - [ ] Extract metadata (title, author, date)
-- [ ] Implement `processDocument()` function
-  - [ ] Text cleaning and preprocessing
-  - [ ] Language detection
-  - [ ] Content validation
-- [ ] Implement `chunkDocument()` function
-  - [ ] Intelligent text splitting
-  - [ ] Overlap management
-  - [ ] Chunk size optimization
-- [ ] Implement `storeDocument()` function
-  - [ ] Save to documents table
-  - [ ] Generate embeddings for chunks
-  - [ ] Store embeddings
+### 2.1 Content Addition Pipeline
+- [ ] Implement `addContent()` function
+  - [ ] Use `rag.add()` to add text chunks
+  - [ ] Support namespace organization (per-user)
+  - [ ] Automatic embedding generation
+  - [ ] Handle large files asynchronously
+- [ ] Implement `addContentWithFilters()` function
+  - [ ] Add content with custom filter values
+  - [ ] Support multiple filter types (category, contentType, etc.)
+  - [ ] Type-safe filter implementation
+- [ ] Implement `addContentWithImportance()` function
+  - [ ] Weight content by importance (0 to 1)
+  - [ ] Prioritize high-importance content in search
+- [ ] Implement `addContentWithTitles()` function
+  - [ ] Add titles for better context organization
+  - [ ] Support entry-level metadata
 
-### 2.2 Embedding System
-- [ ] Implement `generateEmbeddings()` function
-  - [ ] Integrate with OpenAI embeddings
-  - [ ] Handle batch processing
-  - [ ] Error handling and retries
-- [ ] Implement `storeEmbeddings()` function
-  - [ ] Save embeddings to database
-  - [ ] Index optimization
-  - [ ] Metadata storage
-- [ ] Implement `updateEmbeddings()` function
-  - [ ] Refresh embeddings when documents change
-  - [ ] Incremental updates
-  - [ ] Cleanup old embeddings
+### 2.2 Semantic Search System
+- [ ] Implement `searchContent()` function
+  - [ ] Use `rag.search()` for vector similarity search
+  - [ ] Support namespace-based search
+  - [ ] Configurable result limits
+  - [ ] Vector score threshold filtering
+- [ ] Implement `searchWithFilters()` function
+  - [ ] Filter search results by metadata
+  - [ ] Support OR filtering between filter values
+  - [ ] Support AND filtering with complex filter values
+- [ ] Implement `searchWithContext()` function
+  - [ ] Include surrounding chunks for better context
+  - [ ] Configurable before/after chunk context
+  - [ ] Handle overlapping chunk ranges
+- [ ] Implement `searchWithImportance()` function
+  - [ ] Weight search results by importance
+  - [ ] Prioritize high-importance content
 
-### 2.3 Search & Retrieval
-- [ ] Implement `searchDocuments()` function
-  - [ ] Vector similarity search
-  - [ ] Relevance scoring
-  - [ ] Result ranking
-- [ ] Implement `hybridSearch()` function
-  - [ ] Combine semantic + keyword search
-  - [ ] Weighted scoring
-  - [ ] Result fusion
-- [ ] Implement `getRelevantChunks()` function
-  - [ ] Context window management
-  - [ ] Diversity optimization
-  - [ ] Source attribution
-
-### 2.4 RAG Chat System
-- [ ] Implement `createRAGConversation()` function
-  - [ ] Initialize new conversation
-  - [ ] Set conversation metadata
-  - [ ] Link to user
-- [ ] Implement `addMessage()` function
-  - [ ] Add user messages
-  - [ ] Add assistant messages
-  - [ ] Store message metadata
+### 2.3 Response Generation
 - [ ] Implement `generateResponse()` function
-  - [ ] Retrieve relevant context
-  - [ ] Generate AI response
-  - [ ] Include source citations
-- [ ] Implement `getConversationHistory()` function
-  - [ ] Retrieve chat history
-  - [ ] Pagination support
-  - [ ] Message threading
+  - [ ] Use `rag.generateText()` for one-off responses
+  - [ ] Automatic context search and LLM integration
+  - [ ] Support custom prompts and models
+  - [ ] Return both answer and context
+- [ ] Implement `generateResponseWithSearch()` function
+  - [ ] Custom search configuration for generation
+  - [ ] Configurable search parameters
+  - [ ] Integration with existing LLM setup
+- [ ] Implement `formatResults()` function
+  - [ ] Format search results for prompts
+  - [ ] Support custom formatting options
+  - [ ] Handle result ordering and chunk context
+
+### 2.4 Namespace Management
+- [ ] Implement `createNamespace()` function
+  - [ ] Create user-specific namespaces
+  - [ ] Support global/shared namespaces
+  - [ ] Namespace metadata management
+- [ ] Implement `migrateNamespace()` function
+  - [ ] Graceful namespace migrations
+  - [ ] Content migration without disruption
+  - [ ] Version control for namespaces
+- [ ] Implement `deleteNamespace()` function
+  - [ ] Clean namespace deletion
+  - [ ] Cascade content removal
+  - [ ] Backup before deletion
 
 ## Phase 3: Frontend Integration
 
@@ -137,152 +143,156 @@
 
 ## Phase 4: API Integration
 
-### 4.1 Convex Queries & Mutations
+### 4.1 Convex Actions & Queries
+- [ ] Create actions in `convex/convex/rag/actions.ts`
+  - [ ] `addContent()` - Add content to RAG namespace
+  - [ ] `searchContent()` - Search content with semantic search
+  - [ ] `generateResponse()` - Generate AI response with RAG context
+  - [ ] `addContentWithFilters()` - Add content with metadata filters
 - [ ] Create queries in `convex/convex/rag/queries.ts`
-  - [ ] `useDocuments()` - Get user's documents
-  - [ ] `useRAGConversations()` - Get chat history
-  - [ ] `useDocumentSearch()` - Search documents
-  - [ ] `useCollections()` - Get document collections
-- [ ] Create mutations in `convex/convex/rag/mutations.ts`
-  - [ ] `uploadDocument()` - Upload new document
-  - [ ] `createRAGConversation()` - Start new chat
-  - [ ] `sendRAGMessage()` - Send message with RAG context
-  - [ ] `createCollection()` - Create document collection
+  - [ ] `getNamespaceContent()` - Get content in a namespace
+  - [ ] `getSearchHistory()` - Get user's search history
+  - [ ] `getContentStats()` - Get content statistics
+  - [ ] `getFilterOptions()` - Get available filter options
 
 ### 4.2 AI Integration
 - [ ] Implement `convex/convex/rag/ai.ts`
-  - [ ] Integrate with existing AI providers
-  - [ ] Add RAG-specific prompt engineering
-  - [ ] Handle context window management
-  - [ ] Implement source attribution
-  - [ ] Add response generation with citations
+  - [ ] Integrate with AI SDK models (OpenAI, Anthropic, etc.)
+  - [ ] Configure embedding models for RAG
+  - [ ] Set up text generation models
+  - [ ] Handle model-specific configurations
+  - [ ] Implement fallback models
 
 ## Phase 5: Advanced Features
 
-### 5.1 Document Management
-- [ ] File type support
-  - [ ] PDF processing
-  - [ ] DOCX processing
-  - [ ] TXT processing
-  - [ ] Markdown processing
-- [ ] Batch upload processing
-  - [ ] Multiple file upload
-  - [ ] Progress tracking
-  - [ ] Error handling
-- [ ] Document versioning
-  - [ ] Version tracking
+### 5.1 Content Management
+- [ ] Text chunk management
+  - [ ] Automatic text chunking
+  - [ ] Manual chunk control
+  - [ ] Chunk size optimization
+  - [ ] Overlap management
+- [ ] Content import/export
+  - [ ] Bulk content import
+  - [ ] Content export functionality
+  - [ ] Migration tools
+  - [ ] Backup and restore
+- [ ] Content versioning
+  - [ ] Version tracking for entries
   - [ ] Change history
   - [ ] Rollback functionality
 - [ ] Access control and sharing
-  - [ ] User permissions
-  - [ ] Document sharing
-  - [ ] Public/private documents
+  - [ ] Namespace-based access control
+  - [ ] Content sharing between users
+  - [ ] Public/private content
 
 ### 5.2 Search & Discovery
 - [ ] Advanced search filters
-  - [ ] Date range filters
-  - [ ] Document type filters
-  - [ ] Author filters
-  - [ ] Content filters
-- [ ] Saved searches
-  - [ ] Save search queries
-  - [ ] Search history
-  - [ ] Quick access
+  - [ ] Custom filter types (category, contentType, etc.)
+  - [ ] Complex filter combinations (AND/OR logic)
+  - [ ] Filter value suggestions
+  - [ ] Dynamic filter creation
+- [ ] Search result formatting
+  - [ ] Custom result formatting
+  - [ ] Result ordering (by score vs. by order)
+  - [ ] Chunk context inclusion
+  - [ ] Entry-level formatting
 - [ ] Search suggestions
-  - [ ] Auto-complete
-  - [ ] Query suggestions
-  - [ ] Popular searches
-- [ ] Related document recommendations
-  - [ ] Similar document detection
-  - [ ] Content-based recommendations
-  - [ ] Usage-based recommendations
+  - [ ] Auto-complete for search queries
+  - [ ] Popular search suggestions
+  - [ ] Related search queries
+- [ ] Search analytics
+  - [ ] Search performance metrics
+  - [ ] Result relevance tracking
+  - [ ] User search behavior analysis
 
 ### 5.3 Analytics & Monitoring
 - [ ] Usage analytics
-  - [ ] Document upload stats
+  - [ ] Content addition stats
   - [ ] Search usage stats
-  - [ ] Chat usage stats
+  - [ ] Response generation stats
 - [ ] Search performance metrics
   - [ ] Search response times
-  - [ ] Result relevance scores
-  - [ ] User satisfaction metrics
-- [ ] Document popularity tracking
-  - [ ] Most accessed documents
-  - [ ] Document effectiveness
-  - [ ] Usage patterns
-- [ ] User behavior insights
-  - [ ] User interaction patterns
-  - [ ] Feature adoption rates
-  - [ ] User feedback collection
+  - [ ] Vector similarity scores
+  - [ ] Result relevance tracking
+- [ ] Content effectiveness tracking
+  - [ ] Most accessed content
+  - [ ] Content importance metrics
+  - [ ] Usage patterns by namespace
+- [ ] System performance monitoring
+  - [ ] Embedding generation performance
+  - [ ] Namespace migration metrics
+  - [ ] Error rate tracking
 
 ## Phase 6: Integration with Existing Systems
 
 ### 6.1 Authentication Integration
 - [ ] Extend existing auth system
-  - [ ] User-specific document access
-  - [ ] Document ownership
-  - [ ] Sharing permissions
+  - [ ] User-specific namespace access
+  - [ ] Content ownership by namespace
+  - [ ] Namespace sharing permissions
 - [ ] Add RAG-specific permissions
-  - [ ] Document upload permissions
-  - [ ] Collection management permissions
-  - [ ] Admin permissions
+  - [ ] Content addition permissions
+  - [ ] Namespace management permissions
+  - [ ] Search and generation permissions
 
 ### 6.2 Chat System Integration
 - [ ] Extend existing chat system
-  - [ ] Add RAG mode toggle
-  - [ ] Integrate RAG chat functionality
-  - [ ] Handle mode switching
+  - [ ] Add RAG context to existing chat
+  - [ ] Integrate with Agent Component for RAG
+  - [ ] Support both regular and RAG-enhanced chat
 - [ ] Preserve existing chat features
   - [ ] Regular chat functionality
-  - [ ] Chat history
-  - [ ] User preferences
+  - [ ] Chat history with RAG context
+  - [ ] User preferences for RAG usage
 
 ### 6.3 File System Integration
 - [ ] Integrate with existing file handling
-  - [ ] Leverage existing upload infrastructure
-  - [ ] File storage optimization
-  - [ ] Backup and recovery
-- [ ] Add RAG-specific file handling
-  - [ ] Document processing pipeline
-  - [ ] Temporary file management
-  - [ ] File cleanup
+  - [ ] Leverage existing upload infrastructure for content
+  - [ ] Content storage optimization
+  - [ ] Backup and recovery for namespaces
+- [ ] Add RAG-specific content handling
+  - [ ] Content processing pipeline
+  - [ ] Temporary content management
+  - [ ] Content cleanup and maintenance
 
 ## Technical Setup
 
 ### Dependencies
 - [ ] Add `@convex-dev/rag` to convex package.json
-- [ ] Add `langchain` for document processing
-- [ ] Add `pdf-parse` for PDF processing
-- [ ] Add `mammoth` for DOCX processing
-- [ ] Add `@langchain/textsplitters` for text chunking
+- [ ] Add AI SDK models (OpenAI, Anthropic, etc.)
+- [ ] Add `@ai-sdk/openai` for OpenAI integration
+- [ ] Add `@ai-sdk/anthropic` for Anthropic integration
+- [ ] Add text processing libraries for content chunking
 
 ### Environment Variables
-- [ ] Add `OPENAI_API_KEY` for embeddings
-- [ ] Add `PINECONE_API_KEY` for vector storage
-- [ ] Add `PINECONE_ENVIRONMENT` for vector storage
+- [ ] Add `OPENAI_API_KEY` for OpenAI embeddings and generation
+- [ ] Add `ANTHROPIC_API_KEY` for Anthropic models
 - [ ] Add RAG-specific configuration variables
+- [ ] Add embedding model configuration
 
 ### Performance Optimization
 - [ ] Implement embedding caching
-- [ ] Add background job processing
-- [ ] Optimize vector search indexing
-- [ ] Implement pagination for large datasets
+- [ ] Add background job processing for large content
+- [ ] Optimize namespace-based search
+- [ ] Implement pagination for large result sets
 - [ ] Add request rate limiting
+- [ ] Optimize chunk context retrieval
 
 ## Testing
 
 ### Unit Tests
-- [ ] Test document processing functions
-- [ ] Test embedding generation
-- [ ] Test search functionality
-- [ ] Test chat system
-- [ ] Test collection management
+- [ ] Test content addition functions
+- [ ] Test embedding generation and storage
+- [ ] Test search functionality with filters
+- [ ] Test response generation
+- [ ] Test namespace management
 
 ### Integration Tests
-- [ ] Test complete document upload pipeline
-- [ ] Test RAG chat flow
-- [ ] Test search and retrieval
+- [ ] Test complete content addition pipeline
+- [ ] Test RAG response generation flow
+- [ ] Test search and retrieval with filters
 - [ ] Test user authentication integration
+- [ ] Test namespace migration
 
 ### E2E Tests
 - [ ] Test complete user workflows
