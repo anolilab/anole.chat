@@ -8,7 +8,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache";
 import type { FC, PropsWithChildren } from "react";
-import { createContext, use, useCallback, useMemo, useState } from "react";
+import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
 
 import { showError } from "@/lib/toast";
 
@@ -67,10 +67,13 @@ export const useThreadContext = () => {
     return context;
 };
 
+let debugEffectCounter = 0;
+
 export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
     const [threads, setThreads] = useState<Map<string, ThreadMessageLike[]>>(() => new Map([["default", []]]));
     const [currentThreadId, setCurrentThreadId] = useState("default");
     const [threadMetadata, setThreadMetadata] = useState<Map<string, ThreadMetadata>>(() => new Map([]));
+    const [lastThreadIds, setLastThreadIds] = useState<{ backend: string[]; local: string[] }>({ backend: [], local: [] });
 
     const navigate = useNavigate({ from: "/chat/$threadId" });
 
@@ -79,6 +82,57 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
 
     // Query to get all threads for building the hierarchy
     const allThreads = useQuery(api.chat.functions.getThreads, { paginationOpts: { cursor: null, numItems: 100 } });
+
+    // Defensive: If currentThreadId is deleted or missing, auto-redirect to default or first available
+    useEffect(() => {
+        debugEffectCounter++;
+        const now = new Date().toISOString();
+        const localThreadIds = [...threads.keys()];
+        // Only include threads with a string _id
+        const backendThreadIds = allThreads?.page
+            ? allThreads.page.map((t) => (typeof t._id === "string" ? t._id : undefined)).filter((id): id is string => !!id)
+            : [];
+        const allIds = new Set([...backendThreadIds, ...localThreadIds]);
+
+        setLastThreadIds({ backend: backendThreadIds, local: localThreadIds });
+
+        if (allIds.has(currentThreadId)) {
+            console.log(`[ThreadProvider][${now}][Effect #${debugEffectCounter}] currentThreadId is valid, no redirect needed.`);
+        } else {
+            let fallbackId: string = localThreadIds.find((id) => id !== currentThreadId) || backendThreadIds.find((id) => id !== currentThreadId) || "default";
+
+            if (!fallbackId)
+                fallbackId = "default";
+
+            let reason = "";
+
+            if (!localThreadIds.includes(currentThreadId) && !backendThreadIds.includes(currentThreadId)) {
+                reason = "missing from both local and backend";
+            } else if (!localThreadIds.includes(currentThreadId)) {
+                reason = "missing from local only";
+            } else if (backendThreadIds.includes(currentThreadId)) {
+                reason = "unknown";
+            } else {
+                reason = "missing from backend only";
+            }
+
+            console.warn(`[ThreadProvider][${now}][Effect #${debugEffectCounter}] currentThreadId not found, redirecting to`, fallbackId, {
+                allIds: [...allIds],
+                currentThreadId,
+                reason,
+            });
+            console.log("Previous currentThreadId:", currentThreadId, "Next currentThreadId:", fallbackId);
+
+            setCurrentThreadId(fallbackId);
+
+            navigate({
+                params: { threadId: fallbackId },
+                to: fallbackId === "default" ? "/chat" : "/chat/$threadId",
+            });
+        }
+
+        console.groupEnd();
+    }, [currentThreadId, threads, allThreads, navigate]);
 
     // Create a new branch from a specific message in a thread
     const createBranch = async (fromThreadId: string, fromMessageIndex: number, branchName?: string): Promise<string> => {
@@ -136,7 +190,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
                 // Then check Convex threads data
                 if (allThreads?.page) {
                     for (const thread of allThreads.page) {
-                        if (thread.parentThreadIds?.includes(threadId) && !children.includes(thread._id)) {
+                        if ((thread as ThreadDocument).parentThreadIds?.includes(threadId) && !children.includes(thread._id)) {
                             children.push(thread._id);
                         }
                     }
@@ -160,9 +214,9 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
 
                 // Then check Convex threads data
                 if (allThreads?.page) {
-                    const thread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
+                    const convexThread = allThreads.page.find((t) => (t as ThreadDocument)._id === threadId) as ThreadDocument | undefined;
 
-                    return thread?.parentThreadIds?.[0] || null;
+                    return convexThread?.parentThreadIds?.[0] || null;
                 }
 
                 return null;
@@ -173,6 +227,10 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
     // Delete a branch and all its children
     const deleteBranch = useCallback(
         async (threadId: string) => {
+            const now = new Date().toISOString();
+
+            console.log(`[ThreadProvider][${now}] deleteBranch called for threadId:`, threadId);
+
             if (threadId === "default") {
                 throw new Error("Cannot delete the default thread");
             }
@@ -233,8 +291,6 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
                     });
                 }
             }
-
-            setCurrentThreadId(currentThreadId);
         },
         [setThreads, currentThreadId, deleteThreadMutation, getChildBranches, getParentThread],
     );
@@ -293,7 +349,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
                 // Check Convex threads
                 if (allThreads?.page) {
                     for (const thread of allThreads.page) {
-                        if (!thread.parentThreadIds?.length && !rootThreads.includes(thread._id)) {
+                        if (!(thread as ThreadDocument).parentThreadIds?.length && !rootThreads.includes(thread._id)) {
                             rootThreads.push(thread._id);
                         }
                     }
@@ -409,6 +465,51 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
         }
     };
 
+    // --- DEBUG LOGGING PATCH: Log all setCurrentThreadId and switchToBranch calls ---
+    const setCurrentThreadIdWithLog = (id: string) => {
+        const now = new Date().toISOString();
+        // @ts-ignore
+        const previous = currentThreadId;
+
+        console.log(`[ThreadProvider][${now}] setCurrentThreadId called. Previous:`, previous, "New:", id);
+        console.trace("[ThreadProvider] setCurrentThreadId stack trace");
+        setCurrentThreadId(id);
+    };
+
+    const switchToBranchWithLog = (threadId: string) => {
+        const now = new Date().toISOString();
+        // @ts-ignore
+        const previous = currentThreadId;
+
+        console.log(`[ThreadProvider][${now}] switchToBranch called. Previous:`, previous, "Switching to:", threadId);
+        console.trace("[ThreadProvider] switchToBranch stack trace");
+
+        if (threads.has(threadId)) {
+            setCurrentThreadId(threadId);
+            navigate({
+                params: { threadId },
+                search: (previous) => {
+                    return { ...previous };
+                },
+                to: "/chat/$threadId",
+            });
+            setThreadMetadata((previous) => {
+                const newMetadata = new Map(previous);
+                const metadata = newMetadata.get(threadId);
+
+                if (metadata) {
+                    newMetadata.set(threadId, {
+                        ...metadata,
+                        lastActivity: new Date(),
+                    });
+                }
+
+                return newMetadata;
+            });
+        }
+    };
+    // --- END DEBUG LOGGING PATCH ---
+
     return (
         <ThreadContext
             value={{
@@ -421,10 +522,10 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
                 getParentThread,
                 getThreadPath,
                 mergeBranch,
-                setCurrentThreadId,
+                setCurrentThreadId: setCurrentThreadIdWithLog, // wrap with log
                 setThreadMetadata,
                 setThreads,
-                switchToBranch,
+                switchToBranch: switchToBranchWithLog, // wrap with log
                 threadMetadata,
                 threads,
             }}

@@ -127,10 +127,13 @@ interface HierarchicalThreadListProperties {
 
 // Define a minimal type for threadRelationships to avoid deep type recursion
 // (move interface outside component scope)
-type MinimalThreadRelationship = { threadId: string; parentThreadId?: string };
+type MinimalThreadRelationship = { parentThreadId?: string; threadId: string };
 
-const HierarchicalThreadList: FC<HierarchicalThreadListProperties & { threadRelationships: MinimalThreadRelationship[]; currentThreadId: string | undefined }> = ({
+const HierarchicalThreadList: FC<
+    HierarchicalThreadListProperties & { currentThreadId: string | undefined; threadRelationships: MinimalThreadRelationship[] }
+> = ({
     collapsedGroups,
+    currentThreadId,
     expandedThreads,
     isSearchLoading,
     loadingStates,
@@ -141,11 +144,10 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties & { threadRela
     setShowKeyboardHelp,
     setShowSearch,
     showKeyboardHelp,
+    threadRelationships,
     threadSearchResults,
     toggleExpanded,
     toggleGroupCollapsed,
-    threadRelationships,
-    currentThreadId,
 }) => {
     const { t } = useLingui();
     const { createBranch, deleteBranch, threads } = useThreadContext();
@@ -212,7 +214,9 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties & { threadRela
 
             // Find direct children using relationships
             const childRelationships = threadRelationships.filter((rel: MinimalThreadRelationship) => rel.parentThreadId === threadId);
-            const children = childRelationships.map((rel: MinimalThreadRelationship) => buildHierarchy(rel.threadId, depth + 1)).filter((node): node is BranchNode => node !== null);
+            const children = childRelationships
+                .map((rel: MinimalThreadRelationship) => buildHierarchy(rel.threadId, depth + 1))
+                .filter((node): node is BranchNode => node !== null);
 
             return {
                 branchPoint: 0, // Default value
@@ -1209,11 +1213,11 @@ const HierarchicalThreadList: FC<HierarchicalThreadListProperties & { threadRela
                           * &lt;div
                           * className="bg-border absolute w-px"
                           * style={{
-                                height: `${node.children.length * 44}px`,
-                                left: `${node.depth * 20 + 10}px`,
-                                top: "0px",
-                            }}
-                        />
+                          * height: `${node.children.length * 44}px`,
+                          * left: `${node.depth * 20 + 10}px`,
+                          * top: "0px",
+                          * }}
+                          * />
                           */}
                         {node.children.map((child, childIndex) => (
                             <SortableThreadItem index={childIndex} key={child.threadId} node={child} />
@@ -1507,14 +1511,16 @@ const ThreadList: FC = () => {
         downloading: Set<string>;
         pinning: Set<string>;
         reordering: boolean;
-    }>(() => ({
-        archiving: new Set(),
-        branching: new Set(),
-        deleting: new Set(),
-        downloading: new Set(),
-        pinning: new Set(),
-        reordering: false,
-    }));
+    }>(() => {
+        return {
+            archiving: new Set(),
+            branching: new Set(),
+            deleting: new Set(),
+            downloading: new Set(),
+            pinning: new Set(),
+            reordering: false,
+        };
+    });
 
     // Search threads when there's a search query and search type is "threads"
     const threadSearchResults = useQuery(
@@ -1544,10 +1550,12 @@ const ThreadList: FC = () => {
 
     // Auto-expand parent chain of selected thread
     useEffect(() => {
-        if (!currentThreadId || !threadRelationships) return;
+        if (!currentThreadId || !threadRelationships)
+            return;
 
         // Build a map: threadId -> parentThreadId
         const parentMap = new Map<string, string>();
+
         for (const rel of threadRelationships) {
             if (rel.threadId && rel.parentThreadId) {
                 parentMap.set(rel.threadId, rel.parentThreadId);
@@ -1557,9 +1565,13 @@ const ThreadList: FC = () => {
         // Walk up the parent chain from currentThreadId
         const ancestors = new Set<string>();
         let cursor = currentThreadId;
+
         while (parentMap.has(cursor)) {
             const parent = parentMap.get(cursor);
-            if (!parent) break;
+
+            if (!parent)
+                break;
+
             ancestors.add(parent);
             cursor = parent;
         }
@@ -1695,6 +1707,7 @@ const ThreadList: FC = () => {
             )}
             <HierarchicalThreadList
                 collapsedGroups={collapsedGroups}
+                currentThreadId={currentThreadId}
                 expandedThreads={expandedThreads}
                 isSearchLoading={isSearchLoading}
                 loadingStates={loadingStates}
@@ -1705,11 +1718,10 @@ const ThreadList: FC = () => {
                 setShowKeyboardHelp={setShowKeyboardHelp}
                 setShowSearch={setShowSearch}
                 showKeyboardHelp={showKeyboardHelp}
+                threadRelationships={threadRelationships}
                 threadSearchResults={threadSearchResults}
                 toggleExpanded={toggleExpanded}
                 toggleGroupCollapsed={toggleGroupCollapsed}
-                threadRelationships={threadRelationships}
-                currentThreadId={currentThreadId}
             />
         </ThreadListPrimitive.Root>
     );

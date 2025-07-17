@@ -1,8 +1,9 @@
 "use client";
 
+import { api } from "@anole/convex/api";
 import type { ExternalStoreAdapter, ThreadMessageLike } from "@assistant-ui/react";
 import { AssistantRuntimeProvider, CompositeAttachmentAdapter, useExternalStoreRuntime } from "@assistant-ui/react";
-import { useConvex } from "convex/react";
+import { useConvex, useQuery } from "convex/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import ConvexAttachmentAdapter from "@/features/chat/adapter/convex-attachment-adapter";
@@ -19,28 +20,29 @@ const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threadId }: 
     const threadContext = useThreadContext();
     const convex = useConvex();
 
-    const { currentThreadId, setCurrentThreadId, setThreadMetadata, setThreads, threads } = threadContext;
+    const { currentThreadId, setCurrentThreadId, setThreads, threads } = threadContext;
 
+    // --- Fetch all threads for thread existence checks ---
+    const allThreads = useQuery(api.chat.functions.getThreads, { paginationOpts: { cursor: null, numItems: 100 } });
+
+    // --- PATCH: Only sync to valid, existing threadId ---
     useEffect(() => {
-        if (threadId && threadId !== currentThreadId) {
-            providerLogger.info("[Provider] Thread ID changed. Old: %s, New: %s", currentThreadId, threadId);
-            setCurrentThreadId(threadId);
+        if (!threadId || threadId === currentThreadId)
+            return;
 
-            if (!threads.has(threadId)) {
-                providerLogger.info("[Provider] Initializing new thread in context: %s", threadId);
-                setThreads((previous) => new Map(previous).set(threadId, []));
+        // Check if threadId exists in backend thread list (allThreads.page)
+        const threadExists = allThreads?.page?.some((t: any) => typeof t._id === "string" && t._id === threadId && t.status !== "deleted");
 
-                setThreadMetadata((previous) =>
-                    new Map(previous).set(threadId, {
-                        createdAt: new Date(),
-                        lastActivity: new Date(),
-                        status: "active",
-                        title: "New Chat",
-                    }),
-                );
-            }
+        if (!threadExists) {
+            console.warn("[ConvexExternalRuntimeProvider] Refusing to switch to non-existent or deleted threadId:", threadId);
+
+            return;
         }
-    }, [threadId, currentThreadId, setCurrentThreadId, threads, setThreads, setThreadMetadata]);
+
+        providerLogger.info("[Provider] Thread ID changed. Old: %s, New: %s", currentThreadId, threadId);
+
+        setCurrentThreadId(threadId);
+    }, [threadId, currentThreadId, allThreads]);
 
     const {
         handleCancel,
@@ -125,7 +127,7 @@ const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threadId }: 
             );
             setThreads((previous) => new Map(previous).set(currentThreadId, validMessages));
         },
-        [currentThreadId, setThreads],
+        [currentThreadId, setThreads, threads],
     );
 
     const adapter: ExternalStoreAdapter<ThreadMessageLike> = useMemo(() => {

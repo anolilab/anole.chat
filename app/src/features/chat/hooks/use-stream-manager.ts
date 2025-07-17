@@ -6,8 +6,8 @@ import { AssistantMessageAccumulator, DataStreamDecoder } from "assistant-stream
 import { asAsyncIterableStream } from "assistant-stream/utils";
 import { useCallback, useRef, useState } from "react";
 
-import { AdaptiveThrottle } from "../providers/streaming-optimizations";
 import { generateId } from "../providers/types";
+import AdaptiveThrottle from "./utils/adaptive-throttle";
 
 interface UseStreamManagerProperties {
     jwtToken: string;
