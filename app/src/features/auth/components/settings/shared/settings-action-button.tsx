@@ -1,10 +1,9 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import cn from "@anole/ui/utils/cn";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
-
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardClassNames } from "./settings-card";
 

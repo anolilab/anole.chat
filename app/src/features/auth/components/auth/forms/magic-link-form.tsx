@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
 import type { BetterFetchOption } from "better-auth/react";
@@ -7,13 +11,9 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { z } from "zod/v4";
 
-import { Button } from "@/components/ui/button";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
+import { useIsHydrated } from "@/hooks/use-hydrated";
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { getLocalizedError } from "../../../lib/utils";
 import { Captcha } from "../../captcha/captcha";

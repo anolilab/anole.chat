@@ -18,8 +18,7 @@ export const AuthCallback = ({ redirectTo }: { redirectTo?: string }) => {
     const { onSuccess } = useOnSuccessTransition({ redirectTo });
 
     useEffect(() => {
-        if (isRedirecting.current)
-            return;
+        if (isRedirecting.current) return;
 
         if (!persistClient) {
             isRedirecting.current = true;
@@ -28,8 +27,7 @@ export const AuthCallback = ({ redirectTo }: { redirectTo?: string }) => {
             return;
         }
 
-        if (isRestoring)
-            return;
+        if (isRestoring) return;
 
         isRedirecting.current = true;
         onSuccess();

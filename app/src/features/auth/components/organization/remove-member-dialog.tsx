@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
@@ -7,10 +10,7 @@ import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
@@ -37,7 +37,7 @@ export const RemoveMemberDialog = ({ classNames, member, onOpenChange, ...proper
         { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...organization?.customRoles || []];
+    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
     const role = roles.find((r) => r.role === member.role);
 
     const [isRemoving, setIsRemoving] = useState(false);

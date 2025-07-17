@@ -1,10 +1,9 @@
 "use client";
 
+import { Skeleton } from "@anole/ui/components/skeleton";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { Organization } from "better-auth/plugins/organization";
-
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 import type { OrganizationLogoClassNames } from "./organization-logo";
 import { OrganizationLogo } from "./organization-logo";
@@ -46,27 +45,25 @@ export const OrganizationView = ({ className, classNames, isPending, organizatio
         />
 
         <div className={cn("flex flex-col truncate text-left leading-tight", classNames?.content)}>
-            {isPending
-                ? (
-                    <>
-                        <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
+            {isPending ? (
+                <>
+                    <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
 
-                        {size !== "sm" && (
-                            <Skeleton className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-24" : "h-3 w-16", classNames?.subtitle, classNames?.skeleton)} />
-                        )}
-                    </>
-                )
-                : (
-                    <>
-                        <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
-                            {organization?.name || t`Organization`}
-                        </span>
+                    {size !== "sm" && (
+                        <Skeleton className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-24" : "h-3 w-16", classNames?.subtitle, classNames?.skeleton)} />
+                    )}
+                </>
+            ) : (
+                <>
+                    <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
+                        {organization?.name || t`Organization`}
+                    </span>
 
-                        {size !== "sm" && organization?.slug && (
-                            <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>{organization.slug}</span>
-                        )}
-                    </>
-                )}
+                    {size !== "sm" && organization?.slug && (
+                        <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>{organization.slug}</span>
+                    )}
+                </>
+            )}
         </div>
     </div>
 );

@@ -1,9 +1,9 @@
+import { Button } from "@anole/ui/components/button";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { LockIcon, MailIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { AuthView } from "../../lib/auth-view-paths";
 import type { AuthCardClassNames } from "./auth-card";

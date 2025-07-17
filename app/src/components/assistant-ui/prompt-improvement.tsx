@@ -1,3 +1,8 @@
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { Label } from "@anole/ui/components/label";
+import { Textarea } from "@anole/ui/components/textarea";
+import cn from "@anole/ui/utils/cn";
 import { ThreadPrimitive, useComposer, useComposerRuntime } from "@assistant-ui/react";
 import { AlertCircle, Loader2, Sparkles, Wifi, WifiOff } from "lucide-react";
 import type { FC } from "react";
@@ -5,13 +10,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { PromptImprovementErrorBoundary } from "@/components/error-boundaries/prompt-improvement-error-boundary";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ContentError, ErrorFactory, ErrorUtils, NetworkError, RateLimitError, ValidationError } from "@/lib/errors";
 import { promptToast } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 
 const usePromptImprovement = (threadId: string) => {
     const [isImproving, setIsImproving] = useState(false);
@@ -297,10 +297,7 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
 
                     {retryCount > 0 && (
                         <div className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
-                            Retrying... (Attempt
-                            {" "}
-                            {retryCount + 1}
-                            )
+                            Retrying... (Attempt {retryCount + 1})
                         </div>
                     )}
 
@@ -361,19 +358,17 @@ const PromptImprovementDialog: FC<PromptImprovementDialogProperties> = ({ curren
                         Cancel
                     </Button>
                     <Button disabled={isImproving || !localCurrentPrompt.trim()} onClick={handleImprove} variant="secondary">
-                        {isImproving
-                            ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Improving...
-                                </>
-                            )
-                            : (
-                                <>
-                                    <Sparkles className="mr-2 h-4 w-4" />
-                                    Improve
-                                </>
-                            )}
+                        {isImproving ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Improving...
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles className="mr-2 h-4 w-4" />
+                                Improve
+                            </>
+                        )}
                     </Button>
                     {hasImproved && (
                         <Button disabled={isImproving || !improvedPrompt.trim()} onClick={handleApply}>
@@ -394,8 +389,7 @@ export const PromptImprovement: FC<PromptImprovementProperties> = ({ threadId })
     const composerRuntime = useComposerRuntime();
 
     const currentInputValue = useComposer((c) => {
-        if (!c.isEditing)
-            return "";
+        if (!c.isEditing) return "";
 
         return c.text;
     });

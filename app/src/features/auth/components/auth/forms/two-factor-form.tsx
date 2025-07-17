@@ -1,5 +1,10 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Checkbox } from "@anole/ui/components/checkbox";
+import { useAppForm } from "@anole/ui/components/form";
+import { InputOTP } from "@anole/ui/components/input-otp";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Link, useSearch } from "@tanstack/react-router";
 import type { BetterFetchError } from "better-auth/react";
@@ -10,10 +15,6 @@ import QRCode from "react-qr-code";
 import { z } from "zod/v4";
 
 import CopyButton from "@/components/copy-button";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useAppForm } from "@/components/ui/form";
-import { InputOTP } from "@/components/ui/input-otp";
 import type { AuthFormClassNames } from "@/features/auth/components/auth/auth-form";
 import { OTPInputGroup } from "@/features/auth/components/auth/otp-input-group";
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
@@ -21,7 +22,6 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { User } from "@/features/auth/types/auth-core-types";
 import { useIsHydrated } from "@/hooks/use-hydrated";
-import { cn } from "@/lib/utils";
 
 export interface TwoFactorFormProperties {
     className?: string;
@@ -140,8 +140,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
     }, [method]);
 
     useEffect(() => {
-        if (cooldownSeconds <= 0)
-            return;
+        if (cooldownSeconds <= 0) return;
 
         const timer = setTimeout(() => {
             setCooldownSeconds((previous) => previous - 1);
@@ -153,8 +152,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
     }, [cooldownSeconds]);
 
     const sendOtp = async () => {
-        if (isSendingOtp || cooldownSeconds > 0)
-            return;
+        if (isSendingOtp || cooldownSeconds > 0) return;
 
         try {
             setIsSendingOtp(true);
@@ -190,8 +188,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                 {twoFactor?.includes("totp") && totpURI && method === "totp" && (
                     <div className="space-y-4">
                         <div className={classNames?.label}>
-                            {t`Using an authenticator app like`}
-                            {" "}
+                            {t`Using an authenticator app like`}{" "}
                             <a
                                 className="text-blue-500 hover:underline"
                                 href="https://www.google.com/search?q=google+authenticator"
@@ -200,8 +197,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                             >
                                 Google Authenticator
                             </a>
-                            ,
-                            {" "}
+                            ,{" "}
                             <a
                                 className="text-blue-500 hover:underline"
                                 href="https://www.google.com/search?q=google+authenticator"
@@ -209,10 +205,8 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                                 target="_blank"
                             >
                                 Microsoft Authenticator
-                            </a>
-                            {" "}
-                            {t`or`}
-                            {" "}
+                            </a>{" "}
+                            {t`or`}{" "}
                             <a
                                 className="text-blue-500 hover:underline"
                                 href="https://www.google.com/search?q=google+authenticator"
@@ -221,9 +215,7 @@ export const TwoFactorForm = ({ className, classNames, isSubmitting, otpSeparato
                             >
                                 Authy
                             </a>
-                            ,
-                            {" "}
-                            {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
+                            , {t`scan this QR code. it will generate a 6 digit code for you to enter below.`}
                         </div>
                         <QRCode className={cn("mx-auto border shadow-xs", classNames?.qrCode)} value={totpURI} />
 

@@ -1,10 +1,9 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
+import { Skeleton } from "@anole/ui/components/skeleton";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 import type { UserViewProperties } from "../user-view";
 
@@ -27,34 +26,32 @@ export const PersonalAccountView = ({ className, classNames, isPending, size, us
         </Avatar>
 
         <div className={cn("grid flex-1 text-left leading-tight", classNames?.content)}>
-            {isPending
-                ? (
-                    <>
-                        <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
+            {isPending ? (
+                <>
+                    <Skeleton className={cn("max-w-full", size === "lg" ? "h-4.5 w-32" : "h-3.5 w-24", classNames?.title, classNames?.skeleton)} />
 
-                        {size !== "sm" && (
-                            <Skeleton className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-40" : "h-3 w-32", classNames?.subtitle, classNames?.skeleton)} />
-                        )}
-                    </>
-                )
-                : (
-                    <>
-                        <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
-                            {user?.displayUsername
-                                || user?.username
-                                || user?.displayName
-                                || user?.firstName
-                                || user?.name
-                                || user?.fullName
-                || user?.email
-                            || t`User`}
-                        </span>
+                    {size !== "sm" && (
+                        <Skeleton className={cn("mt-1.5 max-w-full", size === "lg" ? "h-3.5 w-40" : "h-3 w-32", classNames?.subtitle, classNames?.skeleton)} />
+                    )}
+                </>
+            ) : (
+                <>
+                    <span className={cn("truncate font-semibold", size === "lg" ? "text-base" : "text-sm", classNames?.title)}>
+                        {user?.displayUsername ||
+                            user?.username ||
+                            user?.displayName ||
+                            user?.firstName ||
+                            user?.name ||
+                            user?.fullName ||
+                            user?.email ||
+                            t`User`}
+                    </span>
 
-                        {size !== "sm" && (
-                            <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>{t`Personal Account`}</span>
-                        )}
-                    </>
-                )}
+                    {size !== "sm" && (
+                        <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs", classNames?.subtitle)}>{t`Personal Account`}</span>
+                    )}
+                </>
+            )}
         </div>
     </div>
 );

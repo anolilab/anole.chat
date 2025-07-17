@@ -1,17 +1,17 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod/v4";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
@@ -38,7 +38,7 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
         { label: t`Member`, role: "member" },
     ] as const;
 
-    const roles = [...builtInRoles, ...organization?.customRoles || []];
+    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
     const availableRoles = roles.filter((role) => membership?.role === "owner" || role.role !== "owner");
 
     const formSchema = z

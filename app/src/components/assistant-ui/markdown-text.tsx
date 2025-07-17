@@ -3,6 +3,7 @@
 import "@assistant-ui/react-markdown/styles/dot.css";
 import "katex/dist/katex.min.css";
 
+import cn from "@anole/ui/utils/cn";
 import type { CodeHeaderProps } from "@assistant-ui/react-markdown";
 import { MarkdownTextPrimitive, unstable_memoizeMarkdownComponents as memoizeMarkdownComponents, useIsMarkdownCodeBlock } from "@assistant-ui/react-markdown";
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
@@ -16,7 +17,6 @@ import remarkMath from "remark-math";
 
 import { MermaidDiagram } from "@/components/assistant-ui/mermaid-diagram";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { cn } from "@/lib/utils";
 
 import { SyntaxHighlighter } from "./shiki-highlighter";
 
@@ -291,8 +291,7 @@ const useCopyToClipboard = ({
     const [isCopied, setIsCopied] = useState<boolean>(false);
 
     const copyToClipboard = (value: string) => {
-        if (!value)
-            return;
+        if (!value) return;
 
         navigator.clipboard.writeText(value).then(() => {
             setIsCopied(true);

@@ -1,17 +1,17 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import cn from "@anole/ui/utils/cn";
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { KeyRoundIcon, Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { DEFAULT_LOCALE } from "@/lib/intl/client";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../../lib/utils";
 import type { ApiKey } from "../../../types/data-structure-types";
@@ -52,8 +52,7 @@ export const ApiKeyDeleteDialog = ({ apiKey, classNames, onOpenChange, refetch, 
 
     // Format expiration date or show "Never expires"
     const formatExpiration = () => {
-        if (!apiKey.expiresAt)
-            return t`Never expires`;
+        if (!apiKey.expiresAt) return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
 
@@ -74,9 +73,7 @@ export const ApiKeyDeleteDialog = ({ apiKey, classNames, onOpenChange, refetch, 
             >
                 <DialogHeader className={classNames?.dialog?.header}>
                     <DialogTitle className={cn("text-lg md:text-xl", classNames?.title)}>
-                        {t`Delete`}
-                        {" "}
-                        {t`API Key`}
+                        {t`Delete`} {t`API Key`}
                     </DialogTitle>
 
                     <DialogDescription className={cn("text-xs md:text-sm", classNames?.description)}>

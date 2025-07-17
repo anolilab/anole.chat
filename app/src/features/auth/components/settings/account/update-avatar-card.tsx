@@ -1,16 +1,16 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useRef, useState } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { fileToBase64, resizeAndCropImage } from "../../../lib/image-utils";
 import { getLocalizedError } from "../../../lib/utils";
@@ -37,8 +37,7 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
     const [loading, setLoading] = useState(false);
 
     const handleAvatarChange = async (file: File) => {
-        if (!sessionData || !avatar)
-            return;
+        if (!sessionData || !avatar) return;
 
         setLoading(true);
         const resizedFile = await resizeAndCropImage(file, crypto.randomUUID(), avatar.size, avatar.extension);
@@ -53,8 +52,7 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
             return;
         }
 
-        if (optimistic && !avatar.upload)
-            setLoading(false);
+        if (optimistic && !avatar.upload) setLoading(false);
 
         try {
             await updateUser({ image });
@@ -70,8 +68,7 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
     };
 
     const handleDeleteAvatar = async () => {
-        if (!sessionData)
-            return;
+        if (!sessionData) return;
 
         setLoading(true);
 
@@ -99,8 +96,7 @@ export const UpdateAvatarCard = ({ className, classNames, ...properties }: Updat
                 onChange={(e) => {
                     const file = e.target.files?.item(0);
 
-                    if (file)
-                        handleAvatarChange(file);
+                    if (file) handleAvatarChange(file);
 
                     e.target.value = "";
                 }}

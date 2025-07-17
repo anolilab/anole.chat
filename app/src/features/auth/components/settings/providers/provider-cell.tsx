@@ -1,14 +1,14 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { SocialProvider } from "better-auth/social-providers";
 import { Loader2 } from "lucide-react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { Provider } from "../../../lib/social-providers";
 import type { Refetch } from "../../../types/hook-integration-types";

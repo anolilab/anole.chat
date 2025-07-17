@@ -1,15 +1,15 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Trash2Icon, UploadCloudIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
 import { getLocalizedError } from "../../lib/utils";
@@ -84,8 +84,7 @@ const OrganizationLogoForm = ({ className, classNames, ...properties }: Organiza
     const [loading, setLoading] = useState(false);
 
     const handleLogoChange = async (file: File) => {
-        if (!activeOrganization || !organization?.logo || !hasPermission?.success)
-            return;
+        if (!activeOrganization || !organization?.logo || !hasPermission?.success) return;
 
         setLoading(true);
         const resizedFile = await resizeAndCropImage(file, crypto.randomUUID(), organization.logo.size, organization.logo.extension);
@@ -100,8 +99,7 @@ const OrganizationLogoForm = ({ className, classNames, ...properties }: Organiza
             return;
         }
 
-        if (optimistic && !organization.logo.upload)
-            setLoading(false);
+        if (optimistic && !organization.logo.upload) setLoading(false);
 
         try {
             await authClient.organization.update({
@@ -122,8 +120,7 @@ const OrganizationLogoForm = ({ className, classNames, ...properties }: Organiza
     };
 
     const handleDeleteLogo = async () => {
-        if (!activeOrganization || !hasPermission?.success)
-            return;
+        if (!activeOrganization || !hasPermission?.success) return;
 
         setLoading(true);
 
@@ -160,8 +157,7 @@ const OrganizationLogoForm = ({ className, classNames, ...properties }: Organiza
                 onChange={(e) => {
                     const file = e.target.files?.item(0);
 
-                    if (file)
-                        handleLogoChange(file);
+                    if (file) handleLogoChange(file);
 
                     e.target.value = "";
                 }}

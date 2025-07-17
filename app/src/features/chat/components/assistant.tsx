@@ -1,10 +1,10 @@
 "use client";
 
+import { SidebarInset } from "@anole/ui/components/sidebar";
 import type { FC } from "react";
 
 import { Thread } from "@/components/assistant-ui/thread";
 import ThreadList from "@/components/assistant-ui/thread-list";
-import { SidebarInset } from "@/components/ui/sidebar";
 import ConvexExternalRuntimeProvider from "@/features/chat/providers/convex-external-runtime-provider";
 import AppSidebar from "@/features/layout/components/app-sidebar";
 

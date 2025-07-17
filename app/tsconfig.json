@@ -10,6 +10,11 @@
         },
         "types": ["vite/client", "@vitest/browser/matchers", "vitest/globals"]
     },
+    "references": [
+        {
+            "path": "../packages/ui/tsconfig.json"
+        }
+    ],
     "include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.js", "@vitest/browser/providers/webdriverio"],
     "exclude": ["**/*.md", "**/*.json"]
 }

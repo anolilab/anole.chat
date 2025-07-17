@@ -1,9 +1,8 @@
 "use client";
 
+import { Card } from "@anole/ui/components/card";
+import cn from "@anole/ui/utils/cn";
 import type { ComponentProps, ReactNode } from "react";
-
-import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 import { SettingsCardFooter } from "./settings-card-footer";
 import { SettingsCardHeader } from "./settings-card-header";

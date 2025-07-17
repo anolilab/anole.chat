@@ -26,11 +26,7 @@ export default function LandingPage() {
 
             <footer className="mt-16 border-t">
                 <div className="text-muted-foreground container py-6 text-center text-sm">
-                    Built with Modern Tech. &copy;
-                    {" "}
-                    {new Date().getFullYear()}
-                    {" "}
-                    Your Company/Name.
+                    Built with Modern Tech. &copy; {new Date().getFullYear()} Your Company/Name.
                 </div>
             </footer>
         </div>

@@ -1,10 +1,10 @@
+import { ToggleGroup, ToggleGroupItem } from "@anole/ui/components/toggle-group";
 import { i18n } from "@lingui/core";
 import { createServerFn } from "@tanstack/react-start";
 import { setHeader } from "@tanstack/react-start/server";
 import { serialize } from "cookie-es";
 import type { FC } from "react";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DEFAULT_LOCALE, locales as appLocales } from "@/lib/intl/client";
 
 const updateLanguage = createServerFn({ method: "POST" })

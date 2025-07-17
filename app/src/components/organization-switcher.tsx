@@ -1,6 +1,3 @@
-import { ChevronsUpDown, Plus } from "lucide-react";
-import * as React from "react";
-
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,8 +6,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuShortcut,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+} from "@anole/ui/components/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@anole/ui/components/sidebar";
+import { ChevronsUpDown, Plus } from "lucide-react";
+import * as React from "react";
+
 import { authClient } from "@/lib/auth/client";
 
 export const OrganizationSwitcher = ({
@@ -66,10 +66,7 @@ export const OrganizationSwitcher = ({
                                     <organization.logo className="size-3.5 shrink-0" />
                                 </div>
                                 {organization.name}
-                                <DropdownMenuShortcut>
-                                    ⌘
-                                    {index + 1}
-                                </DropdownMenuShortcut>
+                                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                             </DropdownMenuItem>
                         ))}
                         <DropdownMenuSeparator />

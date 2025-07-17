@@ -1,12 +1,12 @@
 "use client";
 
+import { CardContent } from "@anole/ui/components/card";
+import { useAppForm } from "@anole/ui/components/form";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { use, useState } from "react";
 
-import { CardContent } from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/form";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
 import type { SettingsCardClassNames } from "../shared/settings-card";

@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
@@ -7,11 +11,7 @@ import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
@@ -43,7 +43,7 @@ export const UpdateMemberRoleDialog = ({ classNames, member, onOpenChange, ...pr
         { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...organization?.customRoles || []];
+    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
 
     const currentUserRole = activeOrganization?.members.find((m) => m.user.id === sessionData?.user.id)?.role;
 

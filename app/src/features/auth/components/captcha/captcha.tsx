@@ -16,8 +16,7 @@ interface CaptchaProperties {
 export const Captcha = ({ action, ref }: CaptchaProperties) => {
     const { captcha } = useAuth();
 
-    if (!captcha)
-        return null;
+    if (!captcha) return null;
 
     // If action is provided, check if it's in the list of captcha-enabled endpoints
     if (action) {

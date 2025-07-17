@@ -4,5 +4,13 @@
     "sourceRoot": "chat",
     "projectType": "app",
     "tags": ["chat"],
-    "implicitDependencies": []
+    "implicitDependencies": [],
+    "targets": {
+        "build": {
+            "syncGenerators": ["@aishop/tailwind-sync-plugin:update-tailwind-globs"]
+        },
+        "serve": {
+            "syncGenerators": ["@aishop/tailwind-sync-plugin:update-tailwind-globs"]
+        }
+    }
 }

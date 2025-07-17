@@ -1,7 +1,8 @@
 "use client";
 
+import cn from "@anole/ui/utils/cn";
+
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { AuthCardProperties } from "../../types/ui-configuration-types";
 import { DeleteAccountCard } from "./account/delete-account-card";

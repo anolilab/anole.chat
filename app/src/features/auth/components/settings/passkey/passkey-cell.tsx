@@ -1,13 +1,13 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { FingerprintIcon, Loader2 } from "lucide-react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { SessionFreshnessDialog } from "../shared/session-freshness-dialog";
 import type { SettingsCardClassNames } from "../shared/settings-card";

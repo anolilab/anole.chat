@@ -1,14 +1,13 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { Input } from "@anole/ui/components/input";
+import { Label } from "@anole/ui/components/label";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { ComponentProps } from "react";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardClassNames } from "./settings-card";
 
@@ -26,8 +25,7 @@ export const SessionFreshnessDialog = ({ classNames, onOpenChange, onVerified, .
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!password.trim())
-            return;
+        if (!password.trim()) return;
 
         setIsPending(true);
         setError("");

@@ -1,19 +1,19 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
+import cn from "@anole/ui/utils/cn";
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod/v4";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { DEFAULT_LOCALE } from "@/lib/intl/client";
-import { cn } from "@/lib/utils";
 
 import type { Refetch } from "../../../types/hook-integration-types";
 import type { SettingsCardClassNames } from "../shared/settings-card";

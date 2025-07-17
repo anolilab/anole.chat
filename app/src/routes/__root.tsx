@@ -1,4 +1,6 @@
 import { createAuth } from "@anole/convex/auth";
+import ScreenSizeDebug from "@anole/ui/components/screen-size-debug";
+import { Toaster } from "@anole/ui/components/sonner";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
@@ -12,8 +14,6 @@ import { ThemeProvider } from "next-themes";
 import { lazy, Suspense } from "react";
 
 import { ReactScan } from "@/components/debug/react-scan";
-import ScreenSizeDebug from "@/components/screen-size-debug";
-import { Toaster } from "@/components/ui/sonner";
 import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
 import { AuthUIProviderTanstack } from "@/features/auth/lib/tanstack/auth-ui-provider-tanstack";
 import { authClient } from "@/lib/auth/client";

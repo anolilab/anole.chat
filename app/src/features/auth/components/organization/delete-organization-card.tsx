@@ -23,8 +23,7 @@ export const DeleteOrganizationCard = ({ className, classNames }: SettingsCardPr
     const membership = activeOrganization?.members?.find((member) => member.userId === sessionData?.user.id);
     const isOwner = membership?.role === "owner";
 
-    if (!isPending && !isOwner)
-        return null;
+    if (!isPending && !isOwner) return null;
 
     return (
         <>

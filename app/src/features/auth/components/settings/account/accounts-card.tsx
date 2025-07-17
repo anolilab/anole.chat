@@ -1,10 +1,10 @@
 "use client";
 
+import { CardContent } from "@anole/ui/components/card";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 
-import { CardContent } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";

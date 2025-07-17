@@ -1,16 +1,16 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { Organization } from "better-auth/plugins/organization";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";

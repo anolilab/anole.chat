@@ -1,19 +1,19 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { useAppForm } from "@anole/ui/components/form";
+import { InputOTP } from "@anole/ui/components/input-otp";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Loader2 } from "lucide-react";
 import { use, useEffect } from "react";
 import { z } from "zod/v4";
 
-import { Button } from "@/components/ui/button";
-import { useAppForm } from "@/components/ui/form";
-import { InputOTP } from "@/components/ui/input-otp";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
-import { getLocalizedError } from "../../../lib/utils";
+import { useIsHydrated } from "@/hooks/use-hydrated";
+import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { AuthFormClassNames } from "../auth-form";
 import { OTPInputGroup } from "../otp-input-group";
 

@@ -2,10 +2,11 @@ packages:
   - app
   - convex
   - packages/*
-  - local/*
+  - tools/*
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
+  - '@swc/core'
   - '@tailwindcss/oxide'
   - core-js
   - edgedriver

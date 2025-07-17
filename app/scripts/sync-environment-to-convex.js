@@ -100,7 +100,7 @@ const syncEnvironmentToConvex = async () => {
 
     if (successCount > 0) {
         console.log("\n🎉 Environment sync completed successfully!");
-        console.log("💡 Run \"npx convex env list\" to verify the changes");
+        console.log('💡 Run "npx convex env list" to verify the changes');
     }
 };
 

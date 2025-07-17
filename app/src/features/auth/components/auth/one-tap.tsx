@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
-import { useOnSuccessTransition } from "../../hooks/use-success-transition";
+import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
 
 interface OneTapProperties {
     redirectTo?: string;

@@ -10,7 +10,7 @@ import type { GravatarOptions } from "../types/ui-configuration-types";
  */
 export const getGravatarUrl = async (
     email?: string | ArrayBuffer | ArrayBufferView<ArrayBufferLike>,
-    options?: GravatarOptions
+    options?: GravatarOptions,
 ): Promise<string | undefined> => {
     if (!email || typeof email !== "string") return undefined;
 
@@ -27,6 +27,7 @@ export const getGravatarUrl = async (
         if (typeof options?.size === "number") {
             // Constrain size between 1 and 2048 pixels
             const size = Math.min(Math.max(options.size, 1), 2048);
+
             parameters.append("s", size.toString());
         }
 
@@ -39,6 +40,7 @@ export const getGravatarUrl = async (
         }
 
         const queryString = parameters.toString();
+
         if (queryString) {
             url += `?${queryString}`;
         }
@@ -46,6 +48,7 @@ export const getGravatarUrl = async (
         return url;
     } catch (error) {
         console.error("Error generating Gravatar URL:", error);
+
         return undefined;
     }
-}
+};

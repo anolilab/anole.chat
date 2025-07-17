@@ -1,13 +1,12 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
@@ -54,19 +53,17 @@ export const APIKeyDisplayDialog = ({ apiKey, classNames, onOpenChange, ...prope
                         type="button"
                         variant="outline"
                     >
-                        {copied
-                            ? (
-                                <>
-                                    <CheckIcon className={classNames?.icon} />
-                                    {t`Copied to clipboard`}
-                                </>
-                            )
-                            : (
-                                <>
-                                    <CopyIcon className={classNames?.icon} />
-                                    {t`Copy to clipboard`}
-                                </>
-                            )}
+                        {copied ? (
+                            <>
+                                <CheckIcon className={classNames?.icon} />
+                                {t`Copied to clipboard`}
+                            </>
+                        ) : (
+                            <>
+                                <CopyIcon className={classNames?.icon} />
+                                {t`Copy to clipboard`}
+                            </>
+                        )}
                     </Button>
 
                     <Button className={cn(classNames?.button, classNames?.primaryButton)} onClick={() => onOpenChange?.(false)} type="button" variant="default">

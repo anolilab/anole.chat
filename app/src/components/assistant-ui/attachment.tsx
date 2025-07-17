@@ -1,5 +1,8 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
+import { Dialog, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "@anole/ui/components/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import { AttachmentPrimitive, ComposerPrimitive, MessagePrimitive, useAttachment } from "@assistant-ui/react";
 import { CircleXIcon, FileIcon, PaperclipIcon } from "lucide-react";
 import { Dialog as RadixDialog } from "radix-ui";
@@ -8,9 +11,6 @@ import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const useFileSource = (file: File | undefined) => {
     const [source, setSource] = useState<string | undefined>(undefined);
@@ -37,16 +37,13 @@ const useFileSource = (file: File | undefined) => {
 const useAttachmentSource = () => {
     const { file, src } = useAttachment(
         useShallow((a): { file?: File; src?: string } => {
-            if (a.type !== "image")
-                return {};
+            if (a.type !== "image") return {};
 
-            if (a.file)
-                return { file: a.file };
+            if (a.file) return { file: a.file };
 
             const source = a.content?.filter((c) => c.type === "image")[0]?.image;
 
-            if (!source)
-                return {};
+            if (!source) return {};
 
             return { src: source };
         }),
@@ -85,8 +82,7 @@ const AttachmentPreview: FC<AttachmentPreviewProperties> = ({ src }) => {
 const AttachmentPreviewDialog: FC<PropsWithChildren> = ({ children }) => {
     const source = useAttachmentSource();
 
-    if (!source)
-        return children;
+    if (!source) return children;
 
     return (
         <Dialog>

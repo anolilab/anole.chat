@@ -21,15 +21,15 @@ export default defineConfig(({ mode }) => {
                 projects: ["./tsconfig.json"],
             }),
             tailwindcss(),
-            react({
-                babel: {
-                    plugins: [["babel-plugin-react-compiler", { target: "19" }], "@lingui/babel-plugin-lingui-macro"],
-                },
-            }),
             tanstackStart({
                 customViteReactPlugin: true,
                 tsr: {
                     routeToken: "layout",
+                },
+            }),
+            react({
+                babel: {
+                    plugins: [["babel-plugin-react-compiler", { target: "19" }], "@lingui/babel-plugin-lingui-macro"],
                 },
             }),
         ],

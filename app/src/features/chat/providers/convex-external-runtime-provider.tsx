@@ -27,8 +27,7 @@ const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threadId }: 
 
     // --- PATCH: Only sync to valid, existing threadId ---
     useEffect(() => {
-        if (!threadId || threadId === currentThreadId)
-            return;
+        if (!threadId || threadId === currentThreadId) return;
 
         // Check if threadId exists in backend thread list (allThreads.page)
         const threadExists = allThreads?.page?.some((t: any) => typeof t._id === "string" && t._id === threadId && t.status !== "deleted");

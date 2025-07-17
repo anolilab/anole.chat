@@ -1,17 +1,17 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { useAppForm } from "@anole/ui/components/form";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useState } from "react";
 import { z } from "zod/v4";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/form";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
-import { cn } from "@/lib/utils";
 
 import { PasswordInput } from "../../../../../components/form/password-input";
 import type { SettingsCardClassNames } from "../shared/settings-card";

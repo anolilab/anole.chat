@@ -37,13 +37,11 @@ export function useToken<TAuthClient extends AnyAuthClient>(authClient: TAuthCli
     const payload = useMemo(() => (data ? decodeJwt(data.token) : null), [data]);
 
     useEffect(() => {
-        if (!data?.token)
-            return;
+        if (!data?.token) return;
 
         const payload = decodeJwt(data.token);
 
-        if (!payload?.exp)
-            return;
+        if (!payload?.exp) return;
 
         const expiresAt = payload.exp * 1000;
         const expiresIn = expiresAt - Date.now();
@@ -56,20 +54,17 @@ export function useToken<TAuthClient extends AnyAuthClient>(authClient: TAuthCli
     }, [data, refetch]);
 
     const isTokenExpired = useCallback(() => {
-        if (!data?.token)
-            return true;
+        if (!data?.token) return true;
 
         const payload = decodeJwt(data.token);
 
-        if (!payload?.exp)
-            return true;
+        if (!payload?.exp) return true;
 
         return payload.exp < Date.now() / 1000;
     }, [data]);
 
     useEffect(() => {
-        if (!sessionData)
-            return;
+        if (!sessionData) return;
 
         if (payload?.sub !== sessionData.user.id) {
             refetch();

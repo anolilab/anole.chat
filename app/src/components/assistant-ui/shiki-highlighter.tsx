@@ -1,5 +1,6 @@
 "use client";
 
+import cn from "@anole/ui/utils/cn";
 import type { SyntaxHighlighterProps as AUIProperties } from "@assistant-ui/react-markdown";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
@@ -7,13 +8,11 @@ import type { ShikiHighlighterProps } from "react-shiki/core";
 import ShikiHighlighter, { createHighlighterCore, createOnigurumaEngine } from "react-shiki/core";
 import type { HighlighterCore } from "shiki/core";
 
-import { cn } from "@/lib/utils";
-
 /**
  * Props for the SyntaxHighlighter component
  */
-export type HighlighterProps = Omit<ShikiHighlighterProps, "children" | "theme" | "highlighter">
-    & Pick<AUIProperties, "node" | "components" | "language" | "code">;
+export type HighlighterProps = Omit<ShikiHighlighterProps, "children" | "theme" | "highlighter"> &
+    Pick<AUIProperties, "node" | "components" | "language" | "code">;
 
 const highlighterPromise = createHighlighterCore({
     engine: createOnigurumaEngine(import("shiki/wasm")),

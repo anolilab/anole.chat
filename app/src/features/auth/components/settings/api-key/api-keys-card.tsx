@@ -1,11 +1,11 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
 import { t } from "@lingui/core/macro";
 import { PlusIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 import { SettingsCard } from "../shared/settings-card";
@@ -26,8 +26,7 @@ export const APIKeysCard = ({ ...properties }: APIKeysCardProperties) => {
     const [displayAPIKey, setDisplayAPIKey] = useState<string | null>(null);
 
     const sortedAPIKeys = useMemo(() => {
-        if (!apiKeys)
-            return [];
+        if (!apiKeys) return [];
 
         return [...apiKeys].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }, [apiKeys]);
@@ -40,25 +39,23 @@ export const APIKeysCard = ({ ...properties }: APIKeysCardProperties) => {
                     setShowCreateDialog(true);
                 }}
                 description={t`Create and manage API keys for programmatic access to your account.`}
-                footer={(
+                footer={
                     <>
                         <PlusIcon />
                         {t`Create API Key`}
                     </>
-                )}
+                }
                 header={t`API Keys`}
             >
-                {sortedAPIKeys.length > 0
-                    ? (
-                        <div className="space-y-2">
-                            {sortedAPIKeys.map((apiKey) => (
-                                <APIKeyCell apiKey={apiKey} key={apiKey.id} />
-                            ))}
-                        </div>
-                    )
-                    : (
-                        <div className="text-muted-foreground py-8 text-center text-sm">{t`No API keys found. Create one to get started.`}</div>
-                    )}
+                {sortedAPIKeys.length > 0 ? (
+                    <div className="space-y-2">
+                        {sortedAPIKeys.map((apiKey) => (
+                            <APIKeyCell apiKey={apiKey} key={apiKey.id} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-muted-foreground py-8 text-center text-sm">{t`No API keys found. Create one to get started.`}</div>
+                )}
             </SettingsCard>
 
             <CreateAPIKeyDialog

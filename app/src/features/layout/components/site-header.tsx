@@ -1,9 +1,9 @@
+import { Separator } from "@anole/ui/components/separator";
+import { SidebarTrigger } from "@anole/ui/components/sidebar";
 import type { FC, PropsWithChildren, ReactNode } from "react";
 
 import BlurGradientOverlay from "@/components/blur-gradient-overlay";
-import { ModeToggle } from "@/components/theme-toggle";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ModeToggle } from "@anole/ui/components/theme-toggle";
 
 const SiteHeader: FC<PropsWithChildren<{ menu?: ReactNode; subMenuWidth?: number; title?: string }>> = ({ children, menu, subMenuWidth = 128, title }) => (
     <>

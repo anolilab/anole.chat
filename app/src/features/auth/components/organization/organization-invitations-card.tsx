@@ -1,10 +1,10 @@
 "use client";
 
+import { CardContent } from "@anole/ui/components/card";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 
-import { CardContent } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardProperties } from "../settings/shared/settings-card";
 import { SettingsCard } from "../settings/shared/settings-card";
@@ -22,8 +22,7 @@ export const OrganizationInvitationsCard = ({ className, classNames, ...properti
 
     const isPending = !activeOrganization;
 
-    if (!pendingInvitations?.length)
-        return null;
+    if (!pendingInvitations?.length) return null;
 
     return (
         <SettingsCard

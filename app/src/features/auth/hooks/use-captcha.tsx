@@ -15,8 +15,7 @@ export function useCaptcha() {
     const captchaReference = useRef<any>(null);
 
     const executeCaptcha = async () => {
-        if (!captcha)
-            throw new Error(t`Missing captcha response`);
+        if (!captcha) throw new Error(t`Missing captcha response`);
 
         // Sanitize the action name for reCAPTCHA
         let response: string | undefined | null;
@@ -44,8 +43,7 @@ export function useCaptcha() {
     };
 
     const getCaptchaHeaders = async (action: string) => {
-        if (!captcha)
-            return undefined;
+        if (!captcha) return undefined;
 
         // Use custom endpoints if provided, otherwise use defaults
         const endpoints = captcha.endpoints || DEFAULT_CAPTCHA_ENDPOINTS;

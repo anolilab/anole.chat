@@ -1,14 +1,14 @@
 "use client";
 
+import { CardContent } from "@anole/ui/components/card";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import { Skeleton } from "@anole/ui/components/skeleton";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { z } from "zod/v4";
 
-import { CardContent } from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardProperties } from "../settings/shared/settings-card";
@@ -74,8 +74,7 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
             slug: activeOrganization?.slug || "",
         },
         onSubmit: async ({ value }) => {
-            if (!activeOrganization)
-                return;
+            if (!activeOrganization) return;
 
             if (activeOrganization.slug === value.slug) {
                 toast({
@@ -145,33 +144,31 @@ const OrganizationSlugForm = ({ className, classNames, ...properties }: Settings
                     {...properties}
                 >
                     <CardContent className={classNames?.content}>
-                        {isPending
-                            ? (
-                                <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
-                            )
-                            : (
-                                <form.AppField
-                                    children={(field) => (
-                                        <field.FormItem>
-                                            <field.FormControl>
-                                                <Input
-                                                    className={classNames?.input}
-                                                    disabled={isSubmitting || !hasPermission?.success}
-                                                    onBlur={field.handleBlur}
-                                                    onChange={(e) => {
-                                                        field.handleChange(e.target.value);
-                                                    }}
-                                                    placeholder={t`Enter organization slug`}
-                                                    value={field.state.value}
-                                                />
-                                            </field.FormControl>
+                        {isPending ? (
+                            <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                        ) : (
+                            <form.AppField
+                                children={(field) => (
+                                    <field.FormItem>
+                                        <field.FormControl>
+                                            <Input
+                                                className={classNames?.input}
+                                                disabled={isSubmitting || !hasPermission?.success}
+                                                onBlur={field.handleBlur}
+                                                onChange={(e) => {
+                                                    field.handleChange(e.target.value);
+                                                }}
+                                                placeholder={t`Enter organization slug`}
+                                                value={field.state.value}
+                                            />
+                                        </field.FormControl>
 
-                                            <field.FormMessage className={classNames?.error} />
-                                        </field.FormItem>
-                                    )}
-                                    name="slug"
-                                />
-                            )}
+                                        <field.FormMessage className={classNames?.error} />
+                                    </field.FormItem>
+                                )}
+                                name="slug"
+                            />
+                        )}
                     </CardContent>
                 </SettingsCard>
             </form>

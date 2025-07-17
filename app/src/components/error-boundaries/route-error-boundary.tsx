@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { AlertTriangle, ArrowLeft, Home, RefreshCw } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import type { ErrorInfo } from "react";
 import React from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthenticationError, ErrorUtils, NetworkError } from "@/lib/errors";
 
 import { ErrorBoundary } from "../error-boundary";
@@ -90,33 +90,29 @@ export const RouteErrorBoundary = ({ children, fallbackRoute = "/", routeName = 
                                 {isAuth
                                     ? "You need to sign in to access this page."
                                     : isNetwork
-                                        ? "There's a problem with your internet connection or our servers."
-                                        : `An error occurred while loading the ${routeName} page.`}
+                                      ? "There's a problem with your internet connection or our servers."
+                                      : `An error occurred while loading the ${routeName} page.`}
                             </p>
                         </div>
 
                         {/* Action buttons */}
                         <div className="flex flex-col gap-2">
                             {/* Primary action based on error type */}
-                            {isAuth
-                                ? (
-                                    <Button className="w-full" onClick={() => (globalThis.location.href = "/auth/signin")}>
-                                        Sign In
-                                    </Button>
-                                )
-                                : ErrorUtils.isRetryable(error)
-                                    ? (
-                                        <Button className="w-full" onClick={retry}>
-                                            <RefreshCw className="mr-2 h-4 w-4" />
-                                            Try Again
-                                        </Button>
-                                    )
-                                    : (
-                                        <Button className="w-full" onClick={handleReload}>
-                                            <RefreshCw className="mr-2 h-4 w-4" />
-                                            Reload Page
-                                        </Button>
-                                    )}
+                            {isAuth ? (
+                                <Button className="w-full" onClick={() => (globalThis.location.href = "/auth/signin")}>
+                                    Sign In
+                                </Button>
+                            ) : ErrorUtils.isRetryable(error) ? (
+                                <Button className="w-full" onClick={retry}>
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    Try Again
+                                </Button>
+                            ) : (
+                                <Button className="w-full" onClick={handleReload}>
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    Reload Page
+                                </Button>
+                            )}
 
                             {/* Secondary actions */}
                             <div className="grid grid-cols-2 gap-2">
@@ -137,9 +133,7 @@ export const RouteErrorBoundary = ({ children, fallbackRoute = "/", routeName = 
                             {isAuth && <p>💡 You'll be redirected back here after signing in.</p>}
                             {!isNetwork && !isAuth && <p>💡 If this problem persists, please contact support.</p>}
                             <p className="mt-2">
-                                Error ID:
-                                {" "}
-                                <code className="bg-muted rounded px-1 text-xs">{`${routeName}_${Date.now().toString(36)}`}</code>
+                                Error ID: <code className="bg-muted rounded px-1 text-xs">{`${routeName}_${Date.now().toString(36)}`}</code>
                             </p>
                         </div>
                     </CardContent>

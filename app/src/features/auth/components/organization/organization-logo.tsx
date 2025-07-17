@@ -1,13 +1,12 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
+import { Skeleton } from "@anole/ui/components/skeleton";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { Organization } from "better-auth/plugins/organization";
 import { BuildingIcon } from "lucide-react";
 import type { ComponentProps } from "react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 export interface OrganizationLogoClassNames {
     base?: string;

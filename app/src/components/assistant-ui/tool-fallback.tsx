@@ -12,9 +12,7 @@ export const ToolFallback: ToolCallContentPartComponent = ({ argsText, result, t
             <div className="flex items-center gap-2 px-4">
                 <CheckIcon className="size-4" />
                 <p className="">
-                    Used tool:
-                    {" "}
-                    <b>{toolName}</b>
+                    Used tool: <b>{toolName}</b>
                 </p>
                 <div className="flex-grow" />
                 <Button

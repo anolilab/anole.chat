@@ -1,6 +1,6 @@
 "use client";
 
-import { InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
+import { InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@anole/ui/components/input-otp";
 
 export const OTPInputGroup = ({ otpSeparators = 0 }: { otpSeparators?: 0 | 1 | 2 }) => {
     if (otpSeparators === 0) {

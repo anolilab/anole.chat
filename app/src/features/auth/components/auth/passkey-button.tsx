@@ -1,12 +1,12 @@
+import { Button } from "@anole/ui/components/button";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { FingerprintIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
-import { useOnSuccessTransition } from "../../hooks/use-success-transition";
-import { getLocalizedError } from "../../lib/utils";
+import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
+import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { AuthCardClassNames } from "./auth-card";
 
 interface PasskeyButtonProperties {

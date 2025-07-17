@@ -1,11 +1,6 @@
 "use client";
 
-import { t } from "@lingui/core/macro";
-import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, PlusCircleIcon, SettingsIcon, Sparkles } from "lucide-react";
-import { Fragment, useCallback, useEffect, useState } from "react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,8 +9,13 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+} from "@anole/ui/components/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@anole/ui/components/sidebar";
+import { t } from "@lingui/core/macro";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, PlusCircleIcon, SettingsIcon, Sparkles } from "lucide-react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+
 import { UserView } from "@/features/auth/components/user-view";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";

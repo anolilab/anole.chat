@@ -12,3 +12,5 @@ dist-ssr
 .history
 .nx
 .eslint.cache.json
+vite.config.*.timestamp*
+vitest.config.*.timestamp*

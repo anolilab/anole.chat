@@ -1,15 +1,15 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { useAppForm } from "@anole/ui/components/form";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Loader2 } from "lucide-react";
 import { use, useEffect, useRef } from "react";
 import { z } from "zod/v4";
 
-import { PasswordInput } from "@/components/form/password-input";
-import { Button } from "@/components/ui/button";
-import { useAppForm } from "@/components/ui/form";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../../lib/utils";
 import type { PasswordValidation } from "../../../types/form-validation-types";
@@ -35,30 +35,30 @@ export const ResetPasswordForm = ({ className, classNames, passwordValidation }:
         .object({
             confirmPassword: confirmPasswordEnabled
                 ? (() => {
-                    let schema = z.string().min(1, {
-                        message: t`Confirm password is required`,
-                    });
+                      let schema = z.string().min(1, {
+                          message: t`Confirm password is required`,
+                      });
 
-                    if (passwordValidation?.minLength) {
-                        schema = schema.min(passwordValidation.minLength, {
-                            message: t`Password is too short`,
-                        });
-                    }
+                      if (passwordValidation?.minLength) {
+                          schema = schema.min(passwordValidation.minLength, {
+                              message: t`Password is too short`,
+                          });
+                      }
 
-                    if (passwordValidation?.maxLength) {
-                        schema = schema.max(passwordValidation.maxLength, {
-                            message: t`Password is too long`,
-                        });
-                    }
+                      if (passwordValidation?.maxLength) {
+                          schema = schema.max(passwordValidation.maxLength, {
+                              message: t`Password is too long`,
+                          });
+                      }
 
-                    if (passwordValidation?.regex) {
-                        schema = schema.regex(passwordValidation.regex, {
-                            message: t`Invalid password`,
-                        });
-                    }
+                      if (passwordValidation?.regex) {
+                          schema = schema.regex(passwordValidation.regex, {
+                              message: t`Invalid password`,
+                          });
+                      }
 
-                    return schema;
-                })()
+                      return schema;
+                  })()
                 : z.string().optional(),
             newPassword: (() => {
                 let schema = z.string().min(1, {
@@ -138,8 +138,7 @@ export const ResetPasswordForm = ({ className, classNames, passwordValidation }:
     const { isSubmitting } = form.state;
 
     useEffect(() => {
-        if (tokenChecked.current)
-            return;
+        if (tokenChecked.current) return;
 
         tokenChecked.current = true;
 

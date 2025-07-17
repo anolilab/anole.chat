@@ -16,9 +16,9 @@ Components are available in the `src/components/ui` directory, following the ali
 Import components from the ui directory using the configured aliases:
 
 ```tsx
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@anole/ui/components/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@anole/ui/components/tabs"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@anole/ui/components/card"
 ```
 
 Example usage:

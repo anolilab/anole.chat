@@ -1,12 +1,11 @@
 "use client";
 
+import cn from "@anole/ui/utils/cn";
 import { useMessagePart } from "@assistant-ui/react";
 import type { SyntaxHighlighterProps } from "@assistant-ui/react-markdown";
 import mermaid from "mermaid";
 import type { FC } from "react";
 import { useEffect, useRef } from "react";
-
-import { cn } from "@/lib/utils";
 
 /**
  * Props for the MermaidDiagram component
@@ -42,14 +41,12 @@ export const MermaidDiagram: FC<MermaidDiagramProps> = ({ className, code, compo
 
     // Detect when this code block is complete
     const isComplete = useMessagePart((part) => {
-        if (part.type !== "text")
-            return false;
+        if (part.type !== "text") return false;
 
         // Find the position of this code block
         const codeIndex = part.text.indexOf(code);
 
-        if (codeIndex === -1)
-            return false;
+        if (codeIndex === -1) return false;
 
         // Check if there are closing backticks immediately after this code block
         const afterCode = part.text.slice(Math.max(0, codeIndex + code.length));
@@ -61,8 +58,7 @@ export const MermaidDiagram: FC<MermaidDiagramProps> = ({ className, code, compo
     });
 
     useEffect(() => {
-        if (!isComplete)
-            return;
+        if (!isComplete) return;
 
         (async () => {
             try {

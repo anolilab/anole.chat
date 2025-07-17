@@ -1,9 +1,9 @@
 "use client";
 
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { AuthCardProperties } from "../../types/ui-configuration-types";
 import { AccountsCard } from "./account/accounts-card";
@@ -38,16 +38,13 @@ export const AccountSettingsCards = ({ className, classNames }: AuthCardProperti
             {changeEmail && <ChangeEmailCard classNames={classNames} />}
 
             {settings?.fields?.map((field) => {
-                if (field === "image")
-                    return null;
+                if (field === "image") return null;
 
-                if (field === "name")
-                    return null;
+                if (field === "name") return null;
 
                 const additionalField = additionalFields?.[field];
 
-                if (!additionalField)
-                    return null;
+                if (!additionalField) return null;
 
                 const { description, instructions, label, placeholder, required, type, validate } = additionalField;
 

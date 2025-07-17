@@ -27,6 +27,7 @@ describe("gravatar utilities", () => {
                 "test@münchen.de": "9d34553b3590d8a02d95b3a1616a0928e38cf491871dc86f8fede1177a7acffb",
                 "user+🚀@example.com": "15c81e85d593a05b2adffa997257533db6c7f00ceb3af9249b318a03bc70785c",
             };
+
             return hashes[data] || `mock-hash-${data.length.toString().padStart(60, "0")}`;
         });
     });
@@ -34,17 +35,20 @@ describe("gravatar utilities", () => {
     describe("getGravatarUrl (async)", () => {
         it("should return undefined for empty email", async () => {
             const result = await getGravatarUrl("");
+
             expect(result).toBeUndefined();
         });
 
         it("should return undefined for undefined email", async () => {
             const result = await getGravatarUrl(undefined);
+
             expect(result).toBeUndefined();
         });
 
         it("should return undefined for null email (deprecated, for legacy)", async () => {
             // @ts-expect-error: testing legacy null input
             const result = await getGravatarUrl(null);
+
             expect(result).toBeUndefined();
         });
 
@@ -72,10 +76,12 @@ describe("gravatar utilities", () => {
                 { input: "Åse@Example.COM", normalized: "åse@example.com" },
             ];
 
-            await Promise.all(testCases.map(async (testCase) => {
-                await getGravatarUrl(testCase.input);
-                expect(mockSha256).toHaveBeenCalledWith(testCase.normalized);
-            }));
+            await Promise.all(
+                testCases.map(async (testCase) => {
+                    await getGravatarUrl(testCase.input);
+                    expect(mockSha256).toHaveBeenCalledWith(testCase.normalized);
+                }),
+            );
         });
 
         it("should handle basic options correctly", async () => {
@@ -100,6 +106,7 @@ describe("gravatar utilities", () => {
             ["2048", 3000], // Above maximum
         ])("should handle size constraints (size: %s)", async (expected, size) => {
             const result = await getGravatarUrl("test@example.com", { size });
+
             expect(result).toContain(`s=${expected}`);
         });
 
@@ -137,6 +144,7 @@ describe("gravatar utilities", () => {
             mockSha256.mockRejectedValue(new Error("Crypto error"));
             const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
             const result = await getGravatarUrl("test@example.com");
+
             expect(result).toBeUndefined();
             expect(consoleSpy).toHaveBeenCalledWith("Error generating Gravatar URL:", expect.any(Error));
             consoleSpy.mockRestore();

@@ -1,9 +1,4 @@
 {
-    "tasksRunnerOptions": {
-        "default": {
-            "runner": "nx/tasks-runners/default"
-        }
-    },
     "targetDefaults": {
         "build": {
             "dependsOn": ["^build", "default"],
@@ -17,12 +12,20 @@
         },
         "lint:eslint": {
             "dependsOn": ["default"],
-            "inputs": ["default", "{workspaceRoot}/.eslintrc.cjs", "{workspaceRoot}/.eslintrc.js"],
+            "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.cjs",
+                "{workspaceRoot}/.eslintrc.js"
+            ],
             "cache": true
         },
         "lint:eslint:fix": {
             "dependsOn": ["default"],
-            "inputs": ["default", "{workspaceRoot}/.eslintrc.cjs", "{workspaceRoot}/.eslintrc.js"],
+            "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.cjs",
+                "{workspaceRoot}/.eslintrc.js"
+            ],
             "cache": true
         },
         "lint:package-json": {
@@ -42,11 +45,21 @@
             "cache": true
         },
         "test": {
-            "dependsOn": ["default", "^default", "{projectRoot}/vite.config.ts", "{projectRoot}/tools/get-vitest-config.ts"],
+            "dependsOn": [
+                "default",
+                "^default",
+                "{projectRoot}/vite.config.ts",
+                "{projectRoot}/tools/get-vitest-config.ts"
+            ],
             "cache": true
         },
         "test:coverage": {
-            "dependsOn": ["default", "^default", "{projectRoot}/vite.config.ts", "{projectRoot}/tools/get-vitest-config.ts"],
+            "dependsOn": [
+                "default",
+                "^default",
+                "{projectRoot}/vite.config.ts",
+                "{projectRoot}/tools/get-vitest-config.ts"
+            ],
             "cache": true
         },
         "build-storybook": {
@@ -60,10 +73,37 @@
                 "{projectRoot}/tsconfig.storybook.json"
             ],
             "cache": true
+        },
+        "@nx/js:tsc": {
+            "cache": true,
+            "dependsOn": ["^build"],
+            "inputs": ["production", "^production"]
+        },
+        "@nx/eslint:lint": {
+            "cache": true,
+            "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+            ]
+        },
+        "@nx/vite:test": {
+            "cache": true,
+            "inputs": ["default", "^production"]
+        }
+    },
+    "tasksRunnerOptions": {
+        "default": {
+            "runner": "nx/tasks-runners/default"
         }
     },
     "namedInputs": {
-        "default": ["sharedGlobals", "{projectRoot}/**/*", "!{projectRoot}/**/*.md"],
+        "default": [
+            "sharedGlobals",
+            "{projectRoot}/**/*",
+            "!{projectRoot}/**/*.md"
+        ],
         "public": [
             "default",
             "{workspaceRoot}/dist",
@@ -79,7 +119,14 @@
             "{workspaceRoot}/tsconfig.json",
             "{workspaceRoot}/tsconfig.base.json"
         ],
-        "production": ["default"]
+        "production": [
+            "default",
+            "!{projectRoot}/.eslintrc.json",
+            "!{projectRoot}/eslint.config.mjs",
+            "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+            "!{projectRoot}/tsconfig.spec.json",
+            "!{projectRoot}/src/test-setup.[jt]s"
+        ]
     },
     "parallel": 5,
     "extends": "@nx/workspace/presets/npm.json",

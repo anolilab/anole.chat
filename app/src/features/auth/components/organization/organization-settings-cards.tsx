@@ -1,9 +1,9 @@
 "use client";
 
+import cn from "@anole/ui/utils/cn";
 import { use, useEffect } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { AuthCardProperties } from "../../types/ui-configuration-types";
 import { DeleteOrganizationCard } from "../organization/delete-organization-card";
@@ -24,11 +24,9 @@ export const OrganizationSettingsCards = ({ className, classNames }: AuthCardPro
     const { data: activeOrganization, isPending: organizationPending, isRefetching: organizationFetching } = useActiveOrganization();
 
     useEffect(() => {
-        if (organizationPending || organizationFetching)
-            return;
+        if (organizationPending || organizationFetching) return;
 
-        if (!activeOrganization)
-            replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
+        if (!activeOrganization) replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
     }, [activeOrganization, organizationPending, organizationFetching, basePath, settings?.basePath, replace, viewPaths.SETTINGS]);
 
     return (

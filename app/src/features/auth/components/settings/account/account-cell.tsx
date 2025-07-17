@@ -1,15 +1,15 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { Session, User } from "better-auth";
 import { EllipsisIcon, Loader2, LogOutIcon, RepeatIcon } from "lucide-react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../../lib/utils";
 import type { Refetch } from "../../../types/hook-integration-types";

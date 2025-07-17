@@ -14,8 +14,7 @@ export const useOnMutateError = () => {
             queryClient.getQueryCache().config.onError?.(error, { queryKey } as unknown as Query<unknown, unknown>);
         }
 
-        if (!optimistic || !context?.previousData)
-            return;
+        if (!optimistic || !context?.previousData) return;
 
         queryClient.setQueryData(queryKey, context.previousData);
     };

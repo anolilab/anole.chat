@@ -14,13 +14,13 @@ export function seo({ description, image, keywords, title }: { description?: str
         { content: description, name: "og:description" },
         { content: "https://carbon-daily.vercel.app", name: "og:url" },
         { content: "vi_VN", name: "og:locale" },
-        ...image
+        ...(image
             ? [
-                { content: image, name: "twitter:image" },
-                { content: "summary_large_image", name: "twitter:card" },
-                { content: image, name: "og:image" },
-            ]
-            : [],
+                  { content: image, name: "twitter:image" },
+                  { content: "summary_large_image", name: "twitter:card" },
+                  { content: image, name: "og:image" },
+              ]
+            : []),
     ];
 
     return tags;

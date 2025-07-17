@@ -1,16 +1,15 @@
 import { api } from "@anole/convex/api";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
+import type { ChartConfig } from "@anole/ui/components/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@anole/ui/components/chart";
+import { Tabs, TabsList, TabsTrigger } from "@anole/ui/components/tabs";
+import useIsMobile from "@anole/ui/hooks/use-mobile";
+import cn from "@anole/ui/utils/cn";
 import { useQuery } from "convex/react";
 import { Activity, BarChart3, TrendingUp, Zap } from "lucide-react";
 import type { FC } from "react";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ChartConfig } from "@/components/ui/chart";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import useIsMobile from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 
 const MODEL_COLORS = [
     "#3b82f6", // blue
@@ -71,14 +70,14 @@ interface ChartDay {
 const isUsageStats = (object: unknown): object is UsageStats => !!object && typeof object === "object" && Array.isArray((object as UsageStats).modelStats);
 
 const isChartDayArray = (object: unknown): object is ChartDay[] =>
-    Array.isArray(object)
-    && object.every(
+    Array.isArray(object) &&
+    object.every(
         (day) =>
-            day
-            && typeof day === "object"
-            && typeof (day as ChartDay).date === "string"
-            && typeof (day as ChartDay).totalTokens === "number"
-            && typeof (day as ChartDay).models === "object",
+            day &&
+            typeof day === "object" &&
+            typeof (day as ChartDay).date === "string" &&
+            typeof (day as ChartDay).totalTokens === "number" &&
+            typeof (day as ChartDay).models === "object",
     );
 
 const UsageAnalyticsCard: FC<UsageDashboardProperties> = ({ className }) => {
@@ -90,8 +89,7 @@ const UsageAnalyticsCard: FC<UsageDashboardProperties> = ({ className }) => {
     const chartData: ChartDay[] | undefined = isChartDayArray(chartDataRaw) ? chartDataRaw : undefined;
 
     const modelUsageData = useMemo(() => {
-        if (!chartData)
-            return [];
+        if (!chartData) return [];
 
         return chartData.map((day: ChartDay) => {
             const dayData: Record<string, any> = {
@@ -108,8 +106,7 @@ const UsageAnalyticsCard: FC<UsageDashboardProperties> = ({ className }) => {
     }, [chartData]);
 
     const tokenTypeData = useMemo(() => {
-        if (!chartData)
-            return [];
+        if (!chartData) return [];
 
         return chartData.map((day: ChartDay) => {
             return {
@@ -122,8 +119,7 @@ const UsageAnalyticsCard: FC<UsageDashboardProperties> = ({ className }) => {
     }, [chartData]);
 
     const modelIds = useMemo(() => {
-        if (!stats)
-            return [];
+        if (!stats) return [];
 
         return stats.modelStats.map((model: ModelStats) => model.modelId);
     }, [stats]);
@@ -181,10 +177,7 @@ const UsageAnalyticsCard: FC<UsageDashboardProperties> = ({ className }) => {
                         <CardTitle className="text-xs font-medium sm:text-sm">Total Tokens</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
-                        <div className="text-lg font-bold sm:text-2xl">
-                            {((stats?.totalTokens || 0) / 1000).toFixed(1)}
-                            K
-                        </div>
+                        <div className="text-lg font-bold sm:text-2xl">{((stats?.totalTokens || 0) / 1000).toFixed(1)}K</div>
                         <p className="text-muted-foreground text-xs">input + output + reasoning</p>
                     </CardContent>
                 </Card>
@@ -348,23 +341,15 @@ const UsageAnalyticsCard: FC<UsageDashboardProperties> = ({ className }) => {
                                     <div>
                                         <div className="text-sm font-medium">{model.modelName}</div>
                                         <div className="text-muted-foreground text-xs">
-                                            {model.requests}
-                                            {" "}
-                                            request
+                                            {model.requests} request
                                             {model.requests === 1 ? "" : "s"}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-sm font-medium sm:text-base">
-                                        {(model.totalTokens / 1000).toFixed(1)}
-                                        K tokens
-                                    </div>
+                                    <div className="text-sm font-medium sm:text-base">{(model.totalTokens / 1000).toFixed(1)}K tokens</div>
                                     <div className="text-muted-foreground text-xs">
-                                        {(model.promptTokens / 1000).toFixed(0)}
-                                        K in •
-                                        {(model.completionTokens / 1000).toFixed(0)}
-                                        K out
+                                        {(model.promptTokens / 1000).toFixed(0)}K in •{(model.completionTokens / 1000).toFixed(0)}K out
                                         {model.reasoningTokens > 0 && ` • ${(model.reasoningTokens / 1000).toFixed(0)}K reasoning`}
                                     </div>
                                 </div>

@@ -1,7 +1,6 @@
+import cn from "@anole/ui/utils/cn";
 import { Body, Button, Container, Head, Heading, Hr, Html, Img, Link, Preview, Section, Tailwind, Text } from "@react-email/components";
 import type { ReactNode } from "react";
-
-import { cn } from "@/lib/utils";
 
 export interface EmailTemplateClassNames {
     body?: string;
@@ -135,12 +134,7 @@ export const EmailTemplate = ({
                         <Hr className={cn("border-color mx-0 my-[26px] w-full border border-solid", classNames?.hr)} />
 
                         <Text className={cn("text-[12px] leading-[24px] text-[#666666]", classNames?.footer)}>
-                            {siteName && (
-                                <>
-                                    {siteName}
-                                    {" "}
-                                </>
-                            )}
+                            {siteName && <>{siteName} </>}
 
                             {baseUrl && (
                                 <Link className={cn("no-underline", classNames?.link)} href={baseUrl}>

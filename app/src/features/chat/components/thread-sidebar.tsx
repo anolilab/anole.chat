@@ -1,19 +1,18 @@
 "use client";
 
 import { api } from "@anole/convex/api";
+import { Sidebar, SidebarContent, SidebarRail } from "@anole/ui/components/sidebar";
 import { t } from "@lingui/core/macro";
 import { useQuery } from "convex/react";
 import type { FC } from "react";
-
-import { Sidebar, SidebarContent, SidebarRail } from "@/components/ui/sidebar";
 
 const ThreadSummery: FC<{ threadId?: string }> = ({ threadId }) => {
     const data = useQuery(
         api.chat.functions.getThread,
         threadId
             ? {
-                threadId,
-            }
+                  threadId,
+              }
             : "skip",
     );
 

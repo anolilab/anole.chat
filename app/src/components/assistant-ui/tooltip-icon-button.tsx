@@ -1,11 +1,10 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import cn from "@anole/ui/utils/cn";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
 export type TooltipIconButtonProps = ComponentPropsWithoutRef<typeof Button> & {
     side?: "top" | "bottom" | "left" | "right";

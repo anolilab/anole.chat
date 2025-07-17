@@ -4,11 +4,9 @@
         "baseUrl": "./",
         "downlevelIteration": true,
         "isolatedModules": true,
-        "lib": [
-            "DOM",
-            "DOM.Iterable",
-            "ES2023"
-        ],
+        "emitDeclarationOnly": true,
+        "declarationMap": true,
+        "lib": ["DOM", "DOM.Iterable", "ES2023"],
         "module": "ESNext",
         "target": "ESNext",
         "tsBuildInfoFile": ".tsbuildinfo",
@@ -42,7 +40,10 @@
         "allowUnreachableCode": false,
         "checkJs": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "paths": {
+            "tailwind-sync-plugin": ["tools/tailwind-sync-plugin/src/index.ts"]
+        }
     },
     "exclude": [
         "dist/**/*",

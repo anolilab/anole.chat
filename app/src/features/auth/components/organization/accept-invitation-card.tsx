@@ -1,15 +1,15 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
+import { Skeleton } from "@anole/ui/components/skeleton";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
 import { CheckIcon, Loader2, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { useAuthenticate } from "../../hooks/use-authenticate";
 import { getLocalizedError } from "../../lib/utils";
@@ -61,8 +61,7 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
     });
 
     useEffect(() => {
-        if (isPending || !invitationId)
-            return;
+        if (isPending || !invitationId) return;
 
         if (!invitation) {
             toast({
@@ -86,8 +85,7 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
     }, [invitation, isPending, invitationId, toast, replace, redirectTo]);
 
     const acceptInvitation = async () => {
-        if (!invitationId)
-            return;
+        if (!invitationId) return;
 
         setIsAccepting(true);
 
@@ -113,8 +111,7 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
     };
 
     const rejectInvitation = async () => {
-        if (!invitationId)
-            return;
+        if (!invitationId) return;
 
         setIsRejecting(true);
 
@@ -146,11 +143,10 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
         { label: t`Member`, role: "member" },
     ];
 
-    const roles = [...builtInRoles, ...organization?.customRoles || []];
+    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
     const roleLabel = roles.find((r) => r.role === invitation?.role)?.label || invitation?.role;
 
-    if (isPending)
-        return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
+    if (isPending) return <AcceptInvitationSkeleton className={className} classNames={classNames} />;
 
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
@@ -168,12 +164,12 @@ const AcceptInvitationContent = ({ className, classNames, invitationId }: Accept
                         organization={
                             invitation
                                 ? {
-                                    createdAt: new Date(),
-                                    id: invitation.organizationId,
-                                    logo: invitation.organizationLogo,
-                                    name: invitation.organizationName,
-                                    slug: invitation.organizationSlug,
-                                }
+                                      createdAt: new Date(),
+                                      id: invitation.organizationId,
+                                      logo: invitation.organizationLogo,
+                                      name: invitation.organizationName,
+                                      slug: invitation.organizationSlug,
+                                  }
                                 : null
                         }
                     />

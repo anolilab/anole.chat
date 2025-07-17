@@ -33,7 +33,7 @@ export const useGravatar = (email?: string | null, options?: GravatarOptions): s
     }, [email, options?.size, options?.d, options?.forceDefault, options?.jpg]);
 
     return url;
-}
+};
 
 /**
  * React hook that provides both sync and async Gravatar URL generation
@@ -82,4 +82,4 @@ export const useGravatarWithFallback = (email?: string | null, options?: Gravata
         isLoading,
         usingFallback,
     };
-}
+};

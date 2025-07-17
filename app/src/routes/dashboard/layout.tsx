@@ -1,11 +1,11 @@
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@anole/ui/components/breadcrumb";
+import { ScrollArea } from "@anole/ui/components/scroll-area";
+import { SidebarInset, SidebarProvider } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
 import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
 import { Fragment } from "react";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import AppSidebar from "@/features/layout/components/app-sidebar";
 import type { NavItem } from "@/features/layout/components/nav-items";
@@ -140,18 +140,16 @@ const RouteComponent = () => {
                                     {breadcrumbItems.map((item, index) => (
                                         <Fragment key={item.href}>
                                             <BreadcrumbItem>
-                                                {item.isLast
-                                                    ? (
-                                                        <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
-                                                    )
-                                                    : (
-                                                        <BreadcrumbLink
-                                                            className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
-                                                            href={item.href}
-                                                        >
-                                                            {item.label}
-                                                        </BreadcrumbLink>
-                                                    )}
+                                                {item.isLast ? (
+                                                    <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
+                                                ) : (
+                                                    <BreadcrumbLink
+                                                        className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
+                                                        href={item.href}
+                                                    >
+                                                        {item.label}
+                                                    </BreadcrumbLink>
+                                                )}
                                             </BreadcrumbItem>
                                             {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
                                         </Fragment>

@@ -1,11 +1,10 @@
 import { api } from "@anole/convex/api";
+import { Button } from "@anole/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const InvitePage = () => {
     const { inviteToken } = Route.useParams();

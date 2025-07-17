@@ -101,8 +101,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
         } else {
             let fallbackId: string = localThreadIds.find((id) => id !== currentThreadId) || backendThreadIds.find((id) => id !== currentThreadId) || "default";
 
-            if (!fallbackId)
-                fallbackId = "default";
+            if (!fallbackId) fallbackId = "default";
 
             let reason = "";
 

@@ -1,8 +1,7 @@
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@anole/ui/components/sidebar";
+import cn from "@anole/ui/utils/cn";
 import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
 
 const colorModeClasses = {
     dark: {

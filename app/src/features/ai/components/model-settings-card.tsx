@@ -1,18 +1,17 @@
 import { api } from "@anole/convex/api";
+import { Badge } from "@anole/ui/components/badge";
+import { Button } from "@anole/ui/components/button";
+import { Checkbox } from "@anole/ui/components/checkbox";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@anole/ui/components/dialog";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 import { t } from "@lingui/core/macro";
 import { useMutation, useQuery } from "convex/react";
 import { Plus, Trash2 } from "lucide-react";
 import type { FC } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { z } from "zod/v4";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const MODELS_SHARED: { abilities: string[]; id: string; name: string }[] = [
     { abilities: ["text", "function_calling"], id: "gpt-4o", name: "GPT-4o" },
@@ -155,50 +154,50 @@ const ModelSettingsCard: FC = () => {
                                 <div className="mt-1 flex flex-wrap gap-2">
                                     {Array.isArray(model.abilities) && model.abilities.length > 0
                                         ? model.abilities.map((ability: string) => {
-                                            let variant: "default" | "destructive" | "secondary" | "outline" = "outline";
+                                              let variant: "default" | "destructive" | "secondary" | "outline" = "outline";
 
-                                            switch (ability) {
-                                                case "audio": {
-                                                    variant = "destructive";
-                                                    break;
-                                                }
-                                                case "code": {
-                                                    variant = "secondary";
-                                                    break;
-                                                }
-                                                case "document": {
-                                                    variant = "secondary";
-                                                    break;
-                                                }
-                                                case "function_calling": {
-                                                    variant = "destructive";
-                                                    break;
-                                                }
-                                                case "image": {
-                                                    variant = "secondary";
-                                                    break;
-                                                }
-                                                case "reasoning": {
-                                                    variant = "default";
-                                                    break;
-                                                }
-                                                case "text": {
-                                                    variant = "default";
-                                                    break;
-                                                }
-                                                case "video": {
-                                                    variant = "default";
-                                                    break;
-                                                }
+                                              switch (ability) {
+                                                  case "audio": {
+                                                      variant = "destructive";
+                                                      break;
+                                                  }
+                                                  case "code": {
+                                                      variant = "secondary";
+                                                      break;
+                                                  }
+                                                  case "document": {
+                                                      variant = "secondary";
+                                                      break;
+                                                  }
+                                                  case "function_calling": {
+                                                      variant = "destructive";
+                                                      break;
+                                                  }
+                                                  case "image": {
+                                                      variant = "secondary";
+                                                      break;
+                                                  }
+                                                  case "reasoning": {
+                                                      variant = "default";
+                                                      break;
+                                                  }
+                                                  case "text": {
+                                                      variant = "default";
+                                                      break;
+                                                  }
+                                                  case "video": {
+                                                      variant = "default";
+                                                      break;
+                                                  }
                                                   // no default
-                                            }
+                                              }
 
-                                            return (
-                                                <Badge key={ability} variant={variant}>
-                                                    {ability}
-                                                </Badge>
-                                            );
-                                        })
+                                              return (
+                                                  <Badge key={ability} variant={variant}>
+                                                      {ability}
+                                                  </Badge>
+                                              );
+                                          })
                                         : undefined}
                                 </div>
                             </div>
@@ -213,9 +212,7 @@ const ModelSettingsCard: FC = () => {
                                         size="sm"
                                         variant="destructive"
                                     >
-                                        <Trash2 className="h-4 w-4" />
-                                        {" "}
-                                        {t`Delete`}
+                                        <Trash2 className="h-4 w-4" /> {t`Delete`}
                                     </Button>
                                 </div>
                             )}
@@ -281,15 +278,15 @@ const ModelSettingsCard: FC = () => {
                                                         <SelectValue placeholder={t`Select a provider`} />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {providerOptions.length === 0
-                                                            ? (
-                                                                <SelectItem disabled value="">{t`No providers available`}</SelectItem>
-                                                            )
-                                                            : providerOptions.map((p) => (
+                                                        {providerOptions.length === 0 ? (
+                                                            <SelectItem disabled value="">{t`No providers available`}</SelectItem>
+                                                        ) : (
+                                                            providerOptions.map((p) => (
                                                                 <SelectItem key={p.id} value={p.id}>
                                                                     {p.name}
                                                                 </SelectItem>
-                                                            ))}
+                                                            ))
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </field.FormControl>

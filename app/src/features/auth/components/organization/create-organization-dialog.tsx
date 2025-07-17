@@ -1,18 +1,18 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Loader2, Trash2Icon, UploadCloudIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { use, useRef, useState } from "react";
 import { z } from "zod/v4";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { fileToBase64, resizeAndCropImage } from "../../lib/image-utils";
 import { getLocalizedError } from "../../lib/utils";
@@ -100,8 +100,7 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
     });
 
     const handleLogoChange = async (file: File) => {
-        if (!organization?.logo)
-            return;
+        if (!organization?.logo) return;
 
         setUploadingLogo(true);
 
@@ -160,8 +159,7 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                             onChange={(e) => {
                                                 const file = e.target.files?.item(0);
 
-                                                if (file)
-                                                    handleLogoChange(file);
+                                                if (file) handleLogoChange(file);
 
                                                 e.target.value = "";
                                             }}
@@ -185,9 +183,9 @@ export const CreateOrganizationDialog = ({ className, classNames, onOpenChange, 
                                                                     organization={
                                                                         logo
                                                                             ? {
-                                                                                logo,
-                                                                                name,
-                                                                            }
+                                                                                  logo,
+                                                                                  name,
+                                                                              }
                                                                             : null
                                                                     }
                                                                 />

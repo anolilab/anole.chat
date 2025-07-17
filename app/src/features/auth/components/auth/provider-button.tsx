@@ -1,11 +1,11 @@
+import { Button } from "@anole/ui/components/button";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { useSearch } from "@tanstack/react-router";
 import type { SocialProvider } from "better-auth/social-providers";
 import { use, useCallback } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { Provider } from "../../lib/social-providers";
 import { getLocalizedError } from "../../lib/utils";

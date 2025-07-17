@@ -1,13 +1,12 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
@@ -91,19 +90,17 @@ export const BackupCodesDialog = ({ backupCodes, classNames, onOpenChange, ...pr
                         type="button"
                         variant="outline"
                     >
-                        {copied
-                            ? (
-                                <>
-                                    <CheckIcon className="h-4 w-4" />
-                                    {t`Copied!`}
-                                </>
-                            )
-                            : (
-                                <>
-                                    <CopyIcon className="h-4 w-4" />
-                                    {t`Copy`}
-                                </>
-                            )}
+                        {copied ? (
+                            <>
+                                <CheckIcon className="h-4 w-4" />
+                                {t`Copied!`}
+                            </>
+                        ) : (
+                            <>
+                                <CopyIcon className="h-4 w-4" />
+                                {t`Copy`}
+                            </>
+                        )}
                     </Button>
 
                     <Button

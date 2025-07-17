@@ -14,8 +14,8 @@ import { GlobalErrorBoundaryProvider } from "@/components/error-boundaries/globa
 import { env } from "@/lib/env";
 import { AnalyticsProvider } from "@/providers/analytics-provider";
 
-import DefaultLoading from "./components/default-loading";
-import NotFound from "./components/not-found";
+import DefaultLoading from "@/components/default-loading";
+import NotFound from "@/components/not-found";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 

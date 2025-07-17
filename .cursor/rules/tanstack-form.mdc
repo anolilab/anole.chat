@@ -14,7 +14,7 @@ patterns: "*.tsx"
 
 1. **Import the custom hook and components:**
    ```typescript
-   import { useAppForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+   import { useAppForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@anole/ui/components/form";
    ```
 
 2. **Define your validation schema (optional but recommended):**

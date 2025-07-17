@@ -1,15 +1,8 @@
 import { api } from "@anole/convex/api";
 import { convexQuery } from "@convex-dev/react-query";
 import type { QueryClient } from "@tanstack/react-query";
-import type { ClassValue } from "clsx";
-import { clsx } from "clsx";
 import { customAlphabet } from "nanoid";
-import { twMerge } from "tailwind-merge";
 import { v7 } from "uuid";
-
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
 
 export const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789");
 
@@ -30,8 +23,7 @@ export const convertImageToBase64 = async (file: File): Promise<string> =>
  * Format bytes to human readable format
  */
 export const formatBytes = (bytes: number, decimals = 2): string => {
-    if (bytes === 0)
-        return "0 Bytes";
+    if (bytes === 0) return "0 Bytes";
 
     const k = 1024;
     const dm = Math.max(decimals, 0);

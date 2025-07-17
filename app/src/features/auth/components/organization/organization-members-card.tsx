@@ -1,11 +1,11 @@
 "use client";
 
+import { CardContent } from "@anole/ui/components/card";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { use, useEffect, useState } from "react";
 
-import { CardContent } from "@/components/ui/card";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardProperties } from "../settings/shared/settings-card";
 import { SettingsCard } from "../settings/shared/settings-card";
@@ -24,11 +24,9 @@ export const OrganizationMembersCard = ({ className, classNames, ...properties }
     const { data: activeOrganization, isPending: organizationPending, isRefetching: organizationFetching } = useActiveOrganization();
 
     useEffect(() => {
-        if (organizationPending || organizationFetching)
-            return;
+        if (organizationPending || organizationFetching) return;
 
-        if (!activeOrganization)
-            replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
+        if (!activeOrganization) replace(`${settings?.basePath || basePath}/${viewPaths.SETTINGS}`);
     }, [activeOrganization, organizationPending, organizationFetching, basePath, settings?.basePath, replace, viewPaths]);
 
     if (!activeOrganization) {

@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
-import { useOnSuccessTransition } from "../../hooks/use-success-transition";
+import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
 
 export const SignOut = () => {
     const signingOut = useRef(false);
@@ -16,8 +16,7 @@ export const SignOut = () => {
     });
 
     useEffect(() => {
-        if (signingOut.current)
-            return;
+        if (signingOut.current) return;
 
         signingOut.current = true;
 

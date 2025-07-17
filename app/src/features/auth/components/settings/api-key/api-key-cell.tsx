@@ -1,14 +1,14 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import cn from "@anole/ui/utils/cn";
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { KeyRoundIcon } from "lucide-react";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { DEFAULT_LOCALE } from "@/lib/intl/client";
-import { cn } from "@/lib/utils";
 
 import type { ApiKey } from "../../../types/data-structure-types";
 import type { Refetch } from "../../../types/hook-integration-types";
@@ -28,8 +28,7 @@ export const APIKeyCell = ({ apiKey, className, classNames, refetch }: APIKeyCel
 
     // Format expiration date or show "Never expires"
     const formatExpiration = () => {
-        if (!apiKey.expiresAt)
-            return t`Never expires`;
+        if (!apiKey.expiresAt) return t`Never expires`;
 
         const expiresDate = new Date(apiKey.expiresAt);
 

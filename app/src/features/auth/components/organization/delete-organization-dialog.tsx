@@ -1,17 +1,17 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Loader2 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { z } from "zod/v4";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
@@ -44,8 +44,7 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
             slug: "",
         },
         onSubmit: async ({ value }) => {
-            if (!activeOrganization)
-                return;
+            if (!activeOrganization) return;
 
             try {
                 await authClient.organization.delete({
@@ -118,11 +117,7 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
                             children={(field) => (
                                 <field.FormItem>
                                     <field.FormLabel className={classNames?.label}>
-                                        {t`Please type`}
-                                        {" "}
-                                        <span className="font-bold">{activeOrganization?.slug}</span>
-                                        {" "}
-                                        {t`to confirm`}
+                                        {t`Please type`} <span className="font-bold">{activeOrganization?.slug}</span> {t`to confirm`}
                                     </field.FormLabel>
 
                                     <field.FormControl>

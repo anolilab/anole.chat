@@ -1,14 +1,14 @@
 import { api } from "@anole/convex/api";
+import { Alert, AlertDescription } from "@anole/ui/components/alert";
+import { Badge } from "@anole/ui/components/badge";
+import { Button } from "@anole/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
+import { ImageEditor } from "@anole/ui/components/image-editor";
+import { Progress } from "@anole/ui/components/progress";
 import { useMutation, useQuery } from "convex/react";
 import { AlertCircle, CheckCircle, Download, File, FileText, Image, Trash2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ImageEditor } from "@/components/ui/image-editor";
-import { Progress } from "@/components/ui/progress";
 import { formatBytes, formatDate } from "@/lib/utils";
 
 const FilesComponent = () => {
@@ -24,27 +24,21 @@ const FilesComponent = () => {
     const deleteFile = useMutation(api.attachments.deleteFile);
 
     const getFileIcon = (fileName: string, mimeType: string) => {
-        if (mimeType.startsWith("image/"))
-            return <Image className="h-8 w-8 text-blue-500" />;
+        if (mimeType.startsWith("image/")) return <Image className="h-8 w-8 text-blue-500" />;
 
-        if (mimeType.includes("pdf"))
-            return <FileText className="h-8 w-8 text-red-500" />;
+        if (mimeType.includes("pdf")) return <FileText className="h-8 w-8 text-red-500" />;
 
-        if (mimeType.includes("text"))
-            return <FileText className="h-8 w-8 text-green-500" />;
+        if (mimeType.includes("text")) return <FileText className="h-8 w-8 text-green-500" />;
 
         return <File className="h-8 w-8 text-gray-500" />;
     };
 
     const getFileTypeBadge = (fileName: string, mimeType: string) => {
-        if (mimeType.startsWith("image/"))
-            return <Badge variant="secondary">Image</Badge>;
+        if (mimeType.startsWith("image/")) return <Badge variant="secondary">Image</Badge>;
 
-        if (mimeType.includes("pdf"))
-            return <Badge variant="destructive">PDF</Badge>;
+        if (mimeType.includes("pdf")) return <Badge variant="destructive">PDF</Badge>;
 
-        if (mimeType.includes("text"))
-            return <Badge variant="default">Text</Badge>;
+        if (mimeType.includes("text")) return <Badge variant="default">Text</Badge>;
 
         return <Badge variant="outline">File</Badge>;
     };
@@ -52,8 +46,7 @@ const FilesComponent = () => {
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
 
-        if (!file)
-            return;
+        if (!file) return;
 
         // Check if it's an image file
         const isImage = file.type.startsWith("image/");
@@ -135,8 +128,7 @@ const FilesComponent = () => {
     };
 
     const handleDeleteFile = async (key: string, fileName: string) => {
-        if (!confirm(`Are you sure you want to delete "${fileName}"?`))
-            return;
+        if (!confirm(`Are you sure you want to delete "${fileName}"?`)) return;
 
         try {
             const result = await deleteFile({ key });
@@ -191,10 +183,7 @@ const FilesComponent = () => {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <span>Uploading file...</span>
-                                <span>
-                                    {uploadProgress}
-                                    %
-                                </span>
+                                <span>{uploadProgress}%</span>
                             </div>
                             <Progress className="w-full" value={uploadProgress} />
                         </div>

@@ -1,15 +1,15 @@
 "use client";
 
+import { CardContent } from "@anole/ui/components/card";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import { Skeleton } from "@anole/ui/components/skeleton";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { useState } from "react";
 import { z } from "zod/v4";
 
-import { CardContent } from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardProperties } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
@@ -91,8 +91,7 @@ export const ChangeEmailCard = ({ className, classNames, ...properties }: Settin
     const resendForm = useAppForm({
         defaultValues: {},
         onSubmit: async () => {
-            if (!sessionData)
-                return;
+            if (!sessionData) return;
 
             const { email } = sessionData.user;
 
@@ -143,35 +142,33 @@ export const ChangeEmailCard = ({ className, classNames, ...properties }: Settin
                         {...properties}
                     >
                         <CardContent className={classNames?.content}>
-                            {isPending
-                                ? (
-                                    <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
-                                )
-                                : (
-                                    <form.AppField
-                                        children={(field) => (
-                                            <field.FormItem>
-                                                <field.FormControl>
-                                                    <Input
-                                                        autoComplete="email"
-                                                        className={classNames?.input}
-                                                        disabled={isSubmitting}
-                                                        onBlur={field.handleBlur}
-                                                        onChange={(e) => {
-                                                            field.handleChange(e.target.value);
-                                                        }}
-                                                        placeholder={t`Enter your email address`}
-                                                        type="email"
-                                                        value={field.state.value}
-                                                    />
-                                                </field.FormControl>
+                            {isPending ? (
+                                <Skeleton className={cn("h-9 w-full", classNames?.skeleton)} />
+                            ) : (
+                                <form.AppField
+                                    children={(field) => (
+                                        <field.FormItem>
+                                            <field.FormControl>
+                                                <Input
+                                                    autoComplete="email"
+                                                    className={classNames?.input}
+                                                    disabled={isSubmitting}
+                                                    onBlur={field.handleBlur}
+                                                    onChange={(e) => {
+                                                        field.handleChange(e.target.value);
+                                                    }}
+                                                    placeholder={t`Enter your email address`}
+                                                    type="email"
+                                                    value={field.state.value}
+                                                />
+                                            </field.FormControl>
 
-                                                <field.FormMessage className={classNames?.error} />
-                                            </field.FormItem>
-                                        )}
-                                        name="email"
-                                    />
-                                )}
+                                            <field.FormMessage className={classNames?.error} />
+                                        </field.FormItem>
+                                    )}
+                                    name="email"
+                                />
+                            )}
                         </CardContent>
                     </SettingsCard>
                 </form>

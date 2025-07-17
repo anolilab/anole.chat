@@ -1,17 +1,17 @@
 import { api } from "@anole/convex/api";
+import { Button } from "@anole/ui/components/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@anole/ui/components/card";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
+import MultipleSelector from "@anole/ui/components/multiselect";
+import { Textarea } from "@anole/ui/components/textarea";
 import { t } from "@lingui/core/macro";
 import { useMutation, useQuery } from "convex/react";
 import type { FC } from "react";
 import { useState } from "react";
 import { z } from "zod/v4";
 
-import { FormError } from "@/components/form/form-error";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import MultipleSelector from "@/components/ui/multiselect";
-import { Textarea } from "@/components/ui/textarea";
+import { FormError } from "@anole/ui/components/form/form-error";
 
 const SUGGESTED_TRAITS = ["friendly", "witty", "concise", "curious", "empathetic", "creative", "patient"];
 

@@ -1,12 +1,11 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { MonitorIcon, MoreHorizontalIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardClassNames } from "../shared/settings-card";
 
@@ -55,8 +54,7 @@ export const SessionCell = ({ classNames, onRevokeSession, session }: SessionCel
     const lastActiveDate = new Date(session.lastActiveAt).toLocaleDateString();
 
     const handleRevoke = async () => {
-        if (!onRevokeSession || session.isCurrent)
-            return;
+        if (!onRevokeSession || session.isCurrent) return;
 
         setIsRevoking(true);
 

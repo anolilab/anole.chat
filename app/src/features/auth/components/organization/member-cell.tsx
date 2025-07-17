@@ -1,16 +1,16 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import { Card } from "@anole/ui/components/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import type { User } from "better-auth";
 import type { Member } from "better-auth/plugins/organization";
 import { EllipsisIcon, UserCogIcon, UserXIcon } from "lucide-react";
 import { use, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
 
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { UserView } from "../user-view";
@@ -42,7 +42,7 @@ export const MemberCell = ({ className, classNames, hideActions, member }: Membe
     ];
 
     const myRole = activeOrganization?.members.find((m) => m.user.id === sessionData?.user.id)?.role;
-    const roles = [...builtInRoles, ...organization?.customRoles || []];
+    const roles = [...builtInRoles, ...(organization?.customRoles || [])];
     const role = roles.find((r) => r.role === member.role);
 
     return (

@@ -73,8 +73,7 @@ export const useStreamManager = ({ jwtToken, model, onStreamError, onStreamStart
                 let lastText = "";
 
                 for await (const message of asAsyncIterableStream(stream)) {
-                    if (abortController.signal.aborted)
-                        break;
+                    if (abortController.signal.aborted) break;
 
                     if (message.parts.length > 0 && message.parts[0].type === "text") {
                         const textPart = message.parts[0];

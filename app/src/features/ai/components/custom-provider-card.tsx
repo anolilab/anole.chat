@@ -1,4 +1,10 @@
 import { api } from "@anole/convex/api";
+import { Button } from "@anole/ui/components/button";
+import { Checkbox } from "@anole/ui/components/checkbox";
+import { ConfirmDialog } from "@anole/ui/components/confirm-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@anole/ui/components/dialog";
+import { useAppForm } from "@anole/ui/components/form";
+import { Input } from "@anole/ui/components/input";
 import { t } from "@lingui/core/macro";
 import { useMutation, useQuery } from "convex/react";
 import { Pencil, Server, Trash2 } from "lucide-react";
@@ -7,13 +13,7 @@ import { useCallback, useMemo, useState } from "react";
 import { z } from "zod/v4";
 
 import CopyButton from "@/components/copy-button";
-import { PasswordInput } from "@/components/form/password-input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
 
 type CustomProvider = {
     enabled: boolean;
@@ -126,8 +126,7 @@ const CustomProviderCard: FC = () => {
     }, []);
 
     const handleConfirmDelete = useCallback(async () => {
-        if (!pendingDeleteKey)
-            return;
+        if (!pendingDeleteKey) return;
 
         await handleDelete(pendingDeleteKey);
         setConfirmOpen(false);
@@ -137,8 +136,7 @@ const CustomProviderCard: FC = () => {
     const handleConfirmDialogOpenChange = useCallback((open: boolean) => {
         setConfirmOpen(open);
 
-        if (!open)
-            setPendingDeleteKey(undefined);
+        if (!open) setPendingDeleteKey(undefined);
     }, []);
 
     return (
@@ -271,64 +269,56 @@ const CustomProviderCard: FC = () => {
             />
 
             <div>
-                {Object.entries(customProviders).length === 0
-                    ? (
-                        <div className="py-8 text-center text-zinc-500">{t`No custom providers.`}</div>
-                    )
-                    : (
-                        <ul className="grid gap-4">
-                            {Object.entries(customProviders).map(([key, provider]) => (
-                                <li
-                                    className="group flex flex-col gap-2 rounded-lg border bg-white p-4 shadow transition-shadow hover:shadow-lg md:flex-row md:items-center md:justify-between dark:bg-zinc-900"
-                                    key={key}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Server className="text-primary h-6 w-6" />
-                                        <div>
-                                            <div className="flex items-center gap-2 text-base font-medium">
-                                                {provider.name}
-                                                <span className={`badge ${provider.enabled ? "badge-success" : "badge-ghost"}`}>
-                                                    {provider.enabled ? t`Enabled` : t`Disabled`}
-                                                </span>
-                                            </div>
-                                            <div className="text-xs text-zinc-500">{provider.endpoint}</div>
-                                            <div className="flex items-center gap-1 text-xs text-zinc-500">
-                                                {t`Key:`}
-                                                {" "}
-                                                {provider.encryptedKey.slice(0, 6)}
-                                                ***
-                                                <CopyButton textToCopy={provider.encryptedKey} />
-                                            </div>
+                {Object.entries(customProviders).length === 0 ? (
+                    <div className="py-8 text-center text-zinc-500">{t`No custom providers.`}</div>
+                ) : (
+                    <ul className="grid gap-4">
+                        {Object.entries(customProviders).map(([key, provider]) => (
+                            <li
+                                className="group flex flex-col gap-2 rounded-lg border bg-white p-4 shadow transition-shadow hover:shadow-lg md:flex-row md:items-center md:justify-between dark:bg-zinc-900"
+                                key={key}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Server className="text-primary h-6 w-6" />
+                                    <div>
+                                        <div className="flex items-center gap-2 text-base font-medium">
+                                            {provider.name}
+                                            <span className={`badge ${provider.enabled ? "badge-success" : "badge-ghost"}`}>
+                                                {provider.enabled ? t`Enabled` : t`Disabled`}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-zinc-500">{provider.endpoint}</div>
+                                        <div className="flex items-center gap-1 text-xs text-zinc-500">
+                                            {t`Key:`} {provider.encryptedKey.slice(0, 6)}
+                                            ***
+                                            <CopyButton textToCopy={provider.encryptedKey} />
                                         </div>
                                     </div>
-                                    <div className="mt-2 flex gap-2 md:mt-0">
-                                        <Button
-                                            aria-label={t`Edit provider`}
-                                            className="btn btn-sm btn-outline flex items-center gap-1"
-                                            disabled={loading}
-                                            onClick={getEditButtonHandler(key)}
-                                            type="button"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                            {" "}
-                                            {t`Edit`}
-                                        </Button>
-                                        <Button
-                                            aria-label={t`Delete provider`}
-                                            className="btn btn-sm btn-error flex items-center gap-1"
-                                            disabled={loading}
-                                            onClick={() => openDeleteDialog(key)}
-                                            type="button"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            {" "}
-                                            {t`Delete`}
-                                        </Button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                </div>
+                                <div className="mt-2 flex gap-2 md:mt-0">
+                                    <Button
+                                        aria-label={t`Edit provider`}
+                                        className="btn btn-sm btn-outline flex items-center gap-1"
+                                        disabled={loading}
+                                        onClick={getEditButtonHandler(key)}
+                                        type="button"
+                                    >
+                                        <Pencil className="h-4 w-4" /> {t`Edit`}
+                                    </Button>
+                                    <Button
+                                        aria-label={t`Delete provider`}
+                                        className="btn btn-sm btn-error flex items-center gap-1"
+                                        disabled={loading}
+                                        onClick={() => openDeleteDialog(key)}
+                                        type="button"
+                                    >
+                                        <Trash2 className="h-4 w-4" /> {t`Delete`}
+                                    </Button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
         </div>
     );

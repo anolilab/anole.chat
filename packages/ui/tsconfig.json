@@ -1,0 +1,17 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "composite": true,
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "baseUrl": ".",
+        /* Bundler mode */
+        "moduleResolution": "bundler"
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "eslint.config.js",
+        "prettier.config.js"
+    ],
+    "exclude": ["**/*.md", "**/*.json"]
+}

@@ -1,19 +1,10 @@
 {
     "nxConsole.generateAiAgentRules": true,
-    "i18n-ally.localesPaths": [
-        "src/lib/intl/locales"
-    ],
+    "i18n-ally.localesPaths": ["src/lib/intl/locales"],
     "editor.renderWhitespace": "all",
-    // Disable the default formatter, use eslint instead
     "prettier.enable": true,
     "editor.formatOnSave": true,
-    /** Auto fix
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
-        "source.organizeImports": "never"
-    },*/
     "eslint.runtime": "node",
-    // Silent the stylistic rules in you IDE, but still auto fix them
     "eslint.rules.customizations": [
         {
             "rule": "@stylistic/*",
@@ -61,7 +52,6 @@
             "fixable": true
         }
     ],
-    // Enable eslint for all supported languages
     "eslint.validate": [
         "javascript",
         "javascriptreact",

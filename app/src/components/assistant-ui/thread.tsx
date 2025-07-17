@@ -1,35 +1,22 @@
 import type { AgentModel } from "@anole/convex/ai/lib/agents";
 import { agents } from "@anole/convex/ai/lib/agents";
+import { Button } from "@anole/ui/components/button";
+import { ScrollBar } from "@anole/ui/components/scroll-area";
+import cn from "@anole/ui/utils/cn";
 import { ActionBarPrimitive, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import { useLingui } from "@lingui/react/macro";
-import {
-    ArrowDownIcon,
-    CheckIcon,
-    ChevronLeftIcon,
-    ChevronRightIcon,
-    CopyIcon,
-    PencilIcon,
-    RefreshCwIcon,
-    SendHorizontalIcon,
-    ThumbsDownIcon,
-    ThumbsUpIcon,
-} from "lucide-react";
+import { ArrowDownIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, PencilIcon, RefreshCwIcon, SendHorizontalIcon } from "lucide-react";
 import { ScrollArea as ScrollAreaPrimitive } from "radix-ui";
 import type { FC } from "react";
-import { useCallback, useState } from "react";
 
 import { ComposerAddAttachment, ComposerAttachments, UserMessageAttachments } from "@/components/assistant-ui/attachment";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { PromptImprovement } from "@/components/assistant-ui/prompt-improvement";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { Button } from "@/components/ui/button";
-import { ScrollBar } from "@/components/ui/scroll-area";
-import { useSession } from "@/features/auth/hooks/session-user-management";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { useAiModelContext } from "@/features/chat/providers/ai-model-provider";
-import { cn } from "@/lib/utils";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 
 export const Thread: FC<{ threadId?: string }> = ({ threadId }) => (
     <ScrollAreaPrimitive.Root asChild>
@@ -309,9 +296,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({ className, ...rest
             </TooltipIconButton>
         </BranchPickerPrimitive.Previous>
         <span className="font-medium">
-            <BranchPickerPrimitive.Number />
-            {" "}
-            /
+            <BranchPickerPrimitive.Number /> /
             <BranchPickerPrimitive.Count />
         </span>
         <BranchPickerPrimitive.Next asChild>
