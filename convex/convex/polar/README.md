@@ -1,6 +1,6 @@
-# Polar Integration for Convex
+# Polar Integration with Convex
 
-This module provides a complete integration between Polar (subscription management platform) and Convex, allowing you to handle subscriptions, payments, and webhooks seamlessly.
+This project uses the official `@convex-dev/polar` package to integrate Polar (subscription management platform) with Convex.
 
 ## Features
 
@@ -9,7 +9,7 @@ This module provides a complete integration between Polar (subscription manageme
 - **Customer Management**: Create and manage customers in Polar
 - **Webhook Processing**: Secure webhook handling with signature verification
 - **Checkout Sessions**: Create checkout sessions for subscription purchases
-- **Utility Functions**: Helper functions for subscription status checks
+- **Real-time Updates**: Automatic synchronization with Polar via webhooks
 
 ## Setup
 
@@ -18,203 +18,199 @@ This module provides a complete integration between Polar (subscription manageme
 Add the following environment variables to your Convex environment:
 
 ```bash
-POLAR_ACCESS_TOKEN=your_polar_access_token
+# Required
+POLAR_ORGANIZATION_ID=your_organization_id
+POLAR_ACCESS_TOKEN=your_access_token
 POLAR_WEBHOOK_SECRET=your_webhook_secret
-POLAR_SUCCESS_URL="https://yourdomain.com/success?checkout_id={CHECKOUT_ID}"
+
+# Optional
+POLAR_SUCCESS_URL=https://yourdomain.com/success
+POLAR_CANCEL_URL=https://yourdomain.com/cancel
 ```
 
-### 2. Webhook Configuration
+### 2. Polar Configuration
 
-In your Polar dashboard, configure the webhook endpoint:
-
-```
-URL: https://your-convex-deployment.convex.cloud/webhooks/polar
-Events: subscription.created, subscription.updated, subscription.canceled
-```
-
-## Database Schema
-
-The integration creates the following tables:
-
-### `polarProducts`
-Stores Polar product information:
-- `id`: Polar product ID
-- `name`: Product name
-- `description`: Product description
-- `price`: Product price
-- `currency`: Price currency
-- `interval`: Billing interval (month/year)
-- `active`: Whether the product is active
-- `metadata`: Additional product metadata (JSON string)
-- `createdAt`, `updatedAt`: Timestamps
-
-### `polarSubscriptions`
-Stores subscription information:
-- `id`: Polar subscription ID
-- `customerId`: Polar customer ID
-- `productId`: Polar product ID
-- `status`: Subscription status
-- `currentPeriodStart`, `currentPeriodEnd`: Billing period
-- `cancelAtPeriodEnd`: Whether to cancel at period end
-- `canceledAt`, `endedAt`: Cancellation timestamps
-- `metadata`: Additional subscription metadata (JSON string)
-- `userId`: Associated user ID
-- `createdAt`, `updatedAt`: Timestamps
-
-### `polarCustomers`
-Stores customer information:
-- `id`: Polar customer ID
-- `email`: Customer email
-- `name`: Customer name
-- `metadata`: Additional customer metadata (JSON string)
-- `userId`: Associated user ID
-- `createdAt`, `updatedAt`: Timestamps
-
-### `polarWebhookEvents`
-Stores webhook events for debugging:
-- `id`: Event ID
-- `type`: Event type
-- `data`: Event payload (JSON string)
-- `processed`: Whether the event has been processed
-- `processedAt`: Processing timestamp
-- `createdAt`: Event timestamp
-
-## API Reference
-
-### Public Queries
-
-#### `getProducts()`
-Returns all active Polar products.
-
-#### `getProduct(productId: string)`
-Returns a specific Polar product by ID.
-
-#### `getUserSubscription(userId: Id<"users">)`
-Returns the active subscription for a user.
-
-### Public Mutations
-
-#### `createCustomer(userId: Id<"users">, email: string, name?: string)`
-Creates a new customer in Polar and stores the information locally.
-
-#### `createCheckoutSession(userId: Id<"users">, productId: string, successUrl: string, cancelUrl: string)`
-Creates a checkout session for subscription purchase.
-
-### Utility Functions
-
-#### `hasActiveSubscription(userId: Id<"users">)`
-Returns whether a user has an active subscription.
-
-#### `getSubscriptionWithProduct(userId: Id<"users">)`
-Returns subscription details with associated product information.
-
-#### `isSubscriptionExpired(userId: Id<"users">)`
-Returns whether a user's subscription has expired.
-
-#### `getDaysUntilExpiry(userId: Id<"users">)`
-Returns the number of days until subscription expiry.
-
-## Usage Examples
-
-### Creating a Checkout Session
+The integration is configured in `convex/convex/polar.ts`:
 
 ```typescript
+export const polarConfig = polar({
+    organizationId: process.env.POLAR_ORGANIZATION_ID!,
+    accessToken: process.env.POLAR_ACCESS_TOKEN!,
+    webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
+    webhookPath: "/webhooks/polar",
+    successUrl: process.env.POLAR_SUCCESS_URL || "https://yourdomain.com/success",
+    cancelUrl: process.env.POLAR_CANCEL_URL || "https://yourdomain.com/cancel",
+});
+```
+
+### 3. Database Schema
+
+The integration automatically creates the following tables:
+
+- `polarProducts`: Store product information
+- `polarSubscriptions`: Store subscription data
+- `polarCustomers`: Store customer information
+- `polarWebhookEvents`: Store webhook events for debugging
+
+## Usage
+
+### Frontend Components
+
+#### SubscriptionManager Component
+
+```tsx
+import { SubscriptionManager } from "@/components/polar";
+
+function MyPage() {
+    return <SubscriptionManager userId="user_id" />;
+}
+```
+
+#### useSubscription Hook
+
+```tsx
+import { useSubscription } from "@/hooks/useSubscription";
+
+function MyComponent() {
+    const { 
+        hasActiveSubscription, 
+        subscribe, 
+        cancel, 
+        activeSubscription 
+    } = useSubscription(userId);
+
+    const handleSubscribe = () => {
+        subscribe("product_id");
+    };
+
+    return (
+        <div>
+            {hasActiveSubscription ? (
+                <button onClick={cancel}>Cancel Subscription</button>
+            ) : (
+                <button onClick={handleSubscribe}>Subscribe</button>
+            )}
+        </div>
+    );
+}
+```
+
+### Backend Functions
+
+The `@convex-dev/polar` package provides the following functions:
+
+#### Queries
+- `getProducts()`: Get all available products
+- `getProduct(id)`: Get a specific product
+- `getSubscriptions(userId)`: Get user's subscriptions
+- `getSubscription(id)`: Get a specific subscription
+- `getCustomer(userId)`: Get customer information
+- `getCustomerSubscriptions(userId)`: Get customer's subscriptions
+
+#### Mutations
+- `createCustomer(data)`: Create a new customer
+- `updateCustomer(data)`: Update customer information
+- `createCheckoutSession(data)`: Create a checkout session
+- `cancelSubscription(data)`: Cancel a subscription
+- `reactivateSubscription(data)`: Reactivate a canceled subscription
+
+#### Actions
+- `syncProducts()`: Sync products from Polar
+- `syncSubscriptions()`: Sync subscriptions from Polar
+- `syncCustomers()`: Sync customers from Polar
+
+## Webhook Configuration
+
+The integration automatically handles webhooks at `/webhooks/polar`. Configure this endpoint in your Polar dashboard:
+
+1. Go to your Polar organization settings
+2. Navigate to Webhooks
+3. Add a new webhook with URL: `https://your-convex-deployment.convex.cloud/webhooks/polar`
+4. Select the events you want to receive (recommended: all events)
+5. Copy the webhook secret and add it to your environment variables
+
+## Example Implementation
+
+### Creating a Subscription
+
+```tsx
 import { useMutation } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { api } from "@anole/convex/api";
 
-const createCheckout = useMutation(api.polar.createCheckoutSession);
+function SubscribeButton({ productId, userId }) {
+    const createCheckout = useMutation(api.polar.createCheckoutSession);
 
-const handleSubscribe = async () => {
-    const result = await createCheckout({
-        userId: currentUserId,
-        productId: "prod_123",
-        successUrl: "https://yourapp.com/success",
-        cancelUrl: "https://yourapp.com/cancel",
-    });
-    
-    // Redirect to checkout
-    window.location.href = result.url;
-};
+    const handleSubscribe = async () => {
+        const checkoutUrl = await createCheckout({
+            productId,
+            userId,
+            successUrl: `${window.location.origin}/success`,
+            cancelUrl: `${window.location.origin}/cancel`,
+        });
+        window.location.href = checkoutUrl;
+    };
+
+    return <button onClick={handleSubscribe}>Subscribe</button>;
+}
 ```
 
 ### Checking Subscription Status
 
-```typescript
+```tsx
 import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { api } from "@anole/convex/api";
 
-const hasSubscription = useQuery(api.polar.hasActiveSubscription, {
-    userId: currentUserId,
-});
+function SubscriptionStatus({ userId }) {
+    const subscriptions = useQuery(api.polar.getCustomerSubscriptions, { userId });
+    const activeSubscription = subscriptions?.find(sub => sub.status === "active");
 
-if (hasSubscription) {
-    // User has active subscription
-    console.log("User is subscribed!");
+    if (activeSubscription) {
+        return <div>Active subscription until {new Date(activeSubscription.currentPeriodEnd * 1000).toLocaleDateString()}</div>;
+    }
+
+    return <div>No active subscription</div>;
 }
 ```
-
-### Getting Subscription Details
-
-```typescript
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
-
-const subscriptionData = useQuery(api.polar.getSubscriptionWithProduct, {
-    userId: currentUserId,
-});
-
-if (subscriptionData) {
-    console.log("Subscription:", subscriptionData.subscription);
-    console.log("Product:", subscriptionData.product);
-}
-```
-
-## Webhook Processing
-
-The integration automatically processes the following webhook events:
-
-- `subscription.created`: Creates a new subscription record
-- `subscription.updated`: Updates an existing subscription record
-- `subscription.canceled`: Marks a subscription as canceled
-
-Webhook events are stored in the `polarWebhookEvents` table for debugging purposes.
-
-## Security
-
-- Webhook signatures are verified using HMAC-SHA256
-- All webhook processing is done asynchronously to prevent timeouts
-- Environment variables are validated at runtime
 
 ## Error Handling
 
 The integration includes comprehensive error handling:
 
-- Invalid webhook signatures are rejected
-- Missing environment variables are logged
-- Database operations are wrapped in try-catch blocks
-- Failed webhook processing is logged for debugging
+- Webhook signature verification
+- Automatic retry for failed operations
+- Detailed error logging
+- Graceful fallbacks for missing data
 
 ## Best Practices
 
-1. **Always check subscription status** before providing premium features
-2. **Use the utility functions** for common subscription checks
-3. **Handle webhook failures gracefully** by monitoring the `polarWebhookEvents` table
-4. **Test webhook processing** in development using Polar's webhook testing tools
-5. **Monitor subscription expiry** and notify users before their subscription expires
+1. **Always verify webhook signatures** (handled automatically)
+2. **Use environment variables** for sensitive configuration
+3. **Handle loading states** in your UI components
+4. **Implement proper error handling** for user-facing operations
+5. **Test webhook processing** in development
+6. **Monitor webhook events** for debugging
 
 ## Troubleshooting
 
-### Webhook Not Receiving Events
-- Verify the webhook URL is correct in Polar dashboard
-- Check that the webhook secret matches your environment variable
-- Ensure the webhook endpoint is publicly accessible
+### Common Issues
 
-### Subscription Not Syncing
-- Check the `polarWebhookEvents` table for failed events
-- Verify that the customer exists in both Polar and your database
-- Ensure the user ID is correctly associated with the customer
+1. **Webhook not receiving events**: Check webhook URL and secret
+2. **Products not syncing**: Verify access token permissions
+3. **Checkout not working**: Ensure success/cancel URLs are configured
+4. **Subscription status not updating**: Check webhook event processing
 
-### Environment Variables
-- Make sure all required environment variables are set in Convex
-- Verify the Polar access token has the necessary permissions
-- Check that the webhook secret matches your Polar configuration
+### Debugging
+
+Check the `polarWebhookEvents` table for webhook processing logs:
+
+```typescript
+// Query webhook events
+const events = await ctx.db.query("polarWebhookEvents").collect();
+```
+
+## Support
+
+For issues with the `@convex-dev/polar` package:
+- Check the [Convex documentation](https://docs.convex.dev/components/polar)
+- Visit the [Convex Discord](https://discord.gg/convex)
+- Review the [Polar documentation](https://docs.polar.sh/)

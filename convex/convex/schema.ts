@@ -5,7 +5,7 @@ import authTables from "./auth/schema";
 import chatTables from "./chat/schema";
 import emailTables from "./email/schema";
 import { subscriptionTables } from "./subscription/schema";
-import { polarTables } from "./polar/schema";
+import { polarTables } from "./polar";
 
 const schema = defineSchema({
     ...ai,

@@ -4,66 +4,88 @@ import { Id } from "@anole/convex/dataModel";
 
 export function useSubscription(userId: Id<"users">) {
     // Queries
-    const subscription = useQuery(api.polar.getUserSubscription, { userId });
-    const hasActiveSubscription = useQuery(api.polar.hasActiveSubscription, { userId });
-    const isExpired = useQuery(api.polar.isSubscriptionExpired, { userId });
-    const daysUntilExpiry = useQuery(api.polar.getDaysUntilExpiry, { userId });
-    const subscriptionWithProduct = useQuery(api.polar.getSubscriptionWithProduct, { userId });
+    const customer = useQuery(api.polar.getCustomer, { userId });
+    const subscriptions = useQuery(api.polar.getCustomerSubscriptions, { userId });
+    const products = useQuery(api.polar.getProducts);
+    
+    // Get the active subscription
+    const activeSubscription = subscriptions?.find(sub => sub.status === "active");
+    
+    // Check if user has active subscription
+    const hasActiveSubscription = !!activeSubscription;
+    
+    // Check if subscription is expired
+    const isExpired = activeSubscription ? 
+        new Date(activeSubscription.currentPeriodEnd * 1000) < new Date() : 
+        false;
+    
+    // Calculate days until expiry
+    const daysUntilExpiry = activeSubscription ? 
+        Math.ceil((activeSubscription.currentPeriodEnd * 1000 - Date.now()) / (1000 * 60 * 60 * 24)) : 
+        null;
 
     // Mutations
     const createCheckout = useMutation(api.polar.createCheckoutSession);
     const createCustomer = useMutation(api.polar.createCustomer);
+    const updateCustomer = useMutation(api.polar.updateCustomer);
+    const cancelSubscription = useMutation(api.polar.cancelSubscription);
+    const reactivateSubscription = useMutation(api.polar.reactivateSubscription);
 
-    const subscribe = async (productId: string, successUrl?: string, cancelUrl?: string) => {
+    // Helper functions
+    const subscribe = async (productId: string) => {
         try {
-            const result = await createCheckout({
-                userId,
+            const checkoutUrl = await createCheckout({
                 productId,
-                successUrl: successUrl || `${window.location.origin}/success?checkout_id={CHECKOUT_ID}`,
-                cancelUrl: cancelUrl || `${window.location.origin}/cancel`,
+                customerId: customer?.id,
+                userId,
+                successUrl: `${window.location.origin}/success`,
+                cancelUrl: `${window.location.origin}/cancel`,
             });
-
-            // Redirect to Polar checkout
-            window.location.href = result.url;
-            return result;
+            window.location.href = checkoutUrl;
         } catch (error) {
             console.error("Failed to create checkout session:", error);
             throw error;
         }
     };
 
-    const createCustomerRecord = async (email: string, name?: string) => {
+    const cancel = async () => {
+        if (!activeSubscription) throw new Error("No active subscription to cancel");
         try {
-            const result = await createCustomer({
-                userId,
-                email,
-                name,
-            });
-            return result;
+            await cancelSubscription({ subscriptionId: activeSubscription.id });
         } catch (error) {
-            console.error("Failed to create customer:", error);
+            console.error("Failed to cancel subscription:", error);
+            throw error;
+        }
+    };
+
+    const reactivate = async () => {
+        if (!activeSubscription) throw new Error("No subscription to reactivate");
+        try {
+            await reactivateSubscription({ subscriptionId: activeSubscription.id });
+        } catch (error) {
+            console.error("Failed to reactivate subscription:", error);
             throw error;
         }
     };
 
     return {
         // Data
-        subscription,
+        customer,
+        subscriptions,
+        activeSubscription,
+        products,
         hasActiveSubscription,
         isExpired,
         daysUntilExpiry,
-        subscriptionWithProduct,
-        
-        // Loading states
-        isLoading: subscription === undefined || hasActiveSubscription === undefined,
         
         // Actions
         subscribe,
-        createCustomer: createCustomerRecord,
+        cancel,
+        reactivate,
+        createCustomer,
+        updateCustomer,
         
-        // Computed values
-        isSubscribed: hasActiveSubscription === true,
-        isExpiringSoon: daysUntilExpiry !== null && daysUntilExpiry <= 7,
-        canAccessPremium: hasActiveSubscription === true && isExpired === false,
+        // Loading states
+        isLoading: subscriptions === undefined || products === undefined,
     };
 }

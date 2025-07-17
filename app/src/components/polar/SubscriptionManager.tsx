@@ -13,26 +13,47 @@ interface SubscriptionManagerProps {
 export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
     // Queries
     const products = useQuery(api.polar.getProducts);
-    const subscription = useQuery(api.polar.getUserSubscription, { userId });
-    const hasActiveSubscription = useQuery(api.polar.hasActiveSubscription, { userId });
-    const daysUntilExpiry = useQuery(api.polar.getDaysUntilExpiry, { userId });
+    const customer = useQuery(api.polar.getCustomer, { userId });
+    const subscriptions = useQuery(api.polar.getCustomerSubscriptions, { userId });
+    
+    // Get the active subscription
+    const activeSubscription = subscriptions?.find(sub => sub.status === "active");
 
     // Mutations
     const createCheckout = useMutation(api.polar.createCheckoutSession);
+    const cancelSubscription = useMutation(api.polar.cancelSubscription);
+    const reactivateSubscription = useMutation(api.polar.reactivateSubscription);
 
     const handleSubscribe = async (productId: string) => {
         try {
-            const result = await createCheckout({
-                userId,
+            const checkoutUrl = await createCheckout({
                 productId,
-                successUrl: `${window.location.origin}/success?checkout_id={CHECKOUT_ID}`,
+                customerId: customer?.id,
+                userId,
+                successUrl: `${window.location.origin}/success`,
                 cancelUrl: `${window.location.origin}/cancel`,
             });
-
-            // Redirect to Polar checkout
-            window.location.href = result.url;
+            window.location.href = checkoutUrl;
         } catch (error) {
             console.error("Failed to create checkout session:", error);
+        }
+    };
+
+    const handleCancel = async () => {
+        if (!activeSubscription) return;
+        try {
+            await cancelSubscription({ subscriptionId: activeSubscription.id });
+        } catch (error) {
+            console.error("Failed to cancel subscription:", error);
+        }
+    };
+
+    const handleReactivate = async () => {
+        if (!activeSubscription) return;
+        try {
+            await reactivateSubscription({ subscriptionId: activeSubscription.id });
+        } catch (error) {
+            console.error("Failed to reactivate subscription:", error);
         }
     };
 
@@ -51,21 +72,18 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {hasActiveSubscription ? (
+                    {activeSubscription ? (
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <Badge variant="default">Active</Badge>
-                                {subscription && (
-                                    <span className="text-sm text-muted-foreground">
-                                        Expires {formatDistanceToNow(subscription.currentPeriodEnd, { addSuffix: true })}
-                                    </span>
-                                )}
+                                <span className="text-sm text-muted-foreground">
+                                    Expires {formatDistanceToNow(new Date(activeSubscription.currentPeriodEnd * 1000), { addSuffix: true })}
+                                </span>
                             </div>
-                            {daysUntilExpiry !== null && daysUntilExpiry <= 7 && (
+                            {activeSubscription.cancelAtPeriodEnd && (
                                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                                     <p className="text-sm text-yellow-800">
-                                        Your subscription expires in {daysUntilExpiry} days. 
-                                        Consider renewing to maintain access.
+                                        Your subscription will be canceled at the end of the current period
                                     </p>
                                 </div>
                             )}
@@ -101,7 +119,7 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
                                 <CardContent>
                                     <div className="mb-4">
                                         <span className="text-3xl font-bold">
-                                            ${product.price}
+                                            ${product.price / 100}
                                         </span>
                                         <span className="text-muted-foreground">
                                             /{product.interval}
@@ -110,9 +128,9 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
                                     <Button 
                                         onClick={() => handleSubscribe(product.id)}
                                         className="w-full"
-                                        disabled={hasActiveSubscription}
+                                        disabled={!!activeSubscription}
                                     >
-                                        {hasActiveSubscription ? "Already Subscribed" : "Subscribe"}
+                                        {activeSubscription ? "Already Subscribed" : "Subscribe"}
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -122,7 +140,7 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
             </Card>
 
             {/* Subscription Details */}
-            {subscription && (
+            {activeSubscription && (
                 <Card>
                     <CardHeader>
                         <CardTitle>Subscription Details</CardTitle>
@@ -131,21 +149,34 @@ export function SubscriptionManager({ userId }: SubscriptionManagerProps) {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Status:</span>
-                                <Badge variant={subscription.status === "active" ? "default" : "secondary"}>
-                                    {subscription.status}
+                                <Badge variant={activeSubscription.status === "active" ? "default" : "secondary"}>
+                                    {activeSubscription.status}
                                 </Badge>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Current Period:</span>
                                 <span>
-                                    {new Date(subscription.currentPeriodStart).toLocaleDateString()} - {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                                    {new Date(activeSubscription.currentPeriodStart * 1000).toLocaleDateString()} - {new Date(activeSubscription.currentPeriodEnd * 1000).toLocaleDateString()}
                                 </span>
                             </div>
-                            {subscription.cancelAtPeriodEnd && (
+                            {activeSubscription.cancelAtPeriodEnd && (
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Cancellation:</span>
                                     <span className="text-orange-600">Will cancel at period end</span>
                                 </div>
+                            )}
+                        </div>
+                        
+                        <div className="flex gap-2 mt-4">
+                            {activeSubscription.status === "active" && !activeSubscription.cancelAtPeriodEnd && (
+                                <Button variant="outline" onClick={handleCancel}>
+                                    Cancel Subscription
+                                </Button>
+                            )}
+                            {activeSubscription.cancelAtPeriodEnd && (
+                                <Button onClick={handleReactivate}>
+                                    Reactivate Subscription
+                                </Button>
                             )}
                         </div>
                     </CardContent>

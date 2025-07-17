@@ -65,7 +65,6 @@
         "convex": "^1.25.4",
         "convex-helpers": "^0.1.99",
         "hono": "^4.8.5",
-        "@polar-sh/sdk": "^0.34.5",
         "react": "19.1.0",
         "react-dom": "19.1.0",
         "resend": "^4.6.0",
