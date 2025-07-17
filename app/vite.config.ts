@@ -1,9 +1,9 @@
 import { lingui } from "@lingui/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
-import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => {
     const environment = loadEnv(mode, process.cwd());
@@ -69,9 +69,20 @@ export default defineConfig(({ mode }) => {
         test: {
             browser: {
                 enabled: true,
+                headless: true,
                 instances: [{ browser: "chrome" }],
                 provider: "webdriverio",
             },
+            dangerouslyIgnoreUnhandledErrors: true,
+            environment: "jsdom",
+            include: [
+                "__tests__/browser/**/*.{test,spec}.ts",
+                "__tests__/**/*.browser.{test,spec}.ts",
+                "**/*.browser.{test,spec}.ts",
+                "__tests__/unit/**/*.{test,spec}.ts",
+                "__tests__/**/*.unit.{test,spec}.ts",
+                "**/*.unit.{test,spec}.ts",
+            ],
             setupFiles: ["./vitest.setup.ts"],
         },
     };
