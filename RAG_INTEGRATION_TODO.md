@@ -12,11 +12,11 @@
 
 ### 1.2 RAG Component Setup
 - [ ] Create `convex/convex/rag/setup.ts`
-  - [ ] Import `components` from "./_generated/api"
+  - [ ] Import `components` from "../_generated/api"
   - [ ] Import `RAG` from "@convex-dev/rag"
-  - [ ] Import AI SDK embedding model (e.g., OpenAI)
-  - [ ] Configure RAG with embedding model and dimension
-  - [ ] Export configured RAG instance
+  - [ ] Import AI SDK embedding model (e.g., `openai.embedding("text-embedding-3-small")`)
+  - [ ] Configure RAG with `textEmbeddingModel` and `embeddingDimension`
+  - [ ] Export configured RAG instance for use in actions
 
 ### 1.2 Convex Functions Structure
 - [ ] Create `convex/convex/rag/` directory
@@ -30,54 +30,55 @@
 ## Phase 2: Backend Implementation
 
 ### 2.1 Content Addition Pipeline
-- [ ] Implement `addContent()` function
-  - [ ] Use `rag.add()` to add text chunks
-  - [ ] Support namespace organization (per-user)
-  - [ ] Automatic embedding generation
-  - [ ] Handle large files asynchronously
-- [ ] Implement `addContentWithFilters()` function
-  - [ ] Add content with custom filter values
-  - [ ] Support multiple filter types (category, contentType, etc.)
-  - [ ] Type-safe filter implementation
-- [ ] Implement `addContentWithImportance()` function
+- [ ] Implement `add` action function
+  - [ ] Use `rag.add()` to add text chunks to namespace
+  - [ ] Support namespace organization (e.g., "all-users", user-specific)
+  - [ ] Automatic embedding generation by RAG component
+  - [ ] Handle large content asynchronously
+- [ ] Implement `addWithFilters` action function
+  - [ ] Add content with `filterValues` array
+  - [ ] Support filter types like `category`, `contentType`, `categoryAndType`
+  - [ ] Type-safe filter implementation with `FilterTypes`
+- [ ] Implement `addWithImportance` action function
   - [ ] Weight content by importance (0 to 1)
-  - [ ] Prioritize high-importance content in search
-- [ ] Implement `addContentWithTitles()` function
+  - [ ] Prioritize high-importance content in search results
+- [ ] Implement `addWithTitles` action function
   - [ ] Add titles for better context organization
-  - [ ] Support entry-level metadata
+  - [ ] Support entry-level metadata and titles
 
 ### 2.2 Semantic Search System
-- [ ] Implement `searchContent()` function
+- [ ] Implement `search` action function
   - [ ] Use `rag.search()` for vector similarity search
-  - [ ] Support namespace-based search
-  - [ ] Configurable result limits
-  - [ ] Vector score threshold filtering
-- [ ] Implement `searchWithFilters()` function
-  - [ ] Filter search results by metadata
+  - [ ] Support namespace-based search (e.g., "global", user-specific)
+  - [ ] Configurable `limit` parameter
+  - [ ] `vectorScoreThreshold` filtering (e.g., 0.5)
+  - [ ] Return `{ results, text, entries }` structure
+- [ ] Implement `searchWithFilters` action function
+  - [ ] Filter search results by metadata using `filters` array
   - [ ] Support OR filtering between filter values
-  - [ ] Support AND filtering with complex filter values
-- [ ] Implement `searchWithContext()` function
-  - [ ] Include surrounding chunks for better context
-  - [ ] Configurable before/after chunk context
-  - [ ] Handle overlapping chunk ranges
-- [ ] Implement `searchWithImportance()` function
+  - [ ] Support AND filtering with complex filter values (e.g., `categoryAndType`)
+- [ ] Implement `searchWithContext` action function
+  - [ ] Include surrounding chunks with `chunkContext: { before: 2, after: 1 }`
+  - [ ] Handle overlapping chunk ranges properly
+  - [ ] Return results with `content` array and `startOrder`
+- [ ] Implement `searchWithImportance` action function
   - [ ] Weight search results by importance
-  - [ ] Prioritize high-importance content
+  - [ ] Prioritize high-importance content in results
 
 ### 2.3 Response Generation
-- [ ] Implement `generateResponse()` function
+- [ ] Implement `askQuestion` action function
   - [ ] Use `rag.generateText()` for one-off responses
-  - [ ] Automatic context search and LLM integration
-  - [ ] Support custom prompts and models
-  - [ ] Return both answer and context
-- [ ] Implement `generateResponseWithSearch()` function
+  - [ ] Automatic context search with `search` configuration
+  - [ ] Support custom prompts and AI SDK models (e.g., `openai.chat("gpt-4o-mini")`)
+  - [ ] Return `{ answer: text, context }` structure
+- [ ] Implement `generateWithCustomSearch` action function
   - [ ] Custom search configuration for generation
-  - [ ] Configurable search parameters
-  - [ ] Integration with existing LLM setup
-- [ ] Implement `formatResults()` function
-  - [ ] Format search results for prompts
-  - [ ] Support custom formatting options
-  - [ ] Handle result ordering and chunk context
+  - [ ] Configurable search parameters (namespace, limit, filters, etc.)
+  - [ ] Integration with existing AI SDK setup
+- [ ] Implement `formatResults` action function
+  - [ ] Format search results for prompts using `text` field
+  - [ ] Support custom formatting with `results` and `entries`
+  - [ ] Handle result ordering (by score vs. by order) and chunk context
 
 ### 2.4 Namespace Management
 - [ ] Implement `createNamespace()` function
@@ -145,23 +146,25 @@
 
 ### 4.1 Convex Actions & Queries
 - [ ] Create actions in `convex/convex/rag/actions.ts`
-  - [ ] `addContent()` - Add content to RAG namespace
-  - [ ] `searchContent()` - Search content with semantic search
-  - [ ] `generateResponse()` - Generate AI response with RAG context
-  - [ ] `addContentWithFilters()` - Add content with metadata filters
+  - [ ] `add` - Add content to RAG namespace using `rag.add()`
+  - [ ] `search` - Search content with semantic search using `rag.search()`
+  - [ ] `askQuestion` - Generate AI response with RAG context using `rag.generateText()`
+  - [ ] `addWithFilters` - Add content with metadata filters
+  - [ ] `searchWithFilters` - Search with metadata filters
+  - [ ] `searchWithContext` - Search with surrounding chunk context
 - [ ] Create queries in `convex/convex/rag/queries.ts`
-  - [ ] `getNamespaceContent()` - Get content in a namespace
-  - [ ] `getSearchHistory()` - Get user's search history
-  - [ ] `getContentStats()` - Get content statistics
-  - [ ] `getFilterOptions()` - Get available filter options
+  - [ ] `getNamespaceContent` - Get content in a namespace
+  - [ ] `getSearchHistory` - Get user's search history
+  - [ ] `getContentStats` - Get content statistics
+  - [ ] `getFilterOptions` - Get available filter options
 
 ### 4.2 AI Integration
 - [ ] Implement `convex/convex/rag/ai.ts`
-  - [ ] Integrate with AI SDK models (OpenAI, Anthropic, etc.)
-  - [ ] Configure embedding models for RAG
-  - [ ] Set up text generation models
-  - [ ] Handle model-specific configurations
-  - [ ] Implement fallback models
+  - [ ] Import AI SDK models (e.g., `openai` from "@ai-sdk/openai")
+  - [ ] Configure embedding models (e.g., `openai.embedding("text-embedding-3-small")`)
+  - [ ] Set up text generation models (e.g., `openai.chat("gpt-4o-mini")`)
+  - [ ] Handle model-specific configurations and dimensions
+  - [ ] Implement fallback models and error handling
 
 ## Phase 5: Advanced Features
 
@@ -187,15 +190,16 @@
 
 ### 5.2 Search & Discovery
 - [ ] Advanced search filters
-  - [ ] Custom filter types (category, contentType, etc.)
+  - [ ] Custom filter types (category, contentType, categoryAndType, etc.)
   - [ ] Complex filter combinations (AND/OR logic)
-  - [ ] Filter value suggestions
-  - [ ] Dynamic filter creation
+  - [ ] Type-safe filter implementation with `FilterTypes`
+  - [ ] Dynamic filter creation and validation
 - [ ] Search result formatting
-  - [ ] Custom result formatting
-  - [ ] Result ordering (by score vs. by order)
-  - [ ] Chunk context inclusion
-  - [ ] Entry-level formatting
+  - [ ] Default text formatting with `...` and `---` separators
+  - [ ] Custom result formatting with `results` and `entries`
+  - [ ] Result ordering (by score vs. by order in original text)
+  - [ ] Chunk context inclusion with `chunkContext`
+  - [ ] Entry-level formatting with titles
 - [ ] Search suggestions
   - [ ] Auto-complete for search queries
   - [ ] Popular search suggestions
@@ -237,9 +241,10 @@
 
 ### 6.2 Chat System Integration
 - [ ] Extend existing chat system
-  - [ ] Add RAG context to existing chat
-  - [ ] Integrate with Agent Component for RAG
+  - [ ] Add RAG context to existing chat using `rag.generateText()`
+  - [ ] Integrate with Agent Component for RAG (recommended approach)
   - [ ] Support both regular and RAG-enhanced chat
+  - [ ] Use `rag.generateText()` for one-off responses when not using Agent
 - [ ] Preserve existing chat features
   - [ ] Regular chat functionality
   - [ ] Chat history with RAG context
@@ -263,12 +268,14 @@
 - [ ] Add `@ai-sdk/openai` for OpenAI integration
 - [ ] Add `@ai-sdk/anthropic` for Anthropic integration
 - [ ] Add text processing libraries for content chunking
+- [ ] Ensure AI SDK models support embeddings (required for RAG)
 
 ### Environment Variables
 - [ ] Add `OPENAI_API_KEY` for OpenAI embeddings and generation
 - [ ] Add `ANTHROPIC_API_KEY` for Anthropic models
 - [ ] Add RAG-specific configuration variables
 - [ ] Add embedding model configuration
+- [ ] Configure embedding dimension (e.g., 1536 for text-embedding-3-small)
 
 ### Performance Optimization
 - [ ] Implement embedding caching
@@ -281,30 +288,34 @@
 ## Testing
 
 ### Unit Tests
-- [ ] Test content addition functions
-- [ ] Test embedding generation and storage
-- [ ] Test search functionality with filters
-- [ ] Test response generation
-- [ ] Test namespace management
+- [ ] Test `add` action with different namespaces
+- [ ] Test `search` action with various parameters
+- [ ] Test `askQuestion` action with different models
+- [ ] Test filter functionality (addWithFilters, searchWithFilters)
+- [ ] Test chunk context functionality (searchWithContext)
+- [ ] Test namespace management and migrations
 
 ### Integration Tests
-- [ ] Test complete content addition pipeline
-- [ ] Test RAG response generation flow
-- [ ] Test search and retrieval with filters
-- [ ] Test user authentication integration
-- [ ] Test namespace migration
+- [ ] Test complete content addition pipeline with `rag.add()`
+- [ ] Test RAG response generation flow with `rag.generateText()`
+- [ ] Test search and retrieval with filters using `rag.search()`
+- [ ] Test user authentication integration with namespaces
+- [ ] Test namespace migration and content organization
+- [ ] Test Agent Component integration for RAG
 
 ### E2E Tests
-- [ ] Test complete user workflows
-- [ ] Test file upload and processing
-- [ ] Test RAG chat conversations
-- [ ] Test document management
+- [ ] Test complete user workflows with content addition
+- [ ] Test content processing and embedding generation
+- [ ] Test RAG chat conversations using `rag.generateText()`
+- [ ] Test content management and namespace organization
+- [ ] Test search functionality with filters and context
 
 ### Performance Tests
-- [ ] Test with large document sets
-- [ ] Test concurrent user access
-- [ ] Test search performance
-- [ ] Test embedding generation speed
+- [ ] Test with large content sets and namespaces
+- [ ] Test concurrent user access to RAG functionality
+- [ ] Test search performance with various query types
+- [ ] Test embedding generation speed and caching
+- [ ] Test namespace migration performance
 
 ## Documentation
 
