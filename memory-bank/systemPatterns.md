@@ -2,6 +2,36 @@
 
 This document describes the key architectural patterns and design decisions in the AI Chat App.
 
+## Monorepo Architecture
+
+The project has been successfully refactored into an Nx monorepo structure with the following key components:
+
+### Package Structure
+- **`app/`**: Main React application with chat interface and authentication
+- **`convex/`**: Convex backend functions and schema
+- **`packages/ai-agent/`**: Comprehensive AI agent package with Convex integration
+- **`packages/models-database/`**: AI model database and utilities
+- **`packages/ui/`**: Shared UI components (@anole/ui)
+- **`tools/`**: Development tools and utilities
+
+### AI Agent Package Architecture
+
+The `packages/ai-agent` package provides a comprehensive AI agent system:
+
+**Core Components**:
+- **Schema Definition**: Tables for threads, messages, streaming data, vector embeddings, files, and API keys
+- **Agent Component**: Convex-based agent with multi-model support
+- **Client Utilities**: React hooks for thread management and streaming
+- **File Management**: Upload, storage, and retrieval capabilities
+- **Streaming System**: Real-time message streaming with delta management
+
+**Key Features**:
+- **Multi-Model Support**: Gemini 2.5 Pro/Flash/Lite, GPT-4o-mini, Claude-3-5-sonnet
+- **Thread Branching**: Parent-child relationships with context merging
+- **File Processing**: Support for images and documents
+- **Vector Embeddings**: Memory and context management
+- **Streaming Deltas**: Efficient real-time updates
+
 ## Backend Architecture: Convex Serverless Platform
 
 The application uses Convex as its comprehensive serverless backend platform, providing:
@@ -116,7 +146,7 @@ export const updateLastChatId = mutation({
 // Chat route automatically saves visited chat ID
 beforeLoad: async ({ context, params }) => {
     // ... validation logic ...
-    
+
     // Save last chat ID after validation
     try {
         await context.convexClient.mutation(api.user.functions.updateLastChatId, {
@@ -136,12 +166,12 @@ beforeLoad: async ({ context, params }) => {
 export const getAuthRedirectUrl = async (convex: ConvexReactClient): Promise<string> => {
     try {
         const lastChatId = await convex.query(api.user.functions.getLastChatId);
-        
+
         if (lastChatId) {
             const threadExists = await convex.query(api.chat.functions.validateThreadExists, {
                 threadId: lastChatId,
             });
-            
+
             if (threadExists) {
                 return `/chat/${lastChatId}`;
             }
@@ -149,7 +179,7 @@ export const getAuthRedirectUrl = async (convex: ConvexReactClient): Promise<str
     } catch (error) {
         console.warn("Failed to get last chat ID:", error);
     }
-    
+
     return "/chat"; // Default fallback
 };
 ```
@@ -258,107 +288,22 @@ graph TD
 
 - **Parent-Child Relationships**: `threadRelationships` table with branch point tracking
 - **Message History Merging**: Intelligent merging of parent and child thread messages
-- **Branch Point Management**: Precise control over conversation branching
 - **Context Preservation**: Maintains conversation context across branches
+- **Branch Navigation**: Seamless switching between conversation branches
 
-**Branching Pattern**:
-
-```typescript
-// Create branch from existing thread
-const { threadId } = await agent.createThread(ctx, { userId });
-await createThreadRelationship({
-    threadId,
-    parentThreadId,
-    branchPoint,
-    branchType: "branch",
-});
-
-// Merge messages for display
-const parentMessagesUpToBranch = parentMessages.slice(0, branchPoint + 1);
-const mergedMessages = [...parentMessagesUpToBranch, ...currentMessages];
-```
-
-### File Processing Integration
-
-**Multi-Format Support**:
-
-- **Image Processing**: Direct image analysis with AI models
-- **Document Processing**: PDF parsing and content extraction
-- **Metadata Tracking**: File usage tracking for cleanup and optimization
-- **Error Handling**: Graceful fallbacks for unsupported formats
-
-**File Processing Flow**:
+**Branching Implementation**:
 
 ```typescript
-// Process uploaded files
-for (const fileId of fileIds) {
-    const { filePart, imagePart } = await getFile(ctx, components.agent, fileId);
-    if (imagePart) messageContent.push(imagePart);
-    else if (filePart) messageContent.push(filePart);
-}
+// Thread relationship schema
+threadRelationships: defineTable({
+    parentId: v.optional(v.id("threads")),
+    childId: v.id("threads"),
+    branchPoint: v.number(), // Message index where branch occurred
+    createdAt: v.number(),
+}).index("by_parent", ["parentId"]).index("by_child", ["childId"])
 ```
 
-### Conversation Flow Pattern
-
-```
-User Input → Frontend Optimization → HTTP Stream → Agent Processing → Model Inference → Streaming Response → Real-time UI → Database Persistence
-```
-
-**Enhanced Flow with Agent Component**:
-
-1. **Message Preparation**: File processing and content formatting
-2. **Agent Selection**: Dynamic model-based agent creation
-3. **Thread Management**: Creation/continuation with relationship tracking
-4. **Message Persistence**: Automatic saving with metadata
-5. **Streaming Response**: Direct HTTP streaming to frontend
-6. **Async Enhancement**: Background title and summary generation
-
-### Context Management Strategy
-
-**Intelligent Context Handling**:
-
-- **Recent Message Limits**: Model-specific context window optimization
-- **Branch-Aware Context**: Merges parent and child thread contexts
-- **File Context Integration**: Includes file content in conversation context
-- **Vector Search Ready**: Prepared for RAG integration with text embeddings
-
-### Error Handling & Resilience
-
-**Multi-Layer Error Handling**:
-
-- **File Processing Errors**: Graceful fallbacks for unsupported files
-- **Model Failures**: Automatic retry with exponential backoff
-- **Stream Interruption**: Proper cleanup and user feedback
-- **Rate Limiting**: Integrated protection with user-friendly messages
-
-This architecture provides a robust, high-performance foundation for AI chat with advanced features like file processing, thread branching, and ultra-fast streaming while maintaining excellent user experience and system reliability.
-
-## Frontend Architecture: Modern React
-
-### Component Architecture
-
-- **Atomic Design**: Components organized by complexity (atoms, molecules, organisms)
-- **Shadcn UI Foundation**: Consistent design system built on Radix UI primitives
-- **Feature-Based Organization**: Features grouped by domain (auth, chat, dashboard)
-- **Shared Components**: Reusable UI components in dedicated component library
-
-### State Management Strategy
-
-- **Server State**: Convex reactive queries for server-synchronized data
-- **Client State**: Zustand for UI state, form state, and user preferences
-- **URL State**: TanStack Router for navigation and shareable state
-- **Form State**: TanStack Form for complex form interactions
-
-### Data Flow Patterns
-
-- **Reactive Queries**: Automatic UI updates when server data changes
-- **Optimistic Updates**: Immediate UI feedback with server reconciliation
-- **Error Boundaries**: Hierarchical error handling with recovery mechanisms
-- **Loading States**: Comprehensive loading indicators for all async operations
-
-## UI Component Patterns
-
-### Form System with Enhanced Validation
+## Form System Architecture
 
 The project uses an enhanced form system built on TanStack Form with comprehensive validation and accessibility features:
 
@@ -423,256 +368,227 @@ import { t } from "@lingui/core/macro";
 const errorMessage = t`Failed to create API key`;
 const buttonText = t`Create API Key`;
 
-// Form validation with internationalized messages
-const formSchema = z.object({
-    name: z.string().trim().min(1, t`Name is required`),
-});
-```
-
-**Component Interface Patterns**:
-
-```typescript
-// Clean interfaces without localization props
-export interface ComponentProps {
-    className?: string;
-    classNames?: SettingsCardClassNames;
-    // No localization prop needed
-}
-
 // Error handling with direct translations
-catch (error) {
-    toast({
-        variant: "error",
-        message: t`Operation failed`,
-    });
-}
+const handleError = (error: unknown) => {
+    const message = error instanceof Error ? error.message : t`An unexpected error occurred`;
+    toast.error(message);
+};
 ```
 
-**Auth Context Integration**:
+**Component Structure Pattern**:
 
 ```typescript
-// Standard auth context usage
-const {
-    authClient,
-    hooks: { useSession, useListPasskeys },
-    mutators: { deletePasskey },
-    toast,
-} = useContext(AuthUIContext);
+interface ComponentProps {
+    className?: string;
+    classNames?: Record<string, string>;
+    // ... other props
+}
 
-// Session freshness checking
-const isFresh = session 
-    ? Date.now() - session?.createdAt.getTime() < freshAge * 1000 
-    : false;
+export const Component = ({ className, classNames, ...props }: ComponentProps) => {
+    // Component implementation with consistent patterns
+    return (
+        <div className={cn("base-styles", className)}>
+            {/* Component content */}
+        </div>
+    );
+};
 ```
-
-## Form Handling Pattern: TanStack Form Integration
-
-The project standardizes all form handling using TanStack Form (`@tanstack/react-form`) with a custom wrapper system defined in `app/src/components/ui/form.tsx`. This ensures:
-
-- Consistent form logic and validation across the app
-- Unified component structure for all forms
-- Accessibility and ARIA compliance by default
-- Seamless integration with Zod or compatible schema validation
-- Required fields and error messages handled via custom components
-
-**Usage Pattern:**
-- Always use the custom hook and components: `useAppForm`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`.
-- Do not use TanStack Form's default context/components directly in UI code.
-- Define validation schemas (Zod recommended) and pass to `validators` in `useAppForm`.
-- Bind fields using `<form.Field name="fieldName">` and render with the custom components.
-- Use provided handlers for value and blur events; do not mutate form state directly.
-- All error and description messaging is handled via `FormMessage` and `FormDescription`.
-
-See `.cursor/rules/tanstack-form.mdc` for the full guideline.
-
-## TanStack Form usage pattern
-
-- Always wrap forms in `<form.AppForm>` to provide the form context.
-- Use `<form.AppField name="...">` for each field, not `<form.Field>`.
-- Inside the render function of `<form.AppField>`, use the field-scoped components: `field.FormItem`, `field.FormLabel`, `field.FormControl`, `field.FormDescription`, and `field.FormMessage`.
-- Do not use the globally imported `FormItem`, `FormLabel`, etc. inside `<form.AppField>`; always use the ones from the `field` object.
-- Example:
-
-```tsx
-<form.AppForm>
-  <form className="..." onSubmit={form.handleSubmit}>
-    <form.AppField name="fieldName">
-      {(field) => (
-        <field.FormItem>
-          <field.FormLabel>Label</field.FormLabel>
-          <field.FormControl>
-            <Input ... />
-          </field.FormControl>
-          <field.FormMessage />
-        </field.FormItem>
-      )}
-    </form.AppField>
-    ...
-  </form>
-</form.AppForm>
-```
-
-## Advanced Feature Patterns
-
-### Thread Management System
-
-- **Virtual Scrolling**: Efficient rendering for large thread lists using TanStack Virtual
-- **Drag & Drop**: Complex reordering with `@dnd-kit` and database persistence
-- **Search Architecture**: Dual search system (client-side filtering + server-side full-text search)
-- **Keyboard Navigation**: Comprehensive keyboard shortcuts with context awareness
-
-### AI-Powered Prompt Improvement
-
-- **HTTP Action Pattern**: Dedicated endpoint for prompt enhancement
-- **Rate Limiting**: User-based rate limiting with `@convex-dev/rate-limiter`
-- **Temporary Thread Management**: Ephemeral threads for prompt processing
-- **Expert System Prompts**: Sophisticated prompt engineering for enhancement quality
-
-### Authentication Flow Patterns
-
-- **Multi-Method Auth**: Email/password, passkeys, magic links, and 2FA
-- **Progressive Enhancement**: Core functionality works without JavaScript
-- **Email Templates**: React Email components for all authentication flows
-- **Session Persistence**: Secure session management with remember-me functionality
 
 ## Performance Optimization Patterns
 
-### Frontend Performance
+### Adaptive Throttling
 
-- **Code Splitting**: Route-based and component-based lazy loading
-- **Virtual Scrolling**: Efficient rendering of large lists (>100 items)
-- **Memoization**: Strategic use of React.memo and useMemo for expensive operations
-- **React Compiler**: Automatic optimization with React 19 compiler
-
-### Backend Performance
-
-- **Query Optimization**: Efficient database queries with proper indexing
-- **Caching Strategies**: Convex built-in caching for frequently accessed data
-- **Rate Limiting**: Protection against abuse with user-specific limits
-- **Batch Operations**: Efficient bulk operations for related data updates
-
-## Error Handling & Resilience Patterns
-
-### Custom Error System
-
-- **Structured Errors**: Type-safe error classes for different scenarios
-- **Error Boundaries**: React error boundaries with recovery mechanisms
-- **Toast Notifications**: User-friendly error feedback with Sonner
-- **Retry Mechanisms**: Exponential backoff for transient failures
-
-### Rate Limiting & Protection
-
-- **Multi-Level Rate Limiting**: Per-user and global limits for different operations
-- **Graceful Degradation**: Fallback behaviors when services are unavailable
-- **Circuit Breaker**: Protection against cascading failures
-- **Monitoring Integration**: Error tracking and performance monitoring
-
-## Security Patterns
-
-### Authentication Security
-
-- **JWT Security**: Secure token handling with proper expiration
-- **CSRF Protection**: Cross-site request forgery prevention
-- **Input Validation**: Comprehensive validation with Zod schemas
-- **Session Security**: Secure cookie configuration and session management
-
-### Data Protection
-
-- **User Data Isolation**: Strict user-scoped data access patterns
-- **Encryption**: Sensitive data encryption for authentication secrets
-- **Audit Logging**: Comprehensive logging for security-relevant operations
-- **Privacy Controls**: User data management and deletion capabilities
-
-## Internationalization Patterns
-
-### i18n Architecture
-
-- **Lingui Framework**: Comprehensive i18n with macro support
-- **Locale Detection**: Automatic language detection with user preferences
-- **Message Extraction**: Automated string extraction and translation management
-- **Pluralization**: Proper plural forms for different languages
-
-### Accessibility Patterns
-
-- **Keyboard Navigation**: Full keyboard accessibility for all features
-- **Screen Reader Support**: Proper ARIA labels and semantic HTML
-- **Focus Management**: Logical focus flow and visual focus indicators
-- **Color Contrast**: Theme-aware components with proper contrast ratios
-
-## Logging & Monitoring Patterns
-
-### Structured Logging with Pail
-
-**Custom Logger Types**: Specialized loggers for different application domains
-
-- **Stream Logging**: 🚀 Stream operations with performance metrics
-- **Performance Logging**: ⚡ Performance metrics and timing data
-- **Update Logging**: 📝 Message and thread update operations
-- **Connection Logging**: 🔄 Network operations and retry attempts
-- **Thread Logging**: 📥 Thread management operations
-- **User Logging**: 👤 User interaction tracking
-- **Network Logging**: 🌐 Network errors and connectivity issues
-- **Abort Logging**: ⏹️ Operation cancellations and interruptions
-
-**Scoped Loggers**: Hierarchical logging organization
-
-- **streaming**: Ultra-fast streaming operations and optimizations
-- **provider**: React provider lifecycle and state management
-- **handlers**: Message handling and processing logic
-- **threads**: Thread creation, switching, and management
-- **performance**: Performance monitoring and metrics collection
-
-**Environment-Aware Configuration**:
-
-- **Development**: Full debug logging with visual indicators and detailed metrics
-- **Production**: Info/warning/error only, debug loggers disabled for performance
-- **String Interpolation**: Printf-style formatting for performance and readability
-
-### Performance Monitoring Integration
-
-**Real-Time Metrics Collection**:
-
-- Stream completion times and character throughput
-- Update frequency and rendering performance
-- Connection retry attempts and success rates
-- Thread loading and update operation timing
-
-**Logging Patterns**:
+**Streaming Performance**:
 
 ```typescript
-// Stream performance logging
-logStreamStart(threadId);
-logStreamComplete(threadId, {
-    duration: 245.3,
-    updates: 12,
-    avgUpdateInterval: 8.2,
-    charsPerSecond: 526,
-    finalTextLength: 1250,
-});
+class AdaptiveThrottle {
+    private lastExecution = 0;
+    private interval = 8; // 8ms ≈ 120fps
 
-// Connection resilience logging
-logConnectionRetry(2, 3, "stream-abc123", "Network timeout");
-
-// User action tracking
-logUserAction("handleNewMessage", threadId);
+    execute(callback: () => void) {
+        const now = performance.now();
+        if (now - this.lastExecution >= this.interval) {
+            callback();
+            this.lastExecution = now;
+        }
+    }
+}
 ```
 
-## Development & Deployment Patterns
+### Optimistic Updates with Race Condition Protection
 
-### Development Workflow
+**State Synchronization**:
 
-- **Hot Module Replacement**: Fast development with Vite HMR
-- **Type Safety**: End-to-end TypeScript with strict configuration
-- **Environment Management**: Secure environment variable handling
-- **Email Development**: Local email server for testing authentication flows
-- **Structured Logging**: Pail-based logging with development-optimized output
+```typescript
+// Guard against overwriting optimistic updates
+const useConvexThreadSyncer = ({ isRunning }) => {
+    const [isSyncPaused, setSyncPaused] = useState(false);
 
-### Build & Deployment
+    useEffect(() => {
+        if (isRunning) {
+            setSyncPaused(true);
+        } else {
+            // Resume sync after delay to allow optimistic updates to complete
+            setTimeout(() => setSyncPaused(false), 2000);
+        }
+    }, [isRunning]);
 
-- **Static Generation**: Optimized builds with Vite
-- **Environment Sync**: Automated environment variable synchronization
-- **Database Migrations**: Schema evolution with migration system
-- **Monitoring Ready**: Built-in analytics and error tracking integration
-- **Production Logging**: Optimized logging configuration for production monitoring
+    // Skip database sync when paused
+    const shouldSkip = isSyncPaused || currentThreadId === "default";
+};
+```
 
-This architecture provides a robust, scalable, and maintainable foundation for a production-ready AI chat application with advanced features, excellent user experience, and comprehensive monitoring capabilities.
+## Error Handling Patterns
+
+### Comprehensive Error Boundaries
+
+**Global Error Boundary**:
+
+```typescript
+export const GlobalErrorBoundaryProvider = ({ children }) => {
+    return (
+        <ErrorBoundary
+            fallback={({ error, resetError }) => (
+                <ErrorFallback error={error} resetError={resetError} />
+            )}
+        >
+            {children}
+        </ErrorBoundary>
+    );
+};
+```
+
+**Async Error Boundary**:
+
+```typescript
+export const AsyncErrorBoundary = ({ children, fallback }) => {
+    return (
+        <Suspense fallback={<LoadingSpinner />}>
+            <ErrorBoundary fallback={fallback}>
+                {children}
+            </ErrorBoundary>
+        </Suspense>
+    );
+};
+```
+
+### Graceful Degradation
+
+**Feature Detection**:
+
+```typescript
+// Check for feature support before using
+const supportsWebAuthn = window.PublicKeyCredential !== undefined;
+const supportsFileSystem = 'showOpenFilePicker' in window;
+
+// Provide fallbacks for unsupported features
+const handleFileUpload = async () => {
+    if (supportsFileSystem) {
+        return await showOpenFilePicker();
+    } else {
+        // Fallback to traditional file input
+        return await fallbackFileUpload();
+    }
+};
+```
+
+## Development Patterns
+
+### Comprehensive Logging
+
+**Scoped Logging System**:
+
+```typescript
+import { createLogger } from "@visulima/pail";
+
+export const providerLogger = createLogger({
+    name: "chat-provider",
+    level: import.meta.env.VITE_DEBUG ? "debug" : "info",
+});
+
+// Usage throughout the application
+providerLogger.info("[Provider] Thread ID changed", { oldId, newId });
+providerLogger.debug("[Handlers] Message sent", { threadId, messageId });
+providerLogger.error("[Stream] Connection failed", { error: error.message });
+```
+
+### Type Safety Patterns
+
+**Strict TypeScript Configuration**:
+
+```json
+{
+    "compilerOptions": {
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitReturns": true
+    }
+}
+```
+
+**Runtime Validation**:
+
+```typescript
+// Zod schemas for runtime validation
+const userSchema = z.object({
+    id: z.string(),
+    email: z.string().email(),
+    name: z.string().min(1),
+});
+
+// Validate data at runtime
+const validateUser = (data: unknown) => {
+    return userSchema.parse(data);
+};
+```
+
+## Testing Patterns
+
+### Component Testing
+
+**React Testing Library Integration**:
+
+```typescript
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
+
+describe("AuthForm", () => {
+    it("should handle sign in", async () => {
+        render(<AuthForm view="SIGN_IN" />);
+
+        const emailInput = screen.getByLabelText(/email/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole("button", { name: /sign in/i });
+
+        fireEvent.change(emailInput, { target: { value: "test@example.com" } });
+        fireEvent.change(passwordInput, { target: { value: "password123" } });
+        fireEvent.click(submitButton);
+
+        await screen.findByText(/signing in/i);
+    });
+});
+```
+
+### Integration Testing
+
+**Convex Function Testing**:
+
+```typescript
+import { runQuery, runMutation } from "convex-test";
+import { api } from "./_generated/api";
+
+describe("Chat Functions", () => {
+    it("should create a new thread", async () => {
+        const threadId = await runMutation(api.chat.functions.createThread, {
+            model: "gemini-2.5-flash",
+        });
+
+        expect(threadId).toBeDefined();
+
+        const thread = await runQuery(api.chat.functions.getThread, { threadId });
+        expect(thread).toBeDefined();
+        expect(thread.model).toBe("gemini-2.5-flash");
+    });
+});
+```

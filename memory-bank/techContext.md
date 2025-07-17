@@ -2,6 +2,27 @@
 
 This document outlines the technologies and dependencies used in the AI Chat App.
 
+## Monorepo Architecture
+
+The project is structured as an Nx monorepo with the following packages:
+
+### Package Structure
+- **`app/`**: Main React application with chat interface and authentication
+- **`convex/`**: Convex backend functions and schema
+- **`packages/ai-agent/`**: Comprehensive AI agent package with Convex integration
+- **`packages/models-database/`**: AI model database and utilities
+- **`packages/ui/`**: Shared UI components (@anole/ui)
+- **`tools/`**: Development tools and utilities
+
+### Build & Development Tools
+- **Nx**: Monorepo build system and task orchestration
+- **pnpm**: Package manager with workspace support
+- **Vite**: Build tool with React plugin and TypeScript paths
+- **TypeScript**: v5.8+ with strict configuration
+- **ESLint**: Code linting with shared configurations
+- **Prettier**: Code formatting with Tailwind plugin
+- **Vitest**: Testing framework with React Testing Library
+
 ## Frontend Framework & Build
 
 - **Framework**: React 19 with React Compiler optimization
@@ -41,7 +62,7 @@ The project uses Hono for advanced HTTP endpoint features:
 
 **Current HTTP Endpoints:**
 - `POST /chat/stream` - AI chat streaming endpoint
-- `POST /chat/improve-prompt` - Prompt improvement endpoint  
+- `POST /chat/improve-prompt` - Prompt improvement endpoint
 - `POST /email/resend/webhook` - Email service webhook
 - `GET /api/health` - Health check endpoint
 - `GET /api/user/:userId` - Example parameterized endpoint
@@ -54,18 +75,23 @@ The project uses Hono for advanced HTTP endpoint features:
 
 ## AI & LLM Integration
 
+### AI Agent Package
+
+The `packages/ai-agent` package provides comprehensive AI functionality:
+
 - **Core SDK**: Vercel AI SDK v4.3+ (`ai` package)
-- **Providers**:
-    - `@ai-sdk/anthropic` (Claude models)
-    - `@ai-sdk/google` (Gemini models) - Primary provider with latest models
-    - `@ai-sdk/openai` (GPT models)
-    - `@openrouter/ai-sdk-provider` (Multiple providers)
+- **Convex Integration**: Full integration with Convex backend
+- **Multi-Model Support**:
+  - `@ai-sdk/google` (Gemini models) - Primary provider with latest models
+  - `@ai-sdk/anthropic` (Claude models)
+  - `@ai-sdk/openai` (GPT models)
+  - `@openrouter/ai-sdk-provider` (Multiple providers)
 - **UI Integration**: `@assistant-ui/react` v0.10+ with External Store Runtime pattern
 - **Streaming**:
-    - `@convex-dev/persistent-text-streaming` for reliable streaming
-    - `assistant-stream` for UI streaming integration
-    - Ultra-fast micro-throttling (8ms intervals ≈ 120fps)
-    - RequestAnimationFrame optimization for smooth 60fps updates
+  - `@convex-dev/persistent-text-streaming` for reliable streaming
+  - `assistant-stream` for UI streaming integration
+  - Ultra-fast micro-throttling (8ms intervals ≈ 120fps)
+  - RequestAnimationFrame optimization for smooth 60fps updates
 - **Agent System**: `@convex-dev/agent` for conversational AI patterns with comprehensive integration
 
 ### Frontend Streaming Architecture
@@ -184,6 +210,7 @@ The frontend streaming is managed by a collection of custom React hooks designed
 - **Web Vitals**: Core Web Vitals tracking
 - **Client Hints**: `@epic-web/client-hints` for device detection
 - **Bundle Analysis**: Vite built-in analysis tools
+- **Logging**: `@visulima/pail` for structured logging with scoped loggers
 
 ## Payment & Subscriptions
 
@@ -213,3 +240,5 @@ The frontend streaming is managed by a collection of custom React hooks designed
 - **Component-Driven**: Modular UI components with clear boundaries
 - **Progressive Enhancement**: Core functionality works without JavaScript
 - **Mobile-First Responsive**: Touch-optimized interface design
+- **Monorepo Architecture**: Shared configurations and packages for consistency
+- **AI-First Design**: Built around AI capabilities with comprehensive agent system
