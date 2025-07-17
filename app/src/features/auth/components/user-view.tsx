@@ -5,6 +5,7 @@ import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 
+import { AnonymousUserIndicator } from "./anonymous-user-indicator";
 import type { Profile } from "../types/data-structure-types";
 
 export interface UserViewProperties {

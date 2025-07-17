@@ -19,6 +19,7 @@ import { AcceptInvitationCard } from "../organization/accept-invitation-card";
 import { AuthCallback } from "./auth-callback";
 import type { AuthFormClassNames } from "./auth-form";
 import { AuthForm } from "./auth-form";
+import { AnonymousButton } from "./anonymous-button";
 import { EmailOTPButton } from "./email-otp-button";
 import { MagicLinkButton } from "./magic-link-button";
 import { OneTap } from "./one-tap";
@@ -209,6 +210,16 @@ export const AuthCard = ({
                                     <EmailOTPButton classNames={classNames} isSubmitting={isSubmitting} view={view} />
                         )}
                     </div>
+                )}
+
+                {/* Anonymous authentication option */}
+                {["SIGN_IN", "SIGN_UP"].includes(view) && (
+                    <AnonymousButton
+                        classNames={classNames}
+                        isSubmitting={isSubmitting}
+                        redirectTo={redirectTo}
+                        setIsSubmitting={setIsSubmitting}
+                    />
                 )}
 
                 {view !== "RESET_PASSWORD" && (social?.providers?.length || genericOAuth?.providers?.length || (view === "SIGN_IN" && passkey)) && (

@@ -5,6 +5,8 @@ export const authViewPaths = {
     API_KEYS: "api-keys",
     /** @default "callback" */
     CALLBACK: "callback",
+    /** @default "convert-account" */
+    CONVERT_ACCOUNT: "convert-account",
     /** @default "email-otp" */
     EMAIL_OTP: "email-otp",
     /** @default "forgot-password" */
