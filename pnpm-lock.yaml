@@ -537,6 +537,9 @@ importers:
       '@convex-dev/r2':
         specifier: ^0.7.0
         version: 0.7.0(@standard-schema/spec@1.0.0)(convex-svelte@0.0.11(convex@1.25.4(react@19.1.0))(svelte@5.35.6))(convex@1.25.4(react@19.1.0))(hono@4.8.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(svelte@5.35.6)(typescript@5.8.3)(zod@4.0.5)
+      '@convex-dev/rag':
+        specifier: ^0.3.2
+        version: 0.3.2(@ai-sdk/provider@1.1.3)(@convex-dev/workpool@0.2.16(convex-helpers@0.1.99(@standard-schema/spec@1.0.0)(convex@1.25.4(react@19.1.0))(hono@4.8.5)(react@19.1.0)(typescript@5.8.3)(zod@4.0.5))(convex@1.25.4(react@19.1.0)))(ai@4.3.19(react@19.1.0)(zod@4.0.5))(convex-helpers@0.1.99(@standard-schema/spec@1.0.0)(convex@1.25.4(react@19.1.0))(hono@4.8.5)(react@19.1.0)(typescript@5.8.3)(zod@4.0.5))(convex@1.25.4(react@19.1.0))
       '@convex-dev/rate-limiter':
         specifier: ^0.2.10
         version: 0.2.10(convex@1.25.4(react@19.1.0))(react@19.1.0)
@@ -1667,6 +1670,15 @@ packages:
       react: ^18 || ^19
       react-dom: ^18 || ^19
       svelte: '>=5.0.0'
+
+  '@convex-dev/rag@0.3.2':
+    resolution: {integrity: sha512-pQlkI7nTJQeaUjxpVL8hUcKWZN/Uh7Bygt/yLJXtbEaISK1Z84kB2C1SwBBq8H5y8BmANHDtWyjsNzEymAvALw==}
+    peerDependencies:
+      '@ai-sdk/provider': ^1.1.3
+      '@convex-dev/workpool': ^0.2.14
+      ai: ^4.3.16
+      convex: ^1.24.8
+      convex-helpers: ^0.1.94
 
   '@convex-dev/rate-limiter@0.2.10':
     resolution: {integrity: sha512-EU6wJ5XEAE1s1GnYW85w/PpcFs2/q6sJY9ndKX6oVk6nhhRmxmwNzwITl5/Y3ufS6BtoQ12sQ+0tqYy2SQWlkg==}
@@ -5529,6 +5541,7 @@ packages:
   '@smithy/middleware-endpoint@4.1.14':
     resolution: {integrity: sha512-+BGLpK5D93gCcSEceaaYhUD/+OCGXM1IDaq/jKUQ+ujB0PTWlWN85noodKw/IPFZhIKFCNEe19PGd/reUMeLSQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: Please upgrade to @smithy/middleware-endpoint@4.1.15 or higher to fix a bug preventing the resolution of ENV and config file custom endpoints https://github.com/smithy-lang/smithy-typescript/issues/1645
 
   '@smithy/middleware-retry@4.1.15':
     resolution: {integrity: sha512-iKYUJpiyTQ33U2KlOZeUb0GwtzWR3C0soYcKuCnTmJrvt6XwTPQZhMfsjJZNw7PpQ3TU4Ati1qLSrkSJxnnSMQ==}
@@ -16320,6 +16333,14 @@ snapshots:
       - typescript
       - zod
 
+  '@convex-dev/rag@0.3.2(@ai-sdk/provider@1.1.3)(@convex-dev/workpool@0.2.16(convex-helpers@0.1.99(@standard-schema/spec@1.0.0)(convex@1.25.4(react@19.1.0))(hono@4.8.5)(react@19.1.0)(typescript@5.8.3)(zod@4.0.5))(convex@1.25.4(react@19.1.0)))(ai@4.3.19(react@19.1.0)(zod@4.0.5))(convex-helpers@0.1.99(@standard-schema/spec@1.0.0)(convex@1.25.4(react@19.1.0))(hono@4.8.5)(react@19.1.0)(typescript@5.8.3)(zod@4.0.5))(convex@1.25.4(react@19.1.0))':
+    dependencies:
+      '@ai-sdk/provider': 1.1.3
+      '@convex-dev/workpool': 0.2.16(convex-helpers@0.1.99(@standard-schema/spec@1.0.0)(convex@1.25.4(react@19.1.0))(hono@4.8.5)(react@19.1.0)(typescript@5.8.3)(zod@4.0.5))(convex@1.25.4(react@19.1.0))
+      ai: 4.3.19(react@19.1.0)(zod@4.0.5)
+      convex: 1.25.4(react@19.1.0)
+      convex-helpers: 0.1.99(@standard-schema/spec@1.0.0)(convex@1.25.4(react@19.1.0))(hono@4.8.5)(react@19.1.0)(typescript@5.8.3)(zod@4.0.5)
+
   '@convex-dev/rate-limiter@0.2.10(convex@1.25.4(react@19.1.0))(react@19.1.0)':
     dependencies:
       convex: 1.25.4(react@19.1.0)
@@ -25245,7 +25266,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.9.0)
+      retry-axios: 2.6.0(axios@1.9.0(debug@4.4.1))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -28662,7 +28683,7 @@ snapshots:
       onetime: 7.0.0
       signal-exit: 4.1.0
 
-  retry-axios@2.6.0(axios@1.9.0):
+  retry-axios@2.6.0(axios@1.9.0(debug@4.4.1)):
     dependencies:
       axios: 1.9.0(debug@4.4.1)
 
