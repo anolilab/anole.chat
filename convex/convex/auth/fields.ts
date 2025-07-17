@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 export const extendedUserFields = {
     customerId: v.optional(v.string()),
+    credits: v.number().default(100), // Default 100 credits for new users
     email: v.string(),
 };
 

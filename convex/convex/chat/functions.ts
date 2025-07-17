@@ -274,6 +274,25 @@ export const streamHttpAction = async (
     const user = await context.runQuery(internal.auth.functions.getCurrentUser);
     const userId = user._id;
 
+    // Check if user has sufficient credits (1 credit per message)
+    const creditCheck = await context.runQuery(internal.auth.functions.checkUserCredits, {
+        requiredAmount: 1,
+    });
+
+    if (!creditCheck.hasSufficientCredits) {
+        return new Response(
+            JSON.stringify({
+                error: "Insufficient credits",
+                currentCredits: creditCheck.currentCredits,
+                requiredAmount: creditCheck.requiredAmount,
+            }),
+            {
+                status: 402, // Payment Required
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+
     const agent = getAgent(model as AgentModel);
 
     const { thread } = threadId
@@ -341,6 +360,19 @@ export const streamHttpAction = async (
     );
 
     const result = await thread.streamText({ promptMessageId: messageId });
+
+    // Deduct credits after successful message processing with detailed tracking
+    await context.runMutation(internal.auth.functions.deductCreditsWithTracking, {
+        amount: 1,
+        description: `AI message using ${model}`,
+        metadata: {
+            model,
+            threadId: thread.threadId,
+            messageId,
+            hasFiles: fileIds && fileIds.length > 0,
+            fileCount: fileIds?.length || 0,
+        },
+    });
 
     return result.toDataStreamResponse({
         sendReasoning: true,
