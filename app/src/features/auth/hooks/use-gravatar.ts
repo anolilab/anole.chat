@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getGravatarUrl } from "../lib/gravatar-utils";
+import { getGravatarUrl } from "../lib/gravatar-utilities";
 import type { GravatarOptions } from "../types/ui-configuration-types";
 
 /**
@@ -9,7 +9,7 @@ import type { GravatarOptions } from "../types/ui-configuration-types";
  * @param options Gravatar options
  * @returns Gravatar URL or null while loading/if invalid
  */
-export function useGravatar(email?: string | null, options?: GravatarOptions): string | null {
+export const useGravatar = (email?: string | null, options?: GravatarOptions): string | null => {
     const [url, setUrl] = useState<string | null>(null);
 
     useEffect(() => {
@@ -22,8 +22,9 @@ export function useGravatar(email?: string | null, options?: GravatarOptions): s
         }
 
         getGravatarUrl(email, options).then((result) => {
-            if (!cancelled)
-                setUrl(result);
+            if (!cancelled) {
+                setUrl(result ?? null);
+            }
         });
 
         return () => {
@@ -41,7 +42,7 @@ export function useGravatar(email?: string | null, options?: GravatarOptions): s
  * @param options Gravatar options
  * @returns Object with gravatarUrl, loading state, and whether it's using fallback
  */
-export function useGravatarWithFallback(email?: string | null, options?: GravatarOptions) {
+export const useGravatarWithFallback = (email?: string | null, options?: GravatarOptions) => {
     const [asyncUrl, setAsyncUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [usingFallback, setUsingFallback] = useState(false);

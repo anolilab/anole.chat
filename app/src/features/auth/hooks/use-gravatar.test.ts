@@ -1,12 +1,12 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getGravatarUrl } from "../lib/gravatar-utils";
+import { getGravatarUrl } from "../lib/gravatar-utilities";
 import type { GravatarOptions } from "../types/ui-configuration-types";
 import { useGravatar } from "./use-gravatar";
 
 // Mock getGravatarUrl
-vi.mock("../lib/gravatar-utils", () => {
+vi.mock("../lib/gravatar-utilities", () => {
     return {
         getGravatarUrl: vi.fn(),
     };
@@ -75,6 +75,7 @@ describe(useGravatar, () => {
 
     it("returns null if getGravatarUrl throws", async () => {
         mockGetGravatarUrl.mockRejectedValueOnce(new Error("fail"));
+
         const { result } = renderHook(() => useGravatar("test@example.com"));
 
         await expect.poll(() => result.current).toBeNull();
