@@ -16,31 +16,29 @@ import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
 import { OrganizationView } from "./organization-view";
 
-const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => {
-    return (
-        <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
-            <CardHeader className={cn("justify-items-center", classNames?.header)}>
-                <Skeleton className={cn("my-1 h-5 w-full max-w-32 md:h-5.5 md:w-40", classNames?.skeleton)} />
+const AcceptInvitationSkeleton = ({ className, classNames }: AcceptInvitationCardProperties) => (
+    <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
+        <CardHeader className={cn("justify-items-center", classNames?.header)}>
+            <Skeleton className={cn("my-1 h-5 w-full max-w-32 md:h-5.5 md:w-40", classNames?.skeleton)} />
 
-                <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
-            </CardHeader>
+            <Skeleton className={cn("my-0.5 h-3 w-full max-w-56 md:h-3.5 md:w-64", classNames?.skeleton)} />
+        </CardHeader>
 
-            <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
-                <Card className={cn("flex-row items-center p-4")}>
-                    <OrganizationView isPending />
+        <CardContent className={cn("flex flex-col gap-6 truncate", classNames?.content)}>
+            <Card className={cn("flex-row items-center p-4")}>
+                <OrganizationView isPending />
 
-                    <Skeleton className="mt-0.5 ml-auto h-4 w-full max-w-14 shrink-2" />
-                </Card>
+                <Skeleton className="mt-0.5 ml-auto h-4 w-full max-w-14 shrink-2" />
+            </Card>
 
-                <div className="grid grid-cols-2 gap-3">
-                    <Skeleton className="h-9 w-full" />
+            <div className="grid grid-cols-2 gap-3">
+                <Skeleton className="h-9 w-full" />
 
-                    <Skeleton className="h-9 w-full" />
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
+                <Skeleton className="h-9 w-full" />
+            </div>
+        </CardContent>
+    </Card>
+);
 
 const AcceptInvitationContent = ({ className, classNames, invitationId }: AcceptInvitationCardProperties & { invitationId: string }) => {
     const {

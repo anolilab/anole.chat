@@ -1,36 +1,35 @@
 "use client";
 
+import { Alert, AlertDescription } from "@anole/ui/components/alert";
+import { Button } from "@anole/ui/components/button";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
-import { AlertCircle, X } from "lucide-react";
-import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
-import { useAuth } from "../lib/auth-ui-provider";
 import { useIsAnonymous } from "../hooks/use-is-anonymous";
+import { useAuth } from "../lib/auth-ui-provider";
 
 export interface AnonymousUserBannerProperties {
-    className?: string;
     classNames?: {
-        base?: string;
-        alert?: string;
         description?: string;
-        button?: string;
-        closeButton?: string;
+        root?: string;
     };
-    onConvertClick?: () => void;
     dismissible?: boolean;
+    onConvertClick?: () => void;
 }
 
-export const AnonymousUserBanner = ({
-    className,
-    classNames,
-    onConvertClick,
-    dismissible = true,
-}: AnonymousUserBannerProperties) => {
+/**
+ * &lt;Button
+ * className={cn("h-auto p-0 text-orange-800 underline hover:text-orange-900", classNames?.button)}
+ * onClick={handleConvertClick}
+ * variant="link"
+ * >
+ * {t`Convert to a permanent account`}
+ * &lt;/Button>
+ * {t` to save your data and access it from any device.`}
+ */
+export const AnonymousUserBanner = ({ classNames, dismissible = true, onConvertClick }: AnonymousUserBannerProperties) => {
     const { isAnonymous } = useIsAnonymous();
     const { basePath, viewPaths } = useAuth();
     const navigate = useNavigate();
@@ -49,31 +48,69 @@ export const AnonymousUserBanner = ({
     }
 
     return (
-        <Alert className={cn("border-orange-200 bg-orange-50 text-orange-800", className, classNames?.base)}>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className={cn("flex items-center justify-between", classNames?.description)}>
-                <span>
-                    {t`You're using a guest account. `}
-                    <Button
-                        className={cn("h-auto p-0 text-orange-800 underline hover:text-orange-900", classNames?.button)}
-                        onClick={handleConvertClick}
-                        variant="link"
+        <div className={cn("absolute top-0 right-0 left-0 mx-auto flex h-(--header-height) w-80 flex-row overflow-hidden", classNames?.root)}>
+            <div
+                className="relative -mr-2 h-(--header-height)"
+                style={{
+                    clipPath: "inset(0px 0px 0px 0px)",
+                    width: `50px`,
+                }}
+            >
+                <div
+                    className="ease-snappy group pointer-events-none absolute top-0 w-full origin-top transition-all"
+                    style={{
+                        boxShadow: "10px -10px 8px 2px var(--color-site-header-background)",
+                    }}
+                >
+                    <svg
+                        className="absolute origin-top-left skew-x-[30deg] overflow-visible"
+                        version="1.1"
+                        viewBox="0 0 50 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                        xmlSpace="preserve"
                     >
-                        {t`Convert to a permanent account`}
-                    </Button>
-                    {t` to save your data and access it from any device.`}
-                </span>
-                {dismissible && (
-                    <Button
-                        className={cn("h-6 w-6 p-0", classNames?.closeButton)}
-                        onClick={() => setIsDismissed(true)}
-                        size="sm"
-                        variant="ghost"
+                        <path
+                            className="fill-sidebar"
+                            d="M0,0c5.9,0,10.7,4.8,10.7,10.7v10.7c0,5.9,4.8,10.7,10.7,10.7H128V0"
+                            shapeRendering="optimizeQuality"
+                            vectorEffect="non-scaling-stroke"
+                        />
+                    </svg>
+                </div>
+            </div>
+            <span className="bg-sidebar relative h-(--header-height) px-2 text-white">{t`You're using a guest account.`}</span>
+            <div
+                className="relative -ml-2 h-(--header-height)"
+                style={{
+                    clipPath: "inset(0px 0px 0px 0px)",
+                    width: `50px`,
+                }}
+            >
+                <div
+                    className="ease-snappy group pointer-events-none absolute top-0 w-full origin-top transition-all"
+                    style={{
+                        boxShadow: "-10px -10px 8px 2px var(--color-site-header-background)",
+                    }}
+                >
+                    <svg
+                        className="absolute origin-top-right skew-x-[-30deg] overflow-visible"
+                        version="1.1"
+                        viewBox="0 0 50 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                        xmlSpace="preserve"
                     >
-                        <X className="h-3 w-3" />
-                    </Button>
-                )}
-            </AlertDescription>
-        </Alert>
+                        <path
+                            className="fill-sidebar"
+                            d="M0,0c5.9,0,10.7,4.8,10.7,10.7v10.7c0,5.9,4.8,10.7,10.7,10.7H128V0"
+                            shapeRendering="optimizeQuality"
+                            transform="scale(-1, 1) translate(-50, 0)"
+                            vectorEffect="non-scaling-stroke"
+                        />
+                    </svg>
+                </div>
+            </div>
+        </div>
     );
 };

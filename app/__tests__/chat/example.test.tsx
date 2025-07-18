@@ -1,10 +1,11 @@
+import React from "react";
 import { describe, expect, it } from "vitest";
 import { render } from "vitest-browser-react";
-import React from "react";
 
-import { renderWithProviders } from "./test-utils";
-import { createMockThreadMessage, createMockConversation } from "./factories";
 import { isValidThreadMessage } from "@/features/chat/providers/types";
+
+import { createMockConversation, createMockThreadMessage } from "./factories";
+import { renderWithProviders } from "./test-utils";
 
 // Simple test component
 const TestComponent = () => (
@@ -33,13 +34,13 @@ describe("Chat Testing Example", () => {
     describe("Factory Usage", () => {
         it("should create and validate messages", () => {
             const message = createMockThreadMessage({
-                content: [{ type: "text", text: "Hello, world!" }]
+                content: [{ text: "Hello, world!", type: "text" }],
             });
 
             expect(isValidThreadMessage(message)).toBe(true);
             expect(message.content[0]).toEqual({
+                text: "Hello, world!",
                 type: "text",
-                text: "Hello, world!"
             });
         });
 
@@ -47,17 +48,16 @@ describe("Chat Testing Example", () => {
             const conversation = createMockConversation(3);
 
             expect(conversation).toHaveLength(3);
-            expect(conversation.every(msg => isValidThreadMessage(msg))).toBe(true);
+            expect(conversation.every((message) => isValidThreadMessage(message))).toBe(true);
         });
     });
 
     describe("Async Operations", () => {
         it("should handle async operations", async () => {
-            const promise = new Promise(resolve =>
-                setTimeout(() => resolve("test result"), 10)
-            );
+            const promise = new Promise((resolve) => setTimeout(() => resolve("test result"), 10));
 
             const result = await promise;
+
             expect(result).toBe("test result");
         });
     });

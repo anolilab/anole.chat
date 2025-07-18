@@ -5,6 +5,7 @@ This document explains how to use the anonymous user features implemented with b
 ## Overview
 
 Anonymous users allow visitors to use your application without creating a permanent account. They can:
+
 - Access basic features immediately
 - Convert their anonymous account to a permanent one later
 - Have their data preserved during the conversion process
@@ -18,10 +19,7 @@ A button component that allows users to sign in anonymously.
 ```tsx
 import { AnonymousButton } from "@/features/auth/components/auth/anonymous-button";
 
-<AnonymousButton
-    redirectTo="/dashboard"
-    onSuccess={() => console.log("Anonymous sign-in successful")}
-/>
+    <AnonymousButton onSuccess={() => console.log("Anonymous sign-in successful")} redirectTo="/dashboard" />;
 ```
 
 ### 2. AnonymousUserBanner
@@ -31,10 +29,7 @@ A banner that appears for anonymous users, encouraging them to convert their acc
 ```tsx
 import { AnonymousUserBanner } from "@/features/auth/components/anonymous-user-banner";
 
-<AnonymousUserBanner
-    dismissible={true}
-    onConvertClick={() => navigate("/auth/convert-account")}
-/>
+    <AnonymousUserBanner dismissible onConvertClick={() => navigate("/auth/convert-account")} />;
 ```
 
 ### 3. AnonymousUserIndicator
@@ -44,10 +39,7 @@ A badge that shows when the current user is anonymous.
 ```tsx
 import { AnonymousUserIndicator } from "@/features/auth/components/anonymous-user-indicator";
 
-<AnonymousUserIndicator
-    showIcon={true}
-    variant="secondary"
-/>
+    <AnonymousUserIndicator showIcon variant="secondary" />;
 ```
 
 ### 4. ConvertAnonymousAccount
@@ -57,13 +49,13 @@ A form component for converting anonymous accounts to permanent ones.
 ```tsx
 import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert-anonymous-account";
 
-<ConvertAnonymousAccount
-    onSuccess={() => navigate("/dashboard")}
-    passwordValidation={{
-        minLength: 8,
-        maxLength: 128,
-    }}
-/>
+    <ConvertAnonymousAccount
+        onSuccess={() => navigate("/dashboard")}
+        passwordValidation={{
+            maxLength: 128,
+            minLength: 8,
+        }}
+    />;
 ```
 
 ## Hooks
@@ -75,12 +67,12 @@ Hook for anonymous authentication.
 ```tsx
 import { useAnonymousAuth } from "@/features/auth/hooks/use-anonymous-auth";
 
-const { signInAnonymously, isLoading } = useAnonymousAuth({
-    onSuccess: () => {
-        console.log("Anonymous sign-in successful");
-    },
+const { isLoading, signInAnonymously } = useAnonymousAuth({
     onError: (error) => {
         console.error("Anonymous sign-in failed:", error);
+    },
+    onSuccess: () => {
+        console.log("Anonymous sign-in successful");
     },
 });
 ```
@@ -106,11 +98,7 @@ if (isAnonymous) {
 Utility functions for working with anonymous users.
 
 ```tsx
-import { 
-    isAnonymousUser, 
-    getAnonymousUserData,
-    isAnonymousAuthEnabled 
-} from "@/features/auth/lib/anonymous-user-utils";
+import { getAnonymousUserData, isAnonymousAuthEnabled, isAnonymousUser } from "@/features/auth/lib/anonymous-user-utils";
 
 // Check if a user is anonymous
 const isAnonymous = isAnonymousUser(user);
@@ -146,14 +134,12 @@ Add the anonymous user banner to your main layout:
 ```tsx
 import { AnonymousUserBanner } from "@/features/auth/components/anonymous-user-banner";
 
-function Layout({ children }) {
-    return (
-        <div>
-            <AnonymousUserBanner />
-            {children}
-        </div>
-    );
-}
+const Layout = ({ children }) => (
+    <div>
+        <AnonymousUserBanner />
+        {children}
+    </div>
+);
 ```
 
 ### 3. Conditional Features Based on User Type
@@ -161,7 +147,7 @@ function Layout({ children }) {
 ```tsx
 import { useIsAnonymous } from "@/features/auth/hooks/use-is-anonymous";
 
-function FeatureComponent() {
+const FeatureComponent = () => {
     const { isAnonymous } = useIsAnonymous();
 
     if (isAnonymous) {
@@ -174,7 +160,7 @@ function FeatureComponent() {
     }
 
     return <FullFeatureSet />;
-}
+};
 ```
 
 ### 4. Anonymous User Demo
@@ -184,7 +170,7 @@ Use the demo component to test all anonymous user features:
 ```tsx
 import { AnonymousUserDemo } from "@/features/auth/components/anonymous-user-demo";
 
-<AnonymousUserDemo />
+    <AnonymousUserDemo />;
 ```
 
 ## Configuration

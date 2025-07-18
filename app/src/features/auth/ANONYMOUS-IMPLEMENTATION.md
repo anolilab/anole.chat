@@ -9,22 +9,26 @@ This implementation provides comprehensive anonymous user handling for your Conv
 ### 1. Core Components
 
 #### AnonymousButton (`app/src/features/auth/components/auth/anonymous-button.tsx`)
+
 - Button component for anonymous sign-in
 - Integrated into the auth card for sign-in and sign-up views
 - Handles loading states and error handling
 
 #### AnonymousUserBanner (`app/src/features/auth/components/anonymous-user-banner.tsx`)
+
 - Banner that appears for anonymous users
 - Encourages account conversion
 - Dismissible with configurable behavior
 - Integrated into the chat layout
 
 #### AnonymousUserIndicator (`app/src/features/auth/components/anonymous-user-indicator.tsx`)
+
 - Badge component showing "Guest" status
 - Different sizes available (sm, default)
 - Integrated into the UserView component
 
 #### ConvertAnonymousAccount (`app/src/features/auth/components/auth/convert-anonymous-account.tsx`)
+
 - Form for converting anonymous accounts to permanent ones
 - Email and password validation
 - Success/error handling
@@ -32,17 +36,20 @@ This implementation provides comprehensive anonymous user handling for your Conv
 ### 2. Hooks
 
 #### useAnonymousAuth (`app/src/features/auth/hooks/use-anonymous-auth.ts`)
+
 - Hook for anonymous authentication
 - Provides `signInAnonymously` function and loading state
 - Configurable success/error callbacks
 
 #### useIsAnonymous (`app/src/features/auth/hooks/use-is-anonymous.ts`)
+
 - Hook to check if current user is anonymous
 - Returns `isAnonymous`, `user`, and `sessionData`
 
 ### 3. Utilities
 
 #### Anonymous User Utils (`app/src/features/auth/lib/anonymous-user-utils.ts`)
+
 - Utility functions for working with anonymous users
 - `isAnonymousUser()` - Check if user is anonymous
 - `getAnonymousUserData()` - Extract anonymous user data
@@ -52,32 +59,39 @@ This implementation provides comprehensive anonymous user handling for your Conv
 ### 4. Routes
 
 #### Convert Account Route (`app/src/routes/auth/convert-account.tsx`)
+
 - Dedicated page for account conversion
 - Only accessible to anonymous users
 - Redirects non-anonymous users
 
 #### Demo Route (`app/src/routes/anonymous-demo.tsx`)
+
 - Demo page showcasing all anonymous user features
 - Available at `/anonymous-demo`
 
 ### 5. Integration Points
 
 #### Auth Card Integration
+
 - Anonymous button automatically appears in sign-in and sign-up views
 - Positioned after the main auth form
 
 #### Layout Integration
+
 - Anonymous user banner added to chat layout
 - Fixed position at top of screen for authenticated users
 
 #### User View Integration
+
 - Anonymous user indicator added to user profile display
 - Shows "Guest" badge for anonymous users
 
 ## Configuration
 
 ### Server-side (Convex)
+
 The anonymous plugin is already configured in `convex/convex/auth.ts`:
+
 ```ts
 plugins: [
     anonymous(),
@@ -86,7 +100,9 @@ plugins: [
 ```
 
 ### Client-side
+
 The anonymous client is configured in `app/src/lib/auth/client.ts`:
+
 ```ts
 plugins: [
     anonymousClient(),
@@ -97,17 +113,19 @@ plugins: [
 ## Usage Examples
 
 ### 1. Basic Anonymous Sign-in
+
 ```tsx
 import { useAnonymousAuth } from "@/features/auth/hooks/use-anonymous-auth";
 
-const { signInAnonymously, isLoading } = useAnonymousAuth();
+const { isLoading, signInAnonymously } = useAnonymousAuth();
 
-<Button onClick={signInAnonymously} disabled={isLoading}>
-    Continue as Guest
-</Button>
+    <Button disabled={isLoading} onClick={signInAnonymously}>
+        Continue as Guest
+    </Button>;
 ```
 
 ### 2. Check if User is Anonymous
+
 ```tsx
 import { useIsAnonymous } from "@/features/auth/hooks/use-is-anonymous";
 
@@ -119,24 +137,25 @@ if (isAnonymous) {
 ```
 
 ### 3. Show Anonymous Indicator
+
 ```tsx
 import { AnonymousUserIndicator } from "@/features/auth/components/anonymous-user-indicator";
 
-<AnonymousUserIndicator size="sm" variant="secondary" />
+    <AnonymousUserIndicator size="sm" variant="secondary" />;
 ```
 
 ### 4. Convert Account
+
 ```tsx
 import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert-anonymous-account";
 
-<ConvertAnonymousAccount
-    onSuccess={() => navigate("/dashboard")}
-/>
+    <ConvertAnonymousAccount onSuccess={() => navigate("/dashboard")} />;
 ```
 
 ## Features
 
 ### ✅ Implemented
+
 - Anonymous user authentication
 - Anonymous user detection
 - Account conversion from anonymous to permanent
@@ -146,6 +165,7 @@ import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert
 - Comprehensive documentation
 
 ### 🔄 Ready for Extension
+
 - Anonymous user data migration
 - Anonymous user cleanup
 - Anonymous user analytics
@@ -178,6 +198,7 @@ import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert
 ## Files Created/Modified
 
 ### New Files
+
 - `app/src/features/auth/components/auth/anonymous-button.tsx`
 - `app/src/features/auth/components/auth/convert-anonymous-account.tsx`
 - `app/src/features/auth/components/anonymous-user-banner.tsx`
@@ -192,6 +213,7 @@ import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert
 - `app/src/features/auth/ANONYMOUS-IMPLEMENTATION.md`
 
 ### Modified Files
+
 - `app/src/features/auth/components/auth/auth-card.tsx` - Added anonymous button
 - `app/src/features/auth/lib/auth-view-paths.ts` - Added convert account path
 - `app/src/features/auth/components/anonymous-user-banner.tsx` - Added navigation
@@ -201,6 +223,7 @@ import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert
 ## Conclusion
 
 The anonymous user implementation is now complete and ready for use. Users can:
+
 1. Sign in anonymously with one click
 2. Use the application with a guest account
 3. Convert their account to a permanent one when ready

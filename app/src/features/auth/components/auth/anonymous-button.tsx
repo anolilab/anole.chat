@@ -1,15 +1,14 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { Loader2, UserX } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-
-import { useOnSuccessTransition } from "../../../hooks/use-success-transition";
-import { getLocalizedError } from "../../../lib/utils";
+import { getLocalizedError } from "@/features/auth/lib/utils";
 
 export interface AnonymousButtonProperties {
     className?: string;
@@ -24,13 +23,7 @@ export interface AnonymousButtonProperties {
     setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
-export const AnonymousButton = ({ 
-    className, 
-    classNames, 
-    isSubmitting, 
-    redirectTo, 
-    setIsSubmitting 
-}: AnonymousButtonProperties) => {
+export const AnonymousButton = ({ className, classNames, isSubmitting, redirectTo, setIsSubmitting }: AnonymousButtonProperties) => {
     const { authClient, toast } = useAuth();
     const [isAnonymousSubmitting, setIsAnonymousSubmitting] = useState(false);
 
@@ -41,7 +34,7 @@ export const AnonymousButton = ({
     const handleAnonymousSignIn = async () => {
         try {
             setIsAnonymousSubmitting(true);
-            
+
             await authClient.signIn.anonymous({
                 throw: true,
             });
@@ -64,25 +57,9 @@ export const AnonymousButton = ({
     const isLoading = isSubmitting || isAnonymousSubmitting || transitionPending;
 
     return (
-        <Button
-            className={cn(
-                "w-full",
-                className,
-                classNames?.base
-            )}
-            disabled={isLoading}
-            onClick={handleAnonymousSignIn}
-            type="button"
-            variant="outline"
-        >
-            {isLoading ? (
-                <Loader2 className={cn("mr-2 h-4 w-4 animate-spin", classNames?.icon)} />
-            ) : (
-                <UserX className={cn("mr-2 h-4 w-4", classNames?.icon)} />
-            )}
-            <span className={classNames?.text}>
-                {t`Continue as Guest`}
-            </span>
+        <Button className={cn("w-full", className, classNames?.base)} disabled={isLoading} onClick={handleAnonymousSignIn} type="button" variant="outline">
+            {isLoading ? <Loader2 className={cn("mr-2 h-4 w-4 animate-spin", classNames?.icon)} /> : <UserX className={cn("mr-2 h-4 w-4", classNames?.icon)} />}
+            <span className={classNames?.text}>{t`Continue as Guest`}</span>
         </Button>
     );
 };

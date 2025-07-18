@@ -1,15 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert-anonymous-account";
 import { useIsAnonymous } from "@/features/auth/hooks/use-is-anonymous";
-import { useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/auth/convert-account")({
     component: ConvertAccountPage,
 });
 
-function ConvertAccountPage() {
+const ConvertAccountPage = () => {
     const { isAnonymous } = useIsAnonymous();
     const navigate = useNavigate();
 
@@ -33,4 +32,4 @@ function ConvertAccountPage() {
             />
         </div>
     );
-}
+};

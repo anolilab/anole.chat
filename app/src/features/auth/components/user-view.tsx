@@ -5,8 +5,8 @@ import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 
-import { AnonymousUserIndicator } from "./anonymous-user-indicator";
 import type { Profile } from "../types/data-structure-types";
+import { AnonymousUserIndicator } from "./anonymous-user-indicator";
 
 export interface UserViewProperties {
     className?: string;
@@ -49,12 +49,13 @@ export const UserView = ({ className, isPending, size, user }: UserViewPropertie
                                     || user?.firstName
                                     || user?.name
                                     || user?.fullName
-                                    || user?.email
-                                    || t`User`}
+                || user?.email
+                                || t`User`}
                             </span>
                             {!user?.isAnonymous && size !== "sm" && (user?.name || user?.username) && (
                                 <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs")}>{user?.email}</span>
                             )}
+                            {user?.isAnonymous && size !== "sm" && <AnonymousUserIndicator size="sm" />}
                         </>
                     )}
             </div>

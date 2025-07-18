@@ -1,0 +1,10 @@
+<path 
+  d="M 3,3 H -4 V 48 H 56 V 47 H 53 A 8,8 0 0 1 48,45 L 8,5 A 8,8 0 0 0 3,3 Z" 
+  fill="var(--color-site-header-background)" 
+  shape-rendering="optimizeQuality" 
+  stroke="var(--color-site-header-border)" 
+  stroke-linecap="round" 
+  stroke-miterlimit="10" 
+  stroke-width="1px" 
+  vector-effect="non-scaling-stroke"
+/> 

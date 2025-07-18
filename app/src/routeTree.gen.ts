@@ -11,6 +11,7 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AnonymousDemoRouteImport } from './routes/anonymous-demo'
 import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
 import { Route as AuthLayoutRouteImport } from './routes/auth/layout'
 import { Route as filesLayoutRouteImport } from './routes/(files)/layout'
@@ -22,6 +23,7 @@ import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRecoverAccountRouteImport } from './routes/auth/recover-account'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthConvertAccountRouteImport } from './routes/auth/convert-account'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as filesFilesRouteImport } from './routes/(files)/files'
 import { Route as AuthTwoFactorIndexRouteImport } from './routes/auth/two-factor/index'
@@ -47,6 +49,11 @@ import { ServerRoute as ApiAiMcpTransportServerRouteImport } from './routes/api/
 
 const rootServerRouteImport = createServerRootRoute()
 
+const AnonymousDemoRoute = AnonymousDemoRouteImport.update({
+  id: '/anonymous-demo',
+  path: '/anonymous-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardLayoutRoute = DashboardLayoutRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -98,6 +105,11 @@ const AuthRecoverAccountRoute = AuthRecoverAccountRouteImport.update({
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => AuthLayoutRoute,
+} as any)
+const AuthConvertAccountRoute = AuthConvertAccountRouteImport.update({
+  id: '/convert-account',
+  path: '/convert-account',
   getParentRoute: () => AuthLayoutRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -227,8 +239,10 @@ export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
   '/auth': typeof AuthLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/anonymous-demo': typeof AnonymousDemoRoute
   '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/convert-account': typeof AuthConvertAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -257,8 +271,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
   '/auth': typeof AuthLayoutRouteWithChildren
+  '/anonymous-demo': typeof AnonymousDemoRoute
   '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/convert-account': typeof AuthConvertAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -290,8 +306,10 @@ export interface FileRoutesById {
   '/(files)': typeof filesLayoutRouteWithChildren
   '/auth': typeof AuthLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/anonymous-demo': typeof AnonymousDemoRoute
   '/(files)/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/convert-account': typeof AuthConvertAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -324,8 +342,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/anonymous-demo'
     | '/files'
     | '/auth/callback'
+    | '/auth/convert-account'
     | '/auth/forgot-password'
     | '/auth/recover-account'
     | '/auth/reset-password'
@@ -354,8 +374,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/anonymous-demo'
     | '/files'
     | '/auth/callback'
+    | '/auth/convert-account'
     | '/auth/forgot-password'
     | '/auth/recover-account'
     | '/auth/reset-password'
@@ -386,8 +408,10 @@ export interface FileRouteTypes {
     | '/(files)'
     | '/auth'
     | '/dashboard'
+    | '/anonymous-demo'
     | '/(files)/files'
     | '/auth/callback'
+    | '/auth/convert-account'
     | '/auth/forgot-password'
     | '/auth/recover-account'
     | '/auth/reset-password'
@@ -420,6 +444,7 @@ export interface RootRouteChildren {
   filesLayoutRoute: typeof filesLayoutRouteWithChildren
   AuthLayoutRoute: typeof AuthLayoutRouteWithChildren
   DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
+  AnonymousDemoRoute: typeof AnonymousDemoRoute
   publicIndexRoute: typeof publicIndexRoute
   publicInviteInviteTokenRoute: typeof publicInviteInviteTokenRoute
   publicThreadPublicTokenRoute: typeof publicThreadPublicTokenRoute
@@ -452,6 +477,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/anonymous-demo': {
+      id: '/anonymous-demo'
+      path: '/anonymous-demo'
+      fullPath: '/anonymous-demo'
+      preLoaderRoute: typeof AnonymousDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -527,6 +559,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/auth/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof AuthLayoutRoute
+    }
+    '/auth/convert-account': {
+      id: '/auth/convert-account'
+      path: '/convert-account'
+      fullPath: '/auth/convert-account'
+      preLoaderRoute: typeof AuthConvertAccountRouteImport
       parentRoute: typeof AuthLayoutRoute
     }
     '/auth/callback': {
@@ -718,6 +757,7 @@ const filesLayoutRouteWithChildren = filesLayoutRoute._addFileChildren(
 
 interface AuthLayoutRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthConvertAccountRoute: typeof AuthConvertAccountRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthRecoverAccountRoute: typeof AuthRecoverAccountRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
@@ -730,6 +770,7 @@ interface AuthLayoutRouteChildren {
 
 const AuthLayoutRouteChildren: AuthLayoutRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
+  AuthConvertAccountRoute: AuthConvertAccountRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthRecoverAccountRoute: AuthRecoverAccountRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
@@ -788,6 +829,7 @@ const rootRouteChildren: RootRouteChildren = {
   filesLayoutRoute: filesLayoutRouteWithChildren,
   AuthLayoutRoute: AuthLayoutRouteWithChildren,
   DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
+  AnonymousDemoRoute: AnonymousDemoRoute,
   publicIndexRoute: publicIndexRoute,
   publicInviteInviteTokenRoute: publicInviteInviteTokenRoute,
   publicThreadPublicTokenRoute: publicThreadPublicTokenRoute,

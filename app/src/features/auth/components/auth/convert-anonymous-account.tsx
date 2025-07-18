@@ -21,35 +21,33 @@ import type { PasswordValidation } from "../../../types/form-validation-types";
 export interface ConvertAnonymousAccountProperties {
     className?: string;
     classNames?: {
+        alert?: string;
         base?: string;
+        button?: string;
         card?: string;
         cardContent?: string;
         cardDescription?: string;
         cardHeader?: string;
         cardTitle?: string;
+        error?: string;
         form?: string;
         input?: string;
         label?: string;
-        error?: string;
-        button?: string;
-        alert?: string;
     };
     onSuccess?: () => void;
     passwordValidation?: PasswordValidation;
 }
 
-export const ConvertAnonymousAccount = ({
-    className,
-    classNames,
-    onSuccess,
-    passwordValidation,
-}: ConvertAnonymousAccountProperties) => {
+export const ConvertAnonymousAccount = ({ className, classNames, onSuccess, passwordValidation }: ConvertAnonymousAccountProperties) => {
     const isHydrated = useIsHydrated();
     const { authClient, toast } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const formSchema = z
         .object({
+            confirmPassword: z.string().min(1, {
+                message: t`Please confirm your password`,
+            }),
             email: z
                 .string()
                 .min(1, {
@@ -83,9 +81,6 @@ export const ConvertAnonymousAccount = ({
 
                 return schema;
             })(),
-            confirmPassword: z.string().min(1, {
-                message: t`Please confirm your password`,
-            }),
         })
         .refine((data) => data.password === data.confirmPassword, {
             message: t`Passwords do not match`,
@@ -95,9 +90,9 @@ export const ConvertAnonymousAccount = ({
 
     const form = useAppForm({
         defaultValues: {
+            confirmPassword: "",
             email: "",
             password: "",
-            confirmPassword: "",
         },
         onSubmit: async ({ value }) => {
             try {
@@ -141,6 +136,7 @@ export const ConvertAnonymousAccount = ({
         form.Subscribe({
             children: ([isFormSubmitting]) => {
                 setIsSubmitting(Boolean(isFormSubmitting));
+
                 return null;
             },
             selector: (state) => [state.isSubmitting],
@@ -150,9 +146,7 @@ export const ConvertAnonymousAccount = ({
     return (
         <Card className={cn("w-full max-w-md", className, classNames?.base)}>
             <CardHeader className={classNames?.cardHeader}>
-                <CardTitle className={cn("text-lg", classNames?.cardTitle)}>
-                    {t`Convert to Full Account`}
-                </CardTitle>
+                <CardTitle className={cn("text-lg", classNames?.cardTitle)}>{t`Convert to Full Account`}</CardTitle>
                 <CardDescription className={classNames?.cardDescription}>
                     {t`Create a permanent account to save your data and access it from any device.`}
                 </CardDescription>
@@ -161,9 +155,7 @@ export const ConvertAnonymousAccount = ({
             <CardContent className={cn("grid gap-4", classNames?.cardContent)}>
                 <Alert className={cn("text-sm", classNames?.alert)}>
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                        {t`Your current anonymous session will be converted to a permanent account.`}
-                    </AlertDescription>
+                    <AlertDescription>{t`Your current anonymous session will be converted to a permanent account.`}</AlertDescription>
                 </Alert>
 
                 <form.AppForm>
@@ -179,9 +171,7 @@ export const ConvertAnonymousAccount = ({
                         <form.AppField
                             children={(field) => (
                                 <field.FormItem>
-                                    <field.FormLabel className={classNames?.label}>
-                                        {t`Email`}
-                                    </field.FormLabel>
+                                    <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
                                     <field.FormControl>
                                         <Input
                                             autoComplete="email"
@@ -205,9 +195,7 @@ export const ConvertAnonymousAccount = ({
                         <form.AppField
                             children={(field) => (
                                 <field.FormItem>
-                                    <field.FormLabel className={classNames?.label}>
-                                        {t`Password`}
-                                    </field.FormLabel>
+                                    <field.FormLabel className={classNames?.label}>{t`Password`}</field.FormLabel>
                                     <field.FormControl>
                                         <PasswordInput
                                             className={classNames?.input}
@@ -229,9 +217,7 @@ export const ConvertAnonymousAccount = ({
                         <form.AppField
                             children={(field) => (
                                 <field.FormItem>
-                                    <field.FormLabel className={classNames?.label}>
-                                        {t`Confirm Password`}
-                                    </field.FormLabel>
+                                    <field.FormLabel className={classNames?.label}>{t`Confirm Password`}</field.FormLabel>
                                     <field.FormControl>
                                         <PasswordInput
                                             className={classNames?.input}
@@ -250,14 +236,8 @@ export const ConvertAnonymousAccount = ({
                             name="confirmPassword"
                         />
 
-                        <Button
-                            className={cn("w-full", classNames?.button)}
-                            disabled={isSubmitting}
-                            type="submit"
-                        >
-                            {isSubmitting ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : null}
+                        <Button className={cn("w-full", classNames?.button)} disabled={isSubmitting} type="submit">
+                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             {t`Convert Account`}
                         </Button>
                     </form>

@@ -1,10 +1,10 @@
 import type { User } from "better-auth";
 
 export interface AnonymousUserData {
-    userId: string;
-    isAnonymous: boolean;
     createdAt: Date;
+    isAnonymous: boolean;
     updatedAt: Date;
+    userId: string;
 }
 
 /**
@@ -23,10 +23,10 @@ export function getAnonymousUserData(user: User | null | undefined): AnonymousUs
     }
 
     return {
-        userId: user.id,
-        isAnonymous: user.isAnonymous,
         createdAt: new Date(user.createdAt),
+        isAnonymous: user.isAnonymous,
         updatedAt: new Date(user.updatedAt),
+        userId: user.id,
     };
 }
 

@@ -30,7 +30,7 @@ export const DeleteOrganizationDialog = ({ classNames, onOpenChange, ...properti
         toast,
     } = useAuth();
     const { t } = useLingui();
-    
+
     const formSchema = z
         .object({
             slug: z.string().min(1, { message: t`Organization slug is required` }),

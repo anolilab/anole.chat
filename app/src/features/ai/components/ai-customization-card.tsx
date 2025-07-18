@@ -25,27 +25,27 @@ const AiCustomizationCard: FC = () => {
     const { t } = useLingui();
     const [formError, setFormError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
-    
+
     const aiCustomizationSchema = z
-    .object({
-        aiBehavior: z
-            .string()
-            .max(300, t`Must be at most 300 characters.`)
-            .default(""),
-        aiContext: z
-            .string()
-            .max(3000, t`Must be at most 3000 characters.`)
-            .default(""),
-        aiName: z
-            .string()
-            .max(50, t`Must be at most 50 characters.`)
-            .default(""),
-        traits: z
-            .array(z.string().max(1, t`Each trait must be at most 100 characters.`))
-            .max(50, t`You can add up to 50 traits.`)
-            .default([]),
-    })
-    .strict();
+        .object({
+            aiBehavior: z
+                .string()
+                .max(300, t`Must be at most 300 characters.`)
+                .default(""),
+            aiContext: z
+                .string()
+                .max(3000, t`Must be at most 3000 characters.`)
+                .default(""),
+            aiName: z
+                .string()
+                .max(50, t`Must be at most 50 characters.`)
+                .default(""),
+            traits: z
+                .array(z.string().max(1, t`Each trait must be at most 100 characters.`))
+                .max(50, t`You can add up to 50 traits.`)
+                .default([]),
+        })
+        .strict();
 
     const aiUserPreferences = useQuery(api.auth.functions.getAIUserPreferences, {});
     const updateAIUserPreferences = useMutation(api.auth.functions.updateAIUserPreferences);

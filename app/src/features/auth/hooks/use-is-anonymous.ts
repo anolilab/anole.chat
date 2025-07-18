@@ -9,7 +9,7 @@ export function useIsAnonymous() {
 
     return {
         isAnonymous,
-        user,
         sessionData,
+        user,
     };
 }

@@ -4,8 +4,8 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 
 export interface UseAnonymousAuthOptions {
-    onSuccess?: () => void | Promise<void>;
     onError?: (error: unknown) => void;
+    onSuccess?: () => void | Promise<void>;
 }
 
 export function useAnonymousAuth(options?: UseAnonymousAuthOptions) {
@@ -15,7 +15,7 @@ export function useAnonymousAuth(options?: UseAnonymousAuthOptions) {
     const signInAnonymously = useCallback(async () => {
         try {
             setIsLoading(true);
-            
+
             await authClient.signIn.anonymous({
                 throw: true,
             });
@@ -23,7 +23,7 @@ export function useAnonymousAuth(options?: UseAnonymousAuthOptions) {
             await options?.onSuccess?.();
         } catch (error) {
             const errorMessage = getLocalizedError({ error });
-            
+
             toast({
                 message: errorMessage,
                 variant: "error",
@@ -36,7 +36,7 @@ export function useAnonymousAuth(options?: UseAnonymousAuthOptions) {
     }, [authClient, options, toast]);
 
     return {
-        signInAnonymously,
         isLoading,
+        signInAnonymously,
     };
 }

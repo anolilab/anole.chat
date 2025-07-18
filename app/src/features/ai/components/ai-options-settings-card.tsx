@@ -81,7 +81,7 @@ const McpServerDialog = ({
     open: boolean;
 }) => {
     const { t } = useLingui();
-    
+
     const getDialogDefaultValues = () => {
         if (editServerIndex !== undefined && aiUserPreferences?.mcpServers) {
             const editDefaults = aiUserPreferences.mcpServers[editServerIndex];
@@ -105,20 +105,20 @@ const McpServerDialog = ({
     };
 
     const headerSchema = z
-    .object({
-        key: z.string(),
-        value: z.string(),
-    })
-    .strict()
-    .superRefine((data, context) => {
-        if (data.key && !data.value) {
-            context.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: t`Value is required if key is set`,
-                path: ["value"],
-            });
-        }
-    });
+        .object({
+            key: z.string(),
+            value: z.string(),
+        })
+        .strict()
+        .superRefine((data, context) => {
+            if (data.key && !data.value) {
+                context.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: t`Value is required if key is set`,
+                    path: ["value"],
+                });
+            }
+        });
 
     const mcpServerSchema = z
         .object({
