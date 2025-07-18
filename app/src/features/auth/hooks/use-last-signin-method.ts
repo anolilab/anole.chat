@@ -3,15 +3,16 @@
 import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import { useEffect, useState } from "react";
 
-export type SignInMethod = "email" | "username" | "social" | "anonymous";
-
 interface LastSignInData {
-    method: SignInMethod;
     email?: string;
+    method: SignInMethod;
+    socialProvider?: string; // Track the specific social provider
     timestamp: number;
 }
 
 const STORAGE_KEY = "last-signin-method";
+
+export type SignInMethod = "email" | "username" | "social" | "anonymous";
 
 export const useLastSignInMethod = () => {
     const isHydrated = useIsHydrated();
@@ -19,14 +20,17 @@ export const useLastSignInMethod = () => {
 
     // Load from localStorage on hydration
     useEffect(() => {
-        if (!isHydrated) return;
+        if (!isHydrated)
+            return;
 
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
+
             if (stored) {
                 const parsed = JSON.parse(stored) as LastSignInData;
                 // Only use data that's less than 30 days old
                 const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
                 if (parsed.timestamp > thirtyDaysAgo) {
                     setLastSignIn(parsed);
                 } else {
@@ -39,15 +43,23 @@ export const useLastSignInMethod = () => {
         }
     }, [isHydrated]);
 
-    const saveLastSignIn = (method: SignInMethod, email?: string) => {
-        if (!isHydrated) return;
+    const saveLastSignIn = (method: SignInMethod, email?: string, socialProvider?: string) => {
+        if (!isHydrated)
+            return;
+
+        // Don't overwrite existing sign-in method with anonymous
+        if (method === "anonymous") {
+            return;
+        }
 
         try {
             const data: LastSignInData = {
-                method,
                 email,
+                method,
+                socialProvider,
                 timestamp: Date.now(),
             };
+
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             setLastSignIn(data);
         } catch (error) {
@@ -56,7 +68,8 @@ export const useLastSignInMethod = () => {
     };
 
     const clearLastSignIn = () => {
-        if (!isHydrated) return;
+        if (!isHydrated)
+            return;
 
         try {
             localStorage.removeItem(STORAGE_KEY);
@@ -66,30 +79,10 @@ export const useLastSignInMethod = () => {
         }
     };
 
-    const getLastSignInMessage = () => {
-        if (!lastSignIn) return null;
-
-        const daysSince = Math.floor((Date.now() - lastSignIn.timestamp) / (24 * 60 * 60 * 1000));
-
-        if (daysSince === 0) {
-            return "You signed in today";
-        } else if (daysSince === 1) {
-            return "You signed in yesterday";
-        } else if (daysSince < 7) {
-            return `You signed in ${daysSince} days ago`;
-        } else if (daysSince < 30) {
-            const weeks = Math.floor(daysSince / 7);
-            return `You signed in ${weeks} week${weeks > 1 ? 's' : ''} ago`;
-        }
-
-        return null;
-    };
-
     return {
+        clearLastSignIn,
+        isHydrated,
         lastSignIn,
         saveLastSignIn,
-        clearLastSignIn,
-        getLastSignInMessage,
-        isHydrated,
     };
 };

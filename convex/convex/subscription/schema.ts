@@ -56,7 +56,7 @@ export const subscriptionTables = {
         recurringInterval: intervalValidator,
         startedAt: v.number(),
         status: v.string(),
-        userId: v.id("users"),
+        userId: v.id("user"),
     })
         .index("by_userId", ["userId"])
         .index("by_subscription_id", ["id"])

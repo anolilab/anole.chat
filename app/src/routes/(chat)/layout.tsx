@@ -24,12 +24,7 @@ const RouteComponent = () => (
         <Authenticated>
             <AiModelProvider>
                 {/* TODO: check why the bg-sidebar with inset variant is not working */}
-                <SidebarProvider
-                    defaultOpen={defaultOpen}
-                    keyboardShortcuts={keyboardShortcuts}
-                    sidebarNames={sidebarNames}
-                    style={sidebarStyle}
-                >
+                <SidebarProvider defaultOpen={defaultOpen} keyboardShortcuts={keyboardShortcuts} sidebarNames={sidebarNames} style={sidebarStyle}>
                     <Outlet />
                 </SidebarProvider>
             </AiModelProvider>

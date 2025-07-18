@@ -32,6 +32,68 @@ The `packages/ai-agent` package provides a comprehensive AI agent system:
 - **Vector Embeddings**: Memory and context management
 - **Streaming Deltas**: Efficient real-time updates
 
+## Authentication UX Patterns
+
+The authentication system implements several sophisticated UX patterns to provide a seamless user experience:
+
+### Smart Authentication Flow
+
+**Last Sign-In Method Tracking**:
+- **Data Structure**: `LastSignInData` includes `method`, `email`, `socialProvider`, and `timestamp`
+- **Persistence**: Stored in localStorage with 30-day expiration
+- **Selective Tracking**: Anonymous sign-ins don't overwrite actual user preferences
+
+**Dynamic Form Ordering**:
+- **Input Prioritization**: Forms show username field first if last sign-in was username-based
+- **Email Pre-filling**: Automatically populates email field with last used email (excluding anonymous)
+- **Validation Adaptation**: Form validation schema adapts to preferred input type
+
+### Social Provider Prioritization
+
+**Intelligent Provider Ordering**:
+- **Algorithm**: Last used provider (Google, Microsoft, etc.) appears first in the list
+- **Dual Support**: Handles both social and generic OAuth providers
+- **Preserved Order**: Non-prioritized providers maintain their original configuration order
+
+**Implementation Pattern**:
+```typescript
+// Order providers based on last used
+const orderedProviders = [...providers];
+if (lastUsedProvider && orderedProviders.includes(lastUsedProvider)) {
+    const lastUsedIndex = orderedProviders.indexOf(lastUsedProvider);
+    orderedProviders.splice(lastUsedIndex, 1);
+    orderedProviders.unshift(lastUsedProvider);
+}
+```
+
+### Anonymous Sign-In Protection
+
+**Context Preservation**:
+- **Selective Persistence**: Anonymous sign-ins don't overwrite actual user sign-in methods
+- **Logical Behavior**: Anonymous authentication treated as temporary, not affecting future flows
+- **User Experience**: Maintains user's preferred authentication method after guest sessions
+
+### Component Architecture Pattern
+
+**Modular Authentication Components**:
+- **AuthCard**: Main orchestrating component with intelligent ordering logic
+- **AuthFormSection**: Handles email/password forms and related buttons
+- **SocialSection**: Manages social sign-in buttons and passkey authentication
+- **SeparatorSection**: Provides contextual separators between authentication methods
+
+**Benefits**:
+- **Reduced Complexity**: Cognitive complexity reduced from 47 to manageable levels
+- **Maintainability**: Each section is self-contained and easier to modify
+- **Testability**: Components can be tested in isolation
+- **Reusability**: Components could be reused elsewhere if needed
+
+### Automatic Guest Access
+
+**Frictionless Guest Experience**:
+- **AutoGuestSignIn Component**: Automatically signs in unauthenticated users as guests
+- **Background Authentication**: No manual button interaction required
+- **Layout Integration**: Seamlessly integrated into chat layout for immediate access
+
 ## Backend Architecture: Convex Serverless Platform
 
 The application uses Convex as its comprehensive serverless backend platform, providing:

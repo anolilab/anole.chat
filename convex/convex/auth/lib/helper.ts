@@ -1,4 +1,3 @@
-import type { Id } from "../../_generated/dataModel";
 import type {
     ActionCtx as ActionContext,
     QueryCtx as QueryContext,
@@ -11,32 +10,22 @@ import { betterAuthComponent } from "../../auth";
  */
 export const requireUserId = async (
     context: QueryContext | ActionContext,
-): Promise<Id<"users">> => {
+): Promise<string> => {
     const userId = await betterAuthComponent.getAuthUserId(context);
 
     if (!userId) {
         throw new Error("Authentication required");
     }
 
-    return userId as Id<"users">;
+    return userId;
 };
 
 export const getCurrentUserInternal = async (context: QueryContext) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(context);
+    const user = await betterAuthComponent.getAuthUser(context);
 
-    if (!userMetadata) {
+    if (!user) {
         return null;
     }
 
-    // Get user data from your application's database (skip this if you have no
-    // fields in your users table schema)
-    const user = await context.db
-        .query("users")
-        .withIndex("by_userId", (q) => q.eq("userId", userMetadata.userId))
-        .unique();
-
-    return {
-        ...userMetadata,
-        ...user,
-    };
+    return user;
 };

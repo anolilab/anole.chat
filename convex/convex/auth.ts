@@ -23,7 +23,7 @@ import {
     sendOTPVerification,
     sendResetPassword,
 } from "./email/functions";
-import { SITE_URL } from "./env";
+import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SITE_URL } from "./env";
 
 const authFunctions: AuthFunctions = internal.auth;
 const publicAuthFunctions: PublicAuthFunctions = api.auth;
@@ -97,18 +97,12 @@ export const createAuth = (context: GenericContext) =>
             }),
             */
         ],
-        /*
         socialProviders: {
-            github: {
-                clientId: process.env.GITHUB_CLIENT_ID as string,
-                clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-            },
             google: {
-                clientId: process.env.GOOGLE_CLIENT_ID as string,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+                clientId: GOOGLE_CLIENT_ID as string,
+                clientSecret: GOOGLE_CLIENT_SECRET as string,
             },
         },
-        */
         user: {
             deleteUser: {
                 enabled: true,
@@ -123,20 +117,13 @@ export const {
     isAuthenticated,
     updateUser,
 } = betterAuthComponent.createAuthFunctions<DataModel>({
-    onCreateUser: async (context, user) => {
-        const userId = await context.db.insert("extendedUsers", {
-            email: user.email,
-            role: "user",
-        });
-
-        return userId;
-    },
+    // onCreateUser: async (context, user) => {},
     onDeleteUser: async (context, userId) => {
-        await context.db.delete(userId as Id<"extendedUsers">);
+        await context.db.delete(userId as Id<"user">);
     },
     onUpdateUser: async (context, user) => {
         // Keep the user's email synced
-        const userId = user.userId as Id<"extendedUsers">;
+        const userId = user.userId as Id<"user">;
 
         await context.db.patch(userId, {
             email: user.email,

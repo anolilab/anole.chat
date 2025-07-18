@@ -22,7 +22,7 @@ export const getMyUsageStats = authedQuery({
             .query("usageEvents")
             .withIndex("byUserDay", (q) =>
                 q
-                    .eq("userId", context.user._id)
+                    .eq("userId", context.user.userId)
                     .gte("daysSinceEpoch", startDay))
             .collect();
 
@@ -90,7 +90,8 @@ export const getMyUsageChartData = authedQuery({
             // Get user's events in the last 24 hours
             const events = await context.db
                 .query("usageEvents")
-                .withIndex("byUserDay", (q) => q.eq("userId", context.user._id))
+                .withIndex("byUserDay", (q) =>
+                    q.eq("userId", context.user.userId))
                 .filter((q) => q.gte(q.field("_creationTime"), startTime))
                 .collect();
 
@@ -170,7 +171,7 @@ export const getMyUsageChartData = authedQuery({
             .query("usageEvents")
             .withIndex("byUserDay", (q) =>
                 q
-                    .eq("userId", context.user._id)
+                    .eq("userId", context.user.userId)
                     .gte("daysSinceEpoch", startDay))
             .collect();
 
@@ -255,7 +256,7 @@ export const getMyModelUsage = authedQuery({
             .query("usageEvents")
             .withIndex("byUserDay", (q) =>
                 q
-                    .eq("userId", context.user._id)
+                    .eq("userId", context.user.userId)
                     .gte("daysSinceEpoch", startDay))
             .filter((q) => q.eq(q.field("modelId"), modelId))
             .collect();

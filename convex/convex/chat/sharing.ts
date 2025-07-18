@@ -44,7 +44,7 @@ export const checkThreadAccess = internalQuery({
             v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
         ),
         threadId: v.string(),
-        userId: v.id("users"),
+        userId: v.id("user"),
     },
     handler: async (
         context,
@@ -106,7 +106,7 @@ export const getThreadAccess = authedQuery({
         threadId: v.string(),
     },
     handler: async (context, { threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has access to this thread
         const hasAccess = await context.runQuery(
@@ -183,7 +183,7 @@ export const getThreadAccess = authedQuery({
                     v.literal("write"),
                     v.literal("admin"),
                 ),
-                userId: v.id("users"),
+                userId: v.id("user"),
             }),
         ),
     }),
@@ -210,7 +210,7 @@ export const createThreadInvite = authedMutation({
         context,
         { customHours, expirationType, invitedEmail, permission, threadId },
     ) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has admin access to this thread
         const hasAccess = await context.runQuery(
@@ -268,7 +268,7 @@ export const getThreadInvites = authedQuery({
         threadId: v.string(),
     },
     handler: async (context, { threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has admin access to this thread
         const hasAccess = await context.runQuery(
@@ -329,7 +329,7 @@ export const revokeThreadInvite = authedMutation({
         inviteId: v.id("threadInvites"),
     },
     handler: async (context, { inviteId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         const invite = await context.db.get(inviteId);
 
@@ -364,7 +364,7 @@ export const acceptThreadInvite = authedMutation({
         inviteToken: v.string(),
     },
     handler: async (context, { inviteToken }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         const invite = await context.db
             .query("threadInvites")
@@ -435,11 +435,11 @@ export const acceptThreadInvite = authedMutation({
 // Remove user access from thread
 export const removeThreadAccess = authedMutation({
     args: {
-        targetUserId: v.id("users"),
+        targetUserId: v.id("user"),
         threadId: v.string(),
     },
     handler: async (context, { targetUserId, threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has admin access to this thread
         const hasAccess = await context.runQuery(
@@ -487,7 +487,7 @@ export const toggleThreadVisibility = authedMutation({
         threadId: v.string(),
     },
     handler: async (context, { isPublic, threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has admin access to this thread
         const hasAccess = await context.runQuery(

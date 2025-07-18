@@ -1,35 +1,24 @@
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 
-import {
-    aiUserPreferencesFields,
-    extendedUserFields,
-    userSettingsFields,
-} from "./fields";
+import { aiUserPreferencesFields, userSettingsFields } from "./fields";
 
 const authTables = {
     aiUserPreferences: defineTable({
-        userId: v.id("users"),
+        userId: v.id("user"),
         ...aiUserPreferencesFields,
     }).index("by_userId", ["userId"]),
 
-    users: defineTable({
-        ...extendedUserFields,
-        userId: v.string(),
-    })
-        .index("by_email", ["email"])
-        .index("by_userId", ["userId"]),
-
     userSettings: defineTable({
         ...userSettingsFields,
-        userId: v.id("users"),
+        userId: v.id("user"),
     }).index("by_userId", ["userId"]),
 
     vouches: defineTable({
         comment: v.optional(v.string()),
-        fromUserId: v.id("users"),
+        fromUserId: v.id("user"),
         rating: v.number(), // 1-5
-        toUserId: v.id("users"),
+        toUserId: v.id("user"),
     })
         .index("by_toUserId", ["toUserId"])
         .index("by_fromUserId", ["fromUserId"])

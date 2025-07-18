@@ -1,7 +1,7 @@
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 
-const ai = {
+const schema = {
     usageEvents: defineTable(
         v.object({
             c: v.number(),
@@ -9,9 +9,9 @@ const ai = {
             modelId: v.string(), // "openai:gpt-4o"
             p: v.number(),
             r: v.number(),
-            userId: v.id("users"),
+            userId: v.id("user"),
         }),
     ).index("byUserDay", ["userId", "daysSinceEpoch"]),
 };
 
-export default ai;
+export default schema;

@@ -24,7 +24,6 @@ import emailSchema from "@/features/auth/validators/email-schema";
 
 import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";
-import { LastSignInMessage } from "../last-signin-message";
 
 export interface SignInFormProperties {
     className?: string;
@@ -35,11 +34,18 @@ export interface SignInFormProperties {
     setIsSubmitting?: (isSubmitting: boolean) => void;
 }
 
-export const SignInForm = ({ className, classNames, isSubmitting, passwordValidation, redirectTo, setIsSubmitting }: SignInFormProperties) => {
+export const SignInForm = ({
+    className,
+    classNames,
+    isSubmitting,
+    passwordValidation,
+    redirectTo,
+    setIsSubmitting,
+}: SignInFormProperties): React.JSX.Element => {
     const { t } = useLingui();
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
-    const { saveLastSignIn } = useLastSignInMethod();
+    const { lastSignIn, saveLastSignIn } = useLastSignInMethod();
 
     const { authClient, basePath, credentials, navigate, toast, viewPaths } = useAuth();
 
@@ -49,17 +55,72 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
 
     const finalPasswordValidation = { ...contextPasswordValidation, ...passwordValidation };
 
+    const getPreferredInputType = (): "username" | "email" => {
+        if (!lastSignIn || lastSignIn.method === "anonymous") {
+            return usernameEnabled ? "username" : "email";
+        }
+
+        if (lastSignIn.method === "username") {
+            return "username";
+        }
+
+        return "email";
+    };
+
+    const preferredInputType = getPreferredInputType();
+    const shouldShowUsernameFirst = preferredInputType === "username";
+
+    const getInputLabel = (): string => {
+        if (shouldShowUsernameFirst) {
+            return t`Username`;
+        }
+
+        if (usernameEnabled) {
+            return t`Email or Username`;
+        }
+
+        return t`Email`;
+    };
+
+    const getInputPlaceholder = (): string => {
+        if (shouldShowUsernameFirst) {
+            return t`Enter your username`;
+        }
+
+        if (usernameEnabled) {
+            return t`Enter your email or username`;
+        }
+
+        return t`Enter your email`;
+    };
+
     const { isPending: transitionPending, onSuccess } = useOnSuccessTransition({
         redirectTo,
     });
 
+    // Helper function to get email validation schema
+    const getEmailSchema = () => {
+        if (shouldShowUsernameFirst) {
+            return z.string().min(1, {
+                message: t`Username is required`,
+            });
+        }
+
+        if (usernameEnabled) {
+            return z.union([
+                emailSchema,
+                z.string().min(1, {
+                    message: t`Username or email is required`,
+                }),
+            ]);
+        }
+
+        return emailSchema;
+    };
+
     const formSchema = z
         .object({
-            email: usernameEnabled
-                ? z.string().min(1, {
-                    message: t`Username is required`,
-                })
-                : emailSchema,
+            email: getEmailSchema(),
             password: (() => {
                 let schema = z.string().min(1, {
                     message: t`Password is required`,
@@ -91,7 +152,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
 
     const form = useAppForm({
         defaultValues: {
-            email: "",
+            email: lastSignIn?.method !== "anonymous" && lastSignIn?.email ? lastSignIn.email : "",
             password: "",
             rememberMe: !rememberMeEnabled,
         },
@@ -99,7 +160,10 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
             try {
                 let response: Record<string, unknown> = {};
 
-                if (usernameEnabled && !isValidEmail(value.email)) {
+                // Determine sign-in method based on input type and value
+                const shouldUseUsername = usernameEnabled && (shouldShowUsernameFirst || !isValidEmail(value.email));
+
+                if (shouldUseUsername) {
                     const fetchOptions: BetterFetchOption = {
                         headers: await getCaptchaHeaders("/sign-in/username"),
                         throw: true,
@@ -180,31 +244,20 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                     form.handleSubmit();
                 }}
             >
-                {/* Last Sign-In Message */}
-                <LastSignInMessage
-                    className="mb-2"
-                    classNames={{
-                        container: "justify-center",
-                        text: "text-center",
-                    }}
-                />
-
                 <form.AppField
                     children={(field) => (
                         <field.FormItem>
-                            <field.FormLabel className={classNames?.label}>{usernameEnabled ? t`Username` : t`Email`}</field.FormLabel>
+                            <field.FormLabel className={classNames?.label}>{getInputLabel()}</field.FormLabel>
 
                             <field.FormControl>
                                 <Input
-                                    autoComplete={usernameEnabled ? "username" : "email"}
+                                    autoComplete={shouldShowUsernameFirst ? "username" : "email"}
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(event) => {
-                                        field.handleChange(event.target.value);
-                                    }}
-                                    placeholder={usernameEnabled ? t`Enter your username` : t`Enter your email`}
-                                    type={usernameEnabled ? "text" : "email"}
+                                    onChange={(event) => field.handleChange(event.target.value)}
+                                    placeholder={getInputPlaceholder()}
+                                    type={shouldShowUsernameFirst ? "text" : "email"}
                                     value={field.state.value}
                                 />
                             </field.FormControl>
@@ -237,9 +290,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(event) => {
-                                        field.handleChange(event.target.value);
-                                    }}
+                                    onChange={(event) => field.handleChange(event.target.value)}
                                     placeholder={t`Enter your password`}
                                     value={field.state.value}
                                 />
@@ -259,9 +310,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     <Checkbox
                                         checked={field.state.value}
                                         disabled={isSubmitting}
-                                        onCheckedChange={(checked) => {
-                                            field.handleChange(checked === true);
-                                        }}
+                                        onCheckedChange={(checked) => field.handleChange(checked === true)}
                                     />
                                 </field.FormControl>
 

@@ -64,7 +64,7 @@ export const streamHttpAction = async (
     };
 
     const user = await context.runQuery(internal.auth.functions.getCurrentUser);
-    const userId = user._id;
+    const { userId } = user;
 
     const agent = getAgent(model as AgentModel);
 

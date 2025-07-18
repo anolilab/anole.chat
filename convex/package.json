@@ -32,8 +32,8 @@
         "./package.json": "./package.json"
     },
     "scripts": {
-        "dev": "convex dev --local --typecheck=disable",
         "lint": "eslint . --ext .ts,.tsx",
+        "dev": "convex dev --local --typecheck=disable",
         "lint:eslint": "eslint . --cache --cache-location .eslint.cache.json",
         "lint:eslint:fix": "eslint . --fix --cache --cache-location .eslint.cache.json",
         "lint:prettier": "prettier .",

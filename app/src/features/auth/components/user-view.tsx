@@ -50,8 +50,8 @@ export const UserView = ({ className, isPending, size, user }: UserViewPropertie
                                     || user?.firstName
                                     || user?.name
                                     || user?.fullName
-                                    || user?.email
-                                    || t`User`}
+                || user?.email
+                                || t`User`}
                             </span>
                             {!user?.isAnonymous && size !== "sm" && (user?.name || user?.username) && (
                                 <span className={cn("truncate opacity-70", size === "lg" ? "text-sm" : "text-xs")}>{user?.email}</span>

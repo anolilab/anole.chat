@@ -8,13 +8,13 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 
 export interface AutoGuestSignInProperties {
-    redirectTo?: string;
+    onSignInError?: (error: unknown) => void;
     onSignInStart?: () => void;
     onSignInSuccess?: () => void;
-    onSignInError?: (error: unknown) => void;
+    redirectTo?: string;
 }
 
-export const AutoGuestSignIn = ({ redirectTo, onSignInStart, onSignInSuccess, onSignInError }: AutoGuestSignInProperties) => {
+export const AutoGuestSignIn = ({ onSignInError, onSignInStart, onSignInSuccess, redirectTo }: AutoGuestSignInProperties) => {
     const { authClient, toast } = useAuth();
     const { trackAnonymousSignIn } = useAnonymousSignInTracking();
     const [hasAttempted, setHasAttempted] = useState(false);
@@ -25,7 +25,8 @@ export const AutoGuestSignIn = ({ redirectTo, onSignInStart, onSignInSuccess, on
 
     useEffect(() => {
         const signInAsGuest = async () => {
-            if (hasAttempted) return;
+            if (hasAttempted)
+                return;
 
             try {
                 setHasAttempted(true);

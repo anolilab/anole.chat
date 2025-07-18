@@ -23,7 +23,7 @@ export const createThread = authedMutation({
         title: v.string(),
     },
     handler: async (context, { model, title }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         const agent = getAgent(model as AgentModel);
 
@@ -67,7 +67,7 @@ export const getThreadMessages = authedQuery({
         context,
         { model, paginationOpts, threadId },
     ): Promise<PaginationResult<MessageDoc>> => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has access to this thread
         const hasAccess = await context.runQuery(
@@ -156,7 +156,7 @@ export const getThreadMessages = authedQuery({
 export const continueThread = authedAction({
     args: { model: v.string(), prompt: v.string(), threadId: v.string() },
     handler: async (context, { model, prompt, threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has write access to this thread
         const hasAccess = await context.runQuery(
@@ -191,7 +191,7 @@ export const getThreads = authedQuery({
         context,
         { paginationOpts },
     ): Promise<PaginationResult<ThreadDoc>> => {
-        const userId = context.user._id;
+        const { userId } = context.user;
         const results = await context.runQuery(
             components.agent.threads.listThreadsByUserId,
             { paginationOpts, userId },
@@ -238,7 +238,7 @@ export const updateThread = authedAction({
         context,
         { model, order, status, summary, threadId, title },
     ) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Check if user has admin access to this thread
         const hasAccess = await context.runQuery(
@@ -509,7 +509,7 @@ export const pinThread = authedMutation({
         threadId: v.string(),
     },
     handler: async (context, { threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
         // Find the user's thread record
         const thread = await context.db
             .query("threads")
@@ -539,7 +539,7 @@ export const unpinThread = authedMutation({
         threadId: v.string(),
     },
     handler: async (context, { threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
         const thread = await context.db
             .query("threads")
             .withIndex("by_thread", (q) => q.eq("threadId", threadId))
@@ -563,7 +563,7 @@ export const unpinThread = authedMutation({
 export const getPinnedThreads = authedQuery({
     args: {},
     handler: async (context) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
         const pinnedThreads = await context.db
             .query("threads")
             .withIndex("by_thread", (q) => q)
@@ -588,7 +588,7 @@ export const updateThreadOrder = authedMutation({
         ),
     },
     handler: async (context, { threadOrders }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         for (const { order, threadId } of threadOrders) {
             const thread = await context.db
@@ -611,7 +611,7 @@ export const updateThreadOrder = authedMutation({
 export const getThreadOrders = authedQuery({
     args: {},
     handler: async (context) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
         const threads = await context.db
             .query("threads")
             .withIndex("by_thread", (q) => q)
@@ -634,7 +634,7 @@ export const updateThreadVisibility = authedMutation({
         threadId: v.string(),
     },
     handler: async (context, { isPublic, publicAccessToken, threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
         const thread = await context.db
             .query("threads")
             .withIndex("by_thread", (q) => q.eq("threadId", threadId))
@@ -757,7 +757,7 @@ export const searchMessages = authedQuery({
     ): Promise<
         PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>
     > => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // If no search query, return empty results
         if (!searchQuery.trim()) {
@@ -957,7 +957,7 @@ export const getFullThreadForExport = authedQuery({
         threadId: v.string(),
     },
     async handler(context, { model, threadId }) {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         const thread = await context.runQuery(
             components.agent.threads.getThread,
@@ -1028,7 +1028,7 @@ export const branchThread = authedMutation({
         threadId: v.string(), // parent thread
     },
     handler: async (context, { branchName, branchPoint, threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         // Get the parent thread to copy its model from the new threads table
         const parentThread = await context.db
@@ -1107,7 +1107,7 @@ export const branchThread = authedMutation({
 export const softDeleteThread = authedMutation({
     args: { threadId: v.string() },
     handler: async (context, { threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
         const thread = await context.db
             .query("threads")
             .withIndex("by_thread", (q) => q.eq("threadId", threadId))
@@ -1148,7 +1148,7 @@ export const hardDeleteThread = internalMutation({
 export const undoDeleteThread = authedMutation({
     args: { threadId: v.string() },
     handler: async (context, { threadId }) => {
-        const userId = context.user._id;
+        const { userId } = context.user;
 
         const thread = await context.db
             .query("threads")

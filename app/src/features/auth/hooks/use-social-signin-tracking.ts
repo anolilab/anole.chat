@@ -6,7 +6,7 @@ export const useSocialSignInTracking = () => {
     const { saveLastSignIn } = useLastSignInMethod();
 
     const trackSocialSignIn = (provider: string, email?: string) => {
-        saveLastSignIn("social", email);
+        saveLastSignIn("social", email, provider);
     };
 
     return {

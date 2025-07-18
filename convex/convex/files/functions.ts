@@ -84,7 +84,7 @@ export const deleteFile = authedMutation({
 
             // For R2, we'll use the key to determine ownership
             // Files are stored with user ID in the key path
-            if (!metadata.key.includes(`attachments/${context.user._id}/`)) {
+            if (!metadata.key.includes(`attachments/${context.user.userId}/`)) {
                 return {
                     error: "Access denied: File does not belong to user",
                     success: false,
@@ -121,7 +121,7 @@ export const listFiles = authedQuery({
             );
 
             return allFiles.filter((file) =>
-                file.key.includes(`attachments/${context.user._id}/`),
+                file.key.includes(`attachments/${context.user.userId}/`),
             );
         } catch (error) {
             console.error("Error listing files:", error);

@@ -8,14 +8,14 @@ const chatTables = {
     threadAccess: defineTable({
         expiresAt: v.optional(v.number()), // Optional expiration timestamp
         grantedAt: v.number(),
-        grantedBy: v.id("users"), // Who granted this access
+        grantedBy: v.id("user"), // Who granted this access
         permission: v.union(
             v.literal("read"),
             v.literal("write"),
             v.literal("admin"),
         ),
         threadId: v.string(),
-        userId: v.id("users"),
+        userId: v.id("user"),
     })
         .index("by_thread", ["threadId"])
         .index("by_user", ["userId"])
@@ -25,9 +25,9 @@ const chatTables = {
     // Thread invites
     threadInvites: defineTable({
         acceptedAt: v.optional(v.number()), // When the invite was accepted
-        acceptedBy: v.optional(v.id("users")), // Who accepted the invite
+        acceptedBy: v.optional(v.id("user")), // Who accepted the invite
         expiresAt: v.number(), // When the invite expires
-        invitedBy: v.id("users"),
+        invitedBy: v.id("user"),
         invitedEmail: v.string(),
         inviteToken: v.string(), // Unique token for the invite link
         permission: v.union(
@@ -64,7 +64,7 @@ const chatTables = {
         .index("by_parent_and_thread", ["parentThreadId", "threadId"]),
 
     threads: defineTable({
-        createdBy: v.optional(v.id("users")),
+        createdBy: v.optional(v.id("user")),
         isPublic: v.optional(v.boolean()),
         model: v.optional(v.string()),
         order: v.optional(v.number()),
@@ -72,7 +72,7 @@ const chatTables = {
         publicAccessToken: v.optional(v.string()),
         threadId: v.string(), // required
         updatedAt: v.optional(v.number()),
-        userId: v.optional(v.id("users")),
+        userId: v.optional(v.id("user")),
         ...softDeleteFields,
     })
         .index("by_thread", ["threadId"])

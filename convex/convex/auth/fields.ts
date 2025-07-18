@@ -1,10 +1,5 @@
 import { v } from "convex/values";
 
-export const extendedUserFields = {
-    customerId: v.optional(v.string()),
-    email: v.string(),
-};
-
 export const userSettingsFields = {
     codeFont: v.optional(
         v.union(

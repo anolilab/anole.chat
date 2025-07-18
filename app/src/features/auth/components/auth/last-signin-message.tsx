@@ -6,7 +6,8 @@ import { t } from "@lingui/core/macro";
 import { Clock, Mail, User, Users } from "lucide-react";
 import type { FC } from "react";
 
-import { useLastSignInMethod, type SignInMethod } from "@/features/auth/hooks/use-last-signin-method";
+import type { SignInMethod } from "@/features/auth/hooks/use-last-signin-method";
+import { useLastSignInMethod } from "@/features/auth/hooks/use-last-signin-method";
 
 interface LastSignInMessageProperties {
     className?: string;
@@ -20,65 +21,78 @@ interface LastSignInMessageProperties {
 
 const getMethodIcon = (method: SignInMethod) => {
     switch (method) {
-        case "email":
+        case "anonymous": {
+            return User;
+        }
+        case "email": {
             return Mail;
-        case "username":
-            return User;
-        case "social":
+        }
+        case "social": {
             return Users;
-        case "anonymous":
+        }
+        case "username": {
             return User;
-        default:
+        }
+        default: {
             return Clock;
+        }
     }
 };
 
 const getMethodLabel = (method: SignInMethod) => {
     switch (method) {
-        case "email":
-            return t`Email`;
-        case "username":
-            return t`Username`;
-        case "social":
-            return t`Social`;
-        case "anonymous":
+        case "anonymous": {
             return t`Guest`;
-        default:
+        }
+        case "email": {
+            return t`Email`;
+        }
+        case "social": {
+            return t`Social`;
+        }
+        case "username": {
+            return t`Username`;
+        }
+        default: {
             return t`Unknown`;
+        }
     }
 };
 
-export const LastSignInMessage: FC<LastSignInMessageProperties> = ({ className, classNames }) => {
-    const { lastSignIn, getLastSignInMessage, isHydrated } = useLastSignInMethod();
+const LastSignInMessage: FC<LastSignInMessageProperties> = ({ className, classNames }) => {
+    const { isHydrated, lastSignIn } = useLastSignInMethod();
 
     if (!isHydrated || !lastSignIn) {
-        return null;
+        return undefined;
     }
 
-    const message = getLastSignInMessage();
-    if (!message) {
-        return null;
+    // Don't show message for anonymous/guest sign-ins
+    if (lastSignIn.method === "anonymous") {
+        return undefined;
     }
 
     const MethodIcon = getMethodIcon(lastSignIn.method);
 
     return (
         <div className={cn("flex items-center gap-2", className, classNames?.container)}>
-            <Badge
-                className={cn("text-xs", classNames?.badge)}
-                variant="secondary"
-            >
-                <MethodIcon className={cn("mr-1 h-3 w-3", classNames?.icon)} />
-                {getMethodLabel(lastSignIn.method)}
-            </Badge>
-            <span className={cn("text-xs text-muted-foreground", classNames?.text)}>
-                {message}
-                {lastSignIn.email && (
-                    <span className="ml-1 font-medium">
-                        with {lastSignIn.email}
-                    </span>
-                )}
-            </span>
+            <div className={cn("text-muted-foreground text-xs", classNames?.text)}>
+                {t`You signed in with`}
+                <Badge className={cn("mx-2 text-xs", classNames?.badge)} variant="secondary">
+                    {lastSignIn.email
+                        ? (
+                            <span className="ml-1 font-medium">{lastSignIn.email}</span>
+                        )
+                        : (
+                            <>
+                                <MethodIcon className={cn("mr-1 h-3 w-3", classNames?.icon)} />
+                                {lastSignIn.socialProvider ?? getMethodLabel(lastSignIn.method)}
+                            </>
+                        )}
+                </Badge>
+                {t`the last time`}
+            </div>
         </div>
     );
 };
+
+export default LastSignInMessage;

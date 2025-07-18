@@ -12,11 +12,77 @@ import {
     mutation,
     query,
 } from "../_generated/server";
-import { getCurrentUserInternal, requireUserId } from "../auth/lib/helper";
+import { getCurrentUserInternal } from "../auth/lib/helper";
 import { encryptKey } from "../lib/encryption";
-import type { Role } from "../lib/types";
 import { ROLES } from "../lib/types";
 import { aiUserPreferencesFields, userSettingsFields } from "./fields";
+
+const deepEncryptKeys = async (object: any): Promise<any> => {
+    if (Array.isArray(object)) {
+        return Promise.all(object.map(deepEncryptKeys));
+    }
+
+    if (object && typeof object === "object") {
+        const result: Record<string, any> = {};
+
+        for (const [key, value] of Object.entries(object)) {
+            result[key] = await (key === "encryptedKey"
+                && typeof value === "string"
+                && value
+                ? encryptKey(value)
+                : deepEncryptKeys(value));
+        }
+
+        return result;
+    }
+
+    return object;
+};
+
+const makeSettingsUpsertMutation = (
+    // TODO: find the correct typing
+    tableName: any,
+    arguments_: Record<string, any>,
+) =>
+    authedMutation({
+        args: arguments_,
+        handler: async (context, inputArguments) => {
+            const { userId } = context.user;
+
+            // Recursively encrypt all encryptedKey fields
+            const toStore = await deepEncryptKeys(inputArguments);
+
+            const settings = await context.db
+                .query(tableName)
+                .withIndex("by_userId", (q) => q.eq("userId", userId))
+                .unique();
+
+            if (settings) {
+                await context.db.patch(settings._id, toStore);
+            } else {
+                await context.db.insert(tableName, {
+                    userId,
+                    ...toStore,
+                });
+            }
+        },
+    });
+
+const makeSettingsGetQuery = (
+    // TODO: find the correct typing
+    tableName: any,
+) =>
+    authedQuery({
+        args: {},
+        handler: async (context) => {
+            const { userId } = context.user;
+
+            return await context.db
+                .query(tableName)
+                .withIndex("by_userId", (q) => q.eq("userId", userId))
+                .unique();
+        },
+    });
 
 export const getCurrentUser = query({
     args: {},
@@ -66,7 +132,7 @@ export const authedAction = customAction(
 );
 
 export const initializeNewUser = internalMutation({
-    args: { email: v.optional(v.string()), userId: v.id("users") }, // email is passed but not strictly used in this version
+    args: { email: v.optional(v.string()), userId: v.id("user") }, // email is passed but not strictly used in this version
     handler: async (context, { userId }) => {
         // Removed unused email from destructuring
         const existingAppUser = await context.db.get(userId);
@@ -86,73 +152,6 @@ export const initializeNewUser = internalMutation({
     },
     returns: v.null(),
 });
-
-async function deepEncryptKeys(object: any): Promise<any> {
-    if (Array.isArray(object)) {
-        return Promise.all(object.map(deepEncryptKeys));
-    }
-
-    if (object && typeof object === "object") {
-        const result: Record<string, any> = {};
-
-        for (const [key, value] of Object.entries(object)) {
-            result[key] = await (key === "encryptedKey"
-                && typeof value === "string"
-                && value
-                ? encryptKey(value)
-                : deepEncryptKeys(value));
-        }
-
-        return result;
-    }
-
-    return object;
-}
-
-const makeSettingsUpsertMutation = (
-    // TODO: find the correct typing
-    tableName: any,
-    arguments_: Record<string, any>,
-) =>
-    authedMutation({
-        args: arguments_,
-        handler: async (context, inputArguments) => {
-            const userId = context.user._id;
-
-            // Recursively encrypt all encryptedKey fields
-            const toStore = await deepEncryptKeys(inputArguments);
-
-            const settings = await context.db
-                .query(tableName)
-                .withIndex("by_userId", (q) => q.eq("userId", userId))
-                .unique();
-
-            if (settings) {
-                await context.db.patch(settings._id, toStore);
-            } else {
-                await context.db.insert(tableName, {
-                    userId,
-                    ...toStore,
-                });
-            }
-        },
-    });
-
-const makeSettingsGetQuery = (
-    // TODO: find the correct typing
-    tableName: any,
-) =>
-    authedQuery({
-        args: {},
-        handler: async (context) => {
-            const userId = context.user._id;
-
-            return await context.db
-                .query(tableName)
-                .withIndex("by_userId", (q) => q.eq("userId", userId))
-                .unique();
-        },
-    });
 
 export const updateUserSettings = makeSettingsUpsertMutation(
     "userSettings",
