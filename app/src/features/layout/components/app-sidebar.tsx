@@ -1,10 +1,11 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@anole/ui/components/sidebar";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Cog, MessageSquare } from "lucide-react";
+import { Cog, LogIn, MessageSquare } from "lucide-react";
 import type { FC } from "react";
 
 import AnonymousConvertCard from "@/features/auth/components/anonymous/anonymous-convert-card";
@@ -71,7 +72,22 @@ const AppSidebar: FC<
                 <SidebarContent>{content}</SidebarContent>
                 <SidebarFooter>
                     {footer}
-                    {isAnonymous ? <AnonymousConvertCard /> : <NavUser />}
+                    {isAnonymous
+                        ? (
+                            <>
+                                <AnonymousConvertCard />
+                                <Link
+                                    className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-colors"
+                                    to="/auth/sign-in"
+                                >
+                                    <LogIn className="size-4" />
+                                    <span className="w-full text-center">{t`Login`}</span>
+                                </Link>
+                            </>
+                        )
+                        : (
+                            <NavUser />
+                        )}
                 </SidebarFooter>
             </div>
             <SidebarRail name="left" />

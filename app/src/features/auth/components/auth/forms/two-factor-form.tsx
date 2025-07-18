@@ -4,7 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Checkbox } from "@anole/ui/components/checkbox";
 import { useAppForm } from "@anole/ui/components/form";
 import { InputOTP } from "@anole/ui/components/input-otp";
-import { useIsHydrated } from "@anole/ui/hooks/use-hydrated.d";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link, useSearch } from "@tanstack/react-router";

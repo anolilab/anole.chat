@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
+import { createFileRoute, useRouteContext } from "@tanstack/react-router";
 
 import Assistant from "@/features/chat/components/assistant";
 
@@ -9,10 +9,5 @@ const ChatPage = () => {
 };
 
 export const Route = createFileRoute("/(chat)/chat/")({
-    beforeLoad: ({ context }) => {
-        if (!context?.user?.id) {
-            throw redirect({ to: "/auth/sign-in" });
-        }
-    },
     component: ChatPage,
 });

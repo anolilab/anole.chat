@@ -12,6 +12,7 @@ import type { ComponentProps } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import emailSchema from "@/features/auth/validators/email-schema";
 
 import { getLocalizedError } from "../../lib/utils";
 import type { SettingsCardClassNames } from "../settings/shared/settings-card";
@@ -44,12 +45,7 @@ export const InviteMemberDialog = ({ classNames, onOpenChange, ...properties }: 
 
     const formSchema = z
         .object({
-            email: z
-                .string()
-                .min(1, { message: t`Email is required` })
-                .email({
-                    message: t`Invalid email`,
-                }),
+            email: emailSchema,
             role: z.string().min(1, {
                 message: t`Role is required`,
             }),

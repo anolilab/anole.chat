@@ -6,6 +6,7 @@ import { t } from "@lingui/core/macro";
 import { Loader2, UserX } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useAnonymousSignInTracking } from "@/features/auth/hooks/use-anonymous-signin-tracking";
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
@@ -25,6 +26,7 @@ export interface AnonymousButtonProperties {
 
 export const AnonymousButton = ({ className, classNames, isSubmitting, redirectTo, setIsSubmitting }: AnonymousButtonProperties) => {
     const { authClient, toast } = useAuth();
+    const { trackAnonymousSignIn } = useAnonymousSignInTracking();
     const [isAnonymousSubmitting, setIsAnonymousSubmitting] = useState(false);
 
     const { isPending: transitionPending, onSuccess } = useOnSuccessTransition({
@@ -38,6 +40,9 @@ export const AnonymousButton = ({ className, classNames, isSubmitting, redirectT
             await authClient.signIn.anonymous({
                 throw: true,
             });
+
+            // Track anonymous sign-in
+            trackAnonymousSignIn();
 
             await onSuccess();
         } catch (error) {

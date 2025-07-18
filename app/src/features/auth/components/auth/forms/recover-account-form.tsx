@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { useAppForm } from "@anole/ui/components/form";
 import { InputOTP } from "@anole/ui/components/input-otp";
-import { useIsHydrated } from "@anole/ui/hooks/use-hydrated.d";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";

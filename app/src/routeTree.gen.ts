@@ -11,7 +11,6 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AnonymousDemoRouteImport } from './routes/anonymous-demo'
 import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
 import { Route as AuthLayoutRouteImport } from './routes/auth/layout'
 import { Route as filesLayoutRouteImport } from './routes/(files)/layout'
@@ -49,11 +48,6 @@ import { ServerRoute as ApiAiMcpTransportServerRouteImport } from './routes/api/
 
 const rootServerRouteImport = createServerRootRoute()
 
-const AnonymousDemoRoute = AnonymousDemoRouteImport.update({
-  id: '/anonymous-demo',
-  path: '/anonymous-demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardLayoutRoute = DashboardLayoutRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -239,7 +233,6 @@ export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
   '/auth': typeof AuthLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
-  '/anonymous-demo': typeof AnonymousDemoRoute
   '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/convert-account': typeof AuthConvertAccountRoute
@@ -271,7 +264,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
   '/auth': typeof AuthLayoutRouteWithChildren
-  '/anonymous-demo': typeof AnonymousDemoRoute
   '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/convert-account': typeof AuthConvertAccountRoute
@@ -306,7 +298,6 @@ export interface FileRoutesById {
   '/(files)': typeof filesLayoutRouteWithChildren
   '/auth': typeof AuthLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
-  '/anonymous-demo': typeof AnonymousDemoRoute
   '/(files)/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/convert-account': typeof AuthConvertAccountRoute
@@ -342,7 +333,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
-    | '/anonymous-demo'
     | '/files'
     | '/auth/callback'
     | '/auth/convert-account'
@@ -374,7 +364,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/anonymous-demo'
     | '/files'
     | '/auth/callback'
     | '/auth/convert-account'
@@ -408,7 +397,6 @@ export interface FileRouteTypes {
     | '/(files)'
     | '/auth'
     | '/dashboard'
-    | '/anonymous-demo'
     | '/(files)/files'
     | '/auth/callback'
     | '/auth/convert-account'
@@ -444,7 +432,6 @@ export interface RootRouteChildren {
   filesLayoutRoute: typeof filesLayoutRouteWithChildren
   AuthLayoutRoute: typeof AuthLayoutRouteWithChildren
   DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
-  AnonymousDemoRoute: typeof AnonymousDemoRoute
   publicIndexRoute: typeof publicIndexRoute
   publicInviteInviteTokenRoute: typeof publicInviteInviteTokenRoute
   publicThreadPublicTokenRoute: typeof publicThreadPublicTokenRoute
@@ -477,13 +464,6 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/anonymous-demo': {
-      id: '/anonymous-demo'
-      path: '/anonymous-demo'
-      fullPath: '/anonymous-demo'
-      preLoaderRoute: typeof AnonymousDemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -829,7 +809,6 @@ const rootRouteChildren: RootRouteChildren = {
   filesLayoutRoute: filesLayoutRouteWithChildren,
   AuthLayoutRoute: AuthLayoutRouteWithChildren,
   DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
-  AnonymousDemoRoute: AnonymousDemoRoute,
   publicIndexRoute: publicIndexRoute,
   publicInviteInviteTokenRoute: publicInviteInviteTokenRoute,
   publicThreadPublicTokenRoute: publicThreadPublicTokenRoute,

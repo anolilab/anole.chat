@@ -3,7 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { Separator } from "@anole/ui/components/separator";
-import { useIsHydrated } from "@anole/ui/hooks/use-hydrated.d";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
@@ -16,7 +16,6 @@ import type { AuthView } from "@/features/auth/lib/auth-view-paths";
 import { socialProviders } from "@/features/auth/lib/social-providers";
 
 import { AcceptInvitationCard } from "../organization/accept-invitation-card";
-import { AnonymousButton } from "./anonymous-button";
 import { AuthCallback } from "./auth-callback";
 import type { AuthFormClassNames } from "./auth-form";
 import { AuthForm } from "./auth-form";
@@ -212,10 +211,7 @@ export const AuthCard = ({
                     </div>
                 )}
 
-                {/* Anonymous authentication option */}
-                {["SIGN_IN", "SIGN_UP"].includes(view) && (
-                    <AnonymousButton classNames={classNames} isSubmitting={isSubmitting} redirectTo={redirectTo} setIsSubmitting={setIsSubmitting} />
-                )}
+
 
                 {view !== "RESET_PASSWORD" && (social?.providers?.length || genericOAuth?.providers?.length || (view === "SIGN_IN" && passkey)) && (
                     <>

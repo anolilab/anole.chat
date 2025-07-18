@@ -1,7 +1,7 @@
 "use client";
 
 import { CardContent } from "@anole/ui/components/card";
-import { useIsHydrated } from "@anole/ui/hooks/use-hydrated.d";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";

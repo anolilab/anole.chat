@@ -5,6 +5,7 @@ import { useSearch } from "@tanstack/react-router";
 import type { SocialProvider } from "better-auth/social-providers";
 import { use, useCallback } from "react";
 
+import { useSocialSignInTracking } from "@/features/auth/hooks/use-social-signin-tracking";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 
 import type { Provider } from "../../lib/social-providers";
@@ -36,6 +37,7 @@ export const ProviderButton = ({
 }: ProviderButtonProperties) => {
     const { t } = useLingui();
     const { authClient, basePath, baseURL, genericOAuth, persistClient, redirectTo: contextRedirectTo, social, toast, viewPaths } = useAuth();
+    const { trackSocialSignIn } = useSocialSignInTracking();
 
     const search = useSearch({ strict: false });
 
@@ -63,11 +65,17 @@ export const ProviderButton = ({
                 if (genericOAuth?.signIn) {
                     await genericOAuth.signIn(oauth2Parameters);
 
+                    // Track social sign-in
+                    trackSocialSignIn(provider.provider);
+
                     setTimeout(() => {
                         setIsSubmitting(false);
                     }, 10_000);
                 } else {
                     await authClient.signIn.oauth2(oauth2Parameters);
+
+                    // Track social sign-in
+                    trackSocialSignIn(provider.provider);
                 }
             } else {
                 const socialParameters = {
@@ -79,11 +87,17 @@ export const ProviderButton = ({
                 if (social?.signIn) {
                     await social.signIn(socialParameters);
 
+                    // Track social sign-in
+                    trackSocialSignIn(provider.provider);
+
                     setTimeout(() => {
                         setIsSubmitting(false);
                     }, 10_000);
                 } else {
                     await authClient.signIn.social(socialParameters);
+
+                    // Track social sign-in
+                    trackSocialSignIn(provider.provider);
                 }
             }
         } catch (error) {

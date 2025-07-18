@@ -14,8 +14,9 @@ import { useEffect, useState } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { getLocalizedError, isValidEmail } from "@/features/auth/lib/utils";
+import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
+import emailSchema from "@/features/auth/validators/email-schema";
 
 export interface ConvertAnonymousAccountProperties {
     className?: string;
@@ -47,13 +48,7 @@ export const ConvertAnonymousAccount = ({ className, classNames, onSuccess, pass
             confirmPassword: z.string().min(1, {
                 message: t`Please confirm your password`,
             }),
-            email: z
-                .email({
-                    message: t`Email is invalid`,
-                })
-                .min(1, {
-                    message: t`Email is required`,
-                }),
+            email: emailSchema,
             password: (() => {
                 let schema = z.string().min(1, {
                     message: t`Password is required`,

@@ -55,7 +55,7 @@
         "vaul": "^1.1.2"
     },
     "devDependencies": {
-        "@anolilab/eslint-config": "16.2.19",
+        "@anolilab/eslint-config": "16.2.21",
         "@anolilab/prettier-config": "6.0.3",
         "eslint": "9.31.0",
         "prettier": "^3.6.2",
