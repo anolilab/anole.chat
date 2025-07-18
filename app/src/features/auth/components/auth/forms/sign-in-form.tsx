@@ -5,6 +5,7 @@ import { Checkbox } from "@anole/ui/components/checkbox";
 import { useAppForm } from "@anole/ui/components/form";
 import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { Input } from "@anole/ui/components/input";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
@@ -14,14 +15,16 @@ import { useEffect } from "react";
 import { z } from "zod/v4";
 
 import { useCaptcha } from "@/features/auth/hooks/use-captcha";
+import { useLastSignInMethod } from "@/features/auth/hooks/use-last-signin-method";
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError, isValidEmail } from "@/features/auth/lib/utils";
 import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
-import { useIsHydrated } from "@/hooks/use-hydrated";
+import emailSchema from "@/features/auth/validators/email-schema";
 
 import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";
+import { LastSignInMessage } from "../last-signin-message";
 
 export interface SignInFormProperties {
     className?: string;
@@ -36,6 +39,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
     const { t } = useLingui();
     const isHydrated = useIsHydrated();
     const { captchaRef, getCaptchaHeaders } = useCaptcha();
+    const { saveLastSignIn } = useLastSignInMethod();
 
     const { authClient, basePath, credentials, navigate, toast, viewPaths } = useAuth();
 
@@ -43,7 +47,7 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
     const usernameEnabled = credentials?.username;
     const contextPasswordValidation = credentials?.passwordValidation;
 
-    passwordValidation = { ...contextPasswordValidation, ...passwordValidation };
+    const finalPasswordValidation = { ...contextPasswordValidation, ...passwordValidation };
 
     const { isPending: transitionPending, onSuccess } = useOnSuccessTransition({
         redirectTo,
@@ -55,33 +59,26 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                 ? z.string().min(1, {
                     message: t`Username is required`,
                 })
-                : z
-                    .string()
-                    .min(1, {
-                        message: t`Email is required`,
-                    })
-                    .email({
-                        message: t`Email is invalid`,
-                    }),
+                : emailSchema,
             password: (() => {
                 let schema = z.string().min(1, {
                     message: t`Password is required`,
                 });
 
-                if (passwordValidation?.minLength) {
-                    schema = schema.min(passwordValidation.minLength, {
+                if (finalPasswordValidation?.minLength) {
+                    schema = schema.min(finalPasswordValidation.minLength, {
                         message: t`Password is too short`,
                     });
                 }
 
-                if (passwordValidation?.maxLength) {
-                    schema = schema.max(passwordValidation.maxLength, {
+                if (finalPasswordValidation?.maxLength) {
+                    schema = schema.max(finalPasswordValidation.maxLength, {
                         message: t`Password is too long`,
                     });
                 }
 
-                if (passwordValidation?.regex) {
-                    schema = schema.regex(passwordValidation.regex, {
+                if (finalPasswordValidation?.regex) {
+                    schema = schema.regex(finalPasswordValidation.regex, {
                         message: t`Invalid password`,
                     });
                 }
@@ -114,6 +111,9 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                         rememberMe: value.rememberMe,
                         username: value.email,
                     });
+
+                    // Save last sign-in method
+                    saveLastSignIn("username", value.email);
                 } else {
                     const fetchOptions: BetterFetchOption = {
                         headers: await getCaptchaHeaders("/sign-in/email"),
@@ -126,6 +126,9 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                         password: value.password,
                         rememberMe: value.rememberMe,
                     });
+
+                    // Save last sign-in method
+                    saveLastSignIn("email", value.email);
                 }
 
                 if (response.twoFactorRedirect) {
@@ -160,23 +163,32 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
             children: ([isFormSubmitting, isPending]) => {
                 setIsSubmitting?.(Boolean(isFormSubmitting || isPending));
 
-                return null;
+                return undefined;
             },
             selector: (state) => [state.isSubmitting, transitionPending],
         });
-    }, [setIsSubmitting, transitionPending]);
+    }, [form, setIsSubmitting, transitionPending]);
 
     return (
         <form.AppForm>
             <form
                 className={cn("grid w-full gap-6", className, classNames?.base)}
                 noValidate={isHydrated}
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
                     form.handleSubmit();
                 }}
             >
+                {/* Last Sign-In Message */}
+                <LastSignInMessage
+                    className="mb-2"
+                    classNames={{
+                        container: "justify-center",
+                        text: "text-center",
+                    }}
+                />
+
                 <form.AppField
                     children={(field) => (
                         <field.FormItem>
@@ -188,8 +200,8 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => {
-                                        field.handleChange(e.target.value);
+                                    onChange={(event) => {
+                                        field.handleChange(event.target.value);
                                     }}
                                     placeholder={usernameEnabled ? t`Enter your username` : t`Enter your email`}
                                     type={usernameEnabled ? "text" : "email"}
@@ -225,8 +237,8 @@ export const SignInForm = ({ className, classNames, isSubmitting, passwordValida
                                     className={classNames?.input}
                                     disabled={isSubmitting}
                                     onBlur={field.handleBlur}
-                                    onChange={(e) => {
-                                        field.handleChange(e.target.value);
+                                    onChange={(event) => {
+                                        field.handleChange(event.target.value);
                                     }}
                                     placeholder={t`Enter your password`}
                                     value={field.state.value}

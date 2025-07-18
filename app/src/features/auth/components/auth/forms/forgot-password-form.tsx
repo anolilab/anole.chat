@@ -3,6 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import type { BetterFetchOption } from "better-auth/react";
@@ -10,11 +11,11 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { z } from "zod/v4";
 
+import { useCaptcha } from "@/features/auth/hooks/use-captcha";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { useIsHydrated } from "@/hooks/use-hydrated";
+import { getLocalizedError } from "@/features/auth/lib/utils";
+import emailSchema from "@/features/auth/validators/email-schema";
 
-import { useCaptcha } from "../../../hooks/use-captcha";
-import { getLocalizedError } from "../../../lib/utils";
 import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";
 
@@ -34,14 +35,7 @@ export const ForgotPasswordForm = ({ className, classNames, isSubmitting, setIsS
 
     const formSchema = z
         .object({
-            email: z
-                .string()
-                .min(1, {
-                    message: t`Email is required`,
-                })
-                .email({
-                    message: t`Email is invalid`,
-                }),
+            email: emailSchema,
         })
         .strict();
 

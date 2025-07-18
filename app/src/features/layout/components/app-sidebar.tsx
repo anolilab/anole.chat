@@ -1,21 +1,27 @@
 "use client";
 
+import { Button } from "@anole/ui/components/button";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@anole/ui/components/sidebar";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Cog, File, MessageSquare } from "lucide-react";
+import { Cog, LogIn, MessageSquare } from "lucide-react";
+import type { FC } from "react";
 
+import AnonymousConvertCard from "@/features/auth/components/anonymous/anonymous-convert-card";
+import useIsAnonymous from "@/features/auth/hooks/use-is-anonymous";
 import { NavUser } from "@/features/layout/components/nav-user";
 
-const AppSidebar = ({
-    className,
-    content,
-    footer,
-    header,
-}: React.ComponentProps<typeof Sidebar> & { content: React.ReactNode; footer?: React.ReactNode; header?: React.ReactNode }) => {
+const AppSidebar: FC<
+    React.ComponentProps<typeof Sidebar> & {
+        content: React.ReactNode;
+        footer?: React.ReactNode;
+        header?: React.ReactNode;
+    }
+> = ({ className, content, footer, header }) => {
     const location = useLocation();
     const { t } = useLingui();
+    const { isAnonymous } = useIsAnonymous();
 
     const sidebarLinks: {
         icon: React.ComponentType<{ className?: string }>;
@@ -29,21 +35,16 @@ const AppSidebar = ({
             matcher: (pathname) => pathname.startsWith("/chat"),
             to: "/chat",
         },
+    ];
 
-        /**
-         * {
-         * icon: File,
-         * label: t`Files`,
-         * to: "/files",
-         * },
-         */
-        {
+    if (!isAnonymous) {
+        sidebarLinks.push({
             icon: Cog,
             label: t`Open Account Settings`,
             matcher: (pathname) => pathname.startsWith("/dashboard/settings"),
             to: "/dashboard/settings/auth/account",
-        },
-    ];
+        });
+    }
 
     return (
         <Sidebar className={cn("py-0 pl-0 [&>div]:flex-row", className)} collapsible="offcanvas" name="left" variant="inset">
@@ -71,7 +72,22 @@ const AppSidebar = ({
                 <SidebarContent>{content}</SidebarContent>
                 <SidebarFooter>
                     {footer}
-                    <NavUser />
+                    {isAnonymous
+                        ? (
+                            <>
+                                <AnonymousConvertCard />
+                                <Link
+                                    className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center gap-2 rounded-lg px-3 py-2 transition-colors"
+                                    to="/auth/sign-in"
+                                >
+                                    <LogIn className="size-4" />
+                                    <span className="w-full text-center">{t`Login`}</span>
+                                </Link>
+                            </>
+                        )
+                        : (
+                            <NavUser />
+                        )}
                 </SidebarFooter>
             </div>
             <SidebarRail name="left" />

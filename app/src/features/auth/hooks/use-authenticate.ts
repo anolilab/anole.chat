@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import type { AuthClient } from "@/lib/auth/client";

@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAppForm } from "@anole/ui/components/form";
 import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { Input } from "@anole/ui/components/input";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { useSearch } from "@tanstack/react-router";
@@ -21,7 +22,7 @@ import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { fileToBase64, resizeAndCropImage } from "@/features/auth/lib/image-utils";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
-import { useIsHydrated } from "@/hooks/use-hydrated";
+import emailSchema from "@/features/auth/validators/email-schema";
 
 import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";
@@ -85,14 +86,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
 
     // Create the base schema for standard fields
     const schemaFields: Record<string, z.ZodTypeAny> = {
-        email: z
-            .string()
-            .min(1, {
-                message: t`Email is required`,
-            })
-            .email({
-                message: t`Email is invalid`,
-            }),
+        email: emailSchema,
         password: (() => {
             let schema = z.string().min(1, {
                 message: t`Password is required`,

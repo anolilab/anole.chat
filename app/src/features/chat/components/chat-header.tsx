@@ -19,7 +19,6 @@ const ChatSiteHeader: FC<{ threadId?: string }> = ({ threadId }) => {
                     <SidebarTrigger className="text-white" icon={<PanelRightIcon />} name="right" />
                 </>
             )}
-            subMenuWidth={threadId && threadId !== "new" ? 148 : 128}
             title={title || "New Chat"}
         />
     );

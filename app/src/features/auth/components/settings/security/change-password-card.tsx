@@ -2,15 +2,15 @@
 
 import { CardContent } from "@anole/ui/components/card";
 import { useAppForm } from "@anole/ui/components/form";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-
-import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { getLocalizedError } from "@/features/auth/lib/utils";
+
 import type { PasswordValidation } from "../../../types/form-validation-types";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";

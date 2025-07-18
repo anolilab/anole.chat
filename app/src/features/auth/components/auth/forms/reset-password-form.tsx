@@ -10,9 +10,9 @@ import { useEffect, useRef } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import { getLocalizedError } from "@/features/auth/lib/utils";
+import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
 
-import { getLocalizedError } from "../../../lib/utils";
-import type { PasswordValidation } from "../../../types/form-validation-types";
 import type { AuthFormClassNames } from "../auth-form";
 
 export interface ResetPasswordFormProperties {

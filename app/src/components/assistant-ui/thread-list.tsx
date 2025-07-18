@@ -214,7 +214,8 @@ const HierarchicalThreadList: FC<
 
             // Find direct children using relationships
             const childRelationships = threadRelationships?.filter((rel: MinimalThreadRelationship) => rel.parentThreadId === threadId);
-            const children = childRelationships?.map((rel: MinimalThreadRelationship) => buildHierarchy(rel.threadId, depth + 1))
+            const children = childRelationships
+                ?.map((rel: MinimalThreadRelationship) => buildHierarchy(rel.threadId, depth + 1))
                 .filter((node): node is BranchNode => node !== null);
 
             return {
@@ -253,7 +254,6 @@ const HierarchicalThreadList: FC<
                 if (a.isPinned && !b.isPinned) {
                     return -1;
                 }
-
 
                 if (!a.isPinned && b.isPinned) {
                     return 1;

@@ -22,6 +22,7 @@ import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRecoverAccountRouteImport } from './routes/auth/recover-account'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthConvertAccountRouteImport } from './routes/auth/convert-account'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as filesFilesRouteImport } from './routes/(files)/files'
 import { Route as AuthTwoFactorIndexRouteImport } from './routes/auth/two-factor/index'
@@ -98,6 +99,11 @@ const AuthRecoverAccountRoute = AuthRecoverAccountRouteImport.update({
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => AuthLayoutRoute,
+} as any)
+const AuthConvertAccountRoute = AuthConvertAccountRouteImport.update({
+  id: '/convert-account',
+  path: '/convert-account',
   getParentRoute: () => AuthLayoutRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/convert-account': typeof AuthConvertAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -259,6 +266,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthLayoutRouteWithChildren
   '/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/convert-account': typeof AuthConvertAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -292,6 +300,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/(files)/files': typeof filesFilesRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/convert-account': typeof AuthConvertAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/recover-account': typeof AuthRecoverAccountRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -326,6 +335,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/files'
     | '/auth/callback'
+    | '/auth/convert-account'
     | '/auth/forgot-password'
     | '/auth/recover-account'
     | '/auth/reset-password'
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/files'
     | '/auth/callback'
+    | '/auth/convert-account'
     | '/auth/forgot-password'
     | '/auth/recover-account'
     | '/auth/reset-password'
@@ -388,6 +399,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/(files)/files'
     | '/auth/callback'
+    | '/auth/convert-account'
     | '/auth/forgot-password'
     | '/auth/recover-account'
     | '/auth/reset-password'
@@ -527,6 +539,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/auth/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof AuthLayoutRoute
+    }
+    '/auth/convert-account': {
+      id: '/auth/convert-account'
+      path: '/convert-account'
+      fullPath: '/auth/convert-account'
+      preLoaderRoute: typeof AuthConvertAccountRouteImport
       parentRoute: typeof AuthLayoutRoute
     }
     '/auth/callback': {
@@ -718,6 +737,7 @@ const filesLayoutRouteWithChildren = filesLayoutRoute._addFileChildren(
 
 interface AuthLayoutRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthConvertAccountRoute: typeof AuthConvertAccountRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthRecoverAccountRoute: typeof AuthRecoverAccountRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
@@ -730,6 +750,7 @@ interface AuthLayoutRouteChildren {
 
 const AuthLayoutRouteChildren: AuthLayoutRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
+  AuthConvertAccountRoute: AuthConvertAccountRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthRecoverAccountRoute: AuthRecoverAccountRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,

@@ -3,6 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { Separator } from "@anole/ui/components/separator";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
@@ -13,7 +14,6 @@ import { use, useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import type { AuthView } from "@/features/auth/lib/auth-view-paths";
 import { socialProviders } from "@/features/auth/lib/social-providers";
-import { useIsHydrated } from "@/hooks/use-hydrated";
 
 import { AcceptInvitationCard } from "../organization/accept-invitation-card";
 import { AuthCallback } from "./auth-callback";
@@ -210,6 +210,8 @@ export const AuthCard = ({
                         )}
                     </div>
                 )}
+
+
 
                 {view !== "RESET_PASSWORD" && (social?.providers?.length || genericOAuth?.providers?.length || (view === "SIGN_IN" && passkey)) && (
                     <>

@@ -10,6 +10,7 @@ import { useState } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
+import emailSchema from "@/features/auth/validators/email-schema";
 
 import type { SettingsCardProperties } from "../shared/settings-card";
 import { SettingsCard } from "../shared/settings-card";
@@ -25,10 +26,7 @@ export const ChangeEmailCard = ({ className, classNames, ...properties }: Settin
 
     const formSchema = z
         .object({
-            email: z
-                .string()
-                .min(1, { message: t`Email is required` })
-                .email({ message: t`Invalid email` }),
+            email: emailSchema,
         })
         .strict();
 

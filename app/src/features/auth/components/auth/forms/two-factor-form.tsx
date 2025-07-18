@@ -4,6 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Checkbox } from "@anole/ui/components/checkbox";
 import { useAppForm } from "@anole/ui/components/form";
 import { InputOTP } from "@anole/ui/components/input-otp";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link, useSearch } from "@tanstack/react-router";
@@ -21,7 +22,6 @@ import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transi
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 import type { User } from "@/features/auth/types/auth-core-types";
-import { useIsHydrated } from "@/hooks/use-hydrated";
 
 export interface TwoFactorFormProperties {
     className?: string;

@@ -2,12 +2,16 @@ import { SidebarProvider } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 
-import { RedirectToSignIn } from "@/features/auth/components/redirect-to-sign-in";
+import { AutoGuestSignIn } from "@/features/auth/components/auto-guest-signin";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
 
-export const Route = createFileRoute("/(chat)")({
-    component: RouteComponent,
-});
+const defaultOpen = ["left"];
+const keyboardShortcuts = { left: "b", right: "l" };
+const sidebarNames = ["left", "right"];
+const sidebarStyle = {
+    "--header-height": "calc(var(--spacing) * 10)",
+    "--sidebar-width": "calc(var(--spacing) * 94)",
+} as React.CSSProperties;
 
 const RouteComponent = () => (
     <>
@@ -15,21 +19,16 @@ const RouteComponent = () => (
             <div>Loading...</div>
         </AuthLoading>
         <Unauthenticated>
-            <RedirectToSignIn />
+            <AutoGuestSignIn />
         </Unauthenticated>
         <Authenticated>
             <AiModelProvider>
                 {/* TODO: check why the bg-sidebar with inset variant is not working */}
                 <SidebarProvider
-                    defaultOpen={["left"]}
-                    keyboardShortcuts={{ left: "b", right: "l" }}
-                    sidebarNames={["left", "right"]}
-                    style={
-                        {
-                            "--header-height": "calc(var(--spacing) * 8.5)",
-                            "--sidebar-width": "calc(var(--spacing) * 94)",
-                        } as React.CSSProperties
-                    }
+                    defaultOpen={defaultOpen}
+                    keyboardShortcuts={keyboardShortcuts}
+                    sidebarNames={sidebarNames}
+                    style={sidebarStyle}
                 >
                     <Outlet />
                 </SidebarProvider>
@@ -37,3 +36,7 @@ const RouteComponent = () => (
         </Authenticated>
     </>
 );
+
+export const Route = createFileRoute("/(chat)")({
+    component: RouteComponent,
+});

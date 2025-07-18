@@ -3,6 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@anole/ui/components/dialog";
 import { useAppForm } from "@anole/ui/components/form";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
@@ -13,7 +14,6 @@ import { z } from "zod/v4";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError } from "@/features/auth/lib/utils";
 
-import { PasswordInput } from "@anole/ui/components/form/password-input";
 import type { SettingsCardClassNames } from "../shared/settings-card";
 import { BackupCodesDialog } from "./backup-codes-dialog";
 

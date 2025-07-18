@@ -14,45 +14,44 @@ const ChatPage = () => {
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({
     beforeLoad: async ({ context, params }) => {
-        if (!context?.user?.id) {
-            throw redirect({ to: "/auth/sign-in" });
-        }
+        // Allow anonymous users to access chat
+        if (context?.user?.id) {
+            if (params.threadId === "new") {
+                const newThreadId = await context.convexClient.mutation(api.chat.functions.createThread, {
+                    model: DEFAULT_MODEL,
+                });
 
-        if (params.threadId === "new") {
-            const newThreadId = await context.convexClient.mutation(api.chat.functions.createThread, {
-                model: DEFAULT_MODEL,
-            });
+                throw redirect({
+                    to: "/chat/$threadId",
+                    params: { threadId: newThreadId },
+                    search: { initialMessage: undefined },
+                    replace: true,
+                });
+            }
 
-            throw redirect({
-                to: "/chat/$threadId",
-                params: { threadId: newThreadId },
-                search: { initialMessage: undefined },
-                replace: true,
-            });
-        }
+            const threadExists = await context.queryClient.fetchQuery(
+                convexQuery(api.chat.functions.validateThreadExists, {
+                    threadId: params.threadId,
+                }),
+            );
 
-        const threadExists = await context.queryClient.fetchQuery(
-            convexQuery(api.chat.functions.validateThreadExists, {
-                threadId: params.threadId,
-            }),
-        );
+            if (!threadExists) {
+                throw redirect({
+                    to: "/chat",
+                    search: { redirectReason: "thread-not-found" },
+                    replace: true,
+                });
+            }
 
-        if (!threadExists) {
-            throw redirect({
-                to: "/chat",
-                search: { redirectReason: "thread-not-found" },
-                replace: true,
-            });
-        }
-
-        // Save the last chat ID for this user
-        try {
-            await context.queryClient.setQueryData([api.auth.functions.updateUserSettings], {
-                lastChatId: params.threadId,
-            });
-        } catch (error) {
-            // Continue loading even if saving last chat ID fails
-            console.warn("Failed to save last chat ID:", error);
+            // Save the last chat ID for this user
+            try {
+                await context.queryClient.setQueryData([api.auth.functions.updateUserSettings], {
+                    lastChatId: params.threadId,
+                });
+            } catch (error) {
+                // Continue loading even if saving last chat ID fails
+                console.warn("Failed to save last chat ID:", error);
+            }
         }
     },
     component: ChatPage,

@@ -73,7 +73,7 @@
         "test:watch": "vitest"
     },
     "devDependencies": {
-        "@anolilab/eslint-config": "^16.2.19",
+        "@anolilab/eslint-config": "^16.2.21",
         "@anolilab/semantic-release-pnpm": "2.0.2",
         "@anolilab/semantic-release-preset": "^11.0.2",
         "@secretlint/secretlint-rule-preset-recommend": "^10.2.1",

@@ -28,7 +28,7 @@ export default createConfig(
         files: ["**/*"],
         rules: {
             // this need types
-            "vitest/prefer-describe-function-title": "off",
+            "vitest/prefer-describe-function-title": "off"
         },
     },
 );
