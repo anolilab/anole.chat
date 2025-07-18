@@ -4,6 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
 import { InputOTP } from "@anole/ui/components/input-otp";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated.d";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Loader2 } from "lucide-react";
@@ -12,7 +13,6 @@ import { z } from "zod/v4";
 
 import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transition";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { useIsHydrated } from "@/hooks/use-hydrated";
 
 import type { AuthFormClassNames } from "../auth-form";
 import { OTPInputGroup } from "../otp-input-group";

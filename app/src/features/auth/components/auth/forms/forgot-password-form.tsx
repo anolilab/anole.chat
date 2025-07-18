@@ -3,6 +3,7 @@
 import { Button } from "@anole/ui/components/button";
 import { useAppForm } from "@anole/ui/components/form";
 import { Input } from "@anole/ui/components/input";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated.d";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import type { BetterFetchOption } from "better-auth/react";
@@ -11,7 +12,6 @@ import { useEffect } from "react";
 import { z } from "zod/v4";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { useIsHydrated } from "@/hooks/use-hydrated";
 
 import { useCaptcha } from "../../../hooks/use-captcha";
 import { getLocalizedError } from "../../../lib/utils";

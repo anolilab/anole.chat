@@ -2,12 +2,8 @@ import { SidebarProvider } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 
-import { RedirectToSignIn } from "@/features/auth/components/redirect-to-sign-in";
+import RedirectToSignIn from "@/features/auth/components/redirect-to-sign-in";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
-
-export const Route = createFileRoute("/(chat)")({
-    component: RouteComponent,
-});
 
 const RouteComponent = () => (
     <>
@@ -37,3 +33,7 @@ const RouteComponent = () => (
         </Authenticated>
     </>
 );
+
+export const Route = createFileRoute("/(chat)")({
+    component: RouteComponent,
+});

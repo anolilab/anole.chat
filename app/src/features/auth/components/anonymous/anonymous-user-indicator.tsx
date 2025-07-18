@@ -5,7 +5,7 @@ import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { UserX } from "lucide-react";
 
-import { useIsAnonymous } from "../hooks/use-is-anonymous";
+import useIsAnonymous from "../../hooks/use-is-anonymous";
 
 export interface AnonymousUserIndicatorProperties {
     className?: string;

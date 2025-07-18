@@ -4,7 +4,7 @@ import { ModeToggle } from "@anole/ui/components/theme-toggle";
 import type { FC, PropsWithChildren, ReactNode } from "react";
 
 import BlurGradientOverlay from "@/components/blur-gradient-overlay";
-import { AnonymousUserBanner } from "@/features/auth/components/anonymous-user-banner";
+import AnonymousUserBanner from "@/features/auth/components/anonymous/anonymous-user-banner";
 
 const SiteHeader: FC<PropsWithChildren<{ menu?: ReactNode; title?: string }>> = ({ children, menu, title }) => (
     <>

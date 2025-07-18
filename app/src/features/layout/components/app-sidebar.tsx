@@ -4,18 +4,23 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } fr
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Cog, File, MessageSquare } from "lucide-react";
+import { Cog, MessageSquare } from "lucide-react";
+import type { FC } from "react";
 
+import AnonymousConvertCard from "@/features/auth/components/anonymous/anonymous-convert-card";
+import useIsAnonymous from "@/features/auth/hooks/use-is-anonymous";
 import { NavUser } from "@/features/layout/components/nav-user";
 
-const AppSidebar = ({
-    className,
-    content,
-    footer,
-    header,
-}: React.ComponentProps<typeof Sidebar> & { content: React.ReactNode; footer?: React.ReactNode; header?: React.ReactNode }) => {
+const AppSidebar: FC<
+    React.ComponentProps<typeof Sidebar> & {
+        content: React.ReactNode;
+        footer?: React.ReactNode;
+        header?: React.ReactNode;
+    }
+> = ({ className, content, footer, header }) => {
     const location = useLocation();
     const { t } = useLingui();
+    const { isAnonymous } = useIsAnonymous();
 
     const sidebarLinks: {
         icon: React.ComponentType<{ className?: string }>;
@@ -29,21 +34,16 @@ const AppSidebar = ({
             matcher: (pathname) => pathname.startsWith("/chat"),
             to: "/chat",
         },
+    ];
 
-        /**
-         * {
-         * icon: File,
-         * label: t`Files`,
-         * to: "/files",
-         * },
-         */
-        {
+    if (!isAnonymous) {
+        sidebarLinks.push({
             icon: Cog,
             label: t`Open Account Settings`,
             matcher: (pathname) => pathname.startsWith("/dashboard/settings"),
             to: "/dashboard/settings/auth/account",
-        },
-    ];
+        });
+    }
 
     return (
         <Sidebar className={cn("py-0 pl-0 [&>div]:flex-row", className)} collapsible="offcanvas" name="left" variant="inset">
@@ -71,7 +71,7 @@ const AppSidebar = ({
                 <SidebarContent>{content}</SidebarContent>
                 <SidebarFooter>
                     {footer}
-                    <NavUser />
+                    {isAnonymous ? <AnonymousConvertCard /> : <NavUser />}
                 </SidebarFooter>
             </div>
             <SidebarRail name="left" />

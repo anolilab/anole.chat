@@ -5,6 +5,7 @@ import { Checkbox } from "@anole/ui/components/checkbox";
 import { useAppForm } from "@anole/ui/components/form";
 import { PasswordInput } from "@anole/ui/components/form/password-input";
 import { Input } from "@anole/ui/components/input";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated.d";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
@@ -18,7 +19,6 @@ import { useOnSuccessTransition } from "@/features/auth/hooks/use-success-transi
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { getLocalizedError, isValidEmail } from "@/features/auth/lib/utils";
 import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
-import { useIsHydrated } from "@/hooks/use-hydrated";
 
 import { Captcha } from "../../captcha/captcha";
 import type { AuthFormClassNames } from "../auth-form";

@@ -1,22 +1,21 @@
 "use client";
 
+import { Alert, AlertDescription } from "@anole/ui/components/alert";
+import { Button } from "@anole/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
+import { useAppForm } from "@anole/ui/components/form";
+import { PasswordInput } from "@anole/ui/components/form/password-input";
+import { Input } from "@anole/ui/components/input";
+import { useIsHydrated } from "@anole/ui/hooks/use-hydrated";
+import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod/v4";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
-import { cn } from "@/lib/utils";
-
-import { PasswordInput } from "../../../../../components/form/password-input";
-import { useIsHydrated } from "../../../../../hooks/use-hydrated";
-import { getLocalizedError, isValidEmail } from "../../../lib/utils";
-import type { PasswordValidation } from "../../../types/form-validation-types";
+import { getLocalizedError, isValidEmail } from "@/features/auth/lib/utils";
+import type { PasswordValidation } from "@/features/auth/types/form-validation-types";
 
 export interface ConvertAnonymousAccountProperties {
     className?: string;
@@ -49,12 +48,11 @@ export const ConvertAnonymousAccount = ({ className, classNames, onSuccess, pass
                 message: t`Please confirm your password`,
             }),
             email: z
-                .string()
-                .min(1, {
-                    message: t`Email is required`,
-                })
                 .email({
                     message: t`Email is invalid`,
+                })
+                .min(1, {
+                    message: t`Email is required`,
                 }),
             password: (() => {
                 let schema = z.string().min(1, {

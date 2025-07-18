@@ -2,11 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { ConvertAnonymousAccount } from "@/features/auth/components/auth/convert-anonymous-account";
-import { useIsAnonymous } from "@/features/auth/hooks/use-is-anonymous";
-
-export const Route = createFileRoute("/auth/convert-account")({
-    component: ConvertAccountPage,
-});
+import useIsAnonymous from "@/features/auth/hooks/use-is-anonymous";
 
 const ConvertAccountPage = () => {
     const { isAnonymous } = useIsAnonymous();
@@ -27,9 +23,13 @@ const ConvertAccountPage = () => {
         <div className="flex min-h-screen items-center justify-center p-4">
             <ConvertAnonymousAccount
                 onSuccess={() => {
-                    navigate({ to: "/" });
+                    navigate({ to: "/chat" });
                 }}
             />
         </div>
     );
 };
+
+export const Route = createFileRoute("/auth/convert-account")({
+    component: ConvertAccountPage,
+});

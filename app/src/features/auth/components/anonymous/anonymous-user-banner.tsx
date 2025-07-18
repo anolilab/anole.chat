@@ -1,49 +1,19 @@
 "use client";
 
-import { Alert, AlertDescription } from "@anole/ui/components/alert";
-import { Button } from "@anole/ui/components/button";
 import cn from "@anole/ui/utils/cn";
 import { t } from "@lingui/core/macro";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import type { FC } from "react";
 
-import { useIsAnonymous } from "../hooks/use-is-anonymous";
-import { useAuth } from "../lib/auth-ui-provider";
+import useIsAnonymous from "@/features/auth/hooks/use-is-anonymous";
 
-export interface AnonymousUserBannerProperties {
+const AnonymousUserBanner: FC<{
     classNames?: {
-        description?: string;
         root?: string;
     };
-    dismissible?: boolean;
-    onConvertClick?: () => void;
-}
-
-/**
- * &lt;Button
- * className={cn("h-auto p-0 text-orange-800 underline hover:text-orange-900", classNames?.button)}
- * onClick={handleConvertClick}
- * variant="link"
- * >
- * {t`Convert to a permanent account`}
- * &lt;/Button>
- * {t` to save your data and access it from any device.`}
- */
-export const AnonymousUserBanner = ({ classNames, dismissible = true, onConvertClick }: AnonymousUserBannerProperties) => {
+}> = ({ classNames }) => {
     const { isAnonymous } = useIsAnonymous();
-    const { basePath, viewPaths } = useAuth();
-    const navigate = useNavigate();
-    const [isDismissed, setIsDismissed] = useState(false);
 
-    const handleConvertClick = () => {
-        if (onConvertClick) {
-            onConvertClick();
-        } else {
-            navigate({ to: `${basePath}/${viewPaths.CONVERT_ACCOUNT}` });
-        }
-    };
-
-    if (!isAnonymous || isDismissed) {
+    if (!isAnonymous) {
         return null;
     }
 
@@ -79,7 +49,7 @@ export const AnonymousUserBanner = ({ classNames, dismissible = true, onConvertC
                     </svg>
                 </div>
             </div>
-            <span className="bg-sidebar relative h-(--header-height) px-2 text-white">{t`You're using a guest account.`}</span>
+            <span className="bg-sidebar pointer-events-none relative h-(--header-height) px-2 text-white">{t`You're using a guest account.`}</span>
             <div
                 className="relative -ml-2 h-(--header-height)"
                 style={{
@@ -114,3 +84,5 @@ export const AnonymousUserBanner = ({ classNames, dismissible = true, onConvertC
         </div>
     );
 };
+
+export default AnonymousUserBanner;

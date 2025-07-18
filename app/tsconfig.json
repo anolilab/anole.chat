@@ -15,6 +15,14 @@
             "path": "../packages/ui/tsconfig.json"
         }
     ],
-    "include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.js", "@vitest/browser/providers/webdriverio"],
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "eslint.config.js",
+        "prettier.config.js",
+        "vite.config.js",
+        "@vitest/browser/providers/webdriverio",
+        "../packages/ui/src/hooks/use-hydrated.ts"
+    ],
     "exclude": ["**/*.md", "**/*.json"]
 }
