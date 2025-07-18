@@ -50,6 +50,8 @@ import type { DownloadFormat } from "@/lib/download";
 import { handleDownload } from "@/lib/download";
 import { ValidationError } from "@/lib/errors";
 import { showError, showSuccess } from "@/lib/toast";
+import ThreadTagFilter from "./thread-tag-filter";
+import ThreadTagEditor from "./thread-tag-editor";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
@@ -63,6 +65,7 @@ interface BranchNode {
     order?: number;
     relevantMessages?: any[]; // Messages that matched the search query
     status: string;
+    tags?: string[]; // Thread tags
     threadId: string;
     title: string;
 }
@@ -107,6 +110,7 @@ interface HierarchicalThreadListProperties {
     messageSearchResults: any;
     searchQuery: string;
     searchType: "threads" | "messages";
+    selectedTag?: string;
     setLoadingStates: React.Dispatch<
         React.SetStateAction<{
             archiving: Set<string>;
@@ -140,6 +144,7 @@ const HierarchicalThreadList: FC<
     messageSearchResults,
     searchQuery,
     searchType,
+    selectedTag,
     setLoadingStates,
     setShowKeyboardHelp,
     setShowSearch,
@@ -159,7 +164,12 @@ const HierarchicalThreadList: FC<
     const [isKeyboardNavigating, setIsKeyboardNavigating] = useState(false);
 
     // Get all threads to build the hierarchy
-    const threadsData = useQuery(api.chat.functions.getThreads, { paginationOpts: { cursor: null, numItems: 100 } });
+    const threadsData = useQuery(
+        selectedTag ? api.chat.functions.getThreadsByTag : api.chat.functions.getThreads,
+        selectedTag 
+            ? { tag: selectedTag, paginationOpts: { cursor: null, numItems: 100 } }
+            : { paginationOpts: { cursor: null, numItems: 100 } }
+    );
     const pinnedThreads = useQuery(api.chat.functions.getPinnedThreads);
     const threadOrders = useQuery(api.chat.functions.getThreadOrders);
     const pinThreadMutation = useMutation(api.chat.functions.pinThread);
@@ -230,6 +240,7 @@ const HierarchicalThreadList: FC<
                 // Add search relevance info if available (for message search)
                 relevantMessages: thread.relevantMessages,
                 status: thread.status || "active",
+                tags: thread.tags || ["chat"], // Include tags information
                 threadId: thread._id,
                 title: thread.title || "New Chat",
             };
@@ -1029,6 +1040,16 @@ const HierarchicalThreadList: FC<
                             </TooltipContent>
                         </Tooltip>
 
+                        {/* Thread tag editor */}
+                        <ThreadTagEditor
+                            threadId={node.threadId}
+                            currentTags={node.tags}
+                            onTagsUpdated={(newTags) => {
+                                // Refresh the thread list to show the updated tags
+                                // The query will automatically refetch
+                            }}
+                        />
+
                         {/* Action buttons */}
                         <div className="bg-accent-foreground/80 absolute right-0 flex items-center gap-1 rounded-l-lg opacity-0 transition-opacity group-hover/action-item:opacity-100">
                             {/* Pin/Unpin button - only show for non-archived threads */}
@@ -1515,6 +1536,7 @@ const ThreadList: FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearch, setShowSearch] = useState(false);
     const [searchType, setSearchType] = useState<"threads" | "messages">("threads");
+    const [selectedTag, setSelectedTag] = useState<string | undefined>(undefined);
     const [loadingStates, setLoadingStates] = useState<{
         archiving: Set<string>;
         branching: Set<string>;
@@ -1687,6 +1709,10 @@ const ThreadList: FC = () => {
                         >
                             {t`Messages`}
                         </Button>
+                        <ThreadTagFilter
+                            selectedTag={selectedTag}
+                            onTagChange={setSelectedTag}
+                        />
                     </div>
                     <div className="relative">
                         <Input
@@ -1727,6 +1753,7 @@ const ThreadList: FC = () => {
                 messageSearchResults={messageSearchResults}
                 searchQuery={searchQuery}
                 searchType={searchType}
+                selectedTag={selectedTag}
                 setLoadingStates={setLoadingStates}
                 setShowKeyboardHelp={setShowKeyboardHelp}
                 setShowSearch={setShowSearch}

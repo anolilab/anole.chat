@@ -9,7 +9,7 @@ const schema = {
             modelId: v.string(), // "openai:gpt-4o"
             p: v.number(),
             r: v.number(),
-            userId: v.id("user"),
+            userId: v.string(),
         }),
     ).index("byUserDay", ["userId", "daysSinceEpoch"]),
 };

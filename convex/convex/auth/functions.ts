@@ -14,7 +14,6 @@ import {
 } from "../_generated/server";
 import { getCurrentUserInternal } from "../auth/lib/helper";
 import { encryptKey } from "../lib/encryption";
-import { ROLES } from "../lib/types";
 import { aiUserPreferencesFields, userSettingsFields } from "./fields";
 
 const deepEncryptKeys = async (object: any): Promise<any> => {
@@ -130,28 +129,6 @@ export const authedAction = customAction(
         };
     }),
 );
-
-export const initializeNewUser = internalMutation({
-    args: { email: v.optional(v.string()), userId: v.id("user") }, // email is passed but not strictly used in this version
-    handler: async (context, { userId }) => {
-        // Removed unused email from destructuring
-        const existingAppUser = await context.db.get(userId);
-
-        if (existingAppUser?.role) {
-            console.log(`User ${userId} already initialized with roles.`);
-
-            return null;
-        }
-
-        await context.db.patch(userId, {
-            role: ROLES.USER,
-        });
-        console.log(`Initialized user ${userId} with default role.`);
-
-        return null;
-    },
-    returns: v.null(),
-});
 
 export const updateUserSettings = makeSettingsUpsertMutation(
     "userSettings",

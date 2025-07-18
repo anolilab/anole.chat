@@ -6,7 +6,7 @@
 
 // Example function structure:
 // export const getSubscription = query({
-//     args: { userId: v.id("user") },
+//     args: { userId: v.string() },
 //     handler: async (ctx, args) => {
 //         // Implementation
 //     },

@@ -44,7 +44,7 @@ export const checkThreadAccess = internalQuery({
             v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
         ),
         threadId: v.string(),
-        userId: v.id("user"),
+        userId: v.string(),
     },
     handler: async (
         context,
@@ -183,7 +183,7 @@ export const getThreadAccess = authedQuery({
                     v.literal("write"),
                     v.literal("admin"),
                 ),
-                userId: v.id("user"),
+                userId: v.string(),
             }),
         ),
     }),
@@ -435,7 +435,7 @@ export const acceptThreadInvite = authedMutation({
 // Remove user access from thread
 export const removeThreadAccess = authedMutation({
     args: {
-        targetUserId: v.id("user"),
+        targetUserId: v.string(),
         threadId: v.string(),
     },
     handler: async (context, { targetUserId, threadId }) => {

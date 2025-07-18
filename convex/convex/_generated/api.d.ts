@@ -38,7 +38,6 @@ import type * as lib_encryption from "../lib/encryption.js";
 import type * as lib_errors from "../lib/errors.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
 import type * as lib_systemFields from "../lib/systemFields.js";
-import type * as lib_types from "../lib/types.js";
 import type * as polar from "../polar.js";
 
 import type {
@@ -86,7 +85,6 @@ declare const fullApi: ApiFromModules<{
   "lib/errors": typeof lib_errors;
   "lib/rateLimiter": typeof lib_rateLimiter;
   "lib/systemFields": typeof lib_systemFields;
-  "lib/types": typeof lib_types;
   polar: typeof polar;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

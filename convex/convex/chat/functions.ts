@@ -5,6 +5,7 @@ import { ConvexError, v } from "convex/values";
 import z from "zod/v4";
 
 import { components, internal } from "../_generated/api";
+import type { Doc as Document_ } from "../_generated/dataModel";
 import {
     internalAction,
     internalMutation,
@@ -46,6 +47,7 @@ export const createThread = authedMutation({
             await context.db.insert("threads", {
                 createdBy: userId,
                 model,
+                tags: ["chat"],
                 threadId,
                 updatedAt: Date.now(),
                 userId,
@@ -202,15 +204,30 @@ export const getThreads = authedQuery({
             .withIndex("by_user", (q) => q.eq("userId", userId))
             .collect();
 
+        // Create a map for quick lookup of app thread data
+        const appThreadsMap = new Map(
+            appThreads.map((thread) => [thread.threadId, thread]),
+        );
+
         return {
             ...results,
-            page: results.page.filter(
-                (t) =>
-                    !appThreads.some(
-                        (appThread) =>
-                            appThread.threadId === t._id && appThread.deleted,
-                    ),
-            ),
+            page: results.page
+                .filter(
+                    (t) =>
+                        !appThreads.some(
+                            (appThread) =>
+                                appThread.threadId === t._id
+                                && appThread.deleted,
+                        ),
+                )
+                .map((t) => {
+                    const appThread = appThreadsMap.get(t._id);
+
+                    return {
+                        ...t,
+                        tags: appThread?.tags || ["chat"], // Include tags information
+                    };
+                }),
         };
     },
 });
@@ -1163,5 +1180,311 @@ export const undoDeleteThread = authedMutation({
             deleted: false,
             deletedAt: undefined,
         });
+    },
+});
+
+export const getUserTags = authedQuery({
+    args: {},
+    handler: async (context): Promise<Document_<"threadTags">[]> => {
+        const userId = context.user._id;
+
+        const tags = await context.db
+            .query("threadTags")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .collect();
+
+        return tags.sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0));
+    },
+});
+
+export const createTag = authedMutation({
+    args: {
+        name: v.string(),
+    },
+    handler: async (context, { name }): Promise<string> => {
+        const userId = context.user._id;
+
+        // Check if tag already exists for this user
+        const existing = await context.db
+            .query("threadTags")
+            .withIndex("by_user_and_name", (q) =>
+                q.eq("userId", userId).eq("name", name))
+            .unique();
+
+        if (existing) {
+            return existing._id;
+        }
+
+        const tagId = await context.db.insert("threadTags", {
+            createdAt: Date.now(),
+            name,
+            usageCount: 0,
+            userId,
+        });
+
+        return tagId;
+    },
+});
+
+export const updateThreadTags = authedMutation({
+    args: {
+        tags: v.array(v.string()),
+        threadId: v.string(),
+    },
+    handler: async (context, { tags, threadId }): Promise<void> => {
+        const userId = context.user._id;
+
+        // Find the thread
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!thread) {
+            throw new ConvexError("Thread not found");
+        }
+
+        // Check if user owns the thread
+        if (thread.userId !== userId) {
+            throw new ConvexError("Not allowed");
+        }
+
+        const oldTags = thread.tags || ["chat"];
+        const newTags = tags.length > 0 ? tags : ["chat"];
+
+        // Update the thread tags
+        await context.db.patch(thread._id, {
+            tags: newTags,
+            updatedAt: Date.now(),
+        });
+
+        // Update tag usage counts
+        // Increment counts for new tags
+        for (const tag of newTags) {
+            if (tag !== "chat") {
+                const existingTag = await context.db
+                    .query("threadTags")
+                    .withIndex("by_user_and_name", (q) =>
+                        q.eq("userId", userId).eq("name", tag))
+                    .unique();
+
+                if (existingTag) {
+                    await context.db.patch(existingTag._id, {
+                        usageCount: (existingTag.usageCount || 0) + 1,
+                    });
+                } else {
+                    await context.db.insert("threadTags", {
+                        createdAt: Date.now(),
+                        name: tag,
+                        usageCount: 1,
+                        userId,
+                    });
+                }
+            }
+        }
+
+        // Decrement counts for removed tags
+        for (const oldTag of oldTags) {
+            if (oldTag !== "chat" && !newTags.includes(oldTag)) {
+                const oldTagDocument = await context.db
+                    .query("threadTags")
+                    .withIndex("by_user_and_name", (q) =>
+                        q.eq("userId", userId).eq("name", oldTag))
+                    .unique();
+
+                if (oldTagDocument && (oldTagDocument.usageCount || 0) > 0) {
+                    await context.db.patch(oldTagDocument._id, {
+                        usageCount: (oldTagDocument.usageCount || 0) - 1,
+                    });
+                }
+            }
+        }
+    },
+});
+
+export const addThreadTag = authedMutation({
+    args: {
+        tag: v.string(),
+        threadId: v.string(),
+    },
+    handler: async (context, { tag, threadId }): Promise<void> => {
+        const userId = context.user._id;
+
+        // Find the thread
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!thread) {
+            throw new ConvexError("Thread not found");
+        }
+
+        // Check if user owns the thread
+        if (thread.userId !== userId) {
+            throw new ConvexError("Not allowed");
+        }
+
+        const currentTags = thread.tags || ["chat"];
+
+        // Don't add if tag already exists
+        if (currentTags.includes(tag)) {
+            return;
+        }
+
+        const newTags = [...currentTags, tag];
+
+        // Update the thread tags
+        await context.db.patch(thread._id, {
+            tags: newTags,
+            updatedAt: Date.now(),
+        });
+
+        // Update tag usage count
+        if (tag !== "chat") {
+            const existingTag = await context.db
+                .query("threadTags")
+                .withIndex("by_user_and_name", (q) =>
+                    q.eq("userId", userId).eq("name", tag))
+                .unique();
+
+            if (existingTag) {
+                await context.db.patch(existingTag._id, {
+                    usageCount: (existingTag.usageCount || 0) + 1,
+                });
+            } else {
+                await context.db.insert("threadTags", {
+                    createdAt: Date.now(),
+                    name: tag,
+                    usageCount: 1,
+                    userId,
+                });
+            }
+        }
+    },
+});
+
+export const removeThreadTag = authedMutation({
+    args: {
+        tag: v.string(),
+        threadId: v.string(),
+    },
+    handler: async (context, { tag, threadId }): Promise<void> => {
+        const userId = context.user._id;
+
+        // Find the thread
+        const thread = await context.db
+            .query("threads")
+            .withIndex("by_thread", (q) => q.eq("threadId", threadId))
+            .unique();
+
+        if (!thread) {
+            throw new ConvexError("Thread not found");
+        }
+
+        // Check if user owns the thread
+        if (thread.userId !== userId) {
+            throw new ConvexError("Not allowed");
+        }
+
+        const currentTags = thread.tags || ["chat"];
+        const newTags = currentTags.filter((t) => t !== tag);
+
+        // Ensure at least one tag remains (default to "chat")
+        if (newTags.length === 0) {
+            newTags.push("chat");
+        }
+
+        // Update the thread tags
+        await context.db.patch(thread._id, {
+            tags: newTags,
+            updatedAt: Date.now(),
+        });
+
+        // Decrement tag usage count
+        if (tag !== "chat") {
+            const tagDocument = await context.db
+                .query("threadTags")
+                .withIndex("by_user_and_name", (q) =>
+                    q.eq("userId", userId).eq("name", tag))
+                .unique();
+
+            if (tagDocument && (tagDocument.usageCount || 0) > 0) {
+                await context.db.patch(tagDocument._id, {
+                    usageCount: (tagDocument.usageCount || 0) - 1,
+                });
+            }
+        }
+    },
+});
+
+export const getThreadsByTag = authedQuery({
+    args: {
+        paginationOpts: paginationOptsValidator,
+        tag: v.optional(v.string()),
+    },
+    handler: async (
+        context,
+        { paginationOpts, tag },
+    ): Promise<PaginationResult<ThreadDoc>> => {
+        const userId = context.user._id;
+
+        // Get threads from agent component
+        const results = await context.runQuery(
+            components.agent.threads.listThreadsByUserId,
+            { paginationOpts, userId },
+        );
+
+        // Get all app threads (we'll filter in memory since we can't easily query array contains in Convex)
+        const appThreads = await context.db
+            .query("threads")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .collect();
+
+        // Create a map for quick lookup of app thread data
+        const appThreadsMap = new Map(
+            appThreads.map((thread) => [thread.threadId, thread]),
+        );
+
+        // Filter results based on tag
+        const filteredResults = results.page
+            .filter((t) => {
+                const appThread = appThreads.find(
+                    (appThread) => appThread.threadId === t._id,
+                );
+
+                // Skip deleted threads
+                if (appThread && appThread.deleted) {
+                    return false;
+                }
+
+                // If no tag filter, show all threads
+                if (!tag) {
+                    return true;
+                }
+
+                // If thread has app data, check if it has the tag
+                if (appThread) {
+                    const threadTags = appThread.tags || ["chat"];
+
+                    return threadTags.includes(tag);
+                }
+
+                // If no app data and looking for "chat" tag, include it (default)
+                return tag === "chat";
+            })
+            .map((t) => {
+                const appThread = appThreadsMap.get(t._id);
+
+                return {
+                    ...t,
+                    tags: appThread?.tags || ["chat"], // Include tags information
+                };
+            });
+
+        return {
+            ...results,
+            page: filteredResults,
+        };
     },
 });

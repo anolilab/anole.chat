@@ -5,20 +5,20 @@ import { aiUserPreferencesFields, userSettingsFields } from "./fields";
 
 const authTables = {
     aiUserPreferences: defineTable({
-        userId: v.id("user"),
+        userId: v.string(),
         ...aiUserPreferencesFields,
     }).index("by_userId", ["userId"]),
 
     userSettings: defineTable({
         ...userSettingsFields,
-        userId: v.id("user"),
+        userId: v.string(),
     }).index("by_userId", ["userId"]),
 
     vouches: defineTable({
         comment: v.optional(v.string()),
-        fromUserId: v.id("user"),
+        fromUserId: v.string(),
         rating: v.number(), // 1-5
-        toUserId: v.id("user"),
+        toUserId: v.string(),
     })
         .index("by_toUserId", ["toUserId"])
         .index("by_fromUserId", ["fromUserId"])

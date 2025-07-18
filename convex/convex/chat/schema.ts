@@ -3,19 +3,19 @@ import { v } from "convex/values";
 
 import { softDeleteFields } from "../lib/systemFields";
 
-const chatTables = {
+const schema = {
     // Thread sharing and access control
     threadAccess: defineTable({
         expiresAt: v.optional(v.number()), // Optional expiration timestamp
         grantedAt: v.number(),
-        grantedBy: v.id("user"), // Who granted this access
+        grantedBy: v.string(), // Who granted this access
         permission: v.union(
             v.literal("read"),
             v.literal("write"),
             v.literal("admin"),
         ),
         threadId: v.string(),
-        userId: v.id("user"),
+        userId: v.string(),
     })
         .index("by_thread", ["threadId"])
         .index("by_user", ["userId"])
@@ -25,9 +25,9 @@ const chatTables = {
     // Thread invites
     threadInvites: defineTable({
         acceptedAt: v.optional(v.number()), // When the invite was accepted
-        acceptedBy: v.optional(v.id("user")), // Who accepted the invite
+        acceptedBy: v.optional(v.string()), // Who accepted the invite
         expiresAt: v.number(), // When the invite expires
-        invitedBy: v.id("user"),
+        invitedBy: v.string(),
         invitedEmail: v.string(),
         inviteToken: v.string(), // Unique token for the invite link
         permission: v.union(
@@ -64,19 +64,30 @@ const chatTables = {
         .index("by_parent_and_thread", ["parentThreadId", "threadId"]),
 
     threads: defineTable({
-        createdBy: v.optional(v.id("user")),
+        createdBy: v.optional(v.string()),
         isPublic: v.optional(v.boolean()),
         model: v.optional(v.string()),
         order: v.optional(v.number()),
         pinnedAt: v.optional(v.number()),
         publicAccessToken: v.optional(v.string()),
+        tags: v.optional(v.array(v.string())),
         threadId: v.string(), // required
         updatedAt: v.optional(v.number()),
-        userId: v.optional(v.id("user")),
+        userId: v.optional(v.string()),
         ...softDeleteFields,
     })
         .index("by_thread", ["threadId"])
-        .index("by_user", ["userId"]),
+        .index("by_user", ["userId"])
+        .index("by_user_and_tags", ["userId", "tags"]),
+
+    threadTags: defineTable({
+        createdAt: v.number(), // When the tag was created
+        name: v.string(), // Tag name (e.g., "work", "personal", "research")
+        usageCount: v.optional(v.number()), // How many times this tag has been used
+        userId: v.string(), // User who created this tag
+    })
+        .index("by_user", ["userId"])
+        .index("by_user_and_name", ["userId", "name"]),
 };
 
-export default chatTables;
+export default schema;
