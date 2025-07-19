@@ -16,7 +16,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "clean": "rimraf node_modules dist .eslintcache",
+        "clean": "rimraf node_modules dist .eslintcache .tanstack",
         "dev": "vite dev --port 5173",
         "email:dev": "email dev --dir src/components/emails --port 5555",
         "env:clear": "pnpx convex env unset",

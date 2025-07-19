@@ -8,7 +8,6 @@ import {
 
 import {
     action,
-    internalMutation,
     mutation,
     query,
 } from "../_generated/server";
@@ -46,7 +45,7 @@ const makeSettingsUpsertMutation = (
     authedMutation({
         args: arguments_,
         handler: async (context, inputArguments) => {
-            const { userId } = context.user;
+            const userId = context.user.userId;
 
             // Recursively encrypt all encryptedKey fields
             const toStore = await deepEncryptKeys(inputArguments);
@@ -74,7 +73,7 @@ const makeSettingsGetQuery = (
     authedQuery({
         args: {},
         handler: async (context) => {
-            const { userId } = context.user;
+            const userId = context.user.userId;
 
             return await context.db
                 .query(tableName)
