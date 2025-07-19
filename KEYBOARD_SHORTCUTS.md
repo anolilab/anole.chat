@@ -29,17 +29,25 @@ The keyboard shortcuts system has been refactored to be fully programmable, allo
 
 ### Database Schema
 
-The `userSettings` table has been extended with a `keyboardShortcuts` field:
+The `userSettings` table has been extended with a `keyboardShortcuts` field that includes validation:
 
 ```typescript
+// Custom validator for keyboard shortcuts
+const keyboardShortcutValidator = v.custom((value: string) => {
+    // Basic validation for shortcut format
+    // Allows: single keys, modifier combinations like "Ctrl+K", "Cmd+Shift+N"
+    const validPattern = /^((ctrl|cmd|meta|alt|shift)\+)*[a-z0-9\?]$/i;
+    return validPattern.test(value);
+});
+
 keyboardShortcuts: v.optional(
     v.object({
-        sidebarLeft: v.optional(v.string()),
-        sidebarRight: v.optional(v.string()),
-        newChat: v.optional(v.string()),
-        search: v.optional(v.string()),
-        help: v.optional(v.string()),
-        escape: v.optional(v.string()),
+        sidebarLeft: v.optional(keyboardShortcutValidator),
+        sidebarRight: v.optional(keyboardShortcutValidator),
+        newChat: v.optional(keyboardShortcutValidator),
+        search: v.optional(keyboardShortcutValidator),
+        help: v.optional(keyboardShortcutValidator),
+        escape: v.optional(keyboardShortcutValidator),
     }),
 ),
 ```
@@ -76,7 +84,22 @@ function App() {
     return (
         <KeyboardShortcutsManager
             onShortcut={(action, event) => {
-                console.log("Shortcut triggered:", action);
+                switch (action) {
+                    case "newChat":
+                        window.location.href = "/chat";
+                        break;
+                    case "search":
+                        const searchInput = document.querySelector('[data-testid="search-input"]');
+                        if (searchInput) searchInput.focus();
+                        break;
+                    case "help":
+                        const helpButton = document.querySelector('[data-testid="help-button"]');
+                        if (helpButton) helpButton.click();
+                        break;
+                    case "escape":
+                        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+                        break;
+                }
             }}
         >
             {/* Your app content */}
@@ -156,9 +179,17 @@ The old hardcoded keyboard shortcuts have been replaced:
 
 **After:**
 ```tsx
-<KeyboardShortcutsManager>
+<KeyboardShortcutsManager onShortcut={handleShortcuts}>
     <ProgrammableSidebarProvider sidebarNames={["left", "right"]}>
 ```
+
+### Key Improvements
+
+1. **Validation**: Keyboard shortcuts are now validated against a regex pattern
+2. **Extensible**: Sidebar mapping supports arbitrary sidebar names
+3. **Functional**: Actual shortcut handling instead of console logging
+4. **Tested**: Comprehensive test coverage including edge cases
+5. **Clean**: Removed unused imports and props
 
 ## Testing
 

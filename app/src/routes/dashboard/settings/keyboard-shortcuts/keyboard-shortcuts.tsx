@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useTranslation } from "@anole/ui/hooks/use-translation";
 import { Button } from "@anole/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { Input } from "@anole/ui/components/input";
@@ -100,7 +99,6 @@ const ShortcutInput: React.FC<ShortcutInputProps> = ({
 };
 
 export const KeyboardShortcutsSettings: React.FC = () => {
-    const { t } = useTranslation();
     const { shortcuts, updateShortcuts } = useKeyboardShortcuts();
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);

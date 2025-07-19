@@ -65,4 +65,37 @@ describe("KeyboardShortcutsManager", () => {
         
         expect(onShortcut).not.toHaveBeenCalled();
     });
+
+    it("should handle modifier key combinations", () => {
+        const onShortcut = vi.fn();
+        
+        render(
+            <KeyboardShortcutsManager 
+                onShortcut={onShortcut}
+                shortcuts={{ search: "ctrl+k" }}
+            >
+                <div>Test</div>
+            </KeyboardShortcutsManager>
+        );
+
+        // Simulate Ctrl+K
+        fireEvent.keyDown(document, { key: "k", ctrlKey: true });
+        
+        expect(onShortcut).toHaveBeenCalledWith("search", expect.any(Object));
+    });
+
+    it("should throw error when hook is used outside provider", () => {
+        const TestComponentWithError = () => {
+            try {
+                useKeyboardShortcuts();
+                return <div>Should not render</div>;
+            } catch (error) {
+                return <div>{error.message}</div>;
+            }
+        };
+
+        render(<TestComponentWithError />);
+        
+        expect(screen.getByText("useKeyboardShortcuts must be used within KeyboardShortcutsManager")).toBeInTheDocument();
+    });
 });

@@ -23,12 +23,18 @@ export function ProgrammableSidebarProvider<T extends string>({
     const keyboardShortcuts = React.useMemo(() => {
         const mapping: Partial<Record<T, string>> = {};
         
-        if (sidebarNames.includes("left" as T) && shortcuts.sidebarLeft) {
-            mapping["left" as T] = shortcuts.sidebarLeft;
-        }
-        if (sidebarNames.includes("right" as T) && shortcuts.sidebarRight) {
-            mapping["right" as T] = shortcuts.sidebarRight;
-        }
+        // Map known sidebar shortcuts
+        const sidebarShortcutMap: Record<string, keyof typeof shortcuts> = {
+            "left": "sidebarLeft",
+            "right": "sidebarRight"
+        };
+        
+        sidebarNames.forEach((name) => {
+            const shortcutKey = sidebarShortcutMap[name as string];
+            if (shortcutKey && shortcuts[shortcutKey]) {
+                mapping[name] = shortcuts[shortcutKey] as string;
+            }
+        });
         
         return mapping;
     }, [sidebarNames, shortcuts]);

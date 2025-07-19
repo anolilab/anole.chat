@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useConvexQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { useSidebar } from "@anole/ui/components/sidebar";
 
 export interface KeyboardShortcut {
     key: string;
@@ -33,14 +32,12 @@ interface KeyboardShortcutsManagerProps {
     children: React.ReactNode;
     onShortcut?: (action: keyof KeyboardShortcutsConfig, event: KeyboardEvent) => void;
     shortcuts?: Partial<KeyboardShortcutsConfig>;
-    sidebarNames?: string[];
 }
 
 export const KeyboardShortcutsManager: React.FC<KeyboardShortcutsManagerProps> = ({
     children,
     onShortcut,
     shortcuts,
-    sidebarNames = ["left", "right"],
 }) => {
     const userSettings = useConvexQuery(api.auth.functions.getUserSettings);
     const updateUserSettings = useMutation(api.auth.functions.updateUserSettings);

@@ -127,10 +127,35 @@ const RouteComponent = () => {
     return (
         <Authenticated>
             <KeyboardShortcutsManager
-                sidebarNames={["left", "right"]}
                 onShortcut={(action, event) => {
                     // Handle keyboard shortcuts here
-                    console.log("Keyboard shortcut triggered:", action, event);
+                    switch (action) {
+                        case "newChat":
+                            // Navigate to new chat
+                            window.location.href = "/chat";
+                            break;
+                        case "search":
+                            // Focus search input or open search modal
+                            const searchInput = document.querySelector('[data-testid="search-input"]') as HTMLInputElement;
+                            if (searchInput) {
+                                searchInput.focus();
+                            }
+                            break;
+                        case "help":
+                            // Toggle help overlay
+                            const helpButton = document.querySelector('[data-testid="help-button"]') as HTMLButtonElement;
+                            if (helpButton) {
+                                helpButton.click();
+                            }
+                            break;
+                        case "escape":
+                            // Close any open dialogs or modals
+                            const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+                            document.dispatchEvent(escapeEvent);
+                            break;
+                        default:
+                            console.log("Unhandled keyboard shortcut:", action, event);
+                    }
                 }}
             >
                 <ProgrammableSidebarProvider
