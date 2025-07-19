@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { KeyboardShortcutsSettings } from "./keyboard-shortcuts";
-import { DEFAULT_KEYBOARD_SHORTCUTS } from "../../../../components/keyboard-shortcuts-manager";
+import { DEFAULT_KEYBOARD_SHORTCUTS, useKeyboardShortcuts } from "../../../../components/keyboard-shortcuts-manager";
 
 // Mock the keyboard shortcuts context
 vi.mock("../../../../components/keyboard-shortcuts-manager", async () => {
@@ -10,11 +10,11 @@ vi.mock("../../../../components/keyboard-shortcuts-manager", async () => {
         ...actual,
         useKeyboardShortcuts: () => ({
             shortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
-            updateShortcuts: vi.fn(),
+            updateShortcuts: vi.fn().mockResolvedValue(undefined),
             parseShortcut: vi.fn(),
             matchesShortcut: vi.fn(),
         }),
-    };
+    },
 });
 
 describe("KeyboardShortcutsSettings", () => {
@@ -84,5 +84,64 @@ describe("KeyboardShortcutsSettings", () => {
         Object.entries(DEFAULT_KEYBOARD_SHORTCUTS).forEach(([key, value]) => {
             expect(screen.getByText(value)).toBeInTheDocument();
         });
+    });
+
+    it("should show error alert when save fails", async () => {
+        // Mock the updateShortcuts to throw an error
+        const mockUpdateShortcuts = vi.fn().mockRejectedValue(new Error("Network error"));
+        (useKeyboardShortcuts as any).mockReturnValue({
+            shortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
+            updateShortcuts: mockUpdateShortcuts,
+            parseShortcut: vi.fn(),
+            matchesShortcut: vi.fn(),
+        });
+
+        render(<KeyboardShortcutsSettings />);
+        
+        // Make a change to trigger save button
+        const inputs = screen.getAllByRole("textbox");
+        fireEvent.change(inputs[0], { target: { value: "x" } });
+        
+        // Click save button
+        const saveButton = screen.getByText("Save Changes");
+        fireEvent.click(saveButton);
+        
+        // Wait for error to appear
+        await screen.findByText("Failed to save keyboard shortcuts. Please try again.");
+        
+        // Error alert should be visible
+        expect(screen.getByText("Failed to save keyboard shortcuts. Please try again.")).toBeInTheDocument();
+    });
+
+    it("should clear error when user makes changes", async () => {
+        // Mock the updateShortcuts to throw an error first, then succeed
+        const mockUpdateShortcuts = vi.fn()
+            .mockRejectedValueOnce(new Error("Network error"))
+            .mockResolvedValueOnce(undefined);
+        
+        (useKeyboardShortcuts as any).mockReturnValue({
+            shortcuts: DEFAULT_KEYBOARD_SHORTCUTS,
+            updateShortcuts: mockUpdateShortcuts,
+            parseShortcut: vi.fn(),
+            matchesShortcut: vi.fn(),
+        });
+
+        render(<KeyboardShortcutsSettings />);
+        
+        // Make a change and save (should fail)
+        const inputs = screen.getAllByRole("textbox");
+        fireEvent.change(inputs[0], { target: { value: "x" } });
+        
+        const saveButton = screen.getByText("Save Changes");
+        fireEvent.click(saveButton);
+        
+        // Wait for error to appear
+        await screen.findByText("Failed to save keyboard shortcuts. Please try again.");
+        
+        // Make another change (should clear error)
+        fireEvent.change(inputs[1], { target: { value: "y" } });
+        
+        // Error should be cleared
+        expect(screen.queryByText("Failed to save keyboard shortcuts. Please try again.")).not.toBeInTheDocument();
     });
 });

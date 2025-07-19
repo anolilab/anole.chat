@@ -6,7 +6,7 @@ import { Label } from "@anole/ui/components/label";
 import { Separator } from "@anole/ui/components/separator";
 import { Badge } from "@anole/ui/components/badge";
 import { Alert, AlertDescription } from "@anole/ui/components/alert";
-import { Info, Keyboard, RotateCcw, Save } from "lucide-react";
+import { Info, Keyboard, RotateCcw, Save, AlertCircle } from "lucide-react";
 import { useKeyboardShortcuts, DEFAULT_KEYBOARD_SHORTCUTS } from "../../../../components/keyboard-shortcuts-manager";
 
 interface ShortcutInputProps {
@@ -105,19 +105,24 @@ export const KeyboardShortcutsSettings: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [localShortcuts, setLocalShortcuts] = useState(shortcuts);
+    const [error, setError] = useState<string | null>(null);
 
     const handleShortcutChange = (key: keyof typeof shortcuts, value: string) => {
         setLocalShortcuts(prev => ({ ...prev, [key]: value }));
         setHasChanges(true);
+        setError(null); // Clear error when user makes changes
     };
 
     const handleSave = async () => {
         setIsSaving(true);
+        setError(null); // Clear any previous errors
+        
         try {
             await updateShortcuts(localShortcuts);
             setHasChanges(false);
         } catch (error) {
             console.error("Failed to save keyboard shortcuts:", error);
+            setError("Failed to save keyboard shortcuts. Please try again.");
         } finally {
             setIsSaving(false);
         }
@@ -126,6 +131,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
     const handleResetAll = async () => {
         setLocalShortcuts(DEFAULT_KEYBOARD_SHORTCUTS);
         setHasChanges(true);
+        setError(null); // Clear error when resetting
     };
 
     const shortcutConfigs = [
@@ -177,6 +183,15 @@ export const KeyboardShortcutsSettings: React.FC = () => {
                     You can use combinations like Ctrl+K, Cmd+Shift+N, etc.
                 </AlertDescription>
             </Alert>
+
+            {error && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                        {error}
+                    </AlertDescription>
+                </Alert>
+            )}
 
             <Card>
                 <CardHeader>
