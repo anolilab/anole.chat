@@ -32,8 +32,9 @@
         "./package.json": "./package.json"
     },
     "scripts": {
-        "lint": "eslint . --ext .ts,.tsx",
+        "clean": "rimraf node_modules dist .eslintcache",
         "dev": "convex dev --local --typecheck=disable",
+        "lint": "eslint . --ext .ts,.tsx",
         "lint:eslint": "eslint . --cache --cache-location .eslint.cache.json",
         "lint:eslint:fix": "eslint . --fix --cache --cache-location .eslint.cache.json",
         "lint:prettier": "prettier .",
@@ -89,6 +90,7 @@
         "eslint-plugin-validate-jsx-nesting": "^0.1.1",
         "eslint-plugin-zod": "^1.4.0",
         "prettier": "^3.6.2",
+        "rimraf": "^6.0.1",
         "typescript": "^5.8.3"
     }
 }

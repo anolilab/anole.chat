@@ -2,15 +2,15 @@
     "name": "@anole/ui",
     "version": "1.0.0",
     "private": true,
+    "sideEffects": [
+        "**/*.css"
+    ],
     "exports": {
         "./components/*": "./src/components/*.tsx",
         "./utils/*": "./src/utils/*.ts",
         "./hooks/*": "./src/hooks/*.ts",
         "./global.css": "./src/global.css"
     },
-    "sideEffects": [
-        "**/*.css"
-    ],
     "files": [
         "./src/globals.css"
     ],
@@ -32,7 +32,6 @@
         "@tanstack/react-table": "^8.21.3",
         "@tanstack/react-virtual": "^3.13.12",
         "@uidotdev/usehooks": "^2.4.1",
-        "next-themes": "^0.4.6",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "1.1.1",
@@ -42,6 +41,7 @@
         "jsonfile": "^6.1.0",
         "lucide-react": "^0.525.0",
         "motion": "^12.23.6",
+        "next-themes": "^0.4.6",
         "postcss": "^8.5.6",
         "radix-ui": "1.4.2",
         "react-day-picker": "9.8.0",
@@ -62,7 +62,7 @@
         "prettier-plugin-tailwindcss": "0.6.14",
         "react": "19.1.0",
         "react-dom": "19.1.0",
-        "typescript": "^5.8.3",
-        "rimraf": "^6.0.1"
+        "rimraf": "^6.0.1",
+        "typescript": "^5.8.3"
     }
 }
