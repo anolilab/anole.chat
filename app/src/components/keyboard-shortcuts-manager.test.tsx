@@ -1,0 +1,68 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { KeyboardShortcutsManager, useKeyboardShortcuts } from "./keyboard-shortcuts-manager";
+
+// Mock Convex
+vi.mock("convex/react", () => ({
+    useConvexQuery: vi.fn(() => ({ keyboardShortcuts: {} })),
+    useMutation: vi.fn(() => vi.fn()),
+}));
+
+// Test component to access context
+const TestComponent = () => {
+    const { shortcuts } = useKeyboardShortcuts();
+    return (
+        <div>
+            <div data-testid="sidebar-left">{shortcuts.sidebarLeft}</div>
+            <div data-testid="sidebar-right">{shortcuts.sidebarRight}</div>
+            <div data-testid="new-chat">{shortcuts.newChat}</div>
+        </div>
+    );
+};
+
+describe("KeyboardShortcutsManager", () => {
+    it("should provide default shortcuts", () => {
+        render(
+            <KeyboardShortcutsManager>
+                <TestComponent />
+            </KeyboardShortcutsManager>
+        );
+
+        expect(screen.getByTestId("sidebar-left")).toHaveTextContent("b");
+        expect(screen.getByTestId("sidebar-right")).toHaveTextContent("l");
+        expect(screen.getByTestId("new-chat")).toHaveTextContent("n");
+    });
+
+    it("should handle keyboard events", () => {
+        const onShortcut = vi.fn();
+        
+        render(
+            <KeyboardShortcutsManager onShortcut={onShortcut}>
+                <div>Test</div>
+            </KeyboardShortcutsManager>
+        );
+
+        // Simulate pressing 'b' key
+        fireEvent.keyDown(document, { key: "b" });
+        
+        expect(onShortcut).toHaveBeenCalledWith("sidebarLeft", expect.any(Object));
+    });
+
+    it("should not handle shortcuts when typing in input", () => {
+        const onShortcut = vi.fn();
+        
+        render(
+            <KeyboardShortcutsManager onShortcut={onShortcut}>
+                <input data-testid="input" />
+            </KeyboardShortcutsManager>
+        );
+
+        const input = screen.getByTestId("input");
+        input.focus();
+        
+        // Simulate pressing 'b' key while input is focused
+        fireEvent.keyDown(input, { key: "b" });
+        
+        expect(onShortcut).not.toHaveBeenCalled();
+    });
+});

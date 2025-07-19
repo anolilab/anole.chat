@@ -4,6 +4,8 @@ import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 
 import { AutoGuestSignIn } from "@/features/auth/components/auto-guest-signin";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
+import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
+import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
 
 const defaultOpen = ["left"];
 const keyboardShortcuts = { left: "b", right: "l" };
@@ -23,10 +25,18 @@ const RouteComponent = () => (
         </Unauthenticated>
         <Authenticated>
             <AiModelProvider>
-                {/* TODO: check why the bg-sidebar with inset variant is not working */}
-                <SidebarProvider defaultOpen={defaultOpen} keyboardShortcuts={keyboardShortcuts} sidebarNames={sidebarNames} style={sidebarStyle}>
-                    <Outlet />
-                </SidebarProvider>
+                <KeyboardShortcutsManager
+                    sidebarNames={["left", "right"]}
+                    onShortcut={(action, event) => {
+                        // Handle keyboard shortcuts here
+                        console.log("Keyboard shortcut triggered:", action, event);
+                    }}
+                >
+                    {/* TODO: check why the bg-sidebar with inset variant is not working */}
+                    <ProgrammableSidebarProvider defaultOpen={defaultOpen} sidebarNames={sidebarNames} style={sidebarStyle}>
+                        <Outlet />
+                    </ProgrammableSidebarProvider>
+                </KeyboardShortcutsManager>
             </AiModelProvider>
         </Authenticated>
     </>

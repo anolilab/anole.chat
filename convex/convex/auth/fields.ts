@@ -34,6 +34,16 @@ export const userSettingsFields = {
             v.literal("button"),
         ),
     ),
+    keyboardShortcuts: v.optional(
+        v.object({
+            sidebarLeft: v.optional(v.string()),
+            sidebarRight: v.optional(v.string()),
+            newChat: v.optional(v.string()),
+            search: v.optional(v.string()),
+            help: v.optional(v.string()),
+            escape: v.optional(v.string()),
+        }),
+    ),
 };
 
 export const aiUserPreferencesFields = {

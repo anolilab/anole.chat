@@ -3,7 +3,7 @@ import { ScrollArea } from "@anole/ui/components/scroll-area";
 import { SidebarInset, SidebarProvider } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
-import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
+import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap, Keyboard } from "lucide-react";
 import { Fragment } from "react";
 
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
@@ -12,6 +12,8 @@ import type { NavItem } from "@/features/layout/components/nav-items";
 import { NavItems } from "@/features/layout/components/nav-items";
 import SiteHeader from "@/features/layout/components/site-header";
 import { getAuthRedirectUrl } from "@/lib/utils";
+import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
+import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
 
 const sidebarHeader = (
     <div className="flex items-center gap-2 px-4 py-2">
@@ -64,6 +66,11 @@ const getNavigationItems = (apiKey: unknown, organization: unknown) => {
                 icon: Shield,
                 name: "Security",
                 url: "/dashboard/settings/auth/security",
+            },
+            {
+                icon: Keyboard,
+                name: "Keyboard Shortcuts",
+                url: "/dashboard/settings/keyboard-shortcuts",
             },
             apiKey && {
                 icon: Key,
@@ -119,52 +126,59 @@ const RouteComponent = () => {
 
     return (
         <Authenticated>
-            <SidebarProvider
-                defaultOpen={["left"]}
-                keyboardShortcuts={{ left: "b", right: "l" }}
+            <KeyboardShortcutsManager
                 sidebarNames={["left", "right"]}
-                style={
-                    {
-                        "--header-height": "calc(var(--spacing) * 8.5)",
-                        "--sidebar-width": "calc(var(--spacing) * 94)",
-                    } as React.CSSProperties
-                }
+                onShortcut={(action, event) => {
+                    // Handle keyboard shortcuts here
+                    console.log("Keyboard shortcut triggered:", action, event);
+                }}
             >
-                <div className="flex h-dvh w-full">
-                    <AppSidebar content={sidebarContent} header={sidebarHeader} />
-                    <SidebarInset className="bg-white">
-                        <SiteHeader>
-                            <Breadcrumb>
-                                <BreadcrumbList>
-                                    {breadcrumbItems.map((item, index) => (
-                                        <Fragment key={item.href}>
-                                            <BreadcrumbItem>
-                                                {item.isLast
-                                                    ? (
-                                                        <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
-                                                    )
-                                                    : (
-                                                        <BreadcrumbLink
-                                                            className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
-                                                            href={item.href}
-                                                        >
-                                                            {item.label}
-                                                        </BreadcrumbLink>
-                                                    )}
-                                            </BreadcrumbItem>
-                                            {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
-                                        </Fragment>
-                                    ))}
-                                </BreadcrumbList>
-                            </Breadcrumb>
-                        </SiteHeader>
+                <ProgrammableSidebarProvider
+                    defaultOpen={["left"]}
+                    sidebarNames={["left", "right"]}
+                    style={
+                        {
+                            "--header-height": "calc(var(--spacing) * 8.5)",
+                            "--sidebar-width": "calc(var(--spacing) * 94)",
+                        } as React.CSSProperties
+                    }
+                >
+                    <div className="flex h-dvh w-full">
+                        <AppSidebar content={sidebarContent} header={sidebarHeader} />
+                        <SidebarInset className="bg-white">
+                            <SiteHeader>
+                                <Breadcrumb>
+                                    <BreadcrumbList>
+                                        {breadcrumbItems.map((item, index) => (
+                                            <Fragment key={item.href}>
+                                                <BreadcrumbItem>
+                                                    {item.isLast
+                                                        ? (
+                                                            <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
+                                                        )
+                                                        : (
+                                                            <BreadcrumbLink
+                                                                className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
+                                                                href={item.href}
+                                                            >
+                                                                {item.label}
+                                                            </BreadcrumbLink>
+                                                        )}
+                                                </BreadcrumbItem>
+                                                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
+                                            </Fragment>
+                                        ))}
+                                    </BreadcrumbList>
+                                </Breadcrumb>
+                            </SiteHeader>
 
-                        <ScrollArea className="h-full w-full overflow-hidden p-4">
-                            <Outlet />
-                        </ScrollArea>
-                    </SidebarInset>
-                </div>
-            </SidebarProvider>
+                            <ScrollArea className="h-full w-full overflow-hidden p-4">
+                                <Outlet />
+                            </ScrollArea>
+                        </SidebarInset>
+                    </div>
+                </ProgrammableSidebarProvider>
+            </KeyboardShortcutsManager>
         </Authenticated>
     );
 };
