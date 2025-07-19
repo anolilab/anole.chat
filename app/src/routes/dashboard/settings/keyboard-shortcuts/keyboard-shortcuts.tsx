@@ -15,6 +15,7 @@ interface ShortcutInputProps {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    shortcutKey: keyof typeof DEFAULT_KEYBOARD_SHORTCUTS;
 }
 
 const ShortcutInput: React.FC<ShortcutInputProps> = ({
@@ -23,6 +24,7 @@ const ShortcutInput: React.FC<ShortcutInputProps> = ({
     value,
     onChange,
     placeholder = "Press keys...",
+    shortcutKey,
 }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [tempValue, setTempValue] = useState(value);
@@ -60,7 +62,7 @@ const ShortcutInput: React.FC<ShortcutInputProps> = ({
     };
 
     const handleReset = () => {
-        onChange(DEFAULT_KEYBOARD_SHORTCUTS[label as keyof typeof DEFAULT_KEYBOARD_SHORTCUTS] || "");
+        onChange(DEFAULT_KEYBOARD_SHORTCUTS[shortcutKey] || "");
     };
 
     return (
@@ -195,6 +197,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
                                 description={config.description}
                                 value={localShortcuts[config.key] || ""}
                                 onChange={(value) => handleShortcutChange(config.key, value)}
+                                shortcutKey={config.key}
                             />
                         ))}
                     </div>
