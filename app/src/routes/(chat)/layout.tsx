@@ -6,6 +6,7 @@ import { AutoGuestSignIn } from "@/features/auth/components/auto-guest-signin";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
 import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
 import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
+import { useKeyboardShortcutHandler } from "@/hooks/use-keyboard-shortcut-handler";
 
 const defaultOpen = ["left"];
 const keyboardShortcuts = { left: "b", right: "l" };
@@ -15,48 +16,20 @@ const sidebarStyle = {
     "--sidebar-width": "calc(var(--spacing) * 94)",
 } as React.CSSProperties;
 
-const RouteComponent = () => (
-    <>
-        <AuthLoading>
-            <div>Loading...</div>
-        </AuthLoading>
-        <Unauthenticated>
-            <AutoGuestSignIn />
-        </Unauthenticated>
-        <Authenticated>
-            <AiModelProvider>
-                <KeyboardShortcutsManager
-                    onShortcut={(action, event) => {
-                        // Handle keyboard shortcuts here
-                        switch (action) {
-                            case "newChat":
-                                // Navigate to new chat
-                                window.location.href = "/chat";
-                                break;
-                            case "search":
-                                // Focus search input or open search modal
-                                const searchInput = document.querySelector('[data-testid="search-input"]') as HTMLInputElement;
-                                if (searchInput) {
-                                    searchInput.focus();
-                                }
-                                break;
-                            case "help":
-                                // Toggle help overlay
-                                const helpButton = document.querySelector('[data-testid="help-button"]') as HTMLButtonElement;
-                                if (helpButton) {
-                                    helpButton.click();
-                                }
-                                break;
-                            case "escape":
-                                // Close any open dialogs or modals
-                                const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
-                                document.dispatchEvent(escapeEvent);
-                                break;
-                            default:
-                                console.log("Unhandled keyboard shortcut:", action, event);
-                        }
-                    }}
-                >
+const RouteComponent = () => {
+    const handleShortcut = useKeyboardShortcutHandler();
+    
+    return (
+        <>
+            <AuthLoading>
+                <div>Loading...</div>
+            </AuthLoading>
+            <Unauthenticated>
+                <AutoGuestSignIn />
+            </Unauthenticated>
+            <Authenticated>
+                <AiModelProvider>
+                    <KeyboardShortcutsManager onShortcut={handleShortcut}>
                     <ProgrammableSidebarProvider defaultOpen={defaultOpen} sidebarNames={sidebarNames} style={sidebarStyle}>
                         <Outlet />
                     </ProgrammableSidebarProvider>

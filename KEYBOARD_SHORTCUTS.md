@@ -27,6 +27,11 @@ The keyboard shortcuts system has been refactored to be fully programmable, allo
    - Settings page for customizing shortcuts
    - Provides visual interface for shortcut configuration
 
+4. **useKeyboardShortcutHandler** (`app/src/hooks/use-keyboard-shortcut-handler.ts`)
+   - Reusable hook for handling keyboard shortcut actions
+   - Provides consistent behavior across all layouts
+   - Handles navigation, search, help, and escape actions
+
 ### Database Schema
 
 The `userSettings` table has been extended with a `keyboardShortcuts` field that includes validation:
@@ -79,29 +84,13 @@ keyboardShortcuts: v.optional(
 
 ```tsx
 import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
+import { useKeyboardShortcutHandler } from "@/hooks/use-keyboard-shortcut-handler";
 
 function App() {
+    const handleShortcut = useKeyboardShortcutHandler();
+    
     return (
-        <KeyboardShortcutsManager
-            onShortcut={(action, event) => {
-                switch (action) {
-                    case "newChat":
-                        window.location.href = "/chat";
-                        break;
-                    case "search":
-                        const searchInput = document.querySelector('[data-testid="search-input"]');
-                        if (searchInput) searchInput.focus();
-                        break;
-                    case "help":
-                        const helpButton = document.querySelector('[data-testid="help-button"]');
-                        if (helpButton) helpButton.click();
-                        break;
-                    case "escape":
-                        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-                        break;
-                }
-            }}
-        >
+        <KeyboardShortcutsManager onShortcut={handleShortcut}>
             {/* Your app content */}
         </KeyboardShortcutsManager>
     );
@@ -188,8 +177,9 @@ The old hardcoded keyboard shortcuts have been replaced:
 1. **Validation**: Keyboard shortcuts are now validated against a regex pattern
 2. **Extensible**: Sidebar mapping supports arbitrary sidebar names
 3. **Functional**: Actual shortcut handling instead of console logging
-4. **Tested**: Comprehensive test coverage including edge cases
-5. **Clean**: Removed unused imports and props
+4. **Reusable**: Extracted common shortcut logic into `useKeyboardShortcutHandler` hook
+5. **Tested**: Comprehensive test coverage including edge cases
+6. **Clean**: Removed unused imports and props
 
 ## Testing
 

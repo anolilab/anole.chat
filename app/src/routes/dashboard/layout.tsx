@@ -14,6 +14,7 @@ import SiteHeader from "@/features/layout/components/site-header";
 import { getAuthRedirectUrl } from "@/lib/utils";
 import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
 import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
+import { useKeyboardShortcutHandler } from "@/hooks/use-keyboard-shortcut-handler";
 
 const sidebarHeader = (
     <div className="flex items-center gap-2 px-4 py-2">
@@ -98,6 +99,7 @@ const getNavigationItems = (apiKey: unknown, organization: unknown) => {
 
 const RouteComponent = () => {
     const location = useLocation();
+    const handleShortcut = useKeyboardShortcutHandler();
 
     const { pathname } = location;
 
@@ -127,38 +129,7 @@ const RouteComponent = () => {
 
     return (
         <Authenticated>
-            <KeyboardShortcutsManager
-                onShortcut={(action, event) => {
-                    // Handle keyboard shortcuts here
-                    switch (action) {
-                        case "newChat":
-                            // Navigate to new chat
-                            window.location.href = "/chat";
-                            break;
-                        case "search":
-                            // Focus search input or open search modal
-                            const searchInput = document.querySelector('[data-testid="search-input"]') as HTMLInputElement;
-                            if (searchInput) {
-                                searchInput.focus();
-                            }
-                            break;
-                        case "help":
-                            // Toggle help overlay
-                            const helpButton = document.querySelector('[data-testid="help-button"]') as HTMLButtonElement;
-                            if (helpButton) {
-                                helpButton.click();
-                            }
-                            break;
-                        case "escape":
-                            // Close any open dialogs or modals
-                            const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
-                            document.dispatchEvent(escapeEvent);
-                            break;
-                        default:
-                            console.log("Unhandled keyboard shortcut:", action, event);
-                    }
-                }}
-            >
+            <KeyboardShortcutsManager onShortcut={handleShortcut}>
                 <ProgrammableSidebarProvider
                     defaultOpen={["left"]}
                     sidebarNames={["left", "right"]}
