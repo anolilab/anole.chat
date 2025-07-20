@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@anole/ui/components/button";
+import { cn } from "@anole/ui/utils/cn";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
 import { Input } from "@anole/ui/components/input";
 import { Label } from "@anole/ui/components/label";
@@ -16,6 +17,7 @@ interface ShortcutInputProps {
     onChange: (value: string) => void;
     placeholder?: string;
     shortcutKey: keyof typeof DEFAULT_KEYBOARD_SHORTCUTS;
+    error?: string;
 }
 
 const ShortcutInput: React.FC<ShortcutInputProps> = ({
@@ -25,6 +27,7 @@ const ShortcutInput: React.FC<ShortcutInputProps> = ({
     onChange,
     placeholder = "Press keys...",
     shortcutKey,
+    error,
 }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [tempValue, setTempValue] = useState(value);
@@ -88,13 +91,19 @@ const ShortcutInput: React.FC<ShortcutInputProps> = ({
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 placeholder={placeholder}
-                className="font-mono text-sm"
+                className={cn(
+                    "font-mono text-sm",
+                    error && "border-destructive focus-visible:ring-destructive"
+                )}
                 readOnly
             />
             {isRecording && (
                 <Badge variant="secondary" className="text-xs">
                     Recording... Press keys
                 </Badge>
+            )}
+            {error && (
+                <p className="text-xs text-destructive">{error}</p>
             )}
         </div>
     );
@@ -106,16 +115,51 @@ export const KeyboardShortcutsSettings: React.FC = () => {
     const [hasChanges, setHasChanges] = useState(false);
     const [localShortcuts, setLocalShortcuts] = useState(shortcuts);
     const [error, setError] = useState<string | null>(null);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+    // Check for duplicate shortcuts
+    const validateShortcuts = (shortcuts: typeof localShortcuts) => {
+        const errors: Record<string, string> = {};
+        const shortcutValues = Object.values(shortcuts).filter(Boolean);
+        const duplicates = shortcutValues.filter((value, index) => 
+            shortcutValues.indexOf(value) !== index
+        );
+
+        if (duplicates.length > 0) {
+            const duplicateValue = duplicates[0];
+            Object.entries(shortcuts).forEach(([key, value]) => {
+                if (value === duplicateValue) {
+                    errors[key] = `This shortcut is already used by another action`;
+                }
+            });
+        }
+
+        return errors;
+    };
 
     const handleShortcutChange = (key: keyof typeof shortcuts, value: string) => {
-        setLocalShortcuts(prev => ({ ...prev, [key]: value }));
+        const newShortcuts = { ...localShortcuts, [key]: value };
+        setLocalShortcuts(newShortcuts);
         setHasChanges(true);
         setError(null); // Clear error when user makes changes
+        
+        // Validate for duplicates
+        const errors = validateShortcuts(newShortcuts);
+        setValidationErrors(errors);
     };
 
     const handleSave = async () => {
+        // Check for validation errors before saving
+        const errors = validateShortcuts(localShortcuts);
+        if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            setError("Please fix the duplicate shortcuts before saving.");
+            return;
+        }
+
         setIsSaving(true);
         setError(null); // Clear any previous errors
+        setValidationErrors({}); // Clear validation errors
         
         try {
             await updateShortcuts(localShortcuts);
@@ -132,6 +176,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
         setLocalShortcuts(DEFAULT_KEYBOARD_SHORTCUTS);
         setHasChanges(true);
         setError(null); // Clear error when resetting
+        setValidationErrors({}); // Clear validation errors when resetting
     };
 
     const shortcutConfigs = [
@@ -213,6 +258,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
                                 value={localShortcuts[config.key] || ""}
                                 onChange={(value) => handleShortcutChange(config.key, value)}
                                 shortcutKey={config.key}
+                                error={validationErrors[config.key]}
                             />
                         ))}
                     </div>
@@ -231,7 +277,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 
                         <Button
                             onClick={handleSave}
-                            disabled={!hasChanges || isSaving}
+                            disabled={!hasChanges || isSaving || Object.keys(validationErrors).length > 0}
                         >
                             <Save className="mr-2 h-4 w-4" />
                             {isSaving ? "Saving..." : "Save Changes"}

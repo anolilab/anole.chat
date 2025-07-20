@@ -144,4 +144,61 @@ describe("KeyboardShortcutsSettings", () => {
         // Error should be cleared
         expect(screen.queryByText("Failed to save keyboard shortcuts. Please try again.")).not.toBeInTheDocument();
     });
+
+    it("should show validation error for duplicate shortcuts", () => {
+        render(<KeyboardShortcutsSettings />);
+        
+        const inputs = screen.getAllByRole("textbox");
+        
+        // Set the same shortcut for two different actions
+        fireEvent.change(inputs[0], { target: { value: "Ctrl+K" } }); // First input
+        fireEvent.change(inputs[1], { target: { value: "Ctrl+K" } }); // Second input
+        
+        // Should show validation error
+        expect(screen.getAllByText("This shortcut is already used by another action")).toHaveLength(2);
+        
+        // Save button should be disabled
+        const saveButton = screen.getByText("Save Changes");
+        expect(saveButton).toBeDisabled();
+    });
+
+    it("should clear validation errors when duplicates are resolved", () => {
+        render(<KeyboardShortcutsSettings />);
+        
+        const inputs = screen.getAllByRole("textbox");
+        
+        // Set the same shortcut for two different actions
+        fireEvent.change(inputs[0], { target: { value: "Ctrl+K" } });
+        fireEvent.change(inputs[1], { target: { value: "Ctrl+K" } });
+        
+        // Should show validation error
+        expect(screen.getAllByText("This shortcut is already used by another action")).toHaveLength(2);
+        
+        // Change one of them to a different shortcut
+        fireEvent.change(inputs[1], { target: { value: "Ctrl+L" } });
+        
+        // Validation errors should be cleared
+        expect(screen.queryByText("This shortcut is already used by another action")).not.toBeInTheDocument();
+        
+        // Save button should be enabled
+        const saveButton = screen.getByText("Save Changes");
+        expect(saveButton).not.toBeDisabled();
+    });
+
+    it("should prevent saving with duplicate shortcuts", () => {
+        render(<KeyboardShortcutsSettings />);
+        
+        const inputs = screen.getAllByRole("textbox");
+        
+        // Set the same shortcut for two different actions
+        fireEvent.change(inputs[0], { target: { value: "Ctrl+K" } });
+        fireEvent.change(inputs[1], { target: { value: "Ctrl+K" } });
+        
+        // Try to save
+        const saveButton = screen.getByText("Save Changes");
+        fireEvent.click(saveButton);
+        
+        // Should show error message
+        expect(screen.getByText("Please fix the duplicate shortcuts before saving.")).toBeInTheDocument();
+    });
 });
