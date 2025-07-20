@@ -50,8 +50,9 @@ import type { DownloadFormat } from "@/lib/download";
 import { handleDownload } from "@/lib/download";
 import { ValidationError } from "@/lib/errors";
 import { showError, showSuccess } from "@/lib/toast";
-import ThreadTagFilter from "./thread-tag-filter";
+
 import ThreadTagEditor from "./thread-tag-editor";
+import ThreadTagFilter from "./thread-tag-filter";
 
 // Type definitions for thread hierarchy
 interface BranchNode {
@@ -166,9 +167,7 @@ const HierarchicalThreadList: FC<
     // Get all threads to build the hierarchy
     const threadsData = useQuery(
         selectedTag ? api.chat.functions.getThreadsByTag : api.chat.functions.getThreads,
-        selectedTag 
-            ? { tag: selectedTag, paginationOpts: { cursor: null, numItems: 100 } }
-            : { paginationOpts: { cursor: null, numItems: 100 } }
+        selectedTag ? { paginationOpts: { cursor: null, numItems: 100 }, tag: selectedTag } : { paginationOpts: { cursor: null, numItems: 100 } },
     );
     const pinnedThreads = useQuery(api.chat.functions.getPinnedThreads);
     const threadOrders = useQuery(api.chat.functions.getThreadOrders);
@@ -735,8 +734,8 @@ const HierarchicalThreadList: FC<
 
                     break;
                 }
-                case "a":
 
+                case "a":
                 case "A": {
                     if (isCtrlOrCmd && currentThreadId) {
                         event.preventDefault();
@@ -795,7 +794,6 @@ const HierarchicalThreadList: FC<
                     break;
                 }
                 case "d":
-
                 case "D": {
                     if (isCtrlOrCmd && currentThreadId) {
                         event.preventDefault();
@@ -826,7 +824,6 @@ const HierarchicalThreadList: FC<
                 }
 
                 case "f":
-
                 case "F": {
                     if (isCtrlOrCmd) {
                         event.preventDefault();
@@ -837,7 +834,6 @@ const HierarchicalThreadList: FC<
                 }
 
                 case "n":
-
                 case "N": {
                     if (isCtrlOrCmd) {
                         event.preventDefault();
@@ -1042,12 +1038,12 @@ const HierarchicalThreadList: FC<
 
                         {/* Thread tag editor */}
                         <ThreadTagEditor
-                            threadId={node.threadId}
                             currentTags={node.tags}
                             onTagsUpdated={(newTags) => {
                                 // Refresh the thread list to show the updated tags
                                 // The query will automatically refetch
                             }}
+                            threadId={node.threadId}
                         />
 
                         {/* Action buttons */}
@@ -1330,7 +1326,7 @@ const HierarchicalThreadList: FC<
         }
 
         return (
-            <div className="bg-background/95 absolute inset-0 z-50 rounded-lg border p-4 backdrop-blur-sm">
+            <div className="bg-background/95 inset-0 z-50 rounded-lg border p-4 backdrop-blur-sm">
                 <ShortcutsProvider keyMappings={customMappings}>
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -1709,10 +1705,7 @@ const ThreadList: FC = () => {
                         >
                             {t`Messages`}
                         </Button>
-                        <ThreadTagFilter
-                            selectedTag={selectedTag}
-                            onTagChange={setSelectedTag}
-                        />
+                        <ThreadTagFilter onTagChange={setSelectedTag} selectedTag={selectedTag} />
                     </div>
                     <div className="relative">
                         <Input

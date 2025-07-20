@@ -3,18 +3,18 @@ import { ScrollArea } from "@anole/ui/components/scroll-area";
 import { SidebarInset, SidebarProvider } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
-import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap, Keyboard } from "lucide-react";
+import { Building, ChartArea, Key, Keyboard, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
 import { Fragment } from "react";
 
+import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
+import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import AppSidebar from "@/features/layout/components/app-sidebar";
 import type { NavItem } from "@/features/layout/components/nav-items";
 import { NavItems } from "@/features/layout/components/nav-items";
 import SiteHeader from "@/features/layout/components/site-header";
+import useKeyboardShortcutHandler from "@/hooks/use-keyboard-shortcut-handler";
 import { getAuthRedirectUrl } from "@/lib/utils";
-import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
-import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
-import { useKeyboardShortcutHandler } from "@/hooks/use-keyboard-shortcut-handler";
 
 const sidebarHeader = (
     <div className="flex items-center gap-2 px-4 py-2">

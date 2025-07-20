@@ -1,56 +1,52 @@
-import React from "react";
 import { SidebarProvider, useSidebar } from "@anole/ui/components/sidebar";
+import React from "react";
+
 import { useKeyboardShortcuts } from "./keyboard-shortcuts-manager";
 
-interface ProgrammableSidebarProviderProps<T extends string> {
+interface ProgrammableSidebarProviderProperties<T extends string> {
     children: React.ReactNode;
+    className?: string;
     defaultOpen?: "all" | T[];
     sidebarNames: ReadonlyArray<T>;
     style?: React.CSSProperties;
-    className?: string;
 }
 
-export function ProgrammableSidebarProvider<T extends string>({
+export const ProgrammableSidebarProvider = <T extends string>({
     children,
+    className,
     defaultOpen = "all",
     sidebarNames,
     style,
-    className,
-}: ProgrammableSidebarProviderProps<T>) {
+}: ProgrammableSidebarProviderProperties<T>) => {
     const { shortcuts } = useKeyboardShortcuts();
 
     // Create keyboard shortcuts mapping for sidebars
     const keyboardShortcuts = React.useMemo(() => {
         const mapping: Partial<Record<T, string>> = {};
-        
+
         // Map known sidebar shortcuts
         const sidebarShortcutMap: Record<string, keyof typeof shortcuts> = {
-            "left": "sidebarLeft",
-            "right": "sidebarRight"
+            left: "sidebarLeft",
+            right: "sidebarRight",
         };
-        
+
         sidebarNames.forEach((name) => {
             const shortcutKey = sidebarShortcutMap[name as string];
+
             if (shortcutKey && shortcuts[shortcutKey]) {
                 mapping[name] = shortcuts[shortcutKey] as string;
             }
         });
-        
+
         return mapping;
     }, [sidebarNames, shortcuts]);
 
     return (
-        <SidebarProvider
-            defaultOpen={defaultOpen}
-            keyboardShortcuts={keyboardShortcuts}
-            sidebarNames={sidebarNames}
-            style={style}
-            className={className}
-        >
+        <SidebarProvider className={className} defaultOpen={defaultOpen} keyboardShortcuts={keyboardShortcuts} sidebarNames={sidebarNames} style={style}>
             {children}
         </SidebarProvider>
     );
-}
+};
 
 // Hook to use programmable sidebar
 export function useProgrammableSidebar<T extends string>(name: T) {

@@ -1,11 +1,14 @@
 import { renderHook } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { useKeyboardShortcutHandler } from "./use-keyboard-shortcut-handler";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import useKeyboardShortcutHandler from "./use-keyboard-shortcut-handler";
 
 // Mock TanStack Router
-vi.mock("@tanstack/react-router", () => ({
-    useNavigate: () => vi.fn(),
-}));
+vi.mock("@tanstack/react-router", () => {
+    return {
+        useNavigate: () => vi.fn(),
+    };
+});
 
 // Mock document methods
 const mockQuerySelector = vi.fn();
@@ -14,12 +17,12 @@ const mockClick = vi.fn();
 const mockBlur = vi.fn();
 const mockDispatchEvent = vi.fn();
 
-Object.defineProperty(document, 'querySelector', {
+Object.defineProperty(document, "querySelector", {
     value: mockQuerySelector,
     writable: true,
 });
 
-Object.defineProperty(document, 'dispatchEvent', {
+Object.defineProperty(document, "dispatchEvent", {
     value: mockDispatchEvent,
     writable: true,
 });
@@ -34,7 +37,8 @@ describe("useKeyboardShortcutHandler", () => {
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: 'n' });
+        const mockEvent = new KeyboardEvent("keydown", { key: "n" });
+
         handleShortcut("newChat", mockEvent);
 
         // Note: We can't easily test navigation without more complex mocking
@@ -44,20 +48,23 @@ describe("useKeyboardShortcutHandler", () => {
 
     it("should handle search action with data-search-input", () => {
         const mockSearchInput = { focus: mockFocus };
+
         mockQuerySelector.mockReturnValueOnce(mockSearchInput);
 
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: 'k' });
+        const mockEvent = new KeyboardEvent("keydown", { key: "k" });
+
         handleShortcut("search", mockEvent);
 
-        expect(mockQuerySelector).toHaveBeenCalledWith('[data-search-input]');
+        expect(mockQuerySelector).toHaveBeenCalledWith("[data-search-input]");
         expect(mockFocus).toHaveBeenCalled();
     });
 
     it("should handle search action with data-testid", () => {
         const mockSearchInput = { focus: mockFocus };
+
         mockQuerySelector
             .mockReturnValueOnce(null) // First call for data-search-input
             .mockReturnValueOnce(mockSearchInput); // Second call for data-testid
@@ -65,30 +72,34 @@ describe("useKeyboardShortcutHandler", () => {
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: 'k' });
+        const mockEvent = new KeyboardEvent("keydown", { key: "k" });
+
         handleShortcut("search", mockEvent);
 
-        expect(mockQuerySelector).toHaveBeenCalledWith('[data-testid="search-input"]');
+        expect(mockQuerySelector).toHaveBeenCalledWith("[data-testid=\"search-input\"]");
         expect(mockFocus).toHaveBeenCalled();
     });
 
     it("should handle help action with help button", () => {
         const mockHelpButton = { click: mockClick };
+
         mockQuerySelector.mockReturnValueOnce(mockHelpButton);
 
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: '?' });
+        const mockEvent = new KeyboardEvent("keydown", { key: "?" });
+
         handleShortcut("help", mockEvent);
 
-        expect(mockQuerySelector).toHaveBeenCalledWith('[data-testid="help-button"]');
+        expect(mockQuerySelector).toHaveBeenCalledWith("[data-testid=\"help-button\"]");
         expect(mockClick).toHaveBeenCalled();
     });
 
     it("should handle escape action with active input element", () => {
-        const mockActiveElement = { tagName: 'INPUT', blur: mockBlur };
-        Object.defineProperty(document, 'activeElement', {
+        const mockActiveElement = { blur: mockBlur, tagName: "INPUT" };
+
+        Object.defineProperty(document, "activeElement", {
             value: mockActiveElement,
             writable: true,
         });
@@ -96,14 +107,15 @@ describe("useKeyboardShortcutHandler", () => {
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+        const mockEvent = new KeyboardEvent("keydown", { key: "Escape" });
+
         handleShortcut("escape", mockEvent);
 
         expect(mockBlur).toHaveBeenCalled();
     });
 
     it("should handle escape action without active input", () => {
-        Object.defineProperty(document, 'activeElement', {
+        Object.defineProperty(document, "activeElement", {
             value: null,
             writable: true,
         });
@@ -111,14 +123,15 @@ describe("useKeyboardShortcutHandler", () => {
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+        const mockEvent = new KeyboardEvent("keydown", { key: "Escape" });
+
         handleShortcut("escape", mockEvent);
 
         expect(mockDispatchEvent).toHaveBeenCalledWith(
             expect.objectContaining({
-                type: 'keydown',
-                key: 'Escape'
-            })
+                key: "Escape",
+                type: "keydown",
+            }),
         );
     });
 
@@ -126,24 +139,25 @@ describe("useKeyboardShortcutHandler", () => {
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: 'b' });
-        
+        const mockEvent = new KeyboardEvent("keydown", { key: "b" });
+
         // These should not throw errors
         expect(() => handleShortcut("sidebarLeft", mockEvent)).not.toThrow();
         expect(() => handleShortcut("sidebarRight", mockEvent)).not.toThrow();
     });
 
     it("should handle unknown actions", () => {
-        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(vi.fn());
-        
+        const consoleSpy = vi.spyOn(console, "log").mockImplementation(vi.fn());
+
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;
 
-        const mockEvent = new KeyboardEvent('keydown', { key: 'x' });
+        const mockEvent = new KeyboardEvent("keydown", { key: "x" });
+
         handleShortcut("unknownAction" as any, mockEvent);
 
         expect(consoleSpy).toHaveBeenCalledWith("Unhandled keyboard shortcut:", "unknownAction", mockEvent);
-        
+
         consoleSpy.mockRestore();
     });
 });

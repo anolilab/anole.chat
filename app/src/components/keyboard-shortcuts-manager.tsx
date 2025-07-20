@@ -1,50 +1,55 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import { useMutation } from "convex/react";
 import { api } from "@anole/convex/api";
+import { useMutation, useQuery as useConvexQuery } from "convex/react";
+import React, { useCallback, useEffect, useMemo } from "react";
+
+// Context for keyboard shortcuts
+interface KeyboardShortcutsContextType {
+    matchesShortcut: (event: KeyboardEvent, shortcutString: string) => boolean;
+    parseShortcut: (shortcutString: string) => KeyboardShortcut;
+    shortcuts: KeyboardShortcutsConfig;
+    updateShortcuts: (shortcuts: Partial<KeyboardShortcutsConfig>) => Promise<void>;
+}
+
+const KeyboardShortcutsContext = React.createContext<KeyboardShortcutsContextType | null>(null);
 
 export interface KeyboardShortcut {
-    key: string;
+    altKey?: boolean;
     ctrlKey?: boolean;
+    key: string;
     metaKey?: boolean;
     shiftKey?: boolean;
-    altKey?: boolean;
 }
 
 export interface KeyboardShortcutsConfig {
-    sidebarLeft?: string;
-    sidebarRight?: string;
+    escape?: string;
+    help?: string;
     newChat?: string;
     search?: string;
-    help?: string;
-    escape?: string;
+    sidebarLeft?: string;
+    sidebarRight?: string;
 }
 
 export const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcutsConfig = {
-    sidebarLeft: "b",
-    sidebarRight: "l",
+    escape: "Escape",
+    help: "?",
     newChat: "n",
     search: "k",
-    help: "?",
-    escape: "Escape",
+    sidebarLeft: "b",
+    sidebarRight: "l",
 };
 
-interface KeyboardShortcutsManagerProps {
+export const KeyboardShortcutsManager: React.FC<{
     children: React.ReactNode;
     onShortcut?: (action: keyof KeyboardShortcutsConfig, event: KeyboardEvent) => void;
     shortcuts?: Partial<KeyboardShortcutsConfig>;
-}
-
-export const KeyboardShortcutsManager: React.FC<KeyboardShortcutsManagerProps> = ({
-    children,
-    onShortcut,
-    shortcuts,
-}) => {
+}> = ({ children, onShortcut, shortcuts }) => {
     const userSettings = useConvexQuery(api.auth.functions.getUserSettings);
     const updateUserSettings = useMutation(api.auth.functions.updateUserSettings);
 
     // Merge user settings with defaults and props
     const effectiveShortcuts = useMemo(() => {
         const userShortcuts = userSettings?.keyboardShortcuts || {};
+
         return {
             ...DEFAULT_KEYBOARD_SHORTCUTS,
             ...userShortcuts,
@@ -58,97 +63,98 @@ export const KeyboardShortcutsManager: React.FC<KeyboardShortcutsManagerProps> =
         const key = parts[parts.length - 1];
 
         return {
-            key,
+            altKey: parts.includes("alt"),
             ctrlKey: parts.includes("ctrl"),
+            key,
             metaKey: parts.includes("cmd") || parts.includes("meta"),
             shiftKey: parts.includes("shift"),
-            altKey: parts.includes("alt"),
         };
     }, []);
 
     // Check if keyboard event matches a shortcut
-    const matchesShortcut = useCallback((event: KeyboardEvent, shortcutString: string): boolean => {
-        const shortcut = parseShortcut(shortcutString);
+    const matchesShortcut = useCallback(
+        (event: KeyboardEvent, shortcutString: string): boolean => {
+            const shortcut = parseShortcut(shortcutString);
 
-        return (
-            event.key.toLowerCase() === shortcut.key &&
-            !!event.ctrlKey === !!shortcut.ctrlKey &&
-            !!event.metaKey === !!shortcut.metaKey &&
-            !!event.shiftKey === !!shortcut.shiftKey &&
-            !!event.altKey === !!shortcut.altKey
-        );
-    }, [parseShortcut]);
+            return (
+                event.key.toLowerCase() === shortcut.key
+                && !!event.ctrlKey === !!shortcut.ctrlKey
+                && !!event.metaKey === !!shortcut.metaKey
+                && !!event.shiftKey === !!shortcut.shiftKey
+                && !!event.altKey === !!shortcut.altKey
+            );
+        },
+        [parseShortcut],
+    );
 
     // Handle keyboard events
-    const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        // Don't handle shortcuts if user is typing in an input
-        if (
-            event.target instanceof HTMLInputElement ||
-            event.target instanceof HTMLTextAreaElement ||
-            event.target instanceof HTMLSelectElement ||
-            (event.target as HTMLElement)?.contentEditable === "true"
-        ) {
-            return;
-        }
-
-        // Check each shortcut
-        Object.entries(effectiveShortcuts).forEach(([action, shortcutString]) => {
-            if (shortcutString && matchesShortcut(event, shortcutString)) {
-                event.preventDefault();
-                onShortcut?.(action as keyof KeyboardShortcutsConfig, event);
+    const handleKeyDown = useCallback(
+        (event: KeyboardEvent) => {
+            // Don't handle shortcuts if user is typing in an input
+            if (
+                event.target instanceof HTMLInputElement
+                || event.target instanceof HTMLTextAreaElement
+                || event.target instanceof HTMLSelectElement
+                || (event.target as HTMLElement)?.contentEditable === "true"
+            ) {
+                return;
             }
-        });
-    }, [effectiveShortcuts, matchesShortcut, onShortcut]);
+
+            // Check each shortcut
+            Object.entries(effectiveShortcuts).forEach(([action, shortcutString]) => {
+                if (shortcutString && matchesShortcut(event, shortcutString)) {
+                    event.preventDefault();
+                    onShortcut?.(action as keyof KeyboardShortcutsConfig, event);
+                }
+            });
+        },
+        [effectiveShortcuts, matchesShortcut, onShortcut],
+    );
 
     // Add event listener
     useEffect(() => {
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        globalThis.addEventListener("keydown", handleKeyDown);
+
+        return () => globalThis.removeEventListener("keydown", handleKeyDown);
     }, [handleKeyDown]);
 
     // Update user settings with new shortcuts
-    const updateShortcuts = useCallback(async (newShortcuts: Partial<KeyboardShortcutsConfig>) => {
-        const currentShortcuts = userSettings?.keyboardShortcuts || {};
-        const updatedShortcuts = { ...currentShortcuts, ...newShortcuts };
+    const updateShortcuts = useCallback(
+        async (newShortcuts: Partial<KeyboardShortcutsConfig>) => {
+            const currentShortcuts = userSettings?.keyboardShortcuts || {};
+            const updatedShortcuts = { ...currentShortcuts, ...newShortcuts };
 
-        await updateUserSettings({ keyboardShortcuts: updatedShortcuts });
-    }, [userSettings?.keyboardShortcuts, updateUserSettings]);
+            await updateUserSettings({ keyboardShortcuts: updatedShortcuts });
+        },
+        [userSettings?.keyboardShortcuts, updateUserSettings],
+    );
 
     // Context value for child components
-    const contextValue = useMemo(() => ({
-        shortcuts: effectiveShortcuts,
-        updateShortcuts,
-        parseShortcut,
-        matchesShortcut,
-    }), [effectiveShortcuts, updateShortcuts, parseShortcut, matchesShortcut]);
+    const contextValue = useMemo(() => {
+        return {
+            matchesShortcut,
+            parseShortcut,
+            shortcuts: effectiveShortcuts,
+            updateShortcuts,
+        };
+    }, [effectiveShortcuts, updateShortcuts, parseShortcut, matchesShortcut]);
 
-    return (
-        <KeyboardShortcutsContext.Provider value={contextValue}>
-            {children}
-        </KeyboardShortcutsContext.Provider>
-    );
+    return <KeyboardShortcutsContext value={contextValue}>{children}</KeyboardShortcutsContext>;
 };
 
-// Context for keyboard shortcuts
-interface KeyboardShortcutsContextType {
-    shortcuts: KeyboardShortcutsConfig;
-    updateShortcuts: (shortcuts: Partial<KeyboardShortcutsConfig>) => Promise<void>;
-    parseShortcut: (shortcutString: string) => KeyboardShortcut;
-    matchesShortcut: (event: KeyboardEvent, shortcutString: string) => boolean;
-}
-
-const KeyboardShortcutsContext = React.createContext<KeyboardShortcutsContextType | null>(null);
-
 export const useKeyboardShortcuts = () => {
-    const context = React.useContext(KeyboardShortcutsContext);
+    const context = React.use(KeyboardShortcutsContext);
+
     if (!context) {
         throw new Error("useKeyboardShortcuts must be used within KeyboardShortcutsManager");
     }
+
     return context;
 };
 
 // Hook for specific shortcut actions
 export const useShortcut = (action: keyof KeyboardShortcutsConfig) => {
     const { shortcuts } = useKeyboardShortcuts();
+
     return shortcuts[action];
 };

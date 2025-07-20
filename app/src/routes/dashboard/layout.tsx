@@ -1,20 +1,20 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@anole/ui/components/breadcrumb";
 import { ScrollArea } from "@anole/ui/components/scroll-area";
-import { SidebarInset, SidebarProvider } from "@anole/ui/components/sidebar";
+import { SidebarInset } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
-import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap, Keyboard } from "lucide-react";
+import { Building, ChartArea, Key, Keyboard, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
 import { Fragment } from "react";
 
+import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
+import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import AppSidebar from "@/features/layout/components/app-sidebar";
 import type { NavItem } from "@/features/layout/components/nav-items";
 import { NavItems } from "@/features/layout/components/nav-items";
 import SiteHeader from "@/features/layout/components/site-header";
+import useKeyboardShortcutHandler from "@/hooks/use-keyboard-shortcut-handler";
 import { getAuthRedirectUrl } from "@/lib/utils";
-import { KeyboardShortcutsManager } from "@/components/keyboard-shortcuts-manager";
-import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
-import { useKeyboardShortcutHandler } from "@/hooks/use-keyboard-shortcut-handler";
 
 const sidebarHeader = (
     <div className="flex items-center gap-2 px-4 py-2">
@@ -57,7 +57,14 @@ const getNavigationItems = (apiKey: unknown, organization: unknown) => {
                 url: "/dashboard/settings/ai/usage-analytics",
             },
         ],
-        settings: [
+        app: [
+            {
+                icon: Keyboard,
+                name: "Keyboard Shortcuts",
+                url: "/dashboard/settings/app/keyboard-shortcuts",
+            },
+        ],
+        auth: [
             {
                 icon: User,
                 name: "Account",
@@ -67,11 +74,6 @@ const getNavigationItems = (apiKey: unknown, organization: unknown) => {
                 icon: Shield,
                 name: "Security",
                 url: "/dashboard/settings/auth/security",
-            },
-            {
-                icon: Keyboard,
-                name: "Keyboard Shortcuts",
-                url: "/dashboard/settings/keyboard-shortcuts",
             },
             apiKey && {
                 icon: Key,
@@ -122,8 +124,9 @@ const RouteComponent = () => {
 
     const sidebarContent = (
         <>
+            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.app} label="App" />
             <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
-            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
+            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.auth} label="Auth" />
         </>
     );
 
