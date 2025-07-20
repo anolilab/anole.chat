@@ -11,11 +11,13 @@ export function useKeyboardShortcutHandler() {
         navigate({ to: "/chat/new" });
         break;
       case "search":
-        // Trigger search modal or focus search input
-        const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]') || 
-                           document.querySelector<HTMLInputElement>('[data-testid="search-input"]');
-        if (searchInput) {
-          searchInput.focus();
+        case "search": {
+          // Trigger search modal or focus search input
+          const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]') || 
+                              document.querySelector<HTMLInputElement>('[data-testid="search-input"]');
+          if (searchInput) {
+            searchInput.focus();
+          }
         }
         break;
       case "help":
