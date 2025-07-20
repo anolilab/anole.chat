@@ -1,14 +1,5 @@
 import { v } from "convex/values";
 
-// Custom validator for keyboard shortcuts
-const keyboardShortcutValidator = v.custom((value: string) => {
-    // Enhanced validation for shortcut format
-    // Allows: single keys, modifier combinations, function keys, special keys
-    const validPattern = /^((ctrl|cmd|meta|alt|shift)\+)*(f\d{1,2}|arrow(up|down|left|right)|space|enter|escape|tab|backspace|delete|[a-z0-9?])$/i;
-
-    return validPattern.test(value);
-});
-
 export const userSettingsFields = {
     codeFont: v.optional(
         v.union(
@@ -45,12 +36,12 @@ export const userSettingsFields = {
     ),
     keyboardShortcuts: v.optional(
         v.object({
-            sidebarLeft: v.optional(keyboardShortcutValidator),
-            sidebarRight: v.optional(keyboardShortcutValidator),
-            newChat: v.optional(keyboardShortcutValidator),
-            search: v.optional(keyboardShortcutValidator),
-            help: v.optional(keyboardShortcutValidator),
-            escape: v.optional(keyboardShortcutValidator),
+            sidebarLeft: v.optional(v.string()),
+            sidebarRight: v.optional(v.string()),
+            newChat: v.optional(v.string()),
+            search: v.optional(v.string()),
+            help: v.optional(v.string()),
+            escape: v.optional(v.string()),
         }),
     ),
 };

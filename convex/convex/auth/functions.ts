@@ -55,6 +55,21 @@ const makeSettingsUpsertMutation = (
                 .withIndex("by_userId", (q) => q.eq("userId", userId))
                 .unique();
 
+            if (tableName === "userSettings") {
+                // Enhanced validation for shortcut format
+                // Allows: single keys, modifier combinations, function keys, special keys
+                const validPattern = /^((ctrl|cmd|meta|alt|shift)\+)*(f\d{1,2}|arrow(up|down|left|right)|space|enter|escape|tab|backspace|delete|[a-z0-9?])$/i;
+
+                if (toStore.keyboardShortcuts) {
+                    for (const key in toStore.keyboardShortcuts) {
+                        if (!validPattern.test(toStore.keyboardShortcuts[key])) {
+                            throw new Error("Invalid keyboard shortcut");
+                        }
+                    }
+                }
+            }
+
+
             if (settings) {
                 await context.db.patch(settings._id, toStore);
             } else {
