@@ -14,7 +14,7 @@ vi.mock("../../../../components/keyboard-shortcuts-manager", async () => {
             parseShortcut: vi.fn(),
             matchesShortcut: vi.fn(),
         }),
-    },
+    };
 });
 
 describe("KeyboardShortcutsSettings", () => {
