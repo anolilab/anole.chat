@@ -1,7 +1,7 @@
 import { SidebarProvider, useSidebar } from "@anole/ui/components/sidebar";
 import React from "react";
 
-import { useKeyboardShortcuts } from "./keyboard-shortcuts-manager";
+import { useKeyboardShortcuts } from "../features/keyboard/components/keyboard-shortcuts-manager";
 
 interface ProgrammableSidebarProviderProperties<T extends string> {
     children: React.ReactNode;

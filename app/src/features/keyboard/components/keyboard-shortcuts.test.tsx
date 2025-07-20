@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { DEFAULT_KEYBOARD_SHORTCUTS, useKeyboardShortcuts } from "@/components/keyboard-shortcuts-manager";
+import { DEFAULT_KEYBOARD_SHORTCUTS, useKeyboardShortcuts } from "@/features/keyboard/components/keyboard-shortcuts-manager";
 
 import KeyboardShortcutsSettings from "./keyboard-shortcuts";
 

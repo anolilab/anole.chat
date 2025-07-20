@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
 
-import type { KeyboardShortcutsConfig } from "@/components/keyboard-shortcuts-manager";
+import type { KeyboardShortcutsConfig } from "@/features/keyboard/components/keyboard-shortcuts-manager";
 
 const useKeyboardShortcutHandler = () => {
     const navigate = useNavigate();

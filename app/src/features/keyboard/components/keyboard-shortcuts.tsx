@@ -10,7 +10,7 @@ import { AlertCircle, Info, Keyboard, RotateCcw, Save } from "lucide-react";
 import type { FC, KeyboardEvent } from "react";
 import { useState } from "react";
 
-import { DEFAULT_KEYBOARD_SHORTCUTS, useKeyboardShortcuts } from "@/components/keyboard-shortcuts-manager";
+import { DEFAULT_KEYBOARD_SHORTCUTS, useKeyboardShortcuts } from "@/features/keyboard/components/keyboard-shortcuts-manager";
 
 interface ShortcutInputProperties {
     description: string;
