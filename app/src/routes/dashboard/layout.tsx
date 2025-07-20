@@ -1,16 +1,19 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@anole/ui/components/breadcrumb";
 import { ScrollArea } from "@anole/ui/components/scroll-area";
-import { SidebarInset, SidebarProvider } from "@anole/ui/components/sidebar";
+import { SidebarInset } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { Authenticated } from "convex/react";
-import { Building, ChartArea, Key, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
+import { Building, ChartArea, Key, Keyboard, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
 import { Fragment } from "react";
 
+import { KeyboardShortcutsManager } from "@/features/keyboard/components/keyboard-shortcuts-manager";
+import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import AppSidebar from "@/features/layout/components/app-sidebar";
 import type { NavItem } from "@/features/layout/components/nav-items";
 import { NavItems } from "@/features/layout/components/nav-items";
 import SiteHeader from "@/features/layout/components/site-header";
+import useKeyboardShortcutHandler from "@/features/keyboard/hooks/use-keyboard-shortcut-handler";
 import { getAuthRedirectUrl } from "@/lib/utils";
 
 const sidebarHeader = (
@@ -54,7 +57,14 @@ const getNavigationItems = (apiKey: unknown, organization: unknown) => {
                 url: "/dashboard/settings/ai/usage-analytics",
             },
         ],
-        settings: [
+        app: [
+            {
+                icon: Keyboard,
+                name: "Keyboard Shortcuts",
+                url: "/dashboard/settings/app/keyboard-shortcuts",
+            },
+        ],
+        auth: [
             {
                 icon: User,
                 name: "Account",
@@ -91,6 +101,7 @@ const getNavigationItems = (apiKey: unknown, organization: unknown) => {
 
 const RouteComponent = () => {
     const location = useLocation();
+    const handleShortcut = useKeyboardShortcutHandler();
 
     const { pathname } = location;
 
@@ -113,59 +124,61 @@ const RouteComponent = () => {
 
     const sidebarContent = (
         <>
+            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.app} label="App" />
             <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.ai} label="Ai" />
-            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.settings} label="Settings" />
+            <NavItems classes={{ group: "pl-2" }} colorMode="dark" items={navigationItems.auth} label="Auth" />
         </>
     );
 
     return (
         <Authenticated>
-            <SidebarProvider
-                defaultOpen={["left"]}
-                keyboardShortcuts={{ left: "b", right: "l" }}
-                sidebarNames={["left", "right"]}
-                style={
-                    {
-                        "--header-height": "calc(var(--spacing) * 8.5)",
-                        "--sidebar-width": "calc(var(--spacing) * 94)",
-                    } as React.CSSProperties
-                }
-            >
-                <div className="flex h-dvh w-full">
-                    <AppSidebar content={sidebarContent} header={sidebarHeader} />
-                    <SidebarInset className="bg-white">
-                        <SiteHeader>
-                            <Breadcrumb>
-                                <BreadcrumbList>
-                                    {breadcrumbItems.map((item, index) => (
-                                        <Fragment key={item.href}>
-                                            <BreadcrumbItem>
-                                                {item.isLast
-                                                    ? (
-                                                        <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
-                                                    )
-                                                    : (
-                                                        <BreadcrumbLink
-                                                            className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
-                                                            href={item.href}
-                                                        >
-                                                            {item.label}
-                                                        </BreadcrumbLink>
-                                                    )}
-                                            </BreadcrumbItem>
-                                            {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
-                                        </Fragment>
-                                    ))}
-                                </BreadcrumbList>
-                            </Breadcrumb>
-                        </SiteHeader>
+            <KeyboardShortcutsManager onShortcut={handleShortcut}>
+                <ProgrammableSidebarProvider
+                    defaultOpen={["left"]}
+                    sidebarNames={["left", "right"]}
+                    style={
+                        {
+                            "--header-height": "calc(var(--spacing) * 8.5)",
+                            "--sidebar-width": "calc(var(--spacing) * 94)",
+                        } as React.CSSProperties
+                    }
+                >
+                    <div className="flex h-dvh w-full">
+                        <AppSidebar content={sidebarContent} header={sidebarHeader} />
+                        <SidebarInset className="bg-white">
+                            <SiteHeader>
+                                <Breadcrumb>
+                                    <BreadcrumbList>
+                                        {breadcrumbItems.map((item, index) => (
+                                            <Fragment key={item.href}>
+                                                <BreadcrumbItem>
+                                                    {item.isLast
+                                                        ? (
+                                                            <BreadcrumbPage className="text-foreground font-medium">{item.label}</BreadcrumbPage>
+                                                        )
+                                                        : (
+                                                            <BreadcrumbLink
+                                                                className="text-muted-foreground hover:text-foreground text-sm capitalize transition-colors dark:hover:text-white"
+                                                                href={item.href}
+                                                            >
+                                                                {item.label}
+                                                            </BreadcrumbLink>
+                                                        )}
+                                                </BreadcrumbItem>
+                                                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator className="text-muted-foreground mx-2" />}
+                                            </Fragment>
+                                        ))}
+                                    </BreadcrumbList>
+                                </Breadcrumb>
+                            </SiteHeader>
 
-                        <ScrollArea className="h-full w-full overflow-hidden p-4">
-                            <Outlet />
-                        </ScrollArea>
-                    </SidebarInset>
-                </div>
-            </SidebarProvider>
+                            <ScrollArea className="h-full w-full overflow-hidden p-4">
+                                <Outlet />
+                            </ScrollArea>
+                        </SidebarInset>
+                    </div>
+                </ProgrammableSidebarProvider>
+            </KeyboardShortcutsManager>
         </Authenticated>
     );
 };

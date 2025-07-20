@@ -228,8 +228,6 @@ const SidebarProvider = <T extends string>({
     // Add keyboard shortcuts
     React.useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (!(event.metaKey || event.ctrlKey)) return;
-
             // Check each sidebar's shortcut
             Object.entries(keyboardShortcuts ?? {}).forEach(
                 ([name, shortcut]) => {

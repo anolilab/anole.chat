@@ -38,6 +38,7 @@ import { Route as DashboardSettingsAuthOrganizationRouteImport } from './routes/
 import { Route as DashboardSettingsAuthMembersRouteImport } from './routes/dashboard/settings/auth/members'
 import { Route as DashboardSettingsAuthApiKeysRouteImport } from './routes/dashboard/settings/auth/api-keys'
 import { Route as DashboardSettingsAuthAccountRouteImport } from './routes/dashboard/settings/auth/account'
+import { Route as DashboardSettingsAppKeyboardShortcutsRouteImport } from './routes/dashboard/settings/app/keyboard-shortcuts'
 import { Route as DashboardSettingsAiUsageAnalyticsRouteImport } from './routes/dashboard/settings/ai/usage-analytics'
 import { Route as DashboardSettingsAiProvidersRouteImport } from './routes/dashboard/settings/ai/providers'
 import { Route as DashboardSettingsAiPersonalizationRouteImport } from './routes/dashboard/settings/ai/personalization'
@@ -188,6 +189,12 @@ const DashboardSettingsAuthAccountRoute =
     path: '/settings/auth/account',
     getParentRoute: () => DashboardLayoutRoute,
   } as any)
+const DashboardSettingsAppKeyboardShortcutsRoute =
+  DashboardSettingsAppKeyboardShortcutsRouteImport.update({
+    id: '/settings/app/keyboard-shortcuts',
+    path: '/settings/app/keyboard-shortcuts',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
 const DashboardSettingsAiUsageAnalyticsRoute =
   DashboardSettingsAiUsageAnalyticsRouteImport.update({
     id: '/settings/ai/usage-analytics',
@@ -253,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/ai/personalization': typeof DashboardSettingsAiPersonalizationRoute
   '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
   '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
+  '/dashboard/settings/app/keyboard-shortcuts': typeof DashboardSettingsAppKeyboardShortcutsRoute
   '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
   '/dashboard/settings/auth/api-keys': typeof DashboardSettingsAuthApiKeysRoute
   '/dashboard/settings/auth/members': typeof DashboardSettingsAuthMembersRoute
@@ -284,6 +292,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings/ai/personalization': typeof DashboardSettingsAiPersonalizationRoute
   '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
   '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
+  '/dashboard/settings/app/keyboard-shortcuts': typeof DashboardSettingsAppKeyboardShortcutsRoute
   '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
   '/dashboard/settings/auth/api-keys': typeof DashboardSettingsAuthApiKeysRoute
   '/dashboard/settings/auth/members': typeof DashboardSettingsAuthMembersRoute
@@ -319,6 +328,7 @@ export interface FileRoutesById {
   '/dashboard/settings/ai/personalization': typeof DashboardSettingsAiPersonalizationRoute
   '/dashboard/settings/ai/providers': typeof DashboardSettingsAiProvidersRoute
   '/dashboard/settings/ai/usage-analytics': typeof DashboardSettingsAiUsageAnalyticsRoute
+  '/dashboard/settings/app/keyboard-shortcuts': typeof DashboardSettingsAppKeyboardShortcutsRoute
   '/dashboard/settings/auth/account': typeof DashboardSettingsAuthAccountRoute
   '/dashboard/settings/auth/api-keys': typeof DashboardSettingsAuthApiKeysRoute
   '/dashboard/settings/auth/members': typeof DashboardSettingsAuthMembersRoute
@@ -353,6 +363,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/ai/personalization'
     | '/dashboard/settings/ai/providers'
     | '/dashboard/settings/ai/usage-analytics'
+    | '/dashboard/settings/app/keyboard-shortcuts'
     | '/dashboard/settings/auth/account'
     | '/dashboard/settings/auth/api-keys'
     | '/dashboard/settings/auth/members'
@@ -384,6 +395,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/ai/personalization'
     | '/dashboard/settings/ai/providers'
     | '/dashboard/settings/ai/usage-analytics'
+    | '/dashboard/settings/app/keyboard-shortcuts'
     | '/dashboard/settings/auth/account'
     | '/dashboard/settings/auth/api-keys'
     | '/dashboard/settings/auth/members'
@@ -418,6 +430,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/ai/personalization'
     | '/dashboard/settings/ai/providers'
     | '/dashboard/settings/ai/usage-analytics'
+    | '/dashboard/settings/app/keyboard-shortcuts'
     | '/dashboard/settings/auth/account'
     | '/dashboard/settings/auth/api-keys'
     | '/dashboard/settings/auth/members'
@@ -653,6 +666,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsAuthAccountRouteImport
       parentRoute: typeof DashboardLayoutRoute
     }
+    '/dashboard/settings/app/keyboard-shortcuts': {
+      id: '/dashboard/settings/app/keyboard-shortcuts'
+      path: '/settings/app/keyboard-shortcuts'
+      fullPath: '/dashboard/settings/app/keyboard-shortcuts'
+      preLoaderRoute: typeof DashboardSettingsAppKeyboardShortcutsRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
     '/dashboard/settings/ai/usage-analytics': {
       id: '/dashboard/settings/ai/usage-analytics'
       path: '/settings/ai/usage-analytics'
@@ -773,6 +793,7 @@ interface DashboardLayoutRouteChildren {
   DashboardSettingsAiPersonalizationRoute: typeof DashboardSettingsAiPersonalizationRoute
   DashboardSettingsAiProvidersRoute: typeof DashboardSettingsAiProvidersRoute
   DashboardSettingsAiUsageAnalyticsRoute: typeof DashboardSettingsAiUsageAnalyticsRoute
+  DashboardSettingsAppKeyboardShortcutsRoute: typeof DashboardSettingsAppKeyboardShortcutsRoute
   DashboardSettingsAuthAccountRoute: typeof DashboardSettingsAuthAccountRoute
   DashboardSettingsAuthApiKeysRoute: typeof DashboardSettingsAuthApiKeysRoute
   DashboardSettingsAuthMembersRoute: typeof DashboardSettingsAuthMembersRoute
@@ -790,6 +811,8 @@ const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
   DashboardSettingsAiProvidersRoute: DashboardSettingsAiProvidersRoute,
   DashboardSettingsAiUsageAnalyticsRoute:
     DashboardSettingsAiUsageAnalyticsRoute,
+  DashboardSettingsAppKeyboardShortcutsRoute:
+    DashboardSettingsAppKeyboardShortcutsRoute,
   DashboardSettingsAuthAccountRoute: DashboardSettingsAuthAccountRoute,
   DashboardSettingsAuthApiKeysRoute: DashboardSettingsAuthApiKeysRoute,
   DashboardSettingsAuthMembersRoute: DashboardSettingsAuthMembersRoute,

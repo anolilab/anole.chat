@@ -1,9 +1,11 @@
-import { SidebarProvider } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 
+import { KeyboardShortcutsManager } from "@/features/keyboard/components/keyboard-shortcuts-manager";
+import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
 import { AutoGuestSignIn } from "@/features/auth/components/auto-guest-signin";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
+import useKeyboardShortcutHandler from "@/features/keyboard/hooks/use-keyboard-shortcut-handler";
 
 const defaultOpen = ["left"];
 const keyboardShortcuts = { left: "b", right: "l" };
@@ -13,24 +15,29 @@ const sidebarStyle = {
     "--sidebar-width": "calc(var(--spacing) * 94)",
 } as React.CSSProperties;
 
-const RouteComponent = () => (
-    <>
-        <AuthLoading>
-            <div>Loading...</div>
-        </AuthLoading>
-        <Unauthenticated>
-            <AutoGuestSignIn />
-        </Unauthenticated>
-        <Authenticated>
-            <AiModelProvider>
-                {/* TODO: check why the bg-sidebar with inset variant is not working */}
-                <SidebarProvider defaultOpen={defaultOpen} keyboardShortcuts={keyboardShortcuts} sidebarNames={sidebarNames} style={sidebarStyle}>
-                    <Outlet />
-                </SidebarProvider>
-            </AiModelProvider>
-        </Authenticated>
-    </>
-);
+const RouteComponent = () => {
+    const handleShortcut = useKeyboardShortcutHandler();
+
+    return (
+        <>
+            <AuthLoading>
+                <div>Loading...</div>
+            </AuthLoading>
+            <Unauthenticated>
+                <AutoGuestSignIn />
+            </Unauthenticated>
+            <Authenticated>
+                <AiModelProvider>
+                    <KeyboardShortcutsManager onShortcut={handleShortcut}>
+                        <ProgrammableSidebarProvider defaultOpen={defaultOpen} sidebarNames={sidebarNames} style={sidebarStyle}>
+                            <Outlet />
+                        </ProgrammableSidebarProvider>
+                    </KeyboardShortcutsManager>
+                </AiModelProvider>
+            </Authenticated>
+        </>
+    );
+};
 
 export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,

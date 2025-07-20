@@ -64,30 +64,28 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             queryFn: ({ signal }) => fetchAuth({ signal }),
         });
 
-        const { user, session, token } = auth;
-
         // During SSR only (the only time serverHttpClient exists),
         // set the auth token to make HTTP queries with.
-        if (token) {
-            ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
+        if (auth.token) {
+            ctx.context.convexQueryClient.serverHttpClient?.setAuth(auth.token);
         }
 
         // transform all time strings to date objects
-        if (user) {
-            user.createdAt = new Date(user.createdAt);
-            user.updatedAt = new Date(user.updatedAt);
+        if (auth.user) {
+            auth.user.createdAt = new Date(auth.user.createdAt);
+            auth.user.updatedAt = new Date(auth.user.updatedAt);
         }
 
-        if (session) {
-            session.createdAt = new Date(session.createdAt);
-            session.updatedAt = new Date(session.updatedAt);
-            session.expiresAt = new Date(session.expiresAt);
+        if (auth.session) {
+            auth.session.createdAt = new Date(auth.session.createdAt);
+            auth.session.updatedAt = new Date(auth.session.updatedAt);
+            auth.session.expiresAt = new Date(auth.session.expiresAt);
         }
 
         return {
-            user,
-            session,
-            token,
+            user: auth.user,
+            session: auth.session,
+            token: auth.token,
         };
     },
     head: () => ({

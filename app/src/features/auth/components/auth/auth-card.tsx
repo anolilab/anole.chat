@@ -32,6 +32,7 @@ const LAST_SIGNIN_CLASSNAMES = {
     container: "justify-center",
     text: "text-center",
 };
+
 interface AuthFormSectionProperties {
     callbackURL?: string;
     classNames?: AuthCardClassNames;
@@ -85,6 +86,7 @@ const AuthFormSection: FC<AuthFormSectionProperties> = ({
         </div>
     );
 };
+
 interface SocialSectionProperties {
     callbackURL?: string;
     classNames?: AuthCardClassNames;
