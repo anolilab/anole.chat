@@ -31,13 +31,15 @@ export function useKeyboardShortcutHandler() {
         }
         break;
       case "escape":
-        // Close modals, blur inputs, etc.
-        const activeElement = document.activeElement as HTMLElement;
-        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-          activeElement.blur();
-        } else {
-          // Dispatch escape event to close any open dialogs
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        {
+          // Close modals, blur inputs, etc.
+          const activeElement = document.activeElement as HTMLElement;
+          if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+            activeElement.blur();
+          } else {
+            // Dispatch escape event to close any open dialogs
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+          }
         }
         break;
       // sidebarLeft and sidebarRight are handled by ProgrammableSidebarProvider
