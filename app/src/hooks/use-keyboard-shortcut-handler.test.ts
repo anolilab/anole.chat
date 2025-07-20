@@ -134,7 +134,7 @@ describe("useKeyboardShortcutHandler", () => {
     });
 
     it("should handle unknown actions", () => {
-        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(vi.fn());
         
         const { result } = renderHook(() => useKeyboardShortcutHandler());
         const handleShortcut = result.current;

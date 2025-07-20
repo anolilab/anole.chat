@@ -36,18 +36,35 @@ const ShortcutInput: React.FC<ShortcutInputProps> = ({
         if (!isRecording) return;
 
         event.preventDefault();
-        
+
+        // Skip modifier-only presses
+        if (['Control', 'Meta', 'Shift', 'Alt'].includes(event.key)) {
+            return;
+        }
+
         const modifiers = [];
         if (event.ctrlKey) modifiers.push("Ctrl");
         if (event.metaKey) modifiers.push("Cmd");
         if (event.shiftKey) modifiers.push("Shift");
         if (event.altKey) modifiers.push("Alt");
-        
-        const key = event.key === " " ? "Space" : event.key;
+
+        // Handle special keys
+        const keyMap: Record<string, string> = {
+            " ": "Space",
+            "ArrowUp": "ArrowUp",
+            "ArrowDown": "ArrowDown",
+            "ArrowLeft": "ArrowLeft",
+            "ArrowRight": "ArrowRight",
+            "Enter": "Enter",
+            "Escape": "Escape"
+        };
+
+        const key = keyMap[event.key] || event.key;
+
         if (!modifiers.includes(key)) {
             modifiers.push(key);
         }
-        
+
         const shortcut = modifiers.join("+");
         setTempValue(shortcut);
     };
@@ -121,7 +138,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
     const validateShortcuts = (shortcuts: typeof localShortcuts) => {
         const errors: Record<string, string> = {};
         const shortcutValues = Object.values(shortcuts).filter(Boolean);
-        const duplicates = shortcutValues.filter((value, index) => 
+        const duplicates = shortcutValues.filter((value, index) =>
             shortcutValues.indexOf(value) !== index
         );
 
@@ -142,7 +159,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
         setLocalShortcuts(newShortcuts);
         setHasChanges(true);
         setError(null); // Clear error when user makes changes
-        
+
         // Validate for duplicates
         const errors = validateShortcuts(newShortcuts);
         setValidationErrors(errors);
@@ -160,7 +177,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
         setIsSaving(true);
         setError(null); // Clear any previous errors
         setValidationErrors({}); // Clear validation errors
-        
+
         try {
             await updateShortcuts(localShortcuts);
             setHasChanges(false);
@@ -187,7 +204,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
         },
         {
             key: "sidebarRight" as const,
-            label: "Toggle Right Sidebar", 
+            label: "Toggle Right Sidebar",
             description: "Open or close the right sidebar panel",
         },
         {
@@ -224,7 +241,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
             <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                    Click on any input field and press the keys you want to use for that action. 
+                    Click on any input field and press the keys you want to use for that action.
                     You can use combinations like Ctrl+K, Cmd+Shift+N, etc.
                 </AlertDescription>
             </Alert>
