@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { useConvexQuery, useMutation } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { useMutation } from "convex/react";
+import { api } from "@anole/convex/api";
 
 export interface KeyboardShortcut {
     key: string;
@@ -56,7 +56,7 @@ export const KeyboardShortcutsManager: React.FC<KeyboardShortcutsManagerProps> =
     const parseShortcut = useCallback((shortcutString: string): KeyboardShortcut => {
         const parts = shortcutString.toLowerCase().split("+");
         const key = parts[parts.length - 1];
-        
+
         return {
             key,
             ctrlKey: parts.includes("ctrl"),
@@ -69,7 +69,7 @@ export const KeyboardShortcutsManager: React.FC<KeyboardShortcutsManagerProps> =
     // Check if keyboard event matches a shortcut
     const matchesShortcut = useCallback((event: KeyboardEvent, shortcutString: string): boolean => {
         const shortcut = parseShortcut(shortcutString);
-        
+
         return (
             event.key.toLowerCase() === shortcut.key &&
             !!event.ctrlKey === !!shortcut.ctrlKey &&
@@ -110,7 +110,7 @@ export const KeyboardShortcutsManager: React.FC<KeyboardShortcutsManagerProps> =
     const updateShortcuts = useCallback(async (newShortcuts: Partial<KeyboardShortcutsConfig>) => {
         const currentShortcuts = userSettings?.keyboardShortcuts || {};
         const updatedShortcuts = { ...currentShortcuts, ...newShortcuts };
-        
+
         await updateUserSettings({ keyboardShortcuts: updatedShortcuts });
     }, [userSettings?.keyboardShortcuts, updateUserSettings]);
 

@@ -31,6 +31,7 @@ import { Route as AuthTwoFactorOtpRouteImport } from './routes/auth/two-factor/o
 import { Route as publicThreadPublicTokenRouteImport } from './routes/(public)/thread/$publicToken'
 import { Route as publicInviteInviteTokenRouteImport } from './routes/(public)/invite/$inviteToken'
 import { Route as chatChatThreadIdRouteImport } from './routes/(chat)/chat/$threadId'
+import { Route as DashboardSettingsKeyboardShortcutsIndexRouteImport } from './routes/dashboard/settings/keyboard-shortcuts/index'
 import { Route as AuthAcceptInvitationInvitationIdIndexRouteImport } from './routes/auth/accept-invitation/$invitationId/index'
 import { Route as DashboardSettingsAuthSecurityRouteImport } from './routes/dashboard/settings/auth/security'
 import { Route as DashboardSettingsAuthOrganizationsRouteImport } from './routes/dashboard/settings/auth/organizations'
@@ -146,6 +147,12 @@ const chatChatThreadIdRoute = chatChatThreadIdRouteImport.update({
   path: '/chat/$threadId',
   getParentRoute: () => chatLayoutRoute,
 } as any)
+const DashboardSettingsKeyboardShortcutsIndexRoute =
+  DashboardSettingsKeyboardShortcutsIndexRouteImport.update({
+    id: '/settings/keyboard-shortcuts/',
+    path: '/settings/keyboard-shortcuts/',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
 const AuthAcceptInvitationInvitationIdIndexRoute =
   AuthAcceptInvitationInvitationIdIndexRouteImport.update({
     id: '/accept-invitation/$invitationId/',
@@ -260,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/auth/organizations': typeof DashboardSettingsAuthOrganizationsRoute
   '/dashboard/settings/auth/security': typeof DashboardSettingsAuthSecurityRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdIndexRoute
+  '/dashboard/settings/keyboard-shortcuts': typeof DashboardSettingsKeyboardShortcutsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
@@ -291,6 +299,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings/auth/organizations': typeof DashboardSettingsAuthOrganizationsRoute
   '/dashboard/settings/auth/security': typeof DashboardSettingsAuthSecurityRoute
   '/auth/accept-invitation/$invitationId': typeof AuthAcceptInvitationInvitationIdIndexRoute
+  '/dashboard/settings/keyboard-shortcuts': typeof DashboardSettingsKeyboardShortcutsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -326,6 +335,7 @@ export interface FileRoutesById {
   '/dashboard/settings/auth/organizations': typeof DashboardSettingsAuthOrganizationsRoute
   '/dashboard/settings/auth/security': typeof DashboardSettingsAuthSecurityRoute
   '/auth/accept-invitation/$invitationId/': typeof AuthAcceptInvitationInvitationIdIndexRoute
+  '/dashboard/settings/keyboard-shortcuts/': typeof DashboardSettingsKeyboardShortcutsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/auth/organizations'
     | '/dashboard/settings/auth/security'
     | '/auth/accept-invitation/$invitationId'
+    | '/dashboard/settings/keyboard-shortcuts'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/auth/organizations'
     | '/dashboard/settings/auth/security'
     | '/auth/accept-invitation/$invitationId'
+    | '/dashboard/settings/keyboard-shortcuts'
   id:
     | '__root__'
     | '/(chat)'
@@ -425,6 +437,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/auth/organizations'
     | '/dashboard/settings/auth/security'
     | '/auth/accept-invitation/$invitationId/'
+    | '/dashboard/settings/keyboard-shortcuts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -604,6 +617,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof chatChatThreadIdRouteImport
       parentRoute: typeof chatLayoutRoute
     }
+    '/dashboard/settings/keyboard-shortcuts/': {
+      id: '/dashboard/settings/keyboard-shortcuts/'
+      path: '/settings/keyboard-shortcuts'
+      fullPath: '/dashboard/settings/keyboard-shortcuts'
+      preLoaderRoute: typeof DashboardSettingsKeyboardShortcutsIndexRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
     '/auth/accept-invitation/$invitationId/': {
       id: '/auth/accept-invitation/$invitationId/'
       path: '/accept-invitation/$invitationId'
@@ -779,6 +799,7 @@ interface DashboardLayoutRouteChildren {
   DashboardSettingsAuthOrganizationRoute: typeof DashboardSettingsAuthOrganizationRoute
   DashboardSettingsAuthOrganizationsRoute: typeof DashboardSettingsAuthOrganizationsRoute
   DashboardSettingsAuthSecurityRoute: typeof DashboardSettingsAuthSecurityRoute
+  DashboardSettingsKeyboardShortcutsIndexRoute: typeof DashboardSettingsKeyboardShortcutsIndexRoute
 }
 
 const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
@@ -798,6 +819,8 @@ const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
   DashboardSettingsAuthOrganizationsRoute:
     DashboardSettingsAuthOrganizationsRoute,
   DashboardSettingsAuthSecurityRoute: DashboardSettingsAuthSecurityRoute,
+  DashboardSettingsKeyboardShortcutsIndexRoute:
+    DashboardSettingsKeyboardShortcutsIndexRoute,
 }
 
 const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(

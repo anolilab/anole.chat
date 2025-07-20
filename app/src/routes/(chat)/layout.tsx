@@ -1,4 +1,3 @@
-import { SidebarProvider } from "@anole/ui/components/sidebar";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 
@@ -18,7 +17,7 @@ const sidebarStyle = {
 
 const RouteComponent = () => {
     const handleShortcut = useKeyboardShortcutHandler();
-    
+
     return (
         <>
             <AuthLoading>
@@ -30,14 +29,15 @@ const RouteComponent = () => {
             <Authenticated>
                 <AiModelProvider>
                     <KeyboardShortcutsManager onShortcut={handleShortcut}>
-                    <ProgrammableSidebarProvider defaultOpen={defaultOpen} sidebarNames={sidebarNames} style={sidebarStyle}>
-                        <Outlet />
-                    </ProgrammableSidebarProvider>
-                </KeyboardShortcutsManager>
-            </AiModelProvider>
-        </Authenticated>
-    </>
-);
+                        <ProgrammableSidebarProvider defaultOpen={defaultOpen} sidebarNames={sidebarNames} style={sidebarStyle}>
+                            <Outlet />
+                        </ProgrammableSidebarProvider>
+                    </KeyboardShortcutsManager>
+                </AiModelProvider>
+            </Authenticated>
+        </>
+    );
+};
 
 export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,
