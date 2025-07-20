@@ -1,10 +1,10 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 
-import { KeyboardShortcutsManager } from "@/features/keyboard/components/keyboard-shortcuts-manager";
 import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
 import { AutoGuestSignIn } from "@/features/auth/components/auto-guest-signin";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
+import { KeyboardShortcutsManager } from "@/features/keyboard/components/keyboard-shortcuts-manager";
 import useKeyboardShortcutHandler from "@/features/keyboard/hooks/use-keyboard-shortcut-handler";
 
 const defaultOpen = ["left"];
