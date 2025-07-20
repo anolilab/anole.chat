@@ -21,15 +21,18 @@ export function useKeyboardShortcutHandler() {
         }
         break;
       case "help":
-        // Open help modal or navigate to help page
-        const helpButton = document.querySelector<HTMLButtonElement>('[data-testid="help-button"]');
-        if (helpButton) {
-          helpButton.click();
-        } else {
-          // Fallback to help page if no help button found
-          navigate({ to: "/help" });
-        }
-        break;
+       case "help":
+         {
+           // Open help modal or navigate to help page
+           const helpButton = document.querySelector<HTMLButtonElement>('[data-testid="help-button"]');
+           if (helpButton) {
+             helpButton.click();
+           } else {
+             // Fallback to help page if no help button found
+             navigate({ to: "/help" });
+           }
+         }
+         break;
       case "escape":
         {
           // Close modals, blur inputs, etc.
