@@ -19,4 +19,6 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 overrides:
+  '@eslint/plugin-kit@<0.3.3': '>=0.3.3'
+  form-data@>=4.0.0 <4.0.4: '>=4.0.4'
   semver@>=7.0.0 <7.5.2: '>=7.5.2'
