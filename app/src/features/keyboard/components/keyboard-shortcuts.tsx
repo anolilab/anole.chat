@@ -10,7 +10,7 @@ import { AlertCircle, Info, Keyboard, RotateCcw, Save } from "lucide-react";
 import type { FC, KeyboardEvent } from "react";
 import { useState } from "react";
 
-import { DEFAULT_KEYBOARD_SHORTCUTS, useKeyboardShortcuts } from "@/features/keyboard/components/keyboard-shortcuts-manager";
+import { keyboardShortcutsHelpers } from "../collections/keyboard-shortcuts-collection";
 
 interface ShortcutInputProperties {
     description: string;
@@ -18,7 +18,7 @@ interface ShortcutInputProperties {
     label: string;
     onChange: (value: string) => void;
     placeholder?: string;
-    shortcutKey: keyof typeof DEFAULT_KEYBOARD_SHORTCUTS;
+    shortcutKey: string;
     value: string;
 }
 
@@ -92,7 +92,8 @@ const ShortcutInput: FC<ShortcutInputProperties> = ({ description, error, label,
     };
 
     const handleReset = () => {
-        onChange(DEFAULT_KEYBOARD_SHORTCUTS[shortcutKey] || "");
+        keyboardShortcutsHelpers.resetShortcut(shortcutKey as any);
+        onChange(keyboardShortcutsHelpers.getCurrentShortcuts()[shortcutKey as keyof typeof keyboardShortcutsHelpers.getCurrentShortcuts()] || "");
     };
 
     return (
@@ -126,10 +127,10 @@ const ShortcutInput: FC<ShortcutInputProperties> = ({ description, error, label,
 };
 
 const KeyboardShortcutsSettings: FC = () => {
-    const { shortcuts, updateShortcuts } = useKeyboardShortcuts();
+    const currentShortcuts = keyboardShortcutsHelpers.getCurrentShortcuts();
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
-    const [localShortcuts, setLocalShortcuts] = useState(shortcuts);
+    const [localShortcuts, setLocalShortcuts] = useState(currentShortcuts);
     const [error, setError] = useState<string | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -181,7 +182,7 @@ const KeyboardShortcutsSettings: FC = () => {
         setValidationErrors({}); // Clear validation errors
 
         try {
-            await updateShortcuts(localShortcuts);
+            keyboardShortcutsHelpers.updateShortcuts(localShortcuts);
             setHasChanges(false);
         } catch (error) {
             console.error("Failed to save keyboard shortcuts:", error);
@@ -192,7 +193,9 @@ const KeyboardShortcutsSettings: FC = () => {
     };
 
     const handleResetAll = async () => {
-        setLocalShortcuts(DEFAULT_KEYBOARD_SHORTCUTS);
+        keyboardShortcutsHelpers.resetToDefaults();
+        const defaults = keyboardShortcutsHelpers.getCurrentShortcuts();
+        setLocalShortcuts(defaults);
         setHasChanges(true);
         setError(null); // Clear error when resetting
         setValidationErrors({}); // Clear validation errors when resetting
@@ -201,33 +204,58 @@ const KeyboardShortcutsSettings: FC = () => {
     const shortcutConfigs = [
         {
             description: "Open or close the left sidebar panel",
-            key: "sidebarLeft" as const,
+            key: "sidebarLeft",
             label: "Toggle Left Sidebar",
         },
         {
             description: "Open or close the right sidebar panel",
-            key: "sidebarRight" as const,
+            key: "sidebarRight",
             label: "Toggle Right Sidebar",
         },
         {
             description: "Start a new conversation",
-            key: "newChat" as const,
+            key: "newChat",
             label: "New Chat",
         },
         {
             description: "Open the search interface",
-            key: "search" as const,
+            key: "search",
             label: "Search",
         },
         {
             description: "Display keyboard shortcuts help",
-            key: "help" as const,
+            key: "help",
             label: "Show Help",
         },
         {
             description: "Close dialogs or cancel actions",
-            key: "escape" as const,
+            key: "escape",
             label: "Escape",
+        },
+        {
+            description: "Focus search input",
+            key: "focusSearch",
+            label: "Focus Search",
+        },
+        {
+            description: "Navigate to next item",
+            key: "nextItem",
+            label: "Next Item",
+        },
+        {
+            description: "Navigate to previous item",
+            key: "prevItem",
+            label: "Previous Item",
+        },
+        {
+            description: "Go to first item",
+            key: "firstItem",
+            label: "First Item",
+        },
+        {
+            description: "Go to last item",
+            key: "lastItem",
+            label: "Last Item",
         },
     ];
 
@@ -293,13 +321,15 @@ const KeyboardShortcutsSettings: FC = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-4 md:grid-cols-2">
-                        {Object.entries(DEFAULT_KEYBOARD_SHORTCUTS).map(([key, value]) => (
-                            <div className="flex items-center justify-between" key={key}>
-                                <span className="text-sm font-medium">{shortcutConfigs.find((c) => c.key === key)?.label || key}</span>
-                                <Badge className="font-mono" variant="outline">
-                                    {value}
-                                </Badge>
-                            </div>
+                        {Object.entries(keyboardShortcutsHelpers.getCurrentShortcuts()).map(([key, value]) => (
+                            key !== 'id' && (
+                                <div className="flex items-center justify-between" key={key}>
+                                    <span className="text-sm font-medium">{shortcutConfigs.find((c) => c.key === key)?.label || key}</span>
+                                    <Badge className="font-mono" variant="outline">
+                                        {value}
+                                    </Badge>
+                                </div>
+                            )
                         ))}
                     </div>
                 </CardContent>

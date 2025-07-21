@@ -1,13 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
 
-import type { KeyboardShortcutsConfig } from "@/features/keyboard/components/keyboard-shortcuts-manager";
+import { keyboardShortcutsHelpers, type KeyboardShortcuts } from "../collections/keyboard-shortcuts-collection";
 
 const useKeyboardShortcutHandler = () => {
     const navigate = useNavigate();
 
     return useCallback(
-        (action: keyof KeyboardShortcutsConfig, event: KeyboardEvent) => {
+        (action: keyof KeyboardShortcuts, event: KeyboardEvent) => {
             switch (action) {
                 case "escape": {
                     {
@@ -41,7 +41,8 @@ const useKeyboardShortcutHandler = () => {
                     navigate({ to: "/chat/new" });
                     break;
                 }
-                case "search": {
+                case "search": 
+                case "focusSearch": {
                     {
                         // Trigger search modal or focus search input
                         const searchInput
@@ -52,6 +53,37 @@ const useKeyboardShortcutHandler = () => {
                             searchInput.focus();
                         }
                     }
+                    break;
+                }
+                // Navigation shortcuts
+                case "nextItem": {
+                    // Navigate to next item (implementation depends on current context)
+                    const focusedElement = document.activeElement;
+                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
+                    const currentIndex = items.indexOf(focusedElement as Element);
+                    const nextIndex = (currentIndex + 1) % items.length;
+                    (items[nextIndex] as HTMLElement)?.focus();
+                    break;
+                }
+                case "prevItem": {
+                    // Navigate to previous item
+                    const focusedElement = document.activeElement;
+                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
+                    const currentIndex = items.indexOf(focusedElement as Element);
+                    const prevIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
+                    (items[prevIndex] as HTMLElement)?.focus();
+                    break;
+                }
+                case "firstItem": {
+                    // Navigate to first item
+                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
+                    (items[0] as HTMLElement)?.focus();
+                    break;
+                }
+                case "lastItem": {
+                    // Navigate to last item
+                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
+                    (items[items.length - 1] as HTMLElement)?.focus();
                     break;
                 }
                 // sidebarLeft and sidebarRight are handled by ProgrammableSidebarProvider
