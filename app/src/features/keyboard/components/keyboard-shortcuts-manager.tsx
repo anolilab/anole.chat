@@ -1,16 +1,18 @@
 import { useLiveQuery } from "@tanstack/react-db";
 import React, { useCallback, useEffect, useMemo } from "react";
-import { keyboardShortcutsCollection, keyboardShortcutsHelpers, type KeyboardShortcuts } from "../collections/keyboard-shortcuts-collection";
+
+import type { KeyboardShortcuts } from "@/features/layout/collections/ui-state-collection";
+import { useKeyboardShortcuts as useUIKeyboardShortcuts } from "@/features/layout/hooks/use-ui-state";
 
 // Context for keyboard shortcuts
 interface KeyboardShortcutsContextType {
     matchesShortcut: (event: KeyboardEvent, shortcutString: string) => boolean;
     parseShortcut: (shortcutString: string) => KeyboardShortcut;
     shortcuts: KeyboardShortcuts;
-    updateShortcuts: (shortcuts: Partial<KeyboardShortcuts>) => Promise<void>;
+    updateShortcuts: (shortcuts: Partial<KeyboardShortcuts>) => void;
 }
 
-const KeyboardShortcutsContext = React.createContext<KeyboardShortcutsContextType | null>(null);
+const KeyboardShortcutsContext = React.createContext<KeyboardShortcutsContextType | undefined>(undefined);
 
 export interface KeyboardShortcut {
     altKey?: boolean;
@@ -23,61 +25,78 @@ export interface KeyboardShortcut {
 // Export types for compatibility
 export type KeyboardShortcutsConfig = KeyboardShortcuts;
 
-export const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcuts = {
-    id: "keyboard-shortcuts",
-    escape: "Escape",
-    help: "Ctrl+/",
-    newChat: "Ctrl+N",
-    search: "Ctrl+K",
-    sidebarLeft: "Ctrl+B",
-    sidebarRight: "Ctrl+Shift+B",
-    focusSearch: "Ctrl+F",
-    nextItem: "ArrowDown",
-    prevItem: "ArrowUp",
-    firstItem: "Home",
-    lastItem: "End",
+// Helper functions for parsing and matching shortcuts
+const parseShortcut = (shortcutString: string): KeyboardShortcut => {
+    const parts = shortcutString.split("+");
+    const result: KeyboardShortcut = {
+        altKey: false,
+        ctrlKey: false,
+        key: parts[parts.length - 1] || "", // Last part is the key, fallback to empty string
+        metaKey: false,
+        shiftKey: false,
+    };
+
+    for (const part of parts.slice(0, -1)) {
+        const normalizedPart = part.toLowerCase();
+
+        switch (normalizedPart) {
+            case "alt": {
+                result.altKey = true;
+
+                break;
+            }
+            case "cmd":
+            case "command":
+            case "meta": {
+                result.metaKey = true;
+
+                break;
+            }
+            case "control":
+            case "ctrl": {
+                result.ctrlKey = true;
+
+                break;
+            }
+            case "shift": {
+                result.shiftKey = true;
+
+                break;
+            }
+        // No default
+        }
+    }
+
+    return result;
+};
+
+const matchesShortcut = (event: KeyboardEvent, shortcutString: string): boolean => {
+    const shortcut = parseShortcut(shortcutString);
+
+    return (
+        event.key === shortcut.key
+        && event.ctrlKey === (shortcut.ctrlKey || false)
+        && event.shiftKey === (shortcut.shiftKey || false)
+        && event.altKey === (shortcut.altKey || false)
+        && event.metaKey === (shortcut.metaKey || false)
+    );
 };
 
 export const KeyboardShortcutsManager: React.FC<{
     children: React.ReactNode;
     onShortcut?: (action: keyof KeyboardShortcutsConfig, event: KeyboardEvent) => void;
     shortcuts?: Partial<KeyboardShortcutsConfig>;
-}> = ({ children, onShortcut, shortcuts }) => {
-    // Get keyboard shortcuts from TanStack DB
-    const { data: shortcutsData } = useLiveQuery((q) =>
-        q.from({ shortcuts: keyboardShortcutsCollection }).select(({ shortcuts }) => shortcuts)
-    );
+}> = ({ children, onShortcut, shortcuts: propertyShortcuts }) => {
+    // Get keyboard shortcuts from UI state collection
+    const uiKeyboardShortcuts = useUIKeyboardShortcuts();
 
-    const userShortcuts = shortcutsData?.[0] || keyboardShortcutsHelpers.getCurrentShortcuts();
-
-    // Merge user settings with defaults and props
+    // Merge user settings with prop overrides
     const effectiveShortcuts = useMemo(() => {
         return {
-            ...DEFAULT_KEYBOARD_SHORTCUTS,
-            ...userShortcuts,
-            ...shortcuts,
+            ...uiKeyboardShortcuts,
+            ...propertyShortcuts,
         };
-    }, [userShortcuts, shortcuts]);
-
-    // Use TanStack DB helpers for parsing and matching shortcuts
-    const parseShortcut = useCallback((shortcutString: string): KeyboardShortcut => {
-        const parsed = keyboardShortcutsHelpers.parseShortcut(shortcutString);
-        return {
-            altKey: parsed.altKey,
-            ctrlKey: parsed.ctrlKey,
-            key: parsed.key,
-            metaKey: parsed.metaKey,
-            shiftKey: parsed.shiftKey,
-        };
-    }, []);
-
-    // Use TanStack DB helper for matching shortcuts
-    const matchesShortcut = useCallback(
-        (event: KeyboardEvent, shortcutString: string): boolean => {
-            return keyboardShortcutsHelpers.matchesShortcut(event, shortcutString);
-        },
-        [],
-    );
+    }, [uiKeyboardShortcuts, propertyShortcuts]);
 
     // Handle keyboard events
     const handleKeyDown = useCallback(
@@ -93,14 +112,19 @@ export const KeyboardShortcutsManager: React.FC<{
             }
 
             // Check each shortcut
-            Object.entries(effectiveShortcuts).forEach(([action, shortcutString]) => {
-                if (shortcutString && matchesShortcut(event, shortcutString)) {
+            for (const [action, shortcutString] of Object.entries(effectiveShortcuts)) {
+                if (action === "setKeyboardShortcuts" || action === "resetKeyboardShortcuts" || action === "setShortcut") {
+                    continue; // Skip action functions
+                }
+
+                if (shortcutString && typeof shortcutString === "string" && matchesShortcut(event, shortcutString)) {
                     event.preventDefault();
                     onShortcut?.(action as keyof KeyboardShortcutsConfig, event);
+                    break; // Only handle the first match
                 }
-            });
+            }
         },
-        [effectiveShortcuts, matchesShortcut, onShortcut],
+        [effectiveShortcuts, onShortcut],
     );
 
     // Add event listener
@@ -110,12 +134,12 @@ export const KeyboardShortcutsManager: React.FC<{
         return () => globalThis.removeEventListener("keydown", handleKeyDown);
     }, [handleKeyDown]);
 
-    // Update shortcuts using TanStack DB
+    // Update shortcuts using UI state collection
     const updateShortcuts = useCallback(
-        async (newShortcuts: Partial<KeyboardShortcutsConfig>) => {
-            keyboardShortcutsHelpers.updateShortcuts(newShortcuts);
+        (newShortcuts: Partial<KeyboardShortcutsConfig>) => {
+            uiKeyboardShortcuts.setKeyboardShortcuts(newShortcuts);
         },
-        [],
+        [uiKeyboardShortcuts],
     );
 
     // Context value for child components
@@ -126,12 +150,12 @@ export const KeyboardShortcutsManager: React.FC<{
             shortcuts: effectiveShortcuts,
             updateShortcuts,
         };
-    }, [effectiveShortcuts, updateShortcuts, parseShortcut, matchesShortcut]);
+    }, [effectiveShortcuts, updateShortcuts]);
 
     return <KeyboardShortcutsContext value={contextValue}>{children}</KeyboardShortcutsContext>;
 };
 
-export const useKeyboardShortcuts = () => {
+export const useKeyboardShortcuts = (): KeyboardShortcutsContextType => {
     const context = React.use(KeyboardShortcutsContext);
 
     if (!context) {
@@ -142,8 +166,10 @@ export const useKeyboardShortcuts = () => {
 };
 
 // Hook for specific shortcut actions
-export const useShortcut = (action: keyof KeyboardShortcutsConfig) => {
+export const useShortcut = (action: keyof KeyboardShortcutsConfig): string | undefined => {
     const { shortcuts } = useKeyboardShortcuts();
+    const shortcutValue = shortcuts[action];
 
-    return shortcuts[action];
+    // Filter out function properties and return only string shortcuts
+    return typeof shortcutValue === "string" ? shortcutValue : undefined;
 };

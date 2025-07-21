@@ -6,7 +6,7 @@ import { Authenticated } from "convex/react";
 import { Building, ChartArea, Key, Keyboard, MessageSquare, Shield, ToggleLeft, User, Users, Zap } from "lucide-react";
 import { Fragment } from "react";
 
-import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
+import ProgrammableSidebarProvider from "@/components/programmable-sidebar-provider";
 import { useAuth } from "@/features/auth/lib/auth-ui-provider";
 import { KeyboardShortcutsManager } from "@/features/keyboard/components/keyboard-shortcuts-manager";
 import useKeyboardShortcutHandler from "@/features/keyboard/hooks/use-keyboard-shortcut-handler";

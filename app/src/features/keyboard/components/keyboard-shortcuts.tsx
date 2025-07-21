@@ -10,7 +10,8 @@ import { AlertCircle, Info, Keyboard, RotateCcw, Save } from "lucide-react";
 import type { FC, KeyboardEvent } from "react";
 import { useState } from "react";
 
-import { keyboardShortcutsHelpers } from "../collections/keyboard-shortcuts-collection";
+import type { KeyboardShortcuts } from "@/features/layout/collections/ui-state-collection";
+import { useKeyboardShortcuts } from "@/features/layout/hooks/use-ui-state";
 
 interface ShortcutInputProperties {
     description: string;
@@ -18,13 +19,14 @@ interface ShortcutInputProperties {
     label: string;
     onChange: (value: string) => void;
     placeholder?: string;
-    shortcutKey: string;
+    shortcutKey: keyof KeyboardShortcuts;
     value: string;
 }
 
 const ShortcutInput: FC<ShortcutInputProperties> = ({ description, error, label, onChange, placeholder = "Press keys...", shortcutKey, value }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [temporaryValue, setTemporaryValue] = useState(value);
+    const keyboardShortcuts = useKeyboardShortcuts();
 
     const handleKeyDown = (event: KeyboardEvent) => {
         if (!isRecording) {
@@ -92,249 +94,208 @@ const ShortcutInput: FC<ShortcutInputProperties> = ({ description, error, label,
     };
 
     const handleReset = () => {
-        keyboardShortcutsHelpers.resetShortcut(shortcutKey as any);
-        onChange(keyboardShortcutsHelpers.getCurrentShortcuts()[shortcutKey as keyof typeof keyboardShortcutsHelpers.getCurrentShortcuts()] || "");
+        // Reset individual shortcut to its default value
+        const defaultShortcuts = {
+            escape: "Escape",
+            firstItem: "Home",
+            focusSearch: "Ctrl+F",
+            help: "Ctrl+/",
+            lastItem: "End",
+            newChat: "Ctrl+N",
+            nextItem: "ArrowDown",
+            prevItem: "ArrowUp",
+            search: "Ctrl+K",
+            sidebarLeft: "Ctrl+B",
+            sidebarRight: "Ctrl+Shift+B",
+        };
+
+        const defaultValue = defaultShortcuts[shortcutKey as keyof typeof defaultShortcuts] || "";
+
+        keyboardShortcuts.setShortcut(shortcutKey, defaultValue);
+        onChange(defaultValue);
     };
 
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between">
-                <div>
-                    <Label className="text-sm font-medium">{label}</Label>
-                    <p className="text-muted-foreground text-xs">{description}</p>
-                </div>
-                <Button className="h-6 px-2" onClick={handleReset} size="sm" type="button" variant="ghost">
-                    <RotateCcw className="h-3 w-3" />
+                <Label className="text-sm font-medium" htmlFor={shortcutKey}>
+                    {label}
+                </Label>
+                <Button onClick={handleReset} size="sm" type="button" variant="ghost">
+                    <RotateCcw className="mr-1 size-3" />
+                    Reset
                 </Button>
             </div>
-            <Input
-                className={cn("font-mono text-sm", error && "border-destructive focus-visible:ring-destructive")}
-                onBlur={handleBlur}
-                onFocus={handleFocus}
-                onKeyDown={handleKeyDown}
-                placeholder={placeholder}
-                readOnly
-                value={isRecording ? temporaryValue : value}
-            />
-            {isRecording && (
-                <Badge className="text-xs" variant="secondary">
-                    Recording... Press keys
-                </Badge>
+
+            <div className="relative">
+                <Input
+                    className={cn("font-mono text-sm", isRecording && "ring-2 ring-blue-500", error && "border-red-500 focus:ring-red-500")}
+                    id={shortcutKey}
+                    onBlur={handleBlur}
+                    onFocus={handleFocus}
+                    onKeyDown={handleKeyDown}
+                    placeholder={isRecording ? "Press keys..." : placeholder}
+                    readOnly
+                    value={isRecording ? temporaryValue : value}
+                />
+                {isRecording && <div className="absolute -top-2 right-2 rounded bg-blue-500 px-1 py-0.5 text-xs text-white">Recording</div>}
+            </div>
+
+            <p className="text-muted-foreground text-xs">{description}</p>
+
+            {error && (
+                <Alert variant="destructive">
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
             )}
-            {error && <p className="text-destructive text-xs">{error}</p>}
         </div>
     );
 };
 
-const KeyboardShortcutsSettings: FC = () => {
-    const currentShortcuts = keyboardShortcutsHelpers.getCurrentShortcuts();
-    const [isSaving, setIsSaving] = useState(false);
+interface KeyboardShortcutsSettingsProperties {
+    className?: string;
+}
+
+const KeyboardShortcutsSettings: FC<KeyboardShortcutsSettingsProperties> = ({ className }) => {
+    const keyboardShortcuts = useKeyboardShortcuts();
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [hasChanges, setHasChanges] = useState(false);
-    const [localShortcuts, setLocalShortcuts] = useState(currentShortcuts);
-    const [error, setError] = useState<string | null>(null);
-    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-    // Check for duplicate shortcuts
-    const validateShortcuts = (shortcuts: typeof localShortcuts) => {
-        const errors: Record<string, string> = {};
-        const shortcutValues = Object.values(shortcuts).filter(Boolean);
-        const duplicates = shortcutValues.filter((value, index) => shortcutValues.indexOf(value) !== index);
+    // Create a working copy of shortcuts that filters out function properties
+    const shortcutEntries = Object.entries(keyboardShortcuts).filter(
+        ([key, value]) => typeof value === "string" && !key.startsWith("set") && !key.startsWith("reset"),
+    ) as [keyof KeyboardShortcuts, string][];
 
-        if (duplicates.length > 0) {
-            const duplicateValue = duplicates[0];
-
-            Object.entries(shortcuts).forEach(([key, value]) => {
-                if (value === duplicateValue) {
-                    errors[key] = `This shortcut is already used by another action`;
-                }
-            });
+    const validateShortcut = (key: string, value: string): string | undefined => {
+        if (!value.trim()) {
+            return "Shortcut cannot be empty";
         }
 
-        return errors;
-    };
+        // Check for conflicts with existing shortcuts
+        const existingShortcuts = Object.fromEntries(shortcutEntries);
+        const conflictingKey = Object.entries(existingShortcuts).find(([k, v]) => k !== key && v === value);
 
-    const handleShortcutChange = (key: keyof typeof shortcuts, value: string) => {
-        const newShortcuts = { ...localShortcuts, [key]: value };
-
-        setLocalShortcuts(newShortcuts);
-        setHasChanges(true);
-        setError(null); // Clear error when user makes changes
-
-        // Validate for duplicates
-        const errors = validateShortcuts(newShortcuts);
-
-        setValidationErrors(errors);
-    };
-
-    const handleSave = async () => {
-        // Check for validation errors before saving
-        const errors = validateShortcuts(localShortcuts);
-
-        if (Object.keys(errors).length > 0) {
-            setValidationErrors(errors);
-            setError("Please fix the duplicate shortcuts before saving.");
-
-            return;
+        if (conflictingKey) {
+            return `Conflicts with ${conflictingKey[0]} shortcut`;
         }
 
-        setIsSaving(true);
-        setError(null); // Clear any previous errors
-        setValidationErrors({}); // Clear validation errors
+        return undefined;
+    };
 
-        try {
-            keyboardShortcutsHelpers.updateShortcuts(localShortcuts);
-            setHasChanges(false);
-        } catch (error) {
-            console.error("Failed to save keyboard shortcuts:", error);
-            setError("Failed to save keyboard shortcuts. Please try again.");
-        } finally {
-            setIsSaving(false);
+    const handleShortcutChange = (key: keyof KeyboardShortcuts, value: string) => {
+        const error = validateShortcut(key, value);
+
+        setErrors((previous) => {
+            return {
+                ...previous,
+                [key]: error || "",
+            };
+        });
+
+        if (!error) {
+            keyboardShortcuts.setShortcut(key, value);
+            setHasChanges(true);
         }
     };
 
-    const handleResetAll = async () => {
-        keyboardShortcutsHelpers.resetToDefaults();
-        const defaults = keyboardShortcutsHelpers.getCurrentShortcuts();
-        setLocalShortcuts(defaults);
-        setHasChanges(true);
-        setError(null); // Clear error when resetting
-        setValidationErrors({}); // Clear validation errors when resetting
+    const handleResetAll = () => {
+        keyboardShortcuts.resetKeyboardShortcuts();
+        setErrors({});
+        setHasChanges(false);
     };
 
-    const shortcutConfigs = [
+    const shortcutGroups = [
         {
-            description: "Open or close the left sidebar panel",
-            key: "sidebarLeft",
-            label: "Toggle Left Sidebar",
+            shortcuts: [
+                { description: "Navigate to first item in lists", key: "firstItem" as const, label: "First Item" },
+                { description: "Navigate to last item in lists", key: "lastItem" as const, label: "Last Item" },
+                { description: "Navigate to next item", key: "nextItem" as const, label: "Next Item" },
+                { description: "Navigate to previous item", key: "prevItem" as const, label: "Previous Item" },
+            ],
+            title: "Navigation",
         },
         {
-            description: "Open or close the right sidebar panel",
-            key: "sidebarRight",
-            label: "Toggle Right Sidebar",
+            shortcuts: [
+                { description: "Toggle left sidebar", key: "sidebarLeft" as const, label: "Left Sidebar" },
+                { description: "Toggle right sidebar", key: "sidebarRight" as const, label: "Right Sidebar" },
+            ],
+            title: "Sidebar",
         },
         {
-            description: "Start a new conversation",
-            key: "newChat",
-            label: "New Chat",
-        },
-        {
-            description: "Open the search interface",
-            key: "search",
-            label: "Search",
-        },
-        {
-            description: "Display keyboard shortcuts help",
-            key: "help",
-            label: "Show Help",
-        },
-        {
-            description: "Close dialogs or cancel actions",
-            key: "escape",
-            label: "Escape",
-        },
-        {
-            description: "Focus search input",
-            key: "focusSearch",
-            label: "Focus Search",
-        },
-        {
-            description: "Navigate to next item",
-            key: "nextItem",
-            label: "Next Item",
-        },
-        {
-            description: "Navigate to previous item",
-            key: "prevItem",
-            label: "Previous Item",
-        },
-        {
-            description: "Go to first item",
-            key: "firstItem",
-            label: "First Item",
-        },
-        {
-            description: "Go to last item",
-            key: "lastItem",
-            label: "Last Item",
+            shortcuts: [
+                { description: "Open global search", key: "search" as const, label: "Search" },
+                { description: "Focus search input", key: "focusSearch" as const, label: "Focus Search" },
+                { description: "Start new chat", key: "newChat" as const, label: "New Chat" },
+                { description: "Show help", key: "help" as const, label: "Help" },
+                { description: "Cancel action or close dialog", key: "escape" as const, label: "Escape" },
+            ],
+            title: "Actions",
         },
     ];
 
     return (
-        <div className="space-y-6">
-            <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                    Click on any input field and press the keys you want to use for that action. You can use combinations like Ctrl+K, Cmd+Shift+N, etc.
-                </AlertDescription>
-            </Alert>
-
-            {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            )}
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Keyboard className="h-5 w-5" />
-                        Customize Shortcuts
-                    </CardTitle>
-                    <CardDescription>Set your preferred keyboard shortcuts for common actions</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-2">
-                        {shortcutConfigs.map((config) => (
-                            <ShortcutInput
-                                description={config.description}
-                                error={validationErrors[config.key]}
-                                key={config.key}
-                                label={config.label}
-                                onChange={(value) => handleShortcutChange(config.key, value)}
-                                shortcutKey={config.key}
-                                value={localShortcuts[config.key] || ""}
-                            />
-                        ))}
+        <Card className={className}>
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                        <Keyboard className="size-5" />
+                        <CardTitle>Keyboard Shortcuts</CardTitle>
                     </div>
+                    <Button onClick={handleResetAll} size="sm" variant="outline">
+                        <RotateCcw className="mr-1 size-4" />
+                        Reset All
+                    </Button>
+                </div>
+                <CardDescription>
+                    Customize keyboard shortcuts for quick navigation and actions. Click on any input field and press the desired key combination.
+                </CardDescription>
+            </CardHeader>
 
-                    <Separator />
+            <CardContent className="space-y-6">
+                {hasChanges && (
+                    <Alert>
+                        <Info className="size-4" />
+                        <AlertDescription>Changes are saved automatically. Refresh the page to see all shortcuts take effect.</AlertDescription>
+                    </Alert>
+                )}
 
-                    <div className="flex items-center justify-between">
-                        <Button disabled={isSaving} onClick={handleResetAll} variant="outline">
-                            <RotateCcw className="mr-2 h-4 w-4" />
-                            Reset to Defaults
-                        </Button>
+                {shortcutGroups.map((group, index) => (
+                    <div key={group.title}>
+                        <h3 className="text-foreground mb-3 text-sm font-semibold">{group.title}</h3>
+                        <div className="space-y-4">
+                            {group.shortcuts.map((shortcut) => {
+                                const currentValue = keyboardShortcuts[shortcut.key];
+                                const stringValue = typeof currentValue === "string" ? currentValue : "";
 
-                        <Button disabled={!hasChanges || isSaving || Object.keys(validationErrors).length > 0} onClick={handleSave}>
-                            <Save className="mr-2 h-4 w-4" />
-                            {isSaving ? "Saving..." : "Save Changes"}
-                        </Button>
+                                return (
+                                    <ShortcutInput
+                                        description={shortcut.description}
+                                        error={errors[shortcut.key]}
+                                        key={shortcut.key}
+                                        label={shortcut.label}
+                                        onChange={(value) => handleShortcutChange(shortcut.key, value)}
+                                        shortcutKey={shortcut.key}
+                                        value={stringValue}
+                                    />
+                                );
+                            })}
+                        </div>
+                        {index < shortcutGroups.length - 1 && <Separator className="mt-6" />}
                     </div>
-                </CardContent>
-            </Card>
+                ))}
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Default Shortcuts</CardTitle>
-                    <CardDescription>These are the default keyboard shortcuts for reference</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {Object.entries(keyboardShortcutsHelpers.getCurrentShortcuts()).map(([key, value]) => (
-                            key !== 'id' && (
-                                <div className="flex items-center justify-between" key={key}>
-                                    <span className="text-sm font-medium">{shortcutConfigs.find((c) => c.key === key)?.label || key}</span>
-                                    <Badge className="font-mono" variant="outline">
-                                        {value}
-                                    </Badge>
-                                </div>
-                            )
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                <div className="bg-muted rounded-md p-4">
+                    <h4 className="mb-2 text-sm font-medium">Tips:</h4>
+                    <ul className="text-muted-foreground space-y-1 text-xs">
+                        <li>• Use Ctrl/Cmd + key for system-wide shortcuts</li>
+                        <li>• Combine modifiers: Ctrl+Shift+Key</li>
+                        <li>• Some shortcuts may conflict with browser shortcuts</li>
+                        <li>• Press Escape to cancel recording a shortcut</li>
+                    </ul>
+                </div>
+            </CardContent>
+        </Card>
     );
 };
 

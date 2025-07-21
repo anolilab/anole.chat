@@ -1,89 +1,108 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
 
-import { keyboardShortcutsHelpers, type KeyboardShortcuts } from "../collections/keyboard-shortcuts-collection";
+import type { KeyboardShortcuts } from "@/features/layout/collections/ui-state-collection";
 
-const useKeyboardShortcutHandler = () => {
+const useKeyboardShortcutHandler = (): (action: keyof KeyboardShortcuts, event: KeyboardEvent) => void => {
     const navigate = useNavigate();
 
     return useCallback(
         (action: keyof KeyboardShortcuts, event: KeyboardEvent) => {
+            // Skip function properties from the keyboard shortcuts object
+            if (typeof action !== "string") {
+                return;
+            }
+
             switch (action) {
                 case "escape": {
-                    {
-                        // Close modals, blur inputs, etc.
-                        const activeElement = document.activeElement as HTMLElement;
+                    // Close modals, blur inputs, etc.
+                    const activeElement = document.activeElement as HTMLElement;
 
-                        if (activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA")) {
-                            activeElement.blur();
-                        } else {
-                            // Dispatch escape event to close any open dialogs
-                            document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-                        }
+                    if (activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA")) {
+                        activeElement.blur();
+                    } else {
+                        // Dispatch escape event to close any open dialogs
+                        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
                     }
+
+                    break;
+                }
+                case "firstItem": {
+                    // Navigate to first item
+                    const items = [...document.querySelectorAll("[tabindex=\"0\"], button, input, a")];
+
+                    (items[0] as HTMLElement)?.focus();
+                    break;
+                }
+                case "focusSearch":
+                case "search": {
+                    // Trigger search modal or focus search input
+                    const searchInput
+                        = document.querySelector<HTMLInputElement>("[data-search-input]")
+                            || document.querySelector<HTMLInputElement>("[data-testid=\"search-input\"]");
+
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+
                     break;
                 }
                 case "help": {
-                    {
-                        // Open help modal or navigate to help page
-                        const helpButton = document.querySelector<HTMLButtonElement>("[data-testid=\"help-button\"]");
+                    // Open help modal or navigate to help page
+                    const helpButton = document.querySelector<HTMLButtonElement>("[data-testid=\"help-button\"]");
 
-                        if (helpButton) {
-                            helpButton.click();
-                        } else {
-                            // Fallback to help page if no help button found
-                            navigate({ to: "/help" });
-                        }
+                    if (helpButton) {
+                        helpButton.click();
+                    } else {
+                        // Fallback to help page if no help button found
+                        navigate({ to: "/help" });
                     }
+
+                    break;
+                }
+                case "lastItem": {
+                    // Navigate to last item
+                    const items = [...document.querySelectorAll("[tabindex=\"0\"], button, input, a")];
+
+                    (items[items.length - 1] as HTMLElement)?.focus();
                     break;
                 }
                 case "newChat": {
                     navigate({ to: "/chat/new" });
                     break;
                 }
-                case "search": 
-                case "focusSearch": {
-                    {
-                        // Trigger search modal or focus search input
-                        const searchInput
-                            = document.querySelector<HTMLInputElement>("[data-search-input]")
-                                || document.querySelector<HTMLInputElement>("[data-testid=\"search-input\"]");
-
-                        if (searchInput) {
-                            searchInput.focus();
-                        }
-                    }
-                    break;
-                }
                 // Navigation shortcuts
                 case "nextItem": {
                     // Navigate to next item (implementation depends on current context)
                     const focusedElement = document.activeElement;
-                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
+                    const items = [...document.querySelectorAll("[tabindex=\"0\"], button, input, a")];
                     const currentIndex = items.indexOf(focusedElement as Element);
                     const nextIndex = (currentIndex + 1) % items.length;
+
                     (items[nextIndex] as HTMLElement)?.focus();
                     break;
                 }
                 case "prevItem": {
                     // Navigate to previous item
                     const focusedElement = document.activeElement;
-                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
+                    const items = [...document.querySelectorAll("[tabindex=\"0\"], button, input, a")];
                     const currentIndex = items.indexOf(focusedElement as Element);
-                    const prevIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
-                    (items[prevIndex] as HTMLElement)?.focus();
+                    const previousIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
+
+                    (items[previousIndex] as HTMLElement)?.focus();
                     break;
                 }
-                case "firstItem": {
-                    // Navigate to first item
-                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
-                    (items[0] as HTMLElement)?.focus();
-                    break;
-                }
-                case "lastItem": {
-                    // Navigate to last item
-                    const items = Array.from(document.querySelectorAll('[tabindex="0"], button, input, a'));
-                    (items[items.length - 1] as HTMLElement)?.focus();
+                // Skip function properties that might be in the KeyboardShortcuts type
+                case "resetKeyboardShortcuts":
+                case "setEscape":
+                case "setHelp":
+                case "setKeyboardShortcuts":
+                case "setNewChat":
+                case "setSearch":
+                case "setShortcut":
+                case "setSidebarLeft":
+                case "setSidebarRight": {
+                    // These are function properties, not shortcut actions
                     break;
                 }
                 // sidebarLeft and sidebarRight are handled by TanStackSidebarProvider
@@ -93,7 +112,7 @@ const useKeyboardShortcutHandler = () => {
                     break;
                 }
                 default: {
-                    console.log("Unhandled keyboard shortcut:", action, event);
+                    console.warn("Unhandled keyboard shortcut:", action, event);
                 }
             }
         },

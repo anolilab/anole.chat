@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => {
             tailwindcss(),
             tanstackStart({
                 customViteReactPlugin: true,
+                spa: {
+                    enabled: true,
+                },
                 tsr: {
                     routeToken: "layout",
                 },

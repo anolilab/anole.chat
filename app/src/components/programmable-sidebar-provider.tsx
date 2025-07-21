@@ -1,40 +1,77 @@
-import React from "react";
-import { TanStackSidebarProvider, useTanStackSidebar } from "./tanstack-sidebar-provider";
+import { SidebarProvider } from "@anole/ui/components/sidebar";
+import type { CSSProperties, ReactNode } from "react";
+import { useMemo } from "react";
+
+import type { SidebarStateValue } from "@/features/layout/collections/ui-state-collection";
+import { useSidebarState } from "@/features/layout/hooks/use-ui-state";
 
 interface ProgrammableSidebarProviderProperties<T extends string> {
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
     defaultOpen?: "all" | T[];
+    keyboardShortcuts?: Partial<Record<T, string>>;
     sidebarNames: ReadonlyArray<T>;
-    style?: React.CSSProperties;
-    onOpenChange?: (open: T[]) => void;
-    open?: T[];
+    style?: CSSProperties;
 }
 
-export const ProgrammableSidebarProvider = <T extends string>({
+const ProgrammableSidebarProvider = <T extends string>({
     children,
     className,
     defaultOpen = "all",
+    keyboardShortcuts,
     sidebarNames,
     style,
-    onOpenChange,
-    open,
-}: ProgrammableSidebarProviderProperties<T>) => {
+}: ProgrammableSidebarProviderProperties<T>): ReactNode => {
+    const { setSidebarStates, sidebars } = useSidebarState();
+
+    // Always produce a Record<T, SidebarStateValue>
+    const open = useMemo((): Record<T, SidebarStateValue> => {
+        const result = {} as Record<T, SidebarStateValue>;
+
+        sidebarNames.forEach((name) => {
+            result[name] = (sidebars && sidebars[name]) || { isMobileOpen: false, isOpen: false };
+        });
+
+        return result;
+    }, [sidebars, sidebarNames]);
+
+    // Initialize sidebar states if they don't exist
+    useMemo(() => {
+        if (!sidebars || !setSidebarStates)
+            return;
+
+        const defaultOpenState = defaultOpen === "all" ? sidebarNames : defaultOpen;
+        const missingStates: Record<string, SidebarStateValue> = {};
+        let hasChanges = false;
+
+        sidebarNames.forEach((name) => {
+            if (!sidebars[name]) {
+                missingStates[name] = {
+                    isMobileOpen: false,
+                    isOpen: defaultOpenState.includes(name),
+                };
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            setSidebarStates(missingStates);
+        }
+    }, [sidebarNames, defaultOpen, sidebars, setSidebarStates]);
+
     return (
-        <TanStackSidebarProvider 
-            className={className} 
-            defaultOpen={defaultOpen} 
-            sidebarNames={sidebarNames} 
-            style={style}
-            onOpenChange={onOpenChange}
+        <SidebarProvider
+            className={className}
+            defaultOpen={defaultOpen}
+            keyboardShortcuts={keyboardShortcuts}
+            onOpenChange={setSidebarStates}
             open={open}
+            sidebarNames={sidebarNames}
+            style={style}
         >
             {children}
-        </TanStackSidebarProvider>
+        </SidebarProvider>
     );
 };
 
-// Hook to use programmable sidebar (now uses TanStack DB)
-export function useProgrammableSidebar<T extends string>(name: T) {
-    return useTanStackSidebar(name);
-}
+export default ProgrammableSidebarProvider;

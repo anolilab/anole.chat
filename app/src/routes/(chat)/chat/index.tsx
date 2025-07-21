@@ -10,4 +10,5 @@ const ChatPage = () => {
 
 export const Route = createFileRoute("/(chat)/chat/")({
     component: ChatPage,
+    ssr: false,
 });

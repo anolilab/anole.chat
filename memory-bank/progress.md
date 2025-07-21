@@ -8,6 +8,7 @@
 - **Better Auth Integration**: Full-featured authentication system with JWT sessions
 - **Convex Backend**: Real-time database and functions with comprehensive schema
 - **TanStack Router**: Type-safe routing system with authentication integration
+- **TanStack DB Integration**: Modern client-side state management with reactive live queries
 - **Shadcn/UI Components**: Consistent design system with accessibility features
 - **Error Boundaries**: Comprehensive error handling and recovery options
 - **Internationalization**: Complete Lingui setup with English/German support
