@@ -1,0 +1,566 @@
+---
+description: TanStack DB Usage Guidelines
+globs:app/**/*.tsx, app/**/*.ts
+---
+# TanStack DB Usage Guidelines
+
+## Why TanStack DB?
+
+TanStack DB gives you robust support for **real-time sync**, **live queries** and **local writes**. With no stale data, super fast re-rendering and sub-millisecond cross-collection queries — even for large complex apps.
+
+Built on a TypeScript implementation of **differential dataflow**, TanStack DB gives you:
+
+🔥 **A blazing fast query engine** - for sub-millisecond live queries — even for complex queries with joins and aggregates
+
+🎯 **Fine-grained reactivity** - to minimize component re-rendering  
+
+💪 **Robust transaction primitives** - for easy optimistic mutations with sync and lifecycle support
+
+🌟 **Normalized data** - to keep your backend simple
+
+**TanStack DB is backend agnostic and incrementally adoptable:**
+- Plug in any backend: sync engines, REST APIs, GraphQL, polling, custom sources
+- Builds on TanStack Store, works with and alongside TanStack Query
+
+## Core Architecture Concepts
+
+### 1. Differential Dataflow
+- Queries are computed incrementally as data changes
+- Only affected parts of the query result are recalculated
+- Enables sub-millisecond performance even for complex queries
+
+### 2. Live Queries
+- All queries are **live** by default - automatically update when underlying data changes
+- No manual cache invalidation or refetching needed
+- Provides real-time reactivity out of the box
+
+### 3. Normalized Data Storage
+- Data is stored in normalized collections
+- Relationships are maintained through references
+- Prevents data duplication and inconsistencies
+
+### 4. Transaction Primitives
+- Built-in optimistic updates with rollback capability
+- Automatic sync with backend systems
+- Lifecycle hooks for mutation handling
+
+## Collection Types
+
+### Base Collections (Data Storage)
+```ts
+// LocalStorage - Persistent across browser sessions
+const userPrefsCollection = createCollection(localStorageCollectionOptions({
+  id: 'user-preferences',
+  storageKey: 'app-user-prefs',
+  storage: globalThis.localStorage
+  getKey: (item) => item.id,
+  schema: userPrefsSchema,
+}))
+
+// LocalOnly - In-memory only (session state)
+const uiStateCollection = createCollection(localOnlyCollectionOptions({
+  id: 'ui-state',
+  getKey: (item) => item.id,
+  schema: uiStateSchema,
+}))
+
+// Query Collections - Sync with backend
+const todosCollection = createCollection(queryCollectionOptions({
+  queryKey: ['todos'],
+  queryFn: async () => fetch('/api/todos'),
+  getKey: (item) => item.id,
+  schema: todoSchema,
+}))
+```
+
+### Live Query Collections (Derived Data)
+```ts
+// Create reactive derived collections from existing data
+const activeUsers = createCollection(liveQueryCollectionOptions({
+  query: (q) => q
+    .from({ user: usersCollection })
+    .where(({ user }) => eq(user.active, true))
+    .select(({ user }) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    })),
+  getKey: (user) => user.id,
+}))
+```
+
+## React Integration Patterns
+
+### useLiveQuery Hook (Primary Pattern)
+```tsx
+import { useLiveQuery, eq } from '@tanstack/react-db'
+
+function UserList() {
+  // Live query - automatically updates when data changes
+  const { data: activeUsers } = useLiveQuery((q) => q
+    .from({ user: usersCollection })
+    .where(({ user }) => eq(user.active, true))
+    .select(({ user }) => ({
+      id: user.id,
+      name: user.name,
+    }))
+  )
+
+  return (
+    <ul>
+      {activeUsers?.map(user => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### Optimistic Mutations
+```tsx
+function TodoItem({ todo }) {
+  const completeTodo = async () => {
+    // Optimistic update - UI updates immediately
+    await todosCollection.update(todo.id, (draft) => {
+      draft.completed = true
+    })
+    // Sync happens automatically in background
+  }
+
+  return (
+    <div>
+      <span>{todo.text}</span>
+      <button onClick={completeTodo}>Complete</button>
+    </div>
+  )
+}
+```
+
+## Query Building Patterns
+
+### Declarative Query API
+```ts
+// Use object syntax for aliases and declarative expressions
+const userPosts = useLiveQuery((q) => q
+  .from({ user: usersCollection })
+  .join(
+    { post: postsCollection },
+    ({ user, post }) => eq(user.id, post.userId)
+  )
+  .where(({ user, post }) => and(
+    eq(user.active, true),
+    eq(post.published, true)
+  ))
+  .select(({ user, post }) => ({
+    userName: user.name,
+    postTitle: post.title,
+    publishedAt: post.publishedAt,
+  }))
+)
+```
+
+### Expression Functions
+```ts
+// Comparison operators
+eq(user.id, 1)
+gt(user.age, 18)
+inArray(user.role, ['admin', 'moderator'])
+
+// Logical operators
+and(eq(user.active, true), gt(user.age, 18))
+or(eq(user.role, 'admin'), eq(user.role, 'moderator'))
+not(eq(user.deleted, true))
+
+// String functions
+concat(user.firstName, ' ', user.lastName)
+upper(user.email)
+like(user.name, 'John%')
+
+// Aggregations
+sum(order.amount)
+count(user.id)
+avg(user.rating)
+```
+
+## Backend Integration
+
+### REST API Integration
+```ts
+const todosCollection = createCollection(queryCollectionOptions({
+  queryKey: ['todos'],
+  queryFn: async () => fetch('/api/todos'),
+  getKey: (item) => item.id,
+  schema: todoSchema,
+  onInsert: async ({ transaction }) => {
+    const newTodo = transaction.mutations[0].modified
+    await api.todos.create(newTodo)
+  },
+  onUpdate: async ({ transaction }) => {
+    const { original, modified } = transaction.mutations[0]
+    await api.todos.update(original.id, modified)
+  },
+  onDelete: async ({ transaction }) => {
+    const deletedTodo = transaction.mutations[0].original
+    await api.todos.delete(deletedTodo.id)
+  },
+}))
+```
+
+### Real-time Sync Engines
+```ts
+// Example with ElectricSQL
+const todosCollection = createCollection(electricCollectionOptions({
+  id: 'todos',
+  shapeOptions: {
+    url: 'https://api.electric-sql.com/v1/shape',
+    params: { table: 'todos' }
+  },
+  getKey: (item) => item.id,
+  schema: todoSchema,
+}))
+```
+
+## Creating Custom Collection Options
+
+### When to Create Custom Collections
+Create custom collection options when you have:
+- A dedicated sync engine (ElectricSQL, Trailbase, custom WebSocket)
+- Specific sync behaviors not covered by query collections
+- A backend with its own sync protocol
+
+**Note**: If you're just hitting an API and returning data, use query collections instead.
+
+### Collection Options Creator Pattern
+```ts
+interface CustomCollectionConfig<TItem> {
+  // Sync engine specific options
+  connectionUrl: string
+  apiKey?: string
+  
+  // Standard collection properties
+  id?: string
+  schema?: StandardSchemaV1
+  getKey: (item: TItem) => string | number
+  
+  // Two patterns for mutation handlers:
+  // Pattern A: User provides handlers (Query/ElectricSQL style)
+  onInsert?: InsertMutationFn<TItem>
+  onUpdate?: UpdateMutationFn<TItem>
+  onDelete?: DeleteMutationFn<TItem>
+  
+  // Pattern B: Built-in handlers (Trailbase style)
+  // Omit mutation handlers - implemented by creator
+}
+
+export function customCollectionOptions<TItem>(
+  config: CustomCollectionConfig<TItem>
+): CollectionConfig<TItem> {
+  // Implementation details...
+}
+```
+
+### Sync Implementation Core Requirements
+```ts
+const sync: SyncConfig['sync'] = (params) => {
+  const { begin, write, commit, markReady, collection } = params
+  
+  // 1. Initialize connection to sync engine
+  const connection = initializeConnection(config)
+  
+  // 2. Perform initial data fetch
+  async function initialSync() {
+    const data = await fetchInitialData()
+    begin() // Start transaction
+    for (const item of data) {
+      write({ type: 'insert', value: item })
+    }
+    commit() // Commit transaction
+    markReady() // Mark collection as ready
+  }
+  
+  // 3. Subscribe to real-time updates
+  connection.subscribe((event) => {
+    begin()
+    switch (event.type) {
+      case 'insert':
+        write({ type: 'insert', value: event.data })
+        break
+      case 'update':
+        write({ type: 'update', value: event.data })
+        break
+      case 'delete':
+        write({ type: 'delete', value: event.data })
+        break
+    }
+    commit()
+  })
+  
+  initialSync()
+  
+  // 4. Return cleanup function
+  return () => {
+    connection.close()
+  }
+}
+```
+
+### Transaction Lifecycle
+1. **begin()** - Start collecting changes
+2. **write()** - Add changes to pending transaction
+3. **commit()** - Apply all changes atomically
+4. **markReady()** - Signal that initial sync is complete
+
+**Important**: Many sync engines start real-time subscriptions before initial sync completes. Implement deduplication to avoid processing the same change twice.
+
+### Data Parsing and Type Conversion
+```ts
+interface MyCollectionConfig<TItem, TRecord> {
+  // Only specify conversions for fields that need type conversion
+  parse?: {
+    created_at?: (ts: number) => Date // timestamp -> Date
+    updated_at?: (ts: number) => Date
+    metadata?: (str: string) => object // JSON string -> object
+  }
+  serialize?: {
+    created_at?: (date: Date) => number // Date -> timestamp
+    updated_at?: (date: Date) => number
+    metadata?: (obj: object) => string // object -> JSON string
+  }
+}
+```
+
+## Managing Optimistic State
+
+A critical challenge in sync-first apps is knowing when to drop optimistic state. When a user makes a change:
+
+1. UI updates immediately (optimistic update)
+2. Mutation sent to backend
+3. Backend processes and persists change
+4. Change syncs back to client
+5. Optimistic state should be dropped for synced data
+
+### Strategy 1: Transaction ID Tracking (ElectricSQL)
+```ts
+// Track seen transaction IDs
+const seenTxids = new Store<Set<string>>(new Set())
+
+// In sync, track txids from incoming messages
+if (message.headers.txids) {
+  message.headers.txids.forEach(txid => {
+    seenTxids.setState(prev => new Set([...prev, txid]))
+  })
+}
+
+// Mutation handlers return txids and wait for them
+const wrappedOnInsert = async (params) => {
+  const result = await config.onInsert!(params)
+  if (result.txid) {
+    await awaitTxId(result.txid)
+  }
+  return result
+}
+
+// Utility to wait for txid
+const awaitTxId = (txId: string): Promise<boolean> => {
+  if (seenTxids.state.has(txId)) return Promise.resolve(true)
+  
+  return new Promise((resolve) => {
+    const unsubscribe = seenTxids.subscribe(() => {
+      if (seenTxids.state.has(txId)) {
+        unsubscribe()
+        resolve(true)
+      }
+    })
+  })
+}
+```
+
+### Strategy 2: ID-Based Tracking (Trailbase)
+```ts
+// Track synced IDs with timestamps
+const seenIds = new Store<Map<string, number>>(new Map())
+
+// In sync, mark IDs as seen
+write({ type: 'insert', value: item })
+seenIds.setState(prev => new Map(prev).set(item.id, Date.now()))
+
+// Wait for specific IDs after mutations
+const wrappedOnInsert = async (params) => {
+  const ids = await config.recordApi.createBulk(items)
+  await awaitIds(ids)
+}
+
+const awaitIds = (ids: string[]): Promise<void> => {
+  const allSynced = ids.every(id => seenIds.state.has(id))
+  if (allSynced) return Promise.resolve()
+  
+  return new Promise((resolve) => {
+    const unsubscribe = seenIds.subscribe((state) => {
+      if (ids.every(id => state.has(id))) {
+        unsubscribe()
+        resolve()
+      }
+    })
+  })
+}
+```
+
+### Strategy 3: Full Refetch (Query Collection)
+```ts
+const wrappedOnInsert = async (params) => {
+  // Perform mutation
+  await config.onInsert(params)
+  
+  // Refetch entire collection
+  await refetch()
+  
+  // Refetch triggers sync with fresh data,
+  // automatically dropping optimistic state
+}
+```
+
+### Strategy 4: Version/Timestamp Tracking
+```ts
+// Track latest sync timestamp
+let lastSyncTime = 0
+
+// In mutations, record when operation was sent
+const wrappedOnUpdate = async (params) => {
+  const mutationTime = Date.now()
+  await config.onUpdate(params)
+  
+  // Wait for sync to catch up
+  await waitForSync(mutationTime)
+}
+
+const waitForSync = (afterTime: number): Promise<void> => {
+  if (lastSyncTime > afterTime) return Promise.resolve()
+  
+  return new Promise((resolve) => {
+    const check = setInterval(() => {
+      if (lastSyncTime > afterTime) {
+        clearInterval(check)
+        resolve()
+      }
+    }, 100)
+  })
+}
+```
+
+### Choosing Optimistic State Strategy
+- **Transaction IDs**: Best when backend provides reliable transaction tracking
+- **ID-Based**: Good for systems where mutations return affected IDs
+- **Full Refetch**: Simplest but least efficient; good for small datasets
+- **Version/Timestamp**: Works when sync includes reliable ordering
+
+## Best Practices
+
+### 1. Avoid Get Functions in Hooks
+❌ **Don't use separate get functions:**
+```ts
+const { data } = useLiveQuery(...)
+const value = getSomeValue() // Redundant!
+```
+
+✅ **Use live queries directly:**
+```ts
+const { data } = useLiveQuery((q) => q
+  .from({ collection })
+  .where(({ item }) => eq(item.id, targetId))
+)
+const value = data?.[0] // Get from query result directly
+```
+
+### 2. Leverage Fine-grained Reactivity
+```ts
+// Specific queries minimize re-renders
+const userName = useLiveQuery((q) => q
+  .from({ user: usersCollection })
+  .where(({ user }) => eq(user.id, userId))
+  .select(({ user }) => ({ name: user.name }))
+)
+```
+
+### 3. Use Optimistic Updates
+```ts
+// Update UI immediately, sync in background
+const updateUser = async (userId, updates) => {
+  await usersCollection.update(userId, (draft) => {
+    Object.assign(draft, updates)
+  })
+  // Sync happens automatically
+}
+```
+
+### 4. Normalize Data Structure
+```ts
+// Store relationships as references, not nested objects
+const user = {
+  id: 1,
+  name: 'John',
+  postIds: [1, 2, 3] // Reference to posts, not embedded posts
+}
+```
+
+### 5. Compose Queries Efficiently
+```ts
+// Chain operations for optimal performance
+const result = useLiveQuery((q) => q
+  .from({ user: usersCollection })
+  .where(({ user }) => eq(user.active, true))
+  .join({ post: postsCollection }, ({ user, post }) => eq(user.id, post.userId))
+  .select(({ user, post }) => ({ userName: user.name, postTitle: post.title }))
+)
+```
+
+### 6. Collection Options Creator Best Practices
+- **Always call markReady()** - Signals collection has initial data and is ready
+- **Handle errors gracefully** - Call markReady() even on error to avoid blocking
+- **Clean up resources** - Return cleanup function from sync to prevent leaks
+- **Batch operations** - Use begin/commit to batch changes for performance
+- **Type safety** - Use TypeScript generics throughout
+- **Provide utilities** - Export sync-engine-specific utilities for advanced use
+
+### 7. Row Update Modes
+Configure how updates are applied:
+```ts
+sync: {
+  sync: syncFn,
+  rowUpdateMode: 'partial' // or 'full'
+  // 'partial' (default) - Updates merged with existing data
+  // 'full' - Updates replace entire row
+}
+```
+
+## Performance Characteristics
+
+- **Sub-millisecond queries** - Even for complex joins and aggregations
+- **Minimal re-renders** - Only affected components update
+- **Incremental computation** - Only changed parts are recalculated
+- **Memory efficient** - Normalized storage prevents duplication
+- **Optimistic updates** - Immediate UI feedback with background sync
+
+## Migration Strategy
+
+1. **Start with UI state** - Use LocalStorage/LocalOnly collections for client state
+2. **Add live queries** - Create derived collections from existing data
+3. **Integrate backend** - Connect Query collections to your API
+4. **Enable real-time** - Add sync engines for live collaboration
+5. **Optimize performance** - Use fine-grained queries and normalized data
+
+## Testing Custom Collections
+
+Test your collection options creators with:
+1. **Unit tests** - Test sync logic, data transformations
+2. **Integration tests** - Test with real sync engine
+3. **Error scenarios** - Connection failures, invalid data
+4. **Performance** - Large datasets, frequent updates
+
+## Advanced Implementation Tips
+
+1. **Always wait for sync** in mutation handlers to ensure proper optimistic state management
+2. **Handle timeouts** - Don't wait forever for sync confirmation
+3. **Clean up tracking data** - Remove old txids/IDs to prevent memory leaks
+4. **Provide utilities** - Export functions like `awaitTxId` or `awaitSync` for advanced use cases
+5. **Batch transactions** - Send multiple mutations together when possible
+6. **Deduplicate events** - Handle cases where real-time subscriptions overlap with initial sync 
