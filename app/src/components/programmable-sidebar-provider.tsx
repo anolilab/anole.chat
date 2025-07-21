@@ -1,54 +1,77 @@
-import { SidebarProvider, useSidebar } from "@anole/ui/components/sidebar";
-import React from "react";
+import { SidebarProvider } from "@anole/ui/components/sidebar";
+import type { CSSProperties, ReactNode } from "react";
+import { useMemo } from "react";
 
-import { useKeyboardShortcuts } from "../features/keyboard/components/keyboard-shortcuts-manager";
+import type { SidebarStateValue } from "@/features/layout/collections/ui-state-collection";
+import { useSidebarState } from "@/features/layout/hooks/use-ui-state";
 
 interface ProgrammableSidebarProviderProperties<T extends string> {
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
     defaultOpen?: "all" | T[];
+    keyboardShortcuts?: Partial<Record<T, string>>;
     sidebarNames: ReadonlyArray<T>;
-    style?: React.CSSProperties;
+    style?: CSSProperties;
 }
 
-export const ProgrammableSidebarProvider = <T extends string>({
+const ProgrammableSidebarProvider = <T extends string>({
     children,
     className,
     defaultOpen = "all",
+    keyboardShortcuts,
     sidebarNames,
     style,
-}: ProgrammableSidebarProviderProperties<T>) => {
-    const { shortcuts } = useKeyboardShortcuts();
+}: ProgrammableSidebarProviderProperties<T>): ReactNode => {
+    const { setSidebarStates, sidebars } = useSidebarState();
 
-    // Create keyboard shortcuts mapping for sidebars
-    const keyboardShortcuts = React.useMemo(() => {
-        const mapping: Partial<Record<T, string>> = {};
-
-        // Map known sidebar shortcuts
-        const sidebarShortcutMap: Record<string, keyof typeof shortcuts> = {
-            left: "sidebarLeft",
-            right: "sidebarRight",
-        };
+    // Always produce a Record<T, SidebarStateValue>
+    const open = useMemo((): Record<T, SidebarStateValue> => {
+        const result = {} as Record<T, SidebarStateValue>;
 
         sidebarNames.forEach((name) => {
-            const shortcutKey = sidebarShortcutMap[name as string];
+            result[name] = (sidebars && sidebars[name]) || { isMobileOpen: false, isOpen: false };
+        });
 
-            if (shortcutKey && shortcuts[shortcutKey]) {
-                mapping[name] = shortcuts[shortcutKey] as string;
+        return result;
+    }, [sidebars, sidebarNames]);
+
+    // Initialize sidebar states if they don't exist
+    useMemo(() => {
+        if (!sidebars || !setSidebarStates)
+            return;
+
+        const defaultOpenState = defaultOpen === "all" ? sidebarNames : defaultOpen;
+        const missingStates: Record<string, SidebarStateValue> = {};
+        let hasChanges = false;
+
+        sidebarNames.forEach((name) => {
+            if (!sidebars[name]) {
+                missingStates[name] = {
+                    isMobileOpen: false,
+                    isOpen: defaultOpenState.includes(name),
+                };
+                hasChanges = true;
             }
         });
 
-        return mapping;
-    }, [sidebarNames, shortcuts]);
+        if (hasChanges) {
+            setSidebarStates(missingStates);
+        }
+    }, [sidebarNames, defaultOpen, sidebars, setSidebarStates]);
 
     return (
-        <SidebarProvider className={className} defaultOpen={defaultOpen} keyboardShortcuts={keyboardShortcuts} sidebarNames={sidebarNames} style={style}>
+        <SidebarProvider
+            className={className}
+            defaultOpen={defaultOpen}
+            keyboardShortcuts={keyboardShortcuts}
+            onOpenChange={setSidebarStates}
+            open={open}
+            sidebarNames={sidebarNames}
+            style={style}
+        >
             {children}
         </SidebarProvider>
     );
 };
 
-// Hook to use programmable sidebar
-export function useProgrammableSidebar<T extends string>(name: T) {
-    return useSidebar(name);
-}
+export default ProgrammableSidebarProvider;

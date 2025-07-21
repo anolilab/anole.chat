@@ -50,8 +50,8 @@ export const PersonalAccountView = ({ className, classNames, isPending, size, us
                                     || user?.firstName
                                     || user?.name
                                     || user?.fullName
-                || user?.email
-                                || t`User`}
+                                    || user?.email
+                                    || t`User`}
                             </span>
 
                             {size !== "sm" && (

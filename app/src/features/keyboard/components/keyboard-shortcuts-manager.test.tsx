@@ -6,7 +6,9 @@ import { KeyboardShortcutsManager, useKeyboardShortcuts } from "./keyboard-short
 // Mock Convex
 vi.mock("convex/react", () => {
     return {
-        useConvexQuery: vi.fn(() => { return { keyboardShortcuts: {} }; }),
+        useConvexQuery: vi.fn(() => {
+            return { keyboardShortcuts: {} };
+        }),
         useMutation: vi.fn(() => vi.fn()),
     };
 });

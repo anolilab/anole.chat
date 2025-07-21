@@ -1,14 +1,13 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 
-import { ProgrammableSidebarProvider } from "@/components/programmable-sidebar-provider";
+import ProgrammableSidebarProvider from "@/components/programmable-sidebar-provider";
 import { AutoGuestSignIn } from "@/features/auth/components/auto-guest-signin";
 import { AiModelProvider } from "@/features/chat/providers/ai-model-provider";
 import { KeyboardShortcutsManager } from "@/features/keyboard/components/keyboard-shortcuts-manager";
 import useKeyboardShortcutHandler from "@/features/keyboard/hooks/use-keyboard-shortcut-handler";
 
 const defaultOpen = ["left"];
-const keyboardShortcuts = { left: "b", right: "l" };
 const sidebarNames = ["left", "right"];
 const sidebarStyle = {
     "--header-height": "calc(var(--spacing) * 10)",
@@ -41,4 +40,5 @@ const RouteComponent = () => {
 
 export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,
+    ssr: false,
 });

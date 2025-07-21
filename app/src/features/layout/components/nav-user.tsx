@@ -10,10 +10,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@anole/ui/components/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@anole/ui/components/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@anole/ui/components/sidebar";
 import { useLingui } from "@lingui/react/macro";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut, PlusCircleIcon, SettingsIcon, Sparkles } from "lucide-react";
+import type { FC } from "react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 
 import { UserView } from "@/features/auth/components/user-view";
@@ -28,8 +29,7 @@ export interface NavUserProperties {
     trigger?: React.ReactNode;
 }
 
-export const NavUser = () => {
-    const { isMobile } = useSidebar();
+export const NavUser: FC = () => {
     const router = useRouter();
     const navigate = useNavigate();
     const { t } = useLingui();
@@ -117,7 +117,7 @@ export const NavUser = () => {
                         onCloseAutoFocus={(e) => {
                             e.preventDefault();
                         }}
-                        side={isMobile ? "bottom" : "right"}
+                        side={false ? "bottom" : "right"}
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className="p-0 font-normal">

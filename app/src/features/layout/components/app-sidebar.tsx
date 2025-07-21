@@ -1,22 +1,21 @@
 "use client";
 
-import { Button } from "@anole/ui/components/button";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@anole/ui/components/sidebar";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Cog, LogIn, MessageSquare } from "lucide-react";
-import type { FC } from "react";
+import type { ComponentProps, ComponentType, FC, ReactNode } from "react";
 
 import AnonymousConvertCard from "@/features/auth/components/anonymous/anonymous-convert-card";
 import useIsAnonymous from "@/features/auth/hooks/use-is-anonymous";
 import { NavUser } from "@/features/layout/components/nav-user";
 
 const AppSidebar: FC<
-    React.ComponentProps<typeof Sidebar> & {
-        content: React.ReactNode;
-        footer?: React.ReactNode;
-        header?: React.ReactNode;
+    ComponentProps<typeof Sidebar> & {
+        content: ReactNode;
+        footer?: ReactNode;
+        header?: ReactNode;
     }
 > = ({ className, content, footer, header }) => {
     const location = useLocation();
@@ -24,7 +23,7 @@ const AppSidebar: FC<
     const { isAnonymous } = useIsAnonymous();
 
     const sidebarLinks: {
-        icon: React.ComponentType<{ className?: string }>;
+        icon: ComponentType<{ className?: string }>;
         label: string;
         matcher?: (pathname: string) => boolean;
         to: string;
