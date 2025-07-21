@@ -1,13 +1,13 @@
-import { api } from "@anole/convex/api";
-import { useMutation, useQuery as useConvexQuery } from "convex/react";
+import { useLiveQuery } from "@tanstack/react-db";
 import React, { useCallback, useEffect, useMemo } from "react";
+import { keyboardShortcutsCollection, keyboardShortcutsHelpers, type KeyboardShortcuts } from "../collections/keyboard-shortcuts-collection";
 
 // Context for keyboard shortcuts
 interface KeyboardShortcutsContextType {
     matchesShortcut: (event: KeyboardEvent, shortcutString: string) => boolean;
     parseShortcut: (shortcutString: string) => KeyboardShortcut;
-    shortcuts: KeyboardShortcutsConfig;
-    updateShortcuts: (shortcuts: Partial<KeyboardShortcutsConfig>) => Promise<void>;
+    shortcuts: KeyboardShortcuts;
+    updateShortcuts: (shortcuts: Partial<KeyboardShortcuts>) => Promise<void>;
 }
 
 const KeyboardShortcutsContext = React.createContext<KeyboardShortcutsContextType | null>(null);
@@ -20,22 +20,22 @@ export interface KeyboardShortcut {
     shiftKey?: boolean;
 }
 
-export interface KeyboardShortcutsConfig {
-    escape?: string;
-    help?: string;
-    newChat?: string;
-    search?: string;
-    sidebarLeft?: string;
-    sidebarRight?: string;
-}
+// Export types for compatibility
+export type KeyboardShortcutsConfig = KeyboardShortcuts;
 
-export const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcutsConfig = {
+export const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcuts = {
+    id: "keyboard-shortcuts",
     escape: "Escape",
-    help: "?",
-    newChat: "n",
-    search: "k",
-    sidebarLeft: "b",
-    sidebarRight: "l",
+    help: "Ctrl+/",
+    newChat: "Ctrl+N",
+    search: "Ctrl+K",
+    sidebarLeft: "Ctrl+B",
+    sidebarRight: "Ctrl+Shift+B",
+    focusSearch: "Ctrl+F",
+    nextItem: "ArrowDown",
+    prevItem: "ArrowUp",
+    firstItem: "Home",
+    lastItem: "End",
 };
 
 export const KeyboardShortcutsManager: React.FC<{
@@ -43,48 +43,40 @@ export const KeyboardShortcutsManager: React.FC<{
     onShortcut?: (action: keyof KeyboardShortcutsConfig, event: KeyboardEvent) => void;
     shortcuts?: Partial<KeyboardShortcutsConfig>;
 }> = ({ children, onShortcut, shortcuts }) => {
-    const userSettings = useConvexQuery(api.auth.functions.getUserSettings);
-    const updateUserSettings = useMutation(api.auth.functions.updateUserSettings);
+    // Get keyboard shortcuts from TanStack DB
+    const { data: shortcutsData } = useLiveQuery((q) =>
+        q.from({ shortcuts: keyboardShortcutsCollection }).select(({ shortcuts }) => shortcuts)
+    );
+
+    const userShortcuts = shortcutsData?.[0] || keyboardShortcutsHelpers.getCurrentShortcuts();
 
     // Merge user settings with defaults and props
     const effectiveShortcuts = useMemo(() => {
-        const userShortcuts = userSettings?.keyboardShortcuts || {};
-
         return {
             ...DEFAULT_KEYBOARD_SHORTCUTS,
             ...userShortcuts,
             ...shortcuts,
         };
-    }, [userSettings?.keyboardShortcuts, shortcuts]);
+    }, [userShortcuts, shortcuts]);
 
-    // Parse shortcut string into KeyboardShortcut object
+    // Use TanStack DB helpers for parsing and matching shortcuts
     const parseShortcut = useCallback((shortcutString: string): KeyboardShortcut => {
-        const parts = shortcutString.toLowerCase().split("+");
-        const key = parts[parts.length - 1];
-
+        const parsed = keyboardShortcutsHelpers.parseShortcut(shortcutString);
         return {
-            altKey: parts.includes("alt"),
-            ctrlKey: parts.includes("ctrl"),
-            key,
-            metaKey: parts.includes("cmd") || parts.includes("meta"),
-            shiftKey: parts.includes("shift"),
+            altKey: parsed.altKey,
+            ctrlKey: parsed.ctrlKey,
+            key: parsed.key,
+            metaKey: parsed.metaKey,
+            shiftKey: parsed.shiftKey,
         };
     }, []);
 
-    // Check if keyboard event matches a shortcut
+    // Use TanStack DB helper for matching shortcuts
     const matchesShortcut = useCallback(
         (event: KeyboardEvent, shortcutString: string): boolean => {
-            const shortcut = parseShortcut(shortcutString);
-
-            return (
-                event.key.toLowerCase() === shortcut.key
-                && !!event.ctrlKey === !!shortcut.ctrlKey
-                && !!event.metaKey === !!shortcut.metaKey
-                && !!event.shiftKey === !!shortcut.shiftKey
-                && !!event.altKey === !!shortcut.altKey
-            );
+            return keyboardShortcutsHelpers.matchesShortcut(event, shortcutString);
         },
-        [parseShortcut],
+        [],
     );
 
     // Handle keyboard events
@@ -118,15 +110,12 @@ export const KeyboardShortcutsManager: React.FC<{
         return () => globalThis.removeEventListener("keydown", handleKeyDown);
     }, [handleKeyDown]);
 
-    // Update user settings with new shortcuts
+    // Update shortcuts using TanStack DB
     const updateShortcuts = useCallback(
         async (newShortcuts: Partial<KeyboardShortcutsConfig>) => {
-            const currentShortcuts = userSettings?.keyboardShortcuts || {};
-            const updatedShortcuts = { ...currentShortcuts, ...newShortcuts };
-
-            await updateUserSettings({ keyboardShortcuts: updatedShortcuts });
+            keyboardShortcutsHelpers.updateShortcuts(newShortcuts);
         },
-        [userSettings?.keyboardShortcuts, updateUserSettings],
+        [],
     );
 
     // Context value for child components

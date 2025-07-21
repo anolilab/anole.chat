@@ -1,7 +1,5 @@
-import { SidebarProvider, useSidebar } from "@anole/ui/components/sidebar";
 import React from "react";
-
-import { useKeyboardShortcuts } from "../features/keyboard/components/keyboard-shortcuts-manager";
+import { TanStackSidebarProvider, useTanStackSidebar } from "./tanstack-sidebar-provider";
 
 interface ProgrammableSidebarProviderProperties<T extends string> {
     children: React.ReactNode;
@@ -9,6 +7,8 @@ interface ProgrammableSidebarProviderProperties<T extends string> {
     defaultOpen?: "all" | T[];
     sidebarNames: ReadonlyArray<T>;
     style?: React.CSSProperties;
+    onOpenChange?: (open: T[]) => void;
+    open?: T[];
 }
 
 export const ProgrammableSidebarProvider = <T extends string>({
@@ -17,38 +17,24 @@ export const ProgrammableSidebarProvider = <T extends string>({
     defaultOpen = "all",
     sidebarNames,
     style,
+    onOpenChange,
+    open,
 }: ProgrammableSidebarProviderProperties<T>) => {
-    const { shortcuts } = useKeyboardShortcuts();
-
-    // Create keyboard shortcuts mapping for sidebars
-    const keyboardShortcuts = React.useMemo(() => {
-        const mapping: Partial<Record<T, string>> = {};
-
-        // Map known sidebar shortcuts
-        const sidebarShortcutMap: Record<string, keyof typeof shortcuts> = {
-            left: "sidebarLeft",
-            right: "sidebarRight",
-        };
-
-        sidebarNames.forEach((name) => {
-            const shortcutKey = sidebarShortcutMap[name as string];
-
-            if (shortcutKey && shortcuts[shortcutKey]) {
-                mapping[name] = shortcuts[shortcutKey] as string;
-            }
-        });
-
-        return mapping;
-    }, [sidebarNames, shortcuts]);
-
     return (
-        <SidebarProvider className={className} defaultOpen={defaultOpen} keyboardShortcuts={keyboardShortcuts} sidebarNames={sidebarNames} style={style}>
+        <TanStackSidebarProvider 
+            className={className} 
+            defaultOpen={defaultOpen} 
+            sidebarNames={sidebarNames} 
+            style={style}
+            onOpenChange={onOpenChange}
+            open={open}
+        >
             {children}
-        </SidebarProvider>
+        </TanStackSidebarProvider>
     );
 };
 
-// Hook to use programmable sidebar
+// Hook to use programmable sidebar (now uses TanStack DB)
 export function useProgrammableSidebar<T extends string>(name: T) {
-    return useSidebar(name);
+    return useTanStackSidebar(name);
 }

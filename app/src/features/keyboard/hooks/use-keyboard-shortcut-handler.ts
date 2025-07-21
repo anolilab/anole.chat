@@ -86,10 +86,10 @@ const useKeyboardShortcutHandler = () => {
                     (items[items.length - 1] as HTMLElement)?.focus();
                     break;
                 }
-                // sidebarLeft and sidebarRight are handled by ProgrammableSidebarProvider
+                // sidebarLeft and sidebarRight are handled by TanStackSidebarProvider
                 case "sidebarLeft":
                 case "sidebarRight": {
-                    // These are handled by the sidebar provider, no action needed here
+                    // These are handled by the TanStack sidebar provider, no action needed here
                     break;
                 }
                 default: {
