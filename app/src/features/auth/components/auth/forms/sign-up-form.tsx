@@ -336,7 +336,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
             }
         },
         validators: {
-            onChange: ({ value }) => formSchema.safeParse(value),
+            onChange: formSchema,
         },
     });
 
@@ -360,7 +360,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
             form.setFieldValue("image", base64);
         } catch {
             toast({
-                message: "Failed to upload avatar",
+                message: t`Failed to upload avatar`,
                 variant: "error",
             });
         } finally {
@@ -404,68 +404,66 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                             type="file"
                         />
 
-                        <form.AppField
-                            children={() => (
-                                <div className="space-y-2">
-                                    <label className={cn("text-sm font-medium", classNames?.label)}>{t`Avatar`}</label>
+                        <form.AppField name="image">
+                            <div className="space-y-2">
+                                <label className={cn("text-sm font-medium", classNames?.label)}>{t`Avatar`}</label>
 
-                                    <div className="flex items-center gap-4">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button className="size-fit rounded-full" size="icon" type="button" variant="ghost">
-                                                    <form.Subscribe
-                                                        children={({ email, name }) => (
-                                                            <Avatar className="size-16">
-                                                                {avatarImage && <AvatarImage alt={name || "User"} src={avatarImage} />}
-                                                                <AvatarFallback className="rounded-lg">{name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
-                                                            </Avatar>
-                                                        )}
-                                                        selector={(state) => {
-                                                            return {
-                                                                email: state.values.email || "",
-                                                                name: state.values.name || "",
-                                                            };
-                                                        }}
-                                                    />
-                                                </Button>
-                                            </DropdownMenuTrigger>
+                                <div className="flex items-center gap-4">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button className="size-fit rounded-full" size="icon" type="button" variant="ghost">
+                                                <form.Subscribe
+                                                    selector={(state) => {
+                                                        return {
+                                                            email: state.values.email || "",
+                                                            name: state.values.name || "",
+                                                        };
+                                                    }}
+                                                >
+                                                    {({ email, name }) => (
+                                                        <Avatar className="size-16">
+                                                            {avatarImage && <AvatarImage alt={name || "User"} src={avatarImage} />}
+                                                            <AvatarFallback className="rounded-lg">{name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
+                                                        </Avatar>
+                                                    )}
+                                                </form.Subscribe>
+                                            </Button>
+                                        </DropdownMenuTrigger>
 
-                                            <DropdownMenuContent
-                                                align="start"
-                                                onCloseAutoFocus={(e) => {
-                                                    e.preventDefault();
-                                                }}
-                                            >
-                                                <DropdownMenuItem disabled={uploadingAvatar} onClick={openFileDialog}>
-                                                    <UploadCloudIcon />
-                                                    {t`Upload Avatar`}
+                                        <DropdownMenuContent
+                                            align="start"
+                                            onCloseAutoFocus={(e) => {
+                                                e.preventDefault();
+                                            }}
+                                        >
+                                            <DropdownMenuItem disabled={uploadingAvatar} onClick={openFileDialog}>
+                                                <UploadCloudIcon />
+                                                {t`Upload Avatar`}
+                                            </DropdownMenuItem>
+
+                                            {avatarImage && (
+                                                <DropdownMenuItem disabled={uploadingAvatar} onClick={handleDeleteAvatar} variant="destructive">
+                                                    <Trash2Icon />
+                                                    {t`Delete Avatar`}
                                                 </DropdownMenuItem>
+                                            )}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
 
-                                                {avatarImage && (
-                                                    <DropdownMenuItem disabled={uploadingAvatar} onClick={handleDeleteAvatar} variant="destructive">
-                                                        <Trash2Icon />
-                                                        {t`Delete Avatar`}
-                                                    </DropdownMenuItem>
-                                                )}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                    <Button disabled={uploadingAvatar} onClick={openFileDialog} type="button" variant="outline">
+                                        {uploadingAvatar && <Loader2 className="animate-spin" />}
 
-                                        <Button disabled={uploadingAvatar} onClick={openFileDialog} type="button" variant="outline">
-                                            {uploadingAvatar && <Loader2 className="animate-spin" />}
-
-                                            {t`Upload`}
-                                        </Button>
-                                    </div>
+                                        {t`Upload`}
+                                    </Button>
                                 </div>
-                            )}
-                            name="image"
-                        />
+                            </div>
+                        </form.AppField>
                     </>
                 )}
 
                 {signUpFields?.includes("name") && (
-                    <form.AppField
-                        children={(field) => (
+                    <form.AppField name="name">
+                        {(field) => (
                             <field.FormItem>
                                 <field.FormLabel className={classNames?.label}>{t`Name`}</field.FormLabel>
 
@@ -486,13 +484,12 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                 <field.FormMessage className={classNames?.error} />
                             </field.FormItem>
                         )}
-                        name="name"
-                    />
+                    </form.AppField>
                 )}
 
                 {usernameEnabled && (
-                    <form.AppField
-                        children={(field) => (
+                    <form.AppField name="username">
+                        {(field) => (
                             <field.FormItem>
                                 <field.FormLabel className={classNames?.label}>{t`Username`}</field.FormLabel>
 
@@ -513,12 +510,11 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                 <field.FormMessage className={classNames?.error} />
                             </field.FormItem>
                         )}
-                        name="username"
-                    />
+                    </form.AppField>
                 )}
 
-                <form.AppField
-                    children={(field) => (
+                <form.AppField name="email">
+                    {(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Email`}</field.FormLabel>
 
@@ -540,11 +536,10 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
-                    name="email"
-                />
+                </form.AppField>
 
-                <form.AppField
-                    children={(field) => (
+                <form.AppField name="password">
+                    {(field) => (
                         <field.FormItem>
                             <field.FormLabel className={classNames?.label}>{t`Password`}</field.FormLabel>
 
@@ -566,12 +561,11 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                             <field.FormMessage className={classNames?.error} />
                         </field.FormItem>
                     )}
-                    name="password"
-                />
+                </form.AppField>
 
                 {confirmPasswordEnabled && (
-                    <form.AppField
-                        children={(field) => (
+                    <form.AppField name="confirmPassword">
+                        {(field) => (
                             <field.FormItem>
                                 <field.FormLabel className={classNames?.label}>{t`Confirm Password`}</field.FormLabel>
 
@@ -593,8 +587,7 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                 <field.FormMessage className={classNames?.error} />
                             </field.FormItem>
                         )}
-                        name="confirmPassword"
-                    />
+                    </form.AppField>
                 )}
 
                 {signUpFields
@@ -610,8 +603,8 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
 
                         return additionalField.type === "boolean"
                             ? (
-                                <form.AppField
-                                    children={(formField) => (
+                                <form.AppField key={field} name={field}>
+                                    {(formField) => (
                                         <formField.FormItem className="flex">
                                             <formField.FormControl>
                                                 <Checkbox
@@ -628,13 +621,11 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                             <formField.FormMessage className={classNames?.error} />
                                         </formField.FormItem>
                                     )}
-                                    key={field}
-                                    name={field}
-                                />
+                                </form.AppField>
                             )
                             : (
-                                <form.AppField
-                                    children={(formField) => (
+                                <form.AppField key={field} name={field}>
+                                    {(formField) => (
                                         <formField.FormItem>
                                             <formField.FormLabel className={classNames?.label}>{String(additionalField.label || "")}</formField.FormLabel>
 
@@ -657,22 +648,19 @@ export const SignUpForm = ({ callbackURL, className, classNames, isSubmitting, p
                                             <formField.FormMessage className={classNames?.error} />
                                         </formField.FormItem>
                                     )}
-                                    key={field}
-                                    name={field}
-                                />
+                                </form.AppField>
                             );
                     })}
 
                 <Captcha action="/sign-up/email" ref={captchaRef} />
 
-                <form.Subscribe
-                    children={([canSubmit, isSubmitting]) => (
+                <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+                    {([canSubmit, isSubmitting]) => (
                         <Button className={cn("w-full", classNames?.button, classNames?.primaryButton)} disabled={!canSubmit || isSubmitting} type="submit">
                             {isSubmitting ? <Loader2 className="animate-spin" /> : t`Sign Up`}
                         </Button>
                     )}
-                    selector={(state) => [state.canSubmit, state.isSubmitting]}
-                />
+                </form.Subscribe>
             </form>
         </form.AppForm>
     );

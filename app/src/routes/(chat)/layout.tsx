@@ -40,5 +40,4 @@ const RouteComponent = () => {
 
 export const Route = createFileRoute("/(chat)")({
     component: RouteComponent,
-    ssr: false,
 });

@@ -55,7 +55,6 @@ export const Route = createFileRoute("/(chat)/chat/$threadId")({
         }
     },
     component: ChatPage,
-    ssr: false,
     validateSearch: (search: Record<string, unknown>) => {
         return {
             initialMessage: search.initialMessage as string | undefined,

@@ -210,15 +210,7 @@ export const SignInForm = ({
             }
         },
         validators: {
-            onChange: ({ value }) => {
-                const result = formSchema.safeParse(value);
-
-                if (!result.success) {
-                    return result.error.flatten().fieldErrors;
-                }
-
-                return undefined;
-            },
+            onChange: formSchema,
         },
     });
 
