@@ -2,10 +2,10 @@
 
 "use client";
 
-import { createCollection, localStorageCollectionOptions } from "@tanstack/react-db";
+import { createCollection, localOnlyCollectionOptions, localStorageCollectionOptions } from "@tanstack/react-db";
 import { z } from "zod/v4";
 
-const isClient = typeof window !== "undefined";
+const isClient = globalThis.window !== undefined;
 
 const KEY = "anole-ui-state";
 
@@ -186,21 +186,21 @@ export type UserPreferences = z.infer<typeof userPreferencesSchema>;
 export type LayoutState = z.infer<typeof layoutStateSchema>;
 
 export const uiStateCollection = isClient
-  ? createCollection(
-      localStorageCollectionOptions({
-        getKey: (item: UIState) => item.id,
-        id: KEY,
-        schema: uiStateSchema,
-        storage: globalThis.localStorage,
-        storageKey: KEY,
-      })
+    ? createCollection(
+        localStorageCollectionOptions({
+            getKey: (item: UIState) => item.id,
+            id: KEY,
+            schema: uiStateSchema,
+            storage: globalThis.localStorage,
+            storageKey: KEY,
+        }),
     )
-  : createCollection(
-      localOnlyCollectionOptions({
-        getKey: (item: UIState) => item.id,
-        id: KEY,
-        schema: uiStateSchema,
-      })
+    : createCollection(
+        localOnlyCollectionOptions({
+            getKey: (item: UIState) => item.id,
+            id: KEY,
+            schema: uiStateSchema,
+        }),
     );
 
 // Initialize UI state collection

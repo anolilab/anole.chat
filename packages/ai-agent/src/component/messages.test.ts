@@ -2,7 +2,7 @@
 
 import { convexTest } from "convex-test";
 import { describe, expect, test } from "vitest";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { getMaxMessage } from "./messages";
 import schema from "./schema";
@@ -153,7 +153,7 @@ describe("agent", () => {
     });
     const messageId = messages[0]._id as Id<"messages">;
     
-    const updatedMessage = await t.mutation(api.messages.updateMessage, {
+    const updatedMessage = await t.mutation(internal.messages.updateMessage, {
       messageId,
       patch: {
         message: { role: "user", content: "updated content" },
@@ -182,7 +182,7 @@ describe("agent", () => {
     expect(messages[0].status).toBe("pending");
     
     // Update to success
-    const updatedMessage = await t.mutation(api.messages.updateMessage, {
+    const updatedMessage = await t.mutation(internal.messages.updateMessage, {
       messageId,
       patch: {
         status: "success",
@@ -204,7 +204,7 @@ describe("agent", () => {
     });
     const messageId = messages[0]._id as Id<"messages">;
     
-    const updatedMessage = await t.mutation(api.messages.updateMessage, {
+    const updatedMessage = await t.mutation(internal.messages.updateMessage, {
       messageId,
       patch: {
         status: "failed",
@@ -239,7 +239,7 @@ describe("agent", () => {
     });
     const messageId = messages[0]._id as Id<"messages">;
     
-    const updatedMessage = await t.mutation(api.messages.updateMessage, {
+    const updatedMessage = await t.mutation(internal.messages.updateMessage, {
       messageId,
       patch: {
         message: {
@@ -273,7 +273,7 @@ describe("agent", () => {
     const t = convexTest(schema, modules);
     
     await expect(
-      t.mutation(api.messages.updateMessage, {
+      t.mutation(internal.messages.updateMessage, {
         messageId: "invalidId" as Id<"messages">,
         patch: {
           message: { role: "user", content: "test" },

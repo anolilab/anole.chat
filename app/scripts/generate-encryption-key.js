@@ -11,8 +11,9 @@ const generateEncryptionKey = () => {
 const checkKeyInEnvironment = (keyName) => {
     const environmentPath = path.join(process.cwd(), ".env");
 
-    if (!fs.existsSync(environmentPath))
+    if (!fs.existsSync(environmentPath)) {
         return false;
+    }
 
     const environmentContent = fs.readFileSync(environmentPath, "utf8");
     const regex = new RegExp(`^${keyName}=.+$`, "m");

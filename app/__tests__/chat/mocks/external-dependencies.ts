@@ -18,11 +18,13 @@ export const mockCreateRouter = vi.fn();
 
 // Mock Lingui
 export const mockT = vi.fn((template: any) => {
-    if (typeof template === "string")
+    if (typeof template === "string") {
         return template;
+    }
 
-    if (template && template.id)
+    if (template && template.id) {
         return template.id;
+    }
 
     return "Mocked translation";
 });

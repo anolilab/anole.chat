@@ -17,7 +17,7 @@
         "sqlite3": "^5.1.7"
     },
     "devDependencies": {
-        "@anolilab/eslint-config": "16.2.21",
+        "@anolilab/eslint-config": "16.2.22",
         "@visulima/packem": "2.0.0-alpha.2",
         "eslint": "9.31.0",
         "typescript": "^5.8.3"

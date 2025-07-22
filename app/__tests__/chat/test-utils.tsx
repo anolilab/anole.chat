@@ -179,8 +179,9 @@ export const waitForElement = async (testId: string, timeout = 5000) => {
         try {
             const element = document.querySelector(`[data-testid="${testId}"]`);
 
-            if (element)
+            if (element) {
                 return element;
+            }
         } catch {
             // Element not found yet, continue waiting
         }

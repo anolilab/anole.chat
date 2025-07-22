@@ -63,7 +63,7 @@ const parseShortcut = (shortcutString: string): KeyboardShortcut => {
 
                 break;
             }
-        // No default
+            // No default
         }
     }
 

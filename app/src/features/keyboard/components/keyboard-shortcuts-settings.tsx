@@ -45,57 +45,60 @@ const ShortcutInput: FC<ShortcutInputProperties> = ({ description, error, label,
     const [temporaryValue, setTemporaryValue] = useState(value);
     const keyboardShortcuts = useKeyboardShortcuts();
 
-    const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        if (!isRecording) {
-            return;
-        }
+    const handleKeyDown = useCallback(
+        (event: KeyboardEvent) => {
+            if (!isRecording) {
+                return;
+            }
 
-        event.preventDefault();
+            event.preventDefault();
 
-        // Skip modifier-only presses
-        if (["Alt", "Control", "Meta", "Shift"].includes(event.key)) {
-            return;
-        }
+            // Skip modifier-only presses
+            if (["Alt", "Control", "Meta", "Shift"].includes(event.key)) {
+                return;
+            }
 
-        const modifiers = [];
+            const modifiers = [];
 
-        if (event.ctrlKey) {
-            modifiers.push("Ctrl");
-        }
+            if (event.ctrlKey) {
+                modifiers.push("Ctrl");
+            }
 
-        if (event.metaKey) {
-            modifiers.push("Cmd");
-        }
+            if (event.metaKey) {
+                modifiers.push("Cmd");
+            }
 
-        if (event.shiftKey) {
-            modifiers.push("Shift");
-        }
+            if (event.shiftKey) {
+                modifiers.push("Shift");
+            }
 
-        if (event.altKey) {
-            modifiers.push("Alt");
-        }
+            if (event.altKey) {
+                modifiers.push("Alt");
+            }
 
-        // Handle special keys
-        const keyMap: Record<string, string> = {
-            " ": "Space",
-            ArrowDown: "ArrowDown",
-            ArrowLeft: "ArrowLeft",
-            ArrowRight: "ArrowRight",
-            ArrowUp: "ArrowUp",
-            Enter: "Enter",
-            Escape: "Escape",
-        };
+            // Handle special keys
+            const keyMap: Record<string, string> = {
+                " ": "Space",
+                ArrowDown: "ArrowDown",
+                ArrowLeft: "ArrowLeft",
+                ArrowRight: "ArrowRight",
+                ArrowUp: "ArrowUp",
+                Enter: "Enter",
+                Escape: "Escape",
+            };
 
-        const key = keyMap[event.key] || event.key;
+            const key = keyMap[event.key] || event.key;
 
-        if (!modifiers.includes(key)) {
-            modifiers.push(key);
-        }
+            if (!modifiers.includes(key)) {
+                modifiers.push(key);
+            }
 
-        const shortcut = modifiers.join("+");
+            const shortcut = modifiers.join("+");
 
-        setTemporaryValue(shortcut);
-    }, [isRecording]);
+            setTemporaryValue(shortcut);
+        },
+        [isRecording],
+    );
 
     const handleFocus = useCallback(() => {
         setIsRecording(true);
