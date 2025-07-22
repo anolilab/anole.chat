@@ -45,7 +45,7 @@ import {
 import type { FC, JSX } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useThreadContext } from "@/features/chat/components/thread-context";
+import { useThreadContext } from "@/features/chat/components/thread-context-tanstack";
 import type { DownloadFormat } from "@/lib/download";
 import { handleDownload } from "@/lib/download";
 import { ValidationError } from "@/lib/errors";

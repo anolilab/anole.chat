@@ -5,7 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useCallback } from "react";
 
-import { useThreadContext } from "@/features/chat/components/thread-context";
+import { useThreadContext } from "@/features/chat/components/thread-context-tanstack";
 import { providerLogger } from "@/lib/logger";
 
 import { generateId, isValidThreadMessage } from "../providers/types";

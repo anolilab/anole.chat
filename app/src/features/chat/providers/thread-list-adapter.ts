@@ -5,7 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAction, useMutation, usePaginatedQuery } from "convex/react";
 import { useMemo } from "react";
 
-import { useThreadContext } from "@/features/chat/components/thread-context";
+import { useThreadContext } from "@/features/chat/components/thread-context-tanstack";
 
 interface UseThreadListAdapterProperties {
     currentThreadId: string;

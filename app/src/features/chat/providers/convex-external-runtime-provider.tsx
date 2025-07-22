@@ -16,6 +16,7 @@ import useThreadListAdapter from "./thread-list-adapter";
 import type { ConvexExternalRuntimeProviderProperties } from "./types";
 import { isValidThreadMessage } from "./types";
 
+// NOTE: This file is deprecated. Use convex-external-runtime-provider-tanstack.tsx instead.
 const ConvexExternalRuntimeProvider = ({ children, jwtToken, model, threadId }: ConvexExternalRuntimeProviderProperties) => {
     const threadContext = useThreadContext();
     const convex = useConvex();

@@ -7,7 +7,7 @@ import { useThreadMessages } from "@convex-dev/agent/react";
 import { usePaginatedQuery } from "convex/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useThreadContext } from "@/features/chat/components/thread-context";
+import { useThreadContext } from "@/features/chat/components/thread-context-tanstack";
 import { logThreadLoad, logThreadUpdate, providerLogger } from "@/lib/logger";
 
 import type { ConvexMessage } from "../providers/types";
