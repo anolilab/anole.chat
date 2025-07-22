@@ -484,6 +484,6 @@ export const resetKeyboardShortcuts = (): void => {
     setKeyboardShortcuts(defaultUIState.keyboardShortcuts);
 };
 
-if (globalThis.window === undefined) {
+if (globalThis.window !== undefined) {
     initializeUIState();
 }

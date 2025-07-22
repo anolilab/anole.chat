@@ -32,13 +32,6 @@ export type ConvexMessage = {
     userId?: string;
 };
 
-export interface ConvexExternalRuntimeProviderProperties {
-    children: ReactNode;
-    jwtToken: string;
-    model: AgentModel;
-    threadId?: string;
-}
-
 export const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 // Validation function to ensure a message is valid

@@ -1,7 +1,7 @@
 import { DEFAULT_MODEL } from "@anole/convex/ai/lib/agents";
 import { api } from "@anole/convex/api";
 import { convexQuery } from "@convex-dev/react-query";
-import { createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouteContext, ClientOnly } from "@tanstack/react-router";
 
 import Assistant from "@/features/chat/components/assistant";
 
@@ -9,7 +9,11 @@ const ChatPage = () => {
     const context = useRouteContext({ from: "/(chat)/chat/$threadId" });
     const { threadId } = Route.useParams();
 
-    return <Assistant jwtToken={context.token as string} threadId={threadId} />;
+    return (
+        <ClientOnly>
+            <Assistant jwtToken={context.token as string} threadId={threadId} />
+        </ClientOnly>
+    );
 };
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({

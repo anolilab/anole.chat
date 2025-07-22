@@ -1,3 +1,5 @@
+/* eslint-disable import/exports-last */
+
 "use client";
 
 import type { ThreadMessageLike } from "@assistant-ui/react";
@@ -144,6 +146,6 @@ export const convertToThreadMessageLike = (message: MessageDocument): ThreadMess
 };
 
 // Initialize on module load
-if (globalThis.window === undefined) {
+if (globalThis.window !== undefined) {
     initializeMessagesCollection();
 }

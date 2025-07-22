@@ -12,29 +12,28 @@ import { createContext, use, useCallback, useEffect, useMemo, useState } from "r
 
 import { showError } from "@/lib/toast";
 
-import { 
-    createThread, 
-    deleteThread as deleteThreadFromDB, 
-    getThread, 
-    getAllThreads as getAllThreadsFromDB,
-    updateThreadMetadata,
-    type ThreadDocument,
-    type ThreadMetadata 
-} from "../collections/threads-collection";
-import { 
-    createMessage, 
-    deleteMessagesByThreadId, 
-    getMessagesByThreadId,
+import type { MessageDocument } from "../collections/messages-collection";
+import {
     convertToMessageDocument,
     convertToThreadMessageLike,
-    type MessageDocument 
+    createMessage,
+    deleteMessagesByThreadId,
+    getMessagesByThreadId,
 } from "../collections/messages-collection";
-import { 
-    useThreads, 
-    useMessagesSorted, 
+import {
+    useMessagesSorted,
+    useThreadHierarchy,
+    useThreads,
     useThreadWithMessages,
-    useThreadHierarchy 
 } from "../collections/query-collection";
+import type { ThreadDocument, ThreadMetadata } from "../collections/threads-collection";
+import {
+    createThread,
+    deleteThread as deleteThreadFromDB,
+    getAllThreads as getAllThreadsFromDB,
+    getThread,
+    updateThreadMetadata,
+} from "../collections/threads-collection";
 
 type ThreadDocumentConvex = Doc<"threads">;
 
@@ -47,38 +46,38 @@ interface BranchNode {
 }
 
 interface ThreadContextType {
+    // Message management
+    addMessage: (threadId: string, message: ThreadMessageLike) => void;
     // Branching functionality
     createBranch: (fromThreadId: string, fromMessageIndex: number, branchName?: string) => Promise<string>;
+    // Thread management
+    createNewThread: (metadata?: Partial<ThreadMetadata>) => string;
     currentThreadId: string;
     deleteBranch: (threadId: string) => Promise<void>;
+    deleteMessage: (messageId: string) => void;
+    getAllThreads: () => ThreadDocument[];
     getBranchSiblings: (threadId: string) => string[];
     getBranchTree: (rootThreadId?: string) => BranchNode[];
     getChildBranches: (threadId: string) => string[];
+
+    getMessages: (threadId: string) => ThreadMessageLike[];
     getParentThread: (threadId: string) => string | null;
+    getThread: (threadId: string) => ThreadDocument | undefined;
     getThreadPath: (threadId: string) => string[];
+
     mergeBranch: (sourceThreadId: string, targetThreadId: string) => Promise<void>;
     setCurrentThreadId: (id: string) => void;
-    
-    // Message management
-    addMessage: (threadId: string, message: ThreadMessageLike) => void;
-    updateMessage: (messageId: string, updates: Partial<MessageDocument>) => void;
-    deleteMessage: (messageId: string) => void;
-    getMessages: (threadId: string) => ThreadMessageLike[];
-    
-    // Thread management
-    createNewThread: (metadata?: Partial<ThreadMetadata>) => string;
-    updateThread: (threadId: string, metadata: Partial<ThreadMetadata>) => void;
-    getThread: (threadId: string) => ThreadDocument | undefined;
-    getAllThreads: () => ThreadDocument[];
-    
     // Branch navigation
     switchToBranch: (threadId: string) => void;
-    
+    updateMessage: (messageId: string, updates: Partial<MessageDocument>) => void;
+
+    updateThread: (threadId: string, metadata: Partial<ThreadMetadata>) => void;
+
+    useMessages: (threadId: string) => ThreadMessageLike[] | undefined;
+    useThreadHierarchy: (rootThreadId?: string) => any[];
     // Query hooks
     useThreads: () => ThreadDocument[] | undefined;
-    useMessages: (threadId: string) => ThreadMessageLike[] | undefined;
-    useThreadWithMessages: (threadId: string) => { thread: ThreadDocument | undefined; messages: ThreadMessageLike[] | undefined; isLoading: boolean };
-    useThreadHierarchy: (rootThreadId?: string) => any[];
+    useThreadWithMessages: (threadId: string) => { isLoading: boolean; messages: ThreadMessageLike[] | undefined; thread: ThreadDocument | undefined };
 }
 
 const ThreadContext = createContext<ThreadContextType | null>(null);
@@ -107,6 +106,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
     // Initialize default thread if it doesn't exist
     useEffect(() => {
         const defaultThread = getThread("default");
+
         if (!defaultThread) {
             createThread("default", {
                 createdAt: new Date(),
@@ -123,12 +123,12 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
         const backendThreadIds = allThreads?.page
             ? allThreads.page.map((t) => (typeof t._id === "string" ? t._id : undefined)).filter((id): id is string => !!id)
             : [];
-        const allIds = new Set([...backendThreadIds, ...localThreads.map(t => t.id)]);
+        const allIds = new Set([...backendThreadIds, ...localThreads.map((t) => t.id)]);
 
         if (!allIds.has(currentThreadId)) {
-            const fallbackId = localThreads.find(t => t.id !== currentThreadId)?.id || 
-                              backendThreadIds.find(id => id !== currentThreadId) || 
-                              "default";
+            const fallbackId = localThreads.find((t) => t.id !== currentThreadId)?.id
+                || backendThreadIds.find((id) => id !== currentThreadId)
+                || "default";
 
             console.warn(`[ThreadProvider] currentThreadId not found, redirecting to`, fallbackId, {
                 allIds: [...allIds],
@@ -215,6 +215,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
         () =>
             (threadId: string): string | null => {
                 const localThread = getThread(threadId);
+
                 if (localThread?.metadata.parentThreadId) {
                     return localThread.metadata.parentThreadId;
                 }
@@ -222,6 +223,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
                 // Check Convex threads data
                 if (allThreads?.page) {
                     const convexThread = allThreads.page.find((t) => (t as ThreadDocumentConvex)._id === threadId) as ThreadDocumentConvex | undefined;
+
                     return convexThread?.parentThreadIds?.[0] || null;
                 }
 
@@ -291,7 +293,8 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
                 const localThreads = getAllThreadsFromDB();
 
                 const buildTree = (threadId: string, depth: number = 0): BranchNode => {
-                    const thread = localThreads.find(t => t.id === threadId);
+                    const thread = localThreads.find((t) => t.id === threadId);
+
                     if (!thread) {
                         throw new Error(`Thread not found: ${threadId}`);
                     }
@@ -311,7 +314,8 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
                 }
 
                 // Find all root threads (threads without parents)
-                const rootThreads = localThreads.filter(t => !t.metadata.parentThreadId);
+                const rootThreads = localThreads.filter((t) => !t.metadata.parentThreadId);
+
                 return rootThreads.map((thread) => buildTree(thread.id));
             },
         [getChildBranches],
@@ -339,6 +343,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
         () =>
             (threadId: string): string[] => {
                 const thread = getThread(threadId);
+
                 if (!thread?.metadata.parentThreadId) {
                     return [];
                 }
@@ -363,9 +368,10 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
         const uniqueMessages = sourceMessages.slice(branchPoint + 1);
 
         // Move unique messages to target thread
-        uniqueMessages.forEach(message => {
-            const messageDoc = convertToMessageDocument(convertToThreadMessageLike(message), targetThreadId);
-            createMessage(messageDoc);
+        uniqueMessages.forEach((message) => {
+            const messageDocument = convertToMessageDocument(convertToThreadMessageLike(message), targetThreadId);
+
+            createMessage(messageDocument);
         });
 
         // Delete the source branch
@@ -375,6 +381,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
     // Switch to a different branch
     const switchToBranch = (threadId: string) => {
         const thread = getThread(threadId);
+
         if (thread) {
             setCurrentThreadId(threadId);
             navigate({
@@ -392,9 +399,10 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
 
     // Message management functions
     const addMessage = (threadId: string, message: ThreadMessageLike) => {
-        const messageDoc = convertToMessageDocument(message, threadId);
-        createMessage(messageDoc);
-        
+        const messageDocument = convertToMessageDocument(message, threadId);
+
+        createMessage(messageDocument);
+
         // Update thread's last activity
         updateThreadMetadata(threadId, { lastActivity: new Date() });
     };
@@ -412,12 +420,14 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
 
     const getMessages = (threadId: string): ThreadMessageLike[] => {
         const messages = getMessagesByThreadId(threadId);
+
         return messages.map(convertToThreadMessageLike);
     };
 
     // Thread management functions
     const createNewThread = (metadata?: Partial<ThreadMetadata>): string => {
-        const threadId = `thread_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const threadId = `thread_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+
         createThread(threadId, {
             createdAt: new Date(),
             lastActivity: new Date(),
@@ -425,6 +435,7 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
             title: "New Chat",
             ...metadata,
         });
+
         return threadId;
     };
 
@@ -432,46 +443,42 @@ export const ThreadProvider: FC<PropsWithChildren> = ({ children }) => {
         updateThreadMetadata(threadId, metadata);
     };
 
-    const getThreadFromContext = (threadId: string) => {
-        return getThread(threadId);
-    };
+    const getThreadFromContext = (threadId: string) => getThread(threadId);
 
-    const getAllThreadsFromContext = () => {
-        return getAllThreadsFromDB();
-    };
+    const getAllThreadsFromContext = () => getAllThreadsFromDB();
 
     return (
         <ThreadContext
             value={{
+                // Message management
+                addMessage,
                 createBranch,
+                // Thread management
+                createNewThread,
                 currentThreadId,
                 deleteBranch,
+                deleteMessage,
+                getAllThreads: getAllThreadsFromContext,
                 getBranchSiblings,
                 getBranchTree,
                 getChildBranches,
+                getMessages,
+
                 getParentThread,
+                getThread: getThreadFromContext,
                 getThreadPath,
                 mergeBranch,
+
                 setCurrentThreadId,
                 switchToBranch,
-                
-                // Message management
-                addMessage,
                 updateMessage,
-                deleteMessage,
-                getMessages,
-                
-                // Thread management
-                createNewThread,
                 updateThread,
-                getThread: getThreadFromContext,
-                getAllThreads: getAllThreadsFromContext,
-                
+
+                useMessages: useMessagesSorted,
+                useThreadHierarchy,
                 // Query hooks
                 useThreads,
-                useMessages: useMessagesSorted,
                 useThreadWithMessages,
-                useThreadHierarchy,
             }}
         >
             {children}

@@ -1,3 +1,5 @@
+/* eslint-disable import/exports-last */
+
 "use client";
 
 import { createCollection, localStorageCollectionOptions } from "@tanstack/react-db";
@@ -124,6 +126,6 @@ export const getAllThreads = (): ThreadDocument[] => {
 };
 
 // Initialize on module load
-if (globalThis.window === undefined) {
+if (globalThis.window !== undefined) {
     initializeThreadsCollection();
 }
