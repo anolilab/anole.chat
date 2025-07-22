@@ -9,11 +9,7 @@ const schema = {
         expiresAt: v.optional(v.number()), // Optional expiration timestamp
         grantedAt: v.number(),
         grantedBy: v.string(), // Who granted this access
-        permission: v.union(
-            v.literal("read"),
-            v.literal("write"),
-            v.literal("admin"),
-        ),
+        permission: v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
         threadId: v.string(),
         userId: v.string(),
     })
@@ -30,17 +26,8 @@ const schema = {
         invitedBy: v.string(),
         invitedEmail: v.string(),
         inviteToken: v.string(), // Unique token for the invite link
-        permission: v.union(
-            v.literal("read"),
-            v.literal("write"),
-            v.literal("admin"),
-        ),
-        status: v.union(
-            v.literal("pending"),
-            v.literal("accepted"),
-            v.literal("expired"),
-            v.literal("revoked"),
-        ),
+        permission: v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
+        status: v.union(v.literal("pending"), v.literal("accepted"), v.literal("expired"), v.literal("revoked")),
         threadId: v.string(),
     })
         .index("by_thread", ["threadId"])
@@ -52,9 +39,7 @@ const schema = {
     // Thread relationships for branching and hierarchy
     threadRelationships: defineTable({
         branchPoint: v.optional(v.number()), // Which message index the branch started from (0-based)
-        branchType: v.optional(
-            v.union(v.literal("branch"), v.literal("continuation")),
-        ), // Type of relationship
+        branchType: v.optional(v.union(v.literal("branch"), v.literal("continuation"))), // Type of relationship
         createdAt: v.number(), // When this relationship was created
         parentThreadId: v.string(), // The parent thread this was branched from
         threadId: v.string(), // The child thread

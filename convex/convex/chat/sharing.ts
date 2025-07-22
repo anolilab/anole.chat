@@ -11,10 +11,7 @@ function generateToken(): string {
 }
 
 // Helper function to calculate expiration time
-function calculateExpirationTime(
-    expirationType: "1_day" | "7_days" | "custom",
-    customHours?: number,
-): number {
+function calculateExpirationTime(expirationType: "1_day" | "7_days" | "custom", customHours?: number): number {
     const now = Date.now();
 
     switch (expirationType) {
@@ -40,21 +37,13 @@ function calculateExpirationTime(
 // Check if user has access to a thread
 export const checkThreadAccess = internalQuery({
     args: {
-        requiredPermission: v.optional(
-            v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
-        ),
+        requiredPermission: v.optional(v.union(v.literal("read"), v.literal("write"), v.literal("admin"))),
         threadId: v.string(),
         userId: v.string(),
     },
-    handler: async (
-        context,
-        { requiredPermission = "read", threadId, userId },
-    ) => {
+    handler: async (context, { requiredPermission = "read", threadId, userId }) => {
         // Check if user is the thread owner
-        const thread = await context.runQuery(
-            components.agent.threads.getThread,
-            { threadId },
-        );
+        const thread = await context.runQuery(components.agent.threads.getThread, { threadId });
 
         if (thread && thread.userId === userId) {
             return true; // Owner has all permissions
@@ -73,8 +62,7 @@ export const checkThreadAccess = internalQuery({
         // Check explicit access permissions
         const access = await context.db
             .query("threadAccess")
-            .withIndex("by_thread_and_user", (q) =>
-                q.eq("threadId", threadId).eq("userId", userId))
+            .withIndex("by_thread_and_user", (q) => q.eq("threadId", threadId).eq("userId", userId))
             .unique();
 
         if (!access) {
@@ -109,14 +97,11 @@ export const getThreadAccess = authedQuery({
         const { userId } = context.user;
 
         // Check if user has access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "read",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "read",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Access denied");
@@ -144,8 +129,7 @@ export const getThreadAccess = authedQuery({
                     email: user?.email || "",
                     expiresAt: access.expiresAt,
                     grantedAt: access.grantedAt,
-                    name:
-                        typeof user?.name === "string" ? user.name : undefined,
+                    name: typeof user?.name === "string" ? user.name : undefined,
                     permission: access.permission,
                     userId: access.userId,
                 };
@@ -155,10 +139,7 @@ export const getThreadAccess = authedQuery({
         return {
             isOwner,
             isPublic: thread?.isPublic || false,
-            permission: isOwner
-                ? "admin"
-                : accessList.find((a) => a.userId === userId)?.permission
-                    || "read",
+            permission: isOwner ? "admin" : accessList.find((a) => a.userId === userId)?.permission || "read",
             publicAccessToken: thread?.publicAccessToken,
             users,
         };
@@ -166,11 +147,7 @@ export const getThreadAccess = authedQuery({
     returns: v.object({
         isOwner: v.boolean(),
         isPublic: v.boolean(),
-        permission: v.union(
-            v.literal("read"),
-            v.literal("write"),
-            v.literal("admin"),
-        ),
+        permission: v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
         publicAccessToken: v.optional(v.string()),
         users: v.array(
             v.object({
@@ -178,11 +155,7 @@ export const getThreadAccess = authedQuery({
                 expiresAt: v.optional(v.number()),
                 grantedAt: v.number(),
                 name: v.optional(v.string()),
-                permission: v.union(
-                    v.literal("read"),
-                    v.literal("write"),
-                    v.literal("admin"),
-                ),
+                permission: v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
                 userId: v.string(),
             }),
         ),
@@ -193,34 +166,20 @@ export const getThreadAccess = authedQuery({
 export const createThreadInvite = authedMutation({
     args: {
         customHours: v.optional(v.number()),
-        expirationType: v.union(
-            v.literal("1_day"),
-            v.literal("7_days"),
-            v.literal("custom"),
-        ),
+        expirationType: v.union(v.literal("1_day"), v.literal("7_days"), v.literal("custom")),
         invitedEmail: v.string(),
-        permission: v.union(
-            v.literal("read"),
-            v.literal("write"),
-            v.literal("admin"),
-        ),
+        permission: v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
         threadId: v.string(),
     },
-    handler: async (
-        context,
-        { customHours, expirationType, invitedEmail, permission, threadId },
-    ) => {
+    handler: async (context, { customHours, expirationType, invitedEmail, permission, threadId }) => {
         const { userId } = context.user;
 
         // Check if user has admin access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "admin",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "admin",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Admin access required to create invites");
@@ -271,14 +230,11 @@ export const getThreadInvites = authedQuery({
         const { userId } = context.user;
 
         // Check if user has admin access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "admin",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "admin",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Admin access required to view invites");
@@ -308,17 +264,8 @@ export const getThreadInvites = authedQuery({
             invitedAt: v.number(),
             invitedEmail: v.string(),
             inviteToken: v.string(),
-            permission: v.union(
-                v.literal("read"),
-                v.literal("write"),
-                v.literal("admin"),
-            ),
-            status: v.union(
-                v.literal("pending"),
-                v.literal("accepted"),
-                v.literal("expired"),
-                v.literal("revoked"),
-            ),
+            permission: v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
+            status: v.union(v.literal("pending"), v.literal("accepted"), v.literal("expired"), v.literal("revoked")),
         }),
     ),
 });
@@ -338,14 +285,11 @@ export const revokeThreadInvite = authedMutation({
         }
 
         // Check if user has admin access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "admin",
-                threadId: invite.threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "admin",
+            threadId: invite.threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Admin access required to revoke invites");
@@ -358,7 +302,6 @@ export const revokeThreadInvite = authedMutation({
     returns: v.null(),
 });
 
-// Accept an invite
 export const acceptThreadInvite = authedMutation({
     args: {
         inviteToken: v.string(),
@@ -368,8 +311,7 @@ export const acceptThreadInvite = authedMutation({
 
         const invite = await context.db
             .query("threadInvites")
-            .withIndex("by_invite_token", (q) =>
-                q.eq("inviteToken", inviteToken))
+            .withIndex("by_invite_token", (q) => q.eq("inviteToken", inviteToken))
             .unique();
 
         if (!invite) {
@@ -388,8 +330,7 @@ export const acceptThreadInvite = authedMutation({
         // Check if user already has access
         const existingAccess = await context.db
             .query("threadAccess")
-            .withIndex("by_thread_and_user", (q) =>
-                q.eq("threadId", invite.threadId).eq("userId", userId))
+            .withIndex("by_thread_and_user", (q) => q.eq("threadId", invite.threadId).eq("userId", userId))
             .unique();
 
         if (existingAccess) {
@@ -423,11 +364,7 @@ export const acceptThreadInvite = authedMutation({
         };
     },
     returns: v.object({
-        permission: v.union(
-            v.literal("read"),
-            v.literal("write"),
-            v.literal("admin"),
-        ),
+        permission: v.union(v.literal("read"), v.literal("write"), v.literal("admin")),
         threadId: v.string(),
     }),
 });
@@ -442,24 +379,18 @@ export const removeThreadAccess = authedMutation({
         const { userId } = context.user;
 
         // Check if user has admin access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "admin",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "admin",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Admin access required to remove users");
         }
 
         // Don't allow removing the thread owner
-        const thread = await context.runQuery(
-            components.agent.threads.getThread,
-            { threadId },
-        );
+        const thread = await context.runQuery(components.agent.threads.getThread, { threadId });
 
         if (thread?.userId === targetUserId) {
             throw new ConvexError("Cannot remove thread owner");
@@ -467,8 +398,7 @@ export const removeThreadAccess = authedMutation({
 
         const access = await context.db
             .query("threadAccess")
-            .withIndex("by_thread_and_user", (q) =>
-                q.eq("threadId", threadId).eq("userId", targetUserId))
+            .withIndex("by_thread_and_user", (q) => q.eq("threadId", threadId).eq("userId", targetUserId))
             .unique();
 
         if (access) {
@@ -490,19 +420,14 @@ export const toggleThreadVisibility = authedMutation({
         const { userId } = context.user;
 
         // Check if user has admin access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "admin",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "admin",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
-            throw new ConvexError(
-                "Admin access required to change thread visibility",
-            );
+            throw new ConvexError("Admin access required to change thread visibility");
         }
 
         const thread = await context.db
@@ -541,9 +466,7 @@ export const getPublicThread = authedQuery({
         const thread = await context.db
             .query("threads")
             .withIndex("by_thread", (q) => q)
-            .filter((q) =>
-                q.eq(q.field("publicAccessToken"), publicAccessToken),
-            )
+            .filter((q) => q.eq(q.field("publicAccessToken"), publicAccessToken))
             .unique();
 
         if (!thread || !thread.isPublic) {

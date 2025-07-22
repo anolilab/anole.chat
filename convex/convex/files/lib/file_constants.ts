@@ -1,14 +1,5 @@
 // Supported image file extensions
-export const SUPPORTED_IMAGE_EXTENSIONS = [
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".gif",
-    ".svg",
-    ".webp",
-    ".bmp",
-    ".ico",
-] as const;
+export const SUPPORTED_IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".bmp", ".ico"] as const;
 
 // Supported code file extensions
 export const SUPPORTED_CODE_EXTENSIONS = [
@@ -42,21 +33,10 @@ export const SUPPORTED_CODE_EXTENSIONS = [
 export const SUPPORTED_PLAIN_TEXT_EXTENSIONS = [".md", ".mdx", ".txt"] as const;
 
 // Combined text extensions (code + plain text)
-export const SUPPORTED_TEXT_EXTENSIONS = [
-    ...SUPPORTED_PLAIN_TEXT_EXTENSIONS,
-    ...SUPPORTED_CODE_EXTENSIONS,
-] as const;
+export const SUPPORTED_TEXT_EXTENSIONS = [...SUPPORTED_PLAIN_TEXT_EXTENSIONS, ...SUPPORTED_CODE_EXTENSIONS] as const;
 
 // Supported MIME types for images
-export const SUPPORTED_IMAGE_MIME_TYPES = [
-    "image/png",
-    "image/jpeg",
-    "image/gif",
-    "image/svg+xml",
-    "image/webp",
-    "image/bmp",
-    "image/x-icon",
-] as const;
+export const SUPPORTED_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/gif", "image/svg+xml", "image/webp", "image/bmp", "image/x-icon"] as const;
 
 // Supported MIME types for text files
 export const SUPPORTED_TEXT_MIME_TYPES = [
@@ -73,11 +53,7 @@ export const SUPPORTED_TEXT_MIME_TYPES = [
 ] as const;
 
 // All supported extensions combined
-export const ALL_SUPPORTED_EXTENSIONS = [
-    ...SUPPORTED_IMAGE_EXTENSIONS,
-    ...SUPPORTED_TEXT_EXTENSIONS,
-    ".pdf",
-] as const;
+export const ALL_SUPPORTED_EXTENSIONS = [...SUPPORTED_IMAGE_EXTENSIONS, ...SUPPORTED_TEXT_EXTENSIONS, ".pdf"] as const;
 
 // File size limits
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -91,42 +67,25 @@ export const MAX_PDF_TOKENS = 32_000; // 32k tokens
 export const isImageExtension = (filename: string) => {
     const extension = filename.toLowerCase().match(/\.[^.]+$/)?.[0];
 
-    return extension
-        ? (SUPPORTED_IMAGE_EXTENSIONS as ReadonlyArray<string>).includes(
-            extension,
-        )
-        : false;
+    return extension ? (SUPPORTED_IMAGE_EXTENSIONS as ReadonlyArray<string>).includes(extension) : false;
 };
 
 export const isTextExtension = (filename: string) => {
     const extension = filename.toLowerCase().match(/\.[^.]+$/)?.[0];
 
-    return extension
-        ? (SUPPORTED_TEXT_EXTENSIONS as ReadonlyArray<string>).includes(
-            extension,
-        )
-        : false;
+    return extension ? (SUPPORTED_TEXT_EXTENSIONS as ReadonlyArray<string>).includes(extension) : false;
 };
 
-export const isImageMimeType = (mimeType: string) =>
-    mimeType.startsWith("image/")
-    || (SUPPORTED_IMAGE_MIME_TYPES as ReadonlyArray<string>).includes(mimeType);
+export const isImageMimeType = (mimeType: string) => mimeType.startsWith("image/") || (SUPPORTED_IMAGE_MIME_TYPES as ReadonlyArray<string>).includes(mimeType);
 
-export const isTextMimeType = (mimeType: string) =>
-    mimeType.startsWith("text/")
-    || (SUPPORTED_TEXT_MIME_TYPES as ReadonlyArray<string>).includes(mimeType);
+export const isTextMimeType = (mimeType: string) => mimeType.startsWith("text/") || (SUPPORTED_TEXT_MIME_TYPES as ReadonlyArray<string>).includes(mimeType);
 
 export const isSupportedFile = (filename: string, mimeType?: string) => {
     // For text files, prioritize extension over MIME type since browsers often return
     // application/octet-stream for code files like .c, .rs, etc.
     const isText = isTextExtension(filename);
-    const isImage
-        = isImageExtension(filename)
-            || (mimeType ? isImageMimeType(mimeType) : false);
-    const isPdf
-        = filename.toLowerCase().endsWith(".pdf")
-            || mimeType === "application/pdf"
-            || mimeType === "application/x-pdf";
+    const isImage = isImageExtension(filename) || (mimeType ? isImageMimeType(mimeType) : false);
+    const isPdf = filename.toLowerCase().endsWith(".pdf") || mimeType === "application/pdf" || mimeType === "application/x-pdf";
 
     return isImage || isText || isPdf;
 };
@@ -160,28 +119,16 @@ export const getFileTypeInfo = (filename: string, mimeType?: string) => {
 
     // Check by extension first (more reliable than MIME type)
     const isImage = isImageExtension(fileName);
-    const isCode = extension
-        ? (SUPPORTED_CODE_EXTENSIONS as ReadonlyArray<string>).includes(
-            extension,
-        )
-        : false;
-    const isPlainText = extension
-        ? (SUPPORTED_PLAIN_TEXT_EXTENSIONS as ReadonlyArray<string>).includes(
-            extension,
-        )
-        : false;
+    const isCode = extension ? (SUPPORTED_CODE_EXTENSIONS as ReadonlyArray<string>).includes(extension) : false;
+    const isPlainText = extension ? (SUPPORTED_PLAIN_TEXT_EXTENSIONS as ReadonlyArray<string>).includes(extension) : false;
 
     // For text files, extension is more reliable than MIME type
     // (browsers often return application/octet-stream for code files)
     const isText = isCode || isPlainText || isTextExtension(fileName);
 
     // If not detected by extension, fall back to MIME type for images
-    const finalIsImage
-        = isImage || (mimeType ? isImageMimeType(mimeType) : false);
-    const isPdf
-        = extension === ".pdf"
-            || mimeType === "application/pdf"
-            || mimeType === "application/x-pdf";
+    const finalIsImage = isImage || (mimeType ? isImageMimeType(mimeType) : false);
+    const isPdf = extension === ".pdf" || mimeType === "application/pdf" || mimeType === "application/x-pdf";
 
     return {
         extension,
@@ -193,18 +140,11 @@ export const getFileTypeInfo = (filename: string, mimeType?: string) => {
 };
 
 // Get correct MIME type for a file based on its extension
-export const getCorrectMimeType = (
-    filename: string,
-    browserMimeType?: string,
-): string => {
+export const getCorrectMimeType = (filename: string, browserMimeType?: string): string => {
     const fileInfo = getFileTypeInfo(filename, browserMimeType);
 
     // If it's an image and browser provided a valid image MIME type, use it
-    if (
-        fileInfo.isImage
-        && browserMimeType
-        && isImageMimeType(browserMimeType)
-    ) {
+    if (fileInfo.isImage && browserMimeType && isImageMimeType(browserMimeType)) {
         return browserMimeType;
     }
 
@@ -218,9 +158,7 @@ export const getCorrectMimeType = (
 };
 
 // PDF estimation (placeholder - would need actual PDF parsing library)
-export async function estimatePdf(
-    buffer: ArrayBuffer,
-): Promise<{ pageCount: number; tokenCount: number }> {
+export async function estimatePdf(buffer: ArrayBuffer): Promise<{ pageCount: number; tokenCount: number }> {
     // This is a placeholder implementation
     // In a real implementation, you would use a PDF parsing library
     // For now, we'll estimate based on file size

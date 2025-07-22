@@ -4,11 +4,7 @@ import { v } from "convex/values";
 const emailTables = {
     emails: defineTable({
         email: v.string(),
-        expectation: v.union(
-            v.literal("delivered"),
-            v.literal("bounced"),
-            v.literal("complained"),
-        ),
+        expectation: v.union(v.literal("delivered"), v.literal("bounced"), v.literal("complained")),
     }).index("by_email", ["email"]),
 };
 

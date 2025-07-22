@@ -1,13 +1,4 @@
-import {
-    Body,
-    Container,
-    Head,
-    Html,
-    Img,
-    Link,
-    Preview,
-    Text,
-} from "@react-email/components";
+import { Body, Container, Head, Html, Img, Link, Preview, Text } from "@react-email/components";
 import type { ReactNode } from "react";
 import { Fragment } from "react";
 
@@ -89,23 +80,12 @@ export const BaseEmail = ({
             <Container style={styles.container}>
                 {children}
 
-                {brandLogoUrl && (
-                    <Img
-                        alt={`${brandName} Logo`}
-                        height="32"
-                        src={brandLogoUrl}
-                        width="32"
-                    />
-                )}
+                {brandLogoUrl && <Img alt={`${brandName} Logo`} height="32" src={brandLogoUrl} width="32" />}
 
                 <Text style={styles.footer}>
                     {footerLinks.map((link, index) => (
                         <Fragment key={link.href}>
-                            <Link
-                                href={link.href}
-                                style={{ ...styles.link, color: "#898989" }}
-                                target="_blank"
-                            >
+                            <Link href={link.href} style={{ ...styles.link, color: "#898989" }} target="_blank">
                                 {link.text}
                             </Link>
                             {index < footerLinks.length - 1 && " • "}

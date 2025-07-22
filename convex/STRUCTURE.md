@@ -69,15 +69,15 @@ Each feature has its own directory containing:
 
 ```typescript
 // ✅ Correct import paths
-import { internal } from '../_generated/api'; // From feature functions
-import { query } from '../_generated/server'; // From feature functions
-import { getAgent } from '../ai/lib/agents'; // AI-specific utilities
-import { getAgent } from '../lib/agents'; // Agents moved to ai/lib
-import { ERRORS } from '../lib/errors'; // Shared utilities
-import { internal } from './_generated/api'; // Wrong from features
+import { internal } from "../_generated/api"; // From feature functions
+import { query } from "../_generated/server"; // From feature functions
+import { getAgent } from "../ai/lib/agents"; // AI-specific utilities
+import { getAgent } from "../lib/agents"; // Agents moved to ai/lib
+import { ERRORS } from "../lib/errors"; // Shared utilities
+import { internal } from "./_generated/api"; // Wrong from features
 // ❌ Incorrect import paths
-import { query } from './_generated/server'; // Wrong from features
-import { authTables } from './auth/schema'; // Feature schemas
+import { query } from "./_generated/server"; // Wrong from features
+import { authTables } from "./auth/schema"; // Feature schemas
 ```
 
 ## 📝 Usage Guidelines
@@ -129,7 +129,7 @@ touch convex/newfeature/schema.ts
 ```typescript
 // Public functions (accessible from frontend)
 // AI-specific utilities
-import { getAgent } from '../ai/lib/agents';
+import { getAgent } from "../ai/lib/agents";
 
 api.chat.functions.createThread;
 api.auth.functions.updateProfile;
@@ -173,10 +173,10 @@ internal.chat.functions.deleteThread;
 ```typescript
 // Old (from feature files)
 // New (from feature files)
-import { query } from '../_generated/server';
-import { getAgent } from '../ai/lib/agents'; // Moved to ai/lib
-import { query } from './_generated/server';
-import { getAgent } from './agents';
+import { query } from "../_generated/server";
+import { getAgent } from "../ai/lib/agents"; // Moved to ai/lib
+import { query } from "./_generated/server";
+import { getAgent } from "./agents";
 ```
 
 ## 📋 File Templates
@@ -185,24 +185,21 @@ import { getAgent } from './agents';
 
 ```typescript
 // convex/{feature}/functions.ts
-import { v } from 'convex/values';
+import { v } from "convex/values";
 
-import { internal } from '../_generated/api';
-import { action, mutation, query } from '../_generated/server';
+import { internal } from "../_generated/api";
+import { action, mutation, query } from "../_generated/server";
 
 export const exampleQuery = query({
     args: { id: v.string() },
     handler: async (context, arguments_) => {
         // Session validation example
-        const sessionData = await context.runQuery(
-            internal.betterAuth.getSession,
-            {
-                sessionToken: arguments_.sessionToken,
-            },
-        );
+        const sessionData = await context.runQuery(internal.betterAuth.getSession, {
+            sessionToken: arguments_.sessionToken,
+        });
 
         if (!sessionData?.user?.id) {
-            throw new Error('Unauthorized');
+            throw new Error("Unauthorized");
         }
 
         // Implementation
@@ -241,7 +238,7 @@ export const {feature}Tables = {
 ```typescript
 // convex/{feature}/lib/utils.ts
 export const FEATURE_CONSTANTS = {
-    DEFAULT_VALUE: 'default',
+    DEFAULT_VALUE: "default",
 } as const;
 
 export type FeatureType = {

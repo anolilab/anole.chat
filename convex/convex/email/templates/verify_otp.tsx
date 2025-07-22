@@ -9,23 +9,11 @@ interface VerifyOTPProperties {
     code: string;
 }
 
-export default function VerifyOTP({
-    brandLogoUrl,
-    brandName,
-    brandTagline,
-    code,
-}: VerifyOTPProperties) {
+export default function VerifyOTP({ brandLogoUrl, brandName, brandTagline, code }: VerifyOTPProperties) {
     return (
-        <BaseEmail
-            brandLogoUrl={brandLogoUrl}
-            brandName={brandName}
-            brandTagline={brandTagline}
-            previewText="Your verification code"
-        >
+        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Your verification code">
             <Heading style={styles.h1}>Verify your email</Heading>
-            <Text style={styles.text}>
-                Enter this verification code to verify your email address:
-            </Text>
+            <Text style={styles.text}>Enter this verification code to verify your email address:</Text>
             <code style={styles.code}>{code}</code>
             <Text
                 style={{
@@ -35,8 +23,7 @@ export default function VerifyOTP({
                     marginTop: "14px",
                 }}
             >
-                If you didn&apos;t create an account, you can safely ignore this
-                email.
+                If you didn&apos;t create an account, you can safely ignore this email.
             </Text>
         </BaseEmail>
     );

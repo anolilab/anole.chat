@@ -3,11 +3,7 @@ import { v } from "convex/values";
 
 import type { Id, TableNames } from "../_generated/dataModel";
 
-export const withoutSystemFields = <
-    T extends { _creationTime: number; _id: Id<TableNames | SystemTableNames> },
->(
-    document_: T,
-) => {
+export const withoutSystemFields = <T extends { _creationTime: number; _id: Id<TableNames | SystemTableNames> }>(document_: T) => {
     // Exclude _id and _creationTime from the returned object
     const { _creationTime, _id, ...rest } = document_;
 

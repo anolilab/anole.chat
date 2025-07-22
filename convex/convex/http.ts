@@ -26,15 +26,7 @@ app.use(
     "*",
     cors({
         allowHeaders: ["Authorization", "Content-Type", "Better-Auth-Cookie"],
-        allowMethods: [
-            "GET",
-            "HEAD",
-            "PUT",
-            "POST",
-            "DELETE",
-            "PATCH",
-            "OPTIONS",
-        ],
+        allowMethods: ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH", "OPTIONS"],
         credentials: true,
         exposeHeaders: ["Content-Length", "Set-Better-Auth-Cookie"],
         maxAge: 600,
@@ -70,14 +62,10 @@ app.post(`${authPath}/*`, authRequestHandler);
 app.post("/chat/stream", async (c) => streamHttpAction(c.env, c.req.raw));
 
 // Prompt improvement endpoint
-app.post("/chat/improve-prompt", async (c) =>
-    improvePromptHttpAction(c.env, c.req.raw));
+app.post("/chat/improve-prompt", async (c) => improvePromptHttpAction(c.env, c.req.raw));
 
 // Email webhook endpoint
-app.post(
-    "/email/resend/webhook",
-    async (c) => await resend.handleResendEventWebhook(c.env, c.req.raw),
-);
+app.post("/email/resend/webhook", async (c) => await resend.handleResendEventWebhook(c.env, c.req.raw));
 
 // Polar webhook endpoint
 // app.post("/webhooks/polar", async (c) => await webhookHandler(c.env, c.req.raw));

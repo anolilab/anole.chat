@@ -6,11 +6,7 @@ import z from "zod/v4";
 
 import { components, internal } from "../_generated/api";
 import type { Doc as Document_ } from "../_generated/dataModel";
-import {
-    internalAction,
-    internalMutation,
-    internalQuery,
-} from "../_generated/server";
+import { internalAction, internalMutation, internalQuery } from "../_generated/server";
 import type { AgentModel } from "../ai/lib/agents";
 import { getAgent } from "../ai/lib/agents";
 import createCacheMiddleware from "../ai/middlewares/cacheMiddleware";
@@ -28,14 +24,11 @@ export const createThread = authedMutation({
 
         const agent = getAgent(model as AgentModel);
 
-        const { threadId }: { threadId: string } = await agent.createThread(
-            context,
-            {
-                agentName: "chat",
-                title,
-                userId,
-            },
-        );
+        const { threadId }: { threadId: string } = await agent.createThread(context, {
+            agentName: "chat",
+            title,
+            userId,
+        });
 
         // Insert into threads table if not already present
         const existing = await context.db
@@ -65,21 +58,15 @@ export const getThreadMessages = authedQuery({
         paginationOpts: paginationOptsValidator,
         threadId: v.string(),
     },
-    handler: async (
-        context,
-        { model, paginationOpts, threadId },
-    ): Promise<PaginationResult<MessageDoc>> => {
+    handler: async (context, { model, paginationOpts, threadId }): Promise<PaginationResult<MessageDoc>> => {
         const { userId } = context.user;
 
         // Check if user has access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "read",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "read",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Access denied to this thread");
@@ -88,12 +75,9 @@ export const getThreadMessages = authedQuery({
         const agent = getAgent(model as AgentModel);
 
         // Check if this thread has a parent (is a branch)
-        const threadRelationship = await context.runQuery(
-            internal.chat.functions.getThreadRelationship,
-            {
-                threadId,
-            },
-        );
+        const threadRelationship = await context.runQuery(internal.chat.functions.getThreadRelationship, {
+            threadId,
+        });
 
         if (threadRelationship) {
             // Get parent messages up to the branch point
@@ -109,37 +93,18 @@ export const getThreadMessages = authedQuery({
             });
 
             // Take only parent messages up to the branch point (inclusive)
-            const parentMessagesUpToBranch = parentMessages.page.slice(
-                0,
-                (threadRelationship.branchPoint || 0) + 1,
-            );
+            const parentMessagesUpToBranch = parentMessages.page.slice(0, (threadRelationship.branchPoint || 0) + 1);
 
             // Merge parent messages with current thread messages
-            const mergedMessages = [
-                ...parentMessagesUpToBranch,
-                ...currentMessages.page,
-            ];
+            const mergedMessages = [...parentMessagesUpToBranch, ...currentMessages.page];
 
             // Apply pagination to the merged result
-            const startIndex = paginationOpts.cursor
-                ? mergedMessages.findIndex(
-                    (m) => m._id === paginationOpts.cursor,
-                ) + 1
-                : 0;
-            const endIndex = Math.min(
-                startIndex + paginationOpts.numItems,
-                mergedMessages.length,
-            );
-            const paginatedMessages = mergedMessages.slice(
-                startIndex,
-                endIndex,
-            );
+            const startIndex = paginationOpts.cursor ? mergedMessages.findIndex((m) => m._id === paginationOpts.cursor) + 1 : 0;
+            const endIndex = Math.min(startIndex + paginationOpts.numItems, mergedMessages.length);
+            const paginatedMessages = mergedMessages.slice(startIndex, endIndex);
 
             return {
-                continueCursor:
-                    endIndex < mergedMessages.length
-                        ? mergedMessages[endIndex - 1]?._id ?? ""
-                        : "",
+                continueCursor: endIndex < mergedMessages.length ? mergedMessages[endIndex - 1]?._id ?? "" : "",
                 isDone: endIndex >= mergedMessages.length,
                 page: paginatedMessages,
             };
@@ -161,14 +126,11 @@ export const continueThread = authedAction({
         const { userId } = context.user;
 
         // Check if user has write access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "write",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "write",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Write access denied to this thread");
@@ -189,15 +151,10 @@ export const continueThread = authedAction({
 
 export const getThreads = authedQuery({
     args: { paginationOpts: paginationOptsValidator },
-    handler: async (
-        context,
-        { paginationOpts },
-    ): Promise<PaginationResult<ThreadDoc>> => {
+    handler: async (context, { paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
+        console.log(context)
         const { userId } = context.user;
-        const results = await context.runQuery(
-            components.agent.threads.listThreadsByUserId,
-            { paginationOpts, userId },
-        );
+        const results = await context.runQuery(components.agent.threads.listThreadsByUserId, { paginationOpts, userId });
 
         const appThreads = await context.db
             .query("threads")
@@ -205,21 +162,12 @@ export const getThreads = authedQuery({
             .collect();
 
         // Create a map for quick lookup of app thread data
-        const appThreadsMap = new Map(
-            appThreads.map((thread) => [thread.threadId, thread]),
-        );
+        const appThreadsMap = new Map(appThreads.map((thread) => [thread.threadId, thread]));
 
         return {
             ...results,
             page: results.page
-                .filter(
-                    (t) =>
-                        !appThreads.some(
-                            (appThread) =>
-                                appThread.threadId === t._id
-                                && appThread.deleted,
-                        ),
-                )
+                .filter((t) => !appThreads.some((appThread) => appThread.threadId === t._id && appThread.deleted))
                 .map((t) => {
                     const appThread = appThreadsMap.get(t._id);
 
@@ -251,21 +199,15 @@ export const updateThread = authedAction({
         threadId: v.string(),
         title: v.optional(v.string()),
     },
-    handler: async (
-        context,
-        { model, order, status, summary, threadId, title },
-    ) => {
+    handler: async (context, { model, order, status, summary, threadId, title }) => {
         const { userId } = context.user;
 
         // Check if user has admin access to this thread
-        const hasAccess = await context.runQuery(
-            internal.chat.sharing.checkThreadAccess,
-            {
-                requiredPermission: "admin",
-                threadId,
-                userId,
-            },
-        );
+        const hasAccess = await context.runQuery(internal.chat.sharing.checkThreadAccess, {
+            requiredPermission: "admin",
+            threadId,
+            userId,
+        });
 
         if (!hasAccess) {
             throw new ConvexError("Admin access denied to this thread");
@@ -326,9 +268,7 @@ export const createSummarizeChat = internalAction({
         const model = "gemini-2.5-flash";
 
         const agent = getAgent(model, {
-            middleware: [
-                createCacheMiddleware(`${model}-summarize-chat`, context),
-            ],
+            middleware: [createCacheMiddleware(`${model}-summarize-chat`, context)],
         });
 
         const { thread } = await agent.continueThread(context, {
@@ -362,9 +302,7 @@ export const createSummarizeChat = internalAction({
 export const createThreadRelationship = internalMutation({
     args: {
         branchPoint: v.optional(v.number()),
-        branchType: v.optional(
-            v.union(v.literal("branch"), v.literal("continuation")),
-        ),
+        branchType: v.optional(v.union(v.literal("branch"), v.literal("continuation"))),
         parentThreadId: v.string(),
         threadId: v.string(),
     },
@@ -386,8 +324,7 @@ export const getThreadRelationship = internalQuery({
     handler: async (context, arguments_) => {
         const relationship = await context.db
             .query("threadRelationships")
-            .withIndex("by_thread", (q) =>
-                q.eq("threadId", arguments_.threadId))
+            .withIndex("by_thread", (q) => q.eq("threadId", arguments_.threadId))
             .unique();
 
         return relationship;
@@ -402,20 +339,16 @@ export const getChildThreads = authedQuery({
         // Get all child threads for this parent
         const relationships = await context.db
             .query("threadRelationships")
-            .withIndex("by_parent", (q) =>
-                q.eq("parentThreadId", arguments_.parentThreadId))
+            .withIndex("by_parent", (q) => q.eq("parentThreadId", arguments_.parentThreadId))
             .collect();
 
         // Get the actual thread data for each child
         const childThreads = [];
 
         for await (const relationship of relationships) {
-            const thread = await context.runQuery(
-                components.agent.threads.getThread,
-                {
-                    threadId: relationship.threadId,
-                },
-            );
+            const thread = await context.runQuery(components.agent.threads.getThread, {
+                threadId: relationship.threadId,
+            });
 
             if (thread) {
                 childThreads.push({
@@ -438,8 +371,7 @@ export const deleteThreadRelationship = internalMutation({
     handler: async (context, arguments_) => {
         const relationship = await context.db
             .query("threadRelationships")
-            .withIndex("by_thread", (q) =>
-                q.eq("threadId", arguments_.threadId))
+            .withIndex("by_thread", (q) => q.eq("threadId", arguments_.threadId))
             .unique();
 
         if (relationship) {
@@ -472,18 +404,12 @@ export const deleteThread = authedMutation({
             threadId,
         });
 
-        await context.runMutation(
-            internal.chat.functions.deleteThreadRelationship,
-            {
-                threadId,
-            },
-        );
+        await context.runMutation(internal.chat.functions.deleteThreadRelationship, {
+            threadId,
+        });
 
         // Delete the actual thread
-        return await context.runMutation(
-            components.agent.threads.deleteAllForThreadIdAsync,
-            { threadId },
-        );
+        return await context.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId });
     },
 });
 
@@ -491,9 +417,7 @@ export const getAllThreadRelationships = authedQuery({
     args: {},
     handler: async (context) => {
         // Get all thread relationships for building the hierarchy
-        const relationships = await context.db
-            .query("threadRelationships")
-            .collect();
+        const relationships = await context.db.query("threadRelationships").collect();
 
         return relationships;
     },
@@ -506,12 +430,9 @@ export const validateThreadExists = authedQuery({
     handler: async (context, arguments_) => {
         try {
             // Check if the thread exists using the agent API
-            const thread = await context.runQuery(
-                components.agent.threads.getThread,
-                {
-                    threadId: arguments_.threadId,
-                },
-            );
+            const thread = await context.runQuery(components.agent.threads.getThread, {
+                threadId: arguments_.threadId,
+            });
 
             return thread !== null;
         } catch {
@@ -587,10 +508,7 @@ export const getPinnedThreads = authedQuery({
             .collect();
 
         // Filter for threads pinned by this user and not deleted
-        return pinnedThreads.filter(
-            (thread) =>
-                thread.userId === userId && thread.pinnedAt && !thread.deleted,
-        );
+        return pinnedThreads.filter((thread) => thread.userId === userId && thread.pinnedAt && !thread.deleted);
     },
     returns: v.array(v.any()),
 });
@@ -634,12 +552,7 @@ export const getThreadOrders = authedQuery({
             .withIndex("by_thread", (q) => q)
             .collect();
 
-        return threads.filter(
-            (thread) =>
-                thread.userId === userId
-                && thread.order !== undefined
-                && !thread.deleted,
-        );
+        return threads.filter((thread) => thread.userId === userId && thread.order !== undefined && !thread.deleted);
     },
     returns: v.array(v.any()),
 });
@@ -662,9 +575,7 @@ export const updateThreadVisibility = authedMutation({
         }
 
         if (thread.userId !== userId) {
-            throw new ConvexError(
-                "Cannot update visibility for another user's thread",
-            );
+            throw new ConvexError("Cannot update visibility for another user's thread");
         }
 
         await context.db.patch(thread._id, {
@@ -683,10 +594,7 @@ export const searchThreads = authedQuery({
 
         searchQuery: v.string(),
     },
-    handler: async (
-        context,
-        { paginationOpts, searchQuery },
-    ): Promise<PaginationResult<ThreadDoc>> => {
+    handler: async (context, { paginationOpts, searchQuery }): Promise<PaginationResult<ThreadDoc>> => {
         const identity = await context.auth.getUserIdentity();
 
         if (!identity) {
@@ -696,23 +604,17 @@ export const searchThreads = authedQuery({
         const userId = identity.subject;
 
         // Get all threads for the user
-        const allThreads = await context.runQuery(
-            components.agent.threads.listThreadsByUserId,
-            {
-                paginationOpts: { cursor: null, numItems: 1000 }, // Get all threads for filtering
-                userId,
-            },
-        );
+        const allThreads = await context.runQuery(components.agent.threads.listThreadsByUserId, {
+            paginationOpts: { cursor: null, numItems: 1000 }, // Get all threads for filtering
+            userId,
+        });
 
         // If no search query, return regular threads with pagination
         if (!searchQuery.trim()) {
-            return await context.runQuery(
-                components.agent.threads.listThreadsByUserId,
-                {
-                    paginationOpts,
-                    userId,
-                },
-            );
+            return await context.runQuery(components.agent.threads.listThreadsByUserId, {
+                paginationOpts,
+                userId,
+            });
         }
 
         // Filter threads by title and summary (client-side for now, as agent doesn't have thread search)
@@ -743,15 +645,8 @@ export const searchThreads = authedQuery({
         });
 
         // Apply pagination to filtered results
-        const startIndex = paginationOpts.cursor
-            ? filteredThreads.findIndex(
-                (t) => t._id === paginationOpts.cursor,
-            ) + 1
-            : 0;
-        const endIndex = Math.min(
-            startIndex + paginationOpts.numItems,
-            filteredThreads.length,
-        );
+        const startIndex = paginationOpts.cursor ? filteredThreads.findIndex((t) => t._id === paginationOpts.cursor) + 1 : 0;
+        const endIndex = Math.min(startIndex + paginationOpts.numItems, filteredThreads.length);
         const paginatedThreads = filteredThreads.slice(startIndex, endIndex);
 
         return {
@@ -768,12 +663,7 @@ export const searchMessages = authedQuery({
 
         searchQuery: v.string(),
     },
-    handler: async (
-        context,
-        { paginationOpts, searchQuery },
-    ): Promise<
-        PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>
-    > => {
+    handler: async (context, { paginationOpts, searchQuery }): Promise<PaginationResult<ThreadDoc & { relevantMessages?: MessageDoc[] }>> => {
         const { userId } = context.user;
 
         // If no search query, return empty results
@@ -786,19 +676,14 @@ export const searchMessages = authedQuery({
         }
 
         // Search messages using full-text search
-        const searchResults = await context.runQuery(
-            components.agent.messages.textSearch,
-            {
-                limit: 100, // Get more results for better thread matching
-                searchAllMessagesForUserId: userId,
-                text: searchQuery.trim(),
-            },
-        );
+        const searchResults = await context.runQuery(components.agent.messages.textSearch, {
+            limit: 100, // Get more results for better thread matching
+            searchAllMessagesForUserId: userId,
+            text: searchQuery.trim(),
+        });
 
         // Get unique thread IDs from search results
-        const threadIds = [
-            ...new Set(searchResults.map((message) => message.threadId)),
-        ];
+        const threadIds = [...new Set(searchResults.map((message) => message.threadId))];
 
         // Get thread details for each unique thread ID
         const threadsWithMessages: (ThreadDoc & {
@@ -807,16 +692,11 @@ export const searchMessages = authedQuery({
 
         for (const threadId of threadIds) {
             try {
-                const thread = await context.runQuery(
-                    components.agent.threads.getThread,
-                    { threadId },
-                );
+                const thread = await context.runQuery(components.agent.threads.getThread, { threadId });
 
                 if (thread && thread.userId === userId) {
                     // Get relevant messages for this thread from search results
-                    const relevantMessages = searchResults.filter(
-                        (message) => message.threadId === threadId,
-                    );
+                    const relevantMessages = searchResults.filter((message) => message.threadId === threadId);
 
                     threadsWithMessages.push({
                         ...thread,
@@ -842,25 +722,12 @@ export const searchMessages = authedQuery({
         });
 
         // Apply pagination to the sorted results
-        const startIndex = paginationOpts.cursor
-            ? threadsWithMessages.findIndex(
-                (t) => t._id === paginationOpts.cursor,
-            ) + 1
-            : 0;
-        const endIndex = Math.min(
-            startIndex + paginationOpts.numItems,
-            threadsWithMessages.length,
-        );
-        const paginatedThreads = threadsWithMessages.slice(
-            startIndex,
-            endIndex,
-        );
+        const startIndex = paginationOpts.cursor ? threadsWithMessages.findIndex((t) => t._id === paginationOpts.cursor) + 1 : 0;
+        const endIndex = Math.min(startIndex + paginationOpts.numItems, threadsWithMessages.length);
+        const paginatedThreads = threadsWithMessages.slice(startIndex, endIndex);
 
         return {
-            continueCursor:
-                endIndex < threadsWithMessages.length
-                    ? threadsWithMessages[endIndex - 1]?._id || ""
-                    : "",
+            continueCursor: endIndex < threadsWithMessages.length ? threadsWithMessages[endIndex - 1]?._id || "" : "",
             isDone: endIndex >= threadsWithMessages.length,
             page: paginatedThreads,
         };
@@ -894,9 +761,7 @@ export const improvePrompt = internalAction({
         });
 
         if (!rateLimitResult.ok) {
-            const retryAfterSeconds = Math.ceil(
-                (rateLimitResult.retryAfter || 60_000) / 1000,
-            );
+            const retryAfterSeconds = Math.ceil((rateLimitResult.retryAfter || 60_000) / 1000);
 
             throw new ConvexError({
                 kind: "RateLimitError",
@@ -907,20 +772,15 @@ export const improvePrompt = internalAction({
         }
 
         // Check global rate limit as well
-        const globalRateLimitResult = await checkRateLimit(
-            context,
-            "globalPromptImprovement",
-            {
-                count: 1,
-                key: "global",
-            },
-        );
+        const globalRateLimitResult = await checkRateLimit(context, "globalPromptImprovement", {
+            count: 1,
+            key: "global",
+        });
 
         if (!globalRateLimitResult.ok) {
             throw new ConvexError({
                 kind: "RateLimitError",
-                message:
-                    "System is currently busy. Please try again in a moment.",
+                message: "System is currently busy. Please try again in a moment.",
                 name: "globalPromptImprovement",
                 retryAfter: globalRateLimitResult.retryAfter,
             });
@@ -928,9 +788,7 @@ export const improvePrompt = internalAction({
 
         const model = "gemini-2.5-flash";
         const agent = getAgent(model, {
-            middleware: [
-                createCacheMiddleware(`${model}-improve-prompt`, context),
-            ],
+            middleware: [createCacheMiddleware(`${model}-improve-prompt`, context)],
         });
 
         const { thread } = await agent.continueThread(context, { threadId });
@@ -976,10 +834,7 @@ export const getFullThreadForExport = authedQuery({
     async handler(context, { model, threadId }) {
         const { userId } = context.user;
 
-        const thread = await context.runQuery(
-            components.agent.threads.getThread,
-            { threadId },
-        );
+        const thread = await context.runQuery(components.agent.threads.getThread, { threadId });
 
         if (!thread) {
             throw new Error("Thread not found");
@@ -992,12 +847,9 @@ export const getFullThreadForExport = authedQuery({
         const agent = getAgent(model as AgentModel);
 
         // This logic is copied from listMessages to handle branches correctly.
-        const threadRelationship = await context.runQuery(
-            internal.chat.functions.getThreadRelationship,
-            {
-                threadId,
-            },
-        );
+        const threadRelationship = await context.runQuery(internal.chat.functions.getThreadRelationship, {
+            threadId,
+        });
 
         let allMessages: MessageDoc[] = [];
 
@@ -1015,16 +867,10 @@ export const getFullThreadForExport = authedQuery({
             });
 
             // Take only parent messages up to the branch point (inclusive)
-            const parentMessagesUpToBranch = parentMessages.page.slice(
-                0,
-                (threadRelationship.branchPoint || 0) + 1,
-            );
+            const parentMessagesUpToBranch = parentMessages.page.slice(0, (threadRelationship.branchPoint || 0) + 1);
 
             // Merge parent messages with current thread messages
-            allMessages = [
-                ...parentMessagesUpToBranch,
-                ...currentMessages.page,
-            ];
+            allMessages = [...parentMessagesUpToBranch, ...currentMessages.page];
         } else {
             const messages = await agent.listMessages(context, {
                 paginationOpts: { cursor: null, numItems: 10_000 }, // Fetch all
@@ -1063,13 +909,10 @@ export const branchThread = authedMutation({
             throw new ConvexError("Parent thread is missing model");
         }
 
-        const newThreadId: string = await context.runMutation(
-            internal.chat.functions.createThread,
-            {
-                model,
-                title: branchName || "",
-            },
-        );
+        const newThreadId: string = await context.runMutation(internal.chat.functions.createThread, {
+            model,
+            title: branchName || "",
+        });
 
         const agent = getAgent(model as AgentModel);
 
@@ -1082,15 +925,12 @@ export const branchThread = authedMutation({
             await thread.updateMetadata({ title: branchName });
         }
 
-        await context.runMutation(
-            internal.chat.functions.createThreadRelationship,
-            {
-                branchPoint: branchPoint || 0,
-                branchType: "branch",
-                parentThreadId: threadId,
-                threadId: newThreadId,
-            },
-        );
+        await context.runMutation(internal.chat.functions.createThreadRelationship, {
+            branchPoint: branchPoint || 0,
+            branchType: "branch",
+            parentThreadId: threadId,
+            threadId: newThreadId,
+        });
 
         // Copy messages up to branchPoint (inclusive), or all if branchPoint is undefined
         const parentMessagesResult = await agent.listMessages(context, {
@@ -1100,20 +940,12 @@ export const branchThread = authedMutation({
         const parentMessages = parentMessagesResult.page;
 
         if (branchPoint !== undefined && branchPoint >= parentMessages.length) {
-            await context.runMutation(
-                internal.chat.functions.deleteThreadRelationship,
-                {
-                    threadId: newThreadId,
-                },
-            );
-            await context.runMutation(
-                components.agent.threads.deleteAllForThreadIdAsync,
-                { threadId: newThreadId },
-            );
+            await context.runMutation(internal.chat.functions.deleteThreadRelationship, {
+                threadId: newThreadId,
+            });
+            await context.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId: newThreadId });
 
-            throw new ConvexError(
-                "Branch point is greater than the parent messages length",
-            );
+            throw new ConvexError("Branch point is greater than the parent messages length");
         }
 
         return newThreadId;
@@ -1140,11 +972,7 @@ export const softDeleteThread = authedMutation({
         });
 
         // Schedule hard delete in 24 hours (adjust as needed)
-        await context.scheduler.runAfter(
-            24 * 60 * 60 * 1000,
-            internal.chat.functions.hardDeleteThread,
-            { threadId },
-        );
+        await context.scheduler.runAfter(24 * 60 * 60 * 1000, internal.chat.functions.hardDeleteThread, { threadId });
     },
 });
 
@@ -1207,8 +1035,7 @@ export const createTag = authedMutation({
         // Check if tag already exists for this user
         const existing = await context.db
             .query("threadTags")
-            .withIndex("by_user_and_name", (q) =>
-                q.eq("userId", userId).eq("name", name))
+            .withIndex("by_user_and_name", (q) => q.eq("userId", userId).eq("name", name))
             .unique();
 
         if (existing) {
@@ -1264,8 +1091,7 @@ export const updateThreadTags = authedMutation({
             if (tag !== "chat") {
                 const existingTag = await context.db
                     .query("threadTags")
-                    .withIndex("by_user_and_name", (q) =>
-                        q.eq("userId", userId).eq("name", tag))
+                    .withIndex("by_user_and_name", (q) => q.eq("userId", userId).eq("name", tag))
                     .unique();
 
                 if (existingTag) {
@@ -1288,8 +1114,7 @@ export const updateThreadTags = authedMutation({
             if (oldTag !== "chat" && !newTags.includes(oldTag)) {
                 const oldTagDocument = await context.db
                     .query("threadTags")
-                    .withIndex("by_user_and_name", (q) =>
-                        q.eq("userId", userId).eq("name", oldTag))
+                    .withIndex("by_user_and_name", (q) => q.eq("userId", userId).eq("name", oldTag))
                     .unique();
 
                 if (oldTagDocument && (oldTagDocument.usageCount || 0) > 0) {
@@ -1344,8 +1169,7 @@ export const addThreadTag = authedMutation({
         if (tag !== "chat") {
             const existingTag = await context.db
                 .query("threadTags")
-                .withIndex("by_user_and_name", (q) =>
-                    q.eq("userId", userId).eq("name", tag))
+                .withIndex("by_user_and_name", (q) => q.eq("userId", userId).eq("name", tag))
                 .unique();
 
             if (existingTag) {
@@ -1405,8 +1229,7 @@ export const removeThreadTag = authedMutation({
         if (tag !== "chat") {
             const tagDocument = await context.db
                 .query("threadTags")
-                .withIndex("by_user_and_name", (q) =>
-                    q.eq("userId", userId).eq("name", tag))
+                .withIndex("by_user_and_name", (q) => q.eq("userId", userId).eq("name", tag))
                 .unique();
 
             if (tagDocument && (tagDocument.usageCount || 0) > 0) {
@@ -1423,17 +1246,11 @@ export const getThreadsByTag = authedQuery({
         paginationOpts: paginationOptsValidator,
         tag: v.optional(v.string()),
     },
-    handler: async (
-        context,
-        { paginationOpts, tag },
-    ): Promise<PaginationResult<ThreadDoc>> => {
+    handler: async (context, { paginationOpts, tag }): Promise<PaginationResult<ThreadDoc>> => {
         const userId = context.user._id;
 
         // Get threads from agent component
-        const results = await context.runQuery(
-            components.agent.threads.listThreadsByUserId,
-            { paginationOpts, userId },
-        );
+        const results = await context.runQuery(components.agent.threads.listThreadsByUserId, { paginationOpts, userId });
 
         // Get all app threads (we'll filter in memory since we can't easily query array contains in Convex)
         const appThreads = await context.db
@@ -1442,16 +1259,12 @@ export const getThreadsByTag = authedQuery({
             .collect();
 
         // Create a map for quick lookup of app thread data
-        const appThreadsMap = new Map(
-            appThreads.map((thread) => [thread.threadId, thread]),
-        );
+        const appThreadsMap = new Map(appThreads.map((thread) => [thread.threadId, thread]));
 
         // Filter results based on tag
         const filteredResults = results.page
             .filter((t) => {
-                const appThread = appThreads.find(
-                    (appThread) => appThread.threadId === t._id,
-                );
+                const appThread = appThreads.find((appThread) => appThread.threadId === t._id);
 
                 // Skip deleted threads
                 if (appThread && appThread.deleted) {

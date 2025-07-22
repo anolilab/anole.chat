@@ -1,28 +1,13 @@
-import type {
-    AuthFunctions,
-    PublicAuthFunctions,
-} from "@convex-dev/better-auth";
+import type { AuthFunctions, PublicAuthFunctions } from "@convex-dev/better-auth";
 import { BetterAuth, convexAdapter } from "@convex-dev/better-auth";
 import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
-import {
-    admin,
-    anonymous,
-    emailOTP,
-    magicLink,
-    organization,
-    twoFactor,
-} from "better-auth/plugins";
+import { admin, anonymous, emailOTP, magicLink, organization, twoFactor } from "better-auth/plugins";
 
 import { api, components, internal } from "./_generated/api";
 import type { DataModel, Id } from "./_generated/dataModel";
 import type { GenericCtx as GenericContext } from "./_generated/server";
-import {
-    sendEmailVerification,
-    sendMagicLink,
-    sendOTPVerification,
-    sendResetPassword,
-} from "./email/functions";
+import { sendEmailVerification, sendMagicLink, sendOTPVerification, sendResetPassword } from "./email/functions";
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SITE_URL } from "./env";
 
 const authFunctions: AuthFunctions = internal.auth;
@@ -110,23 +95,8 @@ export const createAuth = (context: GenericContext) =>
         },
     });
 
-export const {
-    createSession,
-    createUser,
-    deleteUser,
-    isAuthenticated,
-    updateUser,
-} = betterAuthComponent.createAuthFunctions<DataModel>({
-    // onCreateUser: async (context, user) => {},
-    onDeleteUser: async (context, userId) => {
-        await context.db.delete(userId as Id<"user">);
-    },
-    onUpdateUser: async (context, user) => {
-        // Keep the user's email synced
-        const userId = user.userId as Id<"user">;
-
-        await context.db.patch(userId, {
-            email: user.email,
-        });
-    },
+export const { createSession, createUser, deleteUser, isAuthenticated, updateUser } = betterAuthComponent.createAuthFunctions<DataModel>({
+    onCreateUser: async (context, user) => {},
+    onDeleteUser: async (context, userId) => {},
+    onUpdateUser: async (context, user) => {},
 });

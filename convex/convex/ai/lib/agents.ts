@@ -2,18 +2,9 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import type { EmbeddingModelV1, LanguageModelV1 } from "@ai-sdk/provider";
-import type {
-    ContextOptions,
-    StorageOptions,
-    UsageHandler,
-} from "@convex-dev/agent";
+import type { ContextOptions, StorageOptions, UsageHandler } from "@convex-dev/agent";
 import { Agent } from "@convex-dev/agent";
-import type {
-    LanguageModelRequestMetadata,
-    LanguageModelResponseMetadata,
-    LanguageModelV1Middleware,
-    ToolSet,
-} from "ai";
+import type { LanguageModelRequestMetadata, LanguageModelResponseMetadata, LanguageModelV1Middleware, ToolSet } from "ai";
 import { wrapLanguageModel } from "ai";
 
 import { components } from "../../_generated/api";
@@ -47,8 +38,7 @@ export const agents = {
         contextOptions: {
             recentMessages: 12,
         },
-        instructions:
-            "You are a helpful assistant with strong multimodal capabilities. Provide accurate and contextually relevant responses.",
+        instructions: "You are a helpful assistant with strong multimodal capabilities. Provide accurate and contextually relevant responses.",
         maxRetries: 2,
         maxSteps: 6,
         textEmbedding: google.textEmbeddingModel("text-embedding-004"),
@@ -83,8 +73,7 @@ export const agents = {
         contextOptions: {
             recentMessages: 10,
         },
-        instructions:
-            "You are an efficient assistant optimized for quick responses. Provide helpful, concise answers while maintaining accuracy.",
+        instructions: "You are an efficient assistant optimized for quick responses. Provide helpful, concise answers while maintaining accuracy.",
         maxRetries: 2,
         maxSteps: 5,
         textEmbedding: google.textEmbeddingModel("text-embedding-004"),
@@ -216,10 +205,7 @@ export const getAgent = (
 
     if (options !== undefined) {
         chat = wrapLanguageModel({
-            middleware: (Array.isArray(options.middleware)
-                ? options.middleware
-                : [options.middleware]
-            ).filter(Boolean) as LanguageModelV1Middleware[],
+            middleware: (Array.isArray(options.middleware) ? options.middleware : [options.middleware]).filter(Boolean) as LanguageModelV1Middleware[],
             model: chat,
             modelId: options.modelId,
             providerId: options.providerId,

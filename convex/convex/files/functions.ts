@@ -4,14 +4,7 @@ import { v } from "convex/values";
 import { components } from "../_generated/api";
 import { httpAction } from "../_generated/server";
 import { authedMutation, authedQuery, c } from "../auth/functions";
-import {
-    estimateTokenCount,
-    getCorrectMimeType,
-    getFileTypeInfo,
-    isSupportedFile,
-    MAX_FILE_SIZE,
-    MAX_TOKENS_PER_FILE,
-} from "./lib/file_constants";
+import { estimateTokenCount, getCorrectMimeType, getFileTypeInfo, isSupportedFile, MAX_FILE_SIZE, MAX_TOKENS_PER_FILE } from "./lib/file_constants";
 
 export const r2 = new R2(components.r2);
 
@@ -19,9 +12,7 @@ export const { generateUploadUrl, syncMetadata } = r2.clientApi({
     checkUpload: async (context, bucket, { fileName, fileSize, fileType }) => {
         // Validate file size
         if (fileSize > MAX_FILE_SIZE) {
-            throw new Error(
-                `File size exceeds 5MB limit. Current size: ${fileSize} bytes`,
-            );
+            throw new Error(`File size exceeds 5MB limit. Current size: ${fileSize} bytes`);
         }
 
         // Validate file type
@@ -32,11 +23,7 @@ export const { generateUploadUrl, syncMetadata } = r2.clientApi({
         const fileTypeInfo = getFileTypeInfo(fileName, fileType);
 
         // For text files, validate token count (client should provide a token estimate if possible)
-        if (
-            fileTypeInfo.isText
-            && !fileTypeInfo.isImage
-            && typeof estimateTokenCount === "function"
-        ) {
+        if (fileTypeInfo.isText && !fileTypeInfo.isImage && typeof estimateTokenCount === "function") {
             // Optionally, you could require the client to send a token count
             // For now, just warn if not provided
             // throw if you want to enforce
@@ -115,14 +102,9 @@ export const listFiles = authedQuery({
     handler: async (context, arguments_) => {
         try {
             // List files for the specific user by filtering keys
-            const allFiles = await r2.listMetadata(
-                context,
-                arguments_.limit || 100,
-            );
+            const allFiles = await r2.listMetadata(context, arguments_.limit || 100);
 
-            return allFiles.filter((file) =>
-                file.key.includes(`attachments/${context.user.userId}/`),
-            );
+            return allFiles.filter((file) => file.key.includes(`attachments/${context.user.userId}/`));
         } catch (error) {
             console.error("Error listing files:", error);
 

@@ -9,19 +9,9 @@ interface ResetPasswordEmailProperties {
     url: string;
 }
 
-export default function ResetPasswordEmail({
-    brandLogoUrl,
-    brandName,
-    brandTagline,
-    url,
-}: ResetPasswordEmailProperties) {
+export default function ResetPasswordEmail({ brandLogoUrl, brandName, brandTagline, url }: ResetPasswordEmailProperties) {
     return (
-        <BaseEmail
-            brandLogoUrl={brandLogoUrl}
-            brandName={brandName}
-            brandTagline={brandTagline}
-            previewText="Reset your password"
-        >
+        <BaseEmail brandLogoUrl={brandLogoUrl} brandName={brandName} brandTagline={brandTagline} previewText="Reset your password">
             <Heading style={styles.h1}>Reset Your Password</Heading>
             <Link
                 href={url}
@@ -42,8 +32,7 @@ export default function ResetPasswordEmail({
                     marginTop: "14px",
                 }}
             >
-                If you didn&apos;t request a password reset, you can safely
-                ignore this email.
+                If you didn&apos;t request a password reset, you can safely ignore this email.
             </Text>
         </BaseEmail>
     );

@@ -16,34 +16,14 @@ export const resend: Resend = new Resend(components.resend, {
     onEmailEvent: internal.email.functions.handleEmailEvent,
 });
 
-export const sendEmail = async ({
-    ctx,
-    html,
-    subject,
-    to,
-}: {
-    ctx: any;
-    html: string;
-    subject: string;
-    to: string;
-}) => {
-    await resend.sendEmail(
-        ctx,
-        "onboarding@boboddy.business",
-        to,
-        subject,
-        html,
-    );
+export const sendEmail = async ({ ctx, html, subject, to }: { ctx: any; html: string; subject: string; to: string }) => {
+    await resend.sendEmail(ctx, "onboarding@boboddy.business", to, subject, html);
 };
 
 export const insertExpectation = internalMutation({
     args: {
         email: v.string(),
-        expectation: v.union(
-            v.literal("delivered"),
-            v.literal("bounced"),
-            v.literal("complained"),
-        ),
+        expectation: v.union(v.literal("delivered"), v.literal("bounced"), v.literal("complained")),
     },
     handler: async (context, arguments_) => {
         await context.db.insert("emails", {
@@ -75,15 +55,11 @@ export const handleEmailEvent = internalMutation({
 
         if (arguments_.event.type === "email.delivered") {
             if (email.expectation === "bounced") {
-                throw new Error(
-                    "Email was delivered but expected to be bounced",
-                );
+                throw new Error("Email was delivered but expected to be bounced");
             }
 
             if (email.expectation === "complained") {
-                console.log(
-                    "Complained email was delivered, expecting complaint coming...",
-                );
+                console.log("Complained email was delivered, expecting complaint coming...");
 
                 return null;
             }
@@ -94,9 +70,7 @@ export const handleEmailEvent = internalMutation({
 
         if (arguments_.event.type === "email.bounced") {
             if (email.expectation !== "bounced") {
-                throw new Error(
-                    `Email was bounced but expected to be ${email.expectation}`,
-                );
+                throw new Error(`Email was bounced but expected to be ${email.expectation}`);
             }
 
             // All good. Bounced email was bounced.
@@ -105,9 +79,7 @@ export const handleEmailEvent = internalMutation({
 
         if (arguments_.event.type === "email.complained") {
             if (email.expectation !== "complained") {
-                throw new Error(
-                    `Email was complained but expected to be ${email.expectation}`,
-                );
+                throw new Error(`Email was complained but expected to be ${email.expectation}`);
             }
 
             // All good. Complained email was complained.
@@ -121,15 +93,7 @@ export const handleEmailEvent = internalMutation({
 
 // Helper functions called by Better Auth - these don't need authentication
 // as they are called internally by the auth system during auth flows
-export const sendEmailVerification = async ({
-    ctx,
-    to,
-    url,
-}: {
-    ctx: any;
-    to: string;
-    url: string;
-}) => {
+export const sendEmailVerification = async ({ ctx, to, url }: { ctx: any; to: string; url: string }) => {
     await sendEmail({
         ctx,
         html: await render(<VerifyEmail url={url} />),
@@ -138,15 +102,7 @@ export const sendEmailVerification = async ({
     });
 };
 
-export const sendOTPVerification = async ({
-    code,
-    ctx,
-    to,
-}: {
-    code: string;
-    ctx: any;
-    to: string;
-}) => {
+export const sendOTPVerification = async ({ code, ctx, to }: { code: string; ctx: any; to: string }) => {
     await sendEmail({
         ctx,
         html: await render(<VerifyOTP code={code} />),
@@ -155,15 +111,7 @@ export const sendOTPVerification = async ({
     });
 };
 
-export const sendMagicLink = async ({
-    ctx,
-    to,
-    url,
-}: {
-    ctx: any;
-    to: string;
-    url: string;
-}) => {
+export const sendMagicLink = async ({ ctx, to, url }: { ctx: any; to: string; url: string }) => {
     await sendEmail({
         ctx,
         html: await render(<MagicLinkEmail url={url} />),
@@ -172,15 +120,7 @@ export const sendMagicLink = async ({
     });
 };
 
-export const sendResetPassword = async ({
-    ctx,
-    to,
-    url,
-}: {
-    ctx: any;
-    to: string;
-    url: string;
-}) => {
+export const sendResetPassword = async ({ ctx, to, url }: { ctx: any; to: string; url: string }) => {
     await sendEmail({
         ctx,
         html: await render(<ResetPasswordEmail url={url} />),

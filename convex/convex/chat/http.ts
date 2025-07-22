@@ -1,16 +1,15 @@
 import { getFile } from "@convex-dev/agent";
+import { throttle } from "@tanstack/pacer";
 import { ConvexError } from "convex/values";
 
 import { components, internal } from "../_generated/api";
 import type { ActionCtx as ActionContext } from "../_generated/server";
 import type { AgentModel } from "../ai/lib/agents";
 import { getAgent } from "../ai/lib/agents";
+import { getCurrentUserInternal } from "../auth/lib/helper";
 
 // HTTP action for prompt improvement (wrapper around the action)
-export const improvePromptHttpAction = async (
-    context: ActionContext,
-    request: Request,
-) => {
+export const improvePromptHttpAction = async (context: ActionContext, request: Request) => {
     // Parse the request body
     const body = await request.json();
     const { improvementInstructions, prompt, threadId } = body;
@@ -23,15 +22,12 @@ export const improvePromptHttpAction = async (
     }
 
     try {
-        const result = await context.runAction(
-            internal.chat.functions.improvePrompt,
-            {
-                improvementInstructions,
+        const result = await context.runAction(internal.chat.functions.improvePrompt, {
+            improvementInstructions,
 
-                prompt,
-                threadId,
-            },
-        );
+            prompt,
+            threadId,
+        });
 
         return new Response(JSON.stringify(result), {
             headers: { "Content-Type": "application/json" },
@@ -40,10 +36,7 @@ export const improvePromptHttpAction = async (
     } catch (error) {
         console.error("Error improving prompt:", error);
 
-        const errorMessage
-            = error instanceof ConvexError
-                ? error.message
-                : "Failed to improve prompt";
+        const errorMessage = error instanceof ConvexError ? error.message : "Failed to improve prompt";
 
         return new Response(JSON.stringify({ error: errorMessage }), {
             headers: { "Content-Type": "application/json" },
@@ -52,10 +45,7 @@ export const improvePromptHttpAction = async (
     }
 };
 
-export const streamHttpAction = async (
-    context: ActionContext,
-    request: Request,
-) => {
+export const streamHttpAction = async (context: ActionContext, request: Request) => {
     const { fileIds, model, prompt, threadId } = (await request.json()) as {
         fileIds?: string[];
         model: string;
@@ -63,14 +53,20 @@ export const streamHttpAction = async (
         threadId?: string;
     };
 
-    const user = await context.runQuery(internal.auth.functions.getCurrentUser);
+    const user = await getCurrentUserInternal(context);
+
+    if (!user) {
+        return new Response(
+            JSON.stringify({ error: "Not authenticated", message: "User not found" }),
+            { headers: { "Content-Type": "application/json" }, status: 401 },
+        );
+    }
+
     const { userId } = user;
 
     const agent = getAgent(model as AgentModel);
 
-    const { thread } = threadId
-        ? await agent.continueThread(context, { threadId, userId })
-        : await agent.createThread(context, { userId });
+    const { thread } = threadId ? await agent.continueThread(context, { threadId, userId }) : await agent.createThread(context, { userId });
 
     // Create message content with file support
     const messageContent: any[] = [];
@@ -79,11 +75,7 @@ export const streamHttpAction = async (
         try {
             for await (const fileId of fileIds) {
                 // @ts-ignore - Ignoring TypeScript errors for getFile function
-                const { filePart, imagePart } = await getFile(
-                    context,
-                    components.agent,
-                    fileId,
-                );
+                const { filePart, imagePart } = await getFile(context, components.agent, fileId);
 
                 // Add file content to message (image takes precedence over file)
                 if (imagePart && Object.keys(imagePart).length > 0) {

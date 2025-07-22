@@ -28,13 +28,13 @@
  * webhookPath: "/webhooks/polar",
  *
  * // Optional: Custom success URL for checkout redirects
-    successUrl: process.env.POLAR_SUCCESS_URL || "https://yourdomain.com/success",
- 
-    // Optional: Custom cancel URL for checkout redirects
-    cancelUrl: process.env.POLAR_CANCEL_URL || "https://yourdomain.com/cancel",
-});
- 
-// Export API functions from the Polar client
+ * successUrl: process.env.POLAR_SUCCESS_URL || "https://yourdomain.com/success",
+ *
+ * // Optional: Custom cancel URL for checkout redirects
+ * cancelUrl: process.env.POLAR_CANCEL_URL || "https://yourdomain.com/cancel",
+ * });
+ *
+ * // Export API functions from the Polar client
 export const {
     changeCurrentSubscription,
     cancelCurrentSubscription,
