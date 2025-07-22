@@ -2,10 +2,12 @@
 
 "use client";
 
-import { createCollection, localStorageCollectionOptions } from "@tanstack/react-db";
+import { createCollection, localStorageCollectionOptions, localOnlyCollectionOptions } from "@tanstack/react-db";
 import { z } from "zod/v4";
 
 const KEY = "anole-ui-state";
+
+const isClient = typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 
 const sidebarStateSchema = z
     .object({
@@ -183,23 +185,26 @@ export type KeyboardShortcuts = z.infer<typeof keyboardShortcutsSchema>;
 export type UserPreferences = z.infer<typeof userPreferencesSchema>;
 export type LayoutState = z.infer<typeof layoutStateSchema>;
 
-// Create UI state collection
-export const uiStateCollection = createCollection(
-    localStorageCollectionOptions({
+export const uiStateCollection = isClient
+  ? createCollection(
+      localStorageCollectionOptions({
         getKey: (item: UIState) => item.id,
         id: KEY,
         schema: uiStateSchema,
-        storage: globalThis.localStorage,
+        storage: window.localStorage,
         storageKey: KEY,
-    }),
-);
+      })
+    )
+  : createCollection(
+      localOnlyCollectionOptions({
+        getKey: (item: UIState) => item.id,
+        id: KEY,
+        schema: uiStateSchema,
+      })
+    );
 
 // Initialize UI state collection
 export const initializeUIState = (): void => {
-    if (globalThis.window === undefined) {
-        return;
-    }
-
     try {
         uiStateCollection.insert(defaultUIState);
     } catch {
@@ -484,6 +489,6 @@ export const resetKeyboardShortcuts = (): void => {
     setKeyboardShortcuts(defaultUIState.keyboardShortcuts);
 };
 
-if (globalThis.window !== undefined) {
+if (isClient) {
     initializeUIState();
 }

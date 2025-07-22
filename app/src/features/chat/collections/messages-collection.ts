@@ -3,10 +3,12 @@
 "use client";
 
 import type { ThreadMessageLike } from "@assistant-ui/react";
-import { createCollection, localStorageCollectionOptions } from "@tanstack/react-db";
+import { createCollection, localStorageCollectionOptions, localOnlyCollectionOptions } from "@tanstack/react-db";
 import { z } from "zod/v4";
 
 const KEY = "anole-messages";
+
+const isClient = typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 
 // Message content schema
 const messageContentSchema = z
@@ -33,30 +35,23 @@ const messageSchema = z
 export type MessageDocument = z.infer<typeof messageSchema>;
 export type MessageContent = z.infer<typeof messageContentSchema>;
 
-// Create messages collection
-export const messagesCollection = createCollection(
-    localStorageCollectionOptions({
+export const messagesCollection = isClient
+  ? createCollection(
+      localStorageCollectionOptions({
         getKey: (item: MessageDocument) => item.id,
         id: KEY,
         schema: messageSchema,
-        storage: globalThis.localStorage,
+        storage: window.localStorage,
         storageKey: KEY,
-    }),
-);
-
-// Initialize messages collection
-export const initializeMessagesCollection = (): void => {
-    if (globalThis.window === undefined) {
-        return;
-    }
-
-    try {
-        // Collection will be empty initially
-        console.log("Messages collection initialized");
-    } catch (error) {
-        console.warn("Failed to initialize messages collection:", error);
-    }
-};
+      })
+    )
+  : createCollection(
+      localOnlyCollectionOptions({
+        getKey: (item: MessageDocument) => item.id,
+        id: KEY,
+        schema: messageSchema,
+      })
+    );
 
 // Message management functions
 export const createMessage = (message: Omit<MessageDocument, "createdAt">): void => {
@@ -144,8 +139,3 @@ export const convertToThreadMessageLike = (message: MessageDocument): ThreadMess
         })),
     };
 };
-
-// Initialize on module load
-if (globalThis.window !== undefined) {
-    initializeMessagesCollection();
-}

@@ -2,10 +2,12 @@
 
 "use client";
 
-import { createCollection, localStorageCollectionOptions } from "@tanstack/react-db";
+import { createCollection, localStorageCollectionOptions, localOnlyCollectionOptions } from "@tanstack/react-db";
 import { z } from "zod/v4";
 
 const KEY = "anole-threads";
+
+const isClient = typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 
 // Thread metadata schema
 const threadMetadataSchema = z
@@ -25,51 +27,31 @@ const threadSchema = z
     .object({
         id: z.string(),
         metadata: threadMetadataSchema,
-        messages: z.array(z.any()).default([]), // Will be typed properly when we create the messages collection
+        messages: z.array(z.any()).default([]),
     })
     .strict();
 
 export type ThreadDocument = z.infer<typeof threadSchema>;
 export type ThreadMetadata = z.infer<typeof threadMetadataSchema>;
 
-// Create threads collection
-export const threadsCollection = createCollection(
-    localStorageCollectionOptions({
+export const threadsCollection = isClient
+  ? createCollection(
+      localStorageCollectionOptions({
         getKey: (item: ThreadDocument) => item.id,
         id: KEY,
         schema: threadSchema,
-        storage: globalThis.localStorage,
+        storage: window.localStorage,
         storageKey: KEY,
-    }),
-);
+      })
+    )
+  : createCollection(
+      localOnlyCollectionOptions({
+        getKey: (item: ThreadDocument) => item.id,
+        id: KEY,
+        schema: threadSchema,
+      })
+    );
 
-// Initialize threads collection with default thread
-export const initializeThreadsCollection = (): void => {
-    if (globalThis.window === undefined) {
-        return;
-    }
-
-    try {
-        // Check if default thread exists
-        const existing = threadsCollection.get("default");
-        if (!existing) {
-            threadsCollection.insert({
-                id: "default",
-                metadata: {
-                    createdAt: new Date(),
-                    lastActivity: new Date(),
-                    status: "active",
-                    title: "New Chat",
-                },
-                messages: [],
-            });
-        }
-    } catch (error) {
-        console.warn("Failed to initialize threads collection:", error);
-    }
-};
-
-// Thread management functions
 export const createThread = (id: string, metadata: Partial<ThreadMetadata>): void => {
     try {
         threadsCollection.insert({
@@ -124,8 +106,3 @@ export const getAllThreads = (): ThreadDocument[] => {
         return [];
     }
 };
-
-// Initialize on module load
-if (globalThis.window !== undefined) {
-    initializeThreadsCollection();
-}
