@@ -16,11 +16,11 @@ const Assistant: FC<{ jwtToken: string; threadId?: string }> = ({ jwtToken, thre
 
     return (
         <ThreadProvider model={selectedModel}>
-                <AppSidebar content={<ThreadList />} header={null} />
-                <SidebarInset className="bg-white md:peer-data-[variant=inset]:m-1">
-                    <ChatSiteHeader threadId={threadId} />
-                </SidebarInset>
-                <ThreadSidebar threadId={threadId} />
+            <AppSidebar content={<ThreadList />} header={null} />
+            <SidebarInset className="bg-white md:peer-data-[variant=inset]:m-1">
+                <ChatSiteHeader threadId={threadId} />
+            </SidebarInset>
+            <ThreadSidebar threadId={threadId} />
         </ThreadProvider>
     );
 };

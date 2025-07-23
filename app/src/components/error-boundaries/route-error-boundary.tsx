@@ -2,11 +2,11 @@
 
 import { Button } from "@anole/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
+import { useLingui } from "@lingui/react/macro";
 import { AlertTriangle, ArrowLeft, Home, RefreshCw } from "lucide-react";
 import { usePostHog } from "posthog-js/react";
 import type { ErrorInfo, FC, ReactNode } from "react";
 import { useCallback } from "react";
-import { useLingui } from "@lingui/react/macro";
 
 import { AuthenticationError, ErrorUtils, NetworkError } from "@/lib/errors";
 
@@ -20,14 +20,14 @@ interface RouteErrorBoundaryProperties {
 
 const ErrorContent: FC<{
     error: Error;
-    routeName: string;
     handleGoBack: () => void;
     handleGoHome: () => void;
     handleReload: () => void;
     isAuth: boolean;
     isNetwork: boolean;
     retry: () => void;
-}> = ({ error, handleGoBack, handleGoHome, handleReload, routeName, retry }) => {
+    routeName: string;
+}> = ({ error, handleGoBack, handleGoHome, handleReload, retry, routeName }) => {
     const userMessage = ErrorUtils.getUserMessage(error);
     const isAuth = error instanceof AuthenticationError;
     const isNetwork = error instanceof NetworkError;
@@ -40,12 +40,14 @@ const ErrorContent: FC<{
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
                         <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
                     </div>
-                    <CardTitle className="text-xl">{isAuth ? t`Authentication Required` : isNetwork ? t`Connection Problem` : t`Error on` + ` ${routeName}`}</CardTitle>
+                    <CardTitle className="text-xl">
+                        {isAuth ? t`Authentication Required` : isNetwork ? t`Connection Problem` : `${t`Error on`} ${routeName}`}
+                    </CardTitle>
                     <CardDescription className="text-base">{userMessage}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="bg-muted rounded-lg p-3 text-sm">
-                        <p className="mb-1 font-medium text-center">{t`What happened?`}</p>
+                        <p className="mb-1 text-center font-medium">{t`What happened?`}</p>
                         <p className="text-muted-foreground">
                             {isAuth
                                 ? t`You need to sign in to access this page.`
@@ -89,9 +91,24 @@ const ErrorContent: FC<{
                     </div>
 
                     <div className="text-muted-foreground space-y-1 text-center text-xs">
-                        {isNetwork && <p>💡 {t`Check your internet connection and try again.`}</p>}
-                        {isAuth && <p>💡 {t`You'll be redirected back here after signing in.`}</p>}
-                        {!isNetwork && !isAuth && <p>💡 {t`If this problem persists, please contact support.`}</p>}
+                        {isNetwork && (
+                            <p>
+                                💡
+                                {t`Check your internet connection and try again.`}
+                            </p>
+                        )}
+                        {isAuth && (
+                            <p>
+                                💡
+                                {t`You'll be redirected back here after signing in.`}
+                            </p>
+                        )}
+                        {!isNetwork && !isAuth && (
+                            <p>
+                                💡
+                                {t`If this problem persists, please contact support.`}
+                            </p>
+                        )}
                         <p className="mt-2">
                             Error ID:
                             {" "}
@@ -162,19 +179,9 @@ const RouteErrorBoundary = ({ children, fallbackRoute = "/", routeName = "page" 
         globalThis.location.reload();
     }, []);
 
-    const renderFallback = (error: Error, retry: () => void) => {
-        return (
-            <ErrorContent
-                error={error}
-                routeName={routeName}
-                handleGoBack={handleGoBack}
-                handleGoHome={handleGoHome}
-                handleReload={handleReload}
-                retry={retry}
-            />
-        );
-    
-    };
+    const renderFallback = (error: Error, retry: () => void) => (
+        <ErrorContent error={error} handleGoBack={handleGoBack} handleGoHome={handleGoHome} handleReload={handleReload} retry={retry} routeName={routeName} />
+    );
 
     return (
         <ErrorBoundary

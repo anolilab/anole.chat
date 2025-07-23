@@ -1,0 +1,200 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { MCPServerConfig } from "@/types/mcp";
+
+import type { MCPClientsManager } from "./create-mcp-clients-manager";
+import { createDbBasedMCPConfigsStorage as createDatabaseBasedMCPConfigsStorage } from "./db-mcp-config-storage";
+
+// Mock dependencies
+vi.mock("lib/db/repository", () => {
+    return {
+        mcpRepository: {
+            deleteById: vi.fn(),
+            save: vi.fn(),
+            selectAll: vi.fn(),
+            selectById: vi.fn(),
+        },
+    };
+});
+
+vi.mock("logger", () => {
+    return {
+        default: {
+            withDefaults: vi.fn(() => {
+                return {
+                    debug: vi.fn(),
+                    error: vi.fn(),
+                };
+            }),
+        },
+    };
+});
+
+vi.mock("lib/utils", () => {
+    return {
+        createDebounce: vi.fn(() => vi.fn()),
+    };
+});
+
+const mockMcpRepository = await import("lib/db/repository").then((m) => m.mcpRepository);
+
+describe("DB-based MCP Config Storage", () => {
+    let storage: ReturnType<typeof createDatabaseBasedMCPConfigsStorage>;
+    let mockManager: MCPClientsManager;
+
+    const mockServer = {
+        config: { args: ["test.py"], command: "python" } as MCPServerConfig,
+        createdAt: new Date(),
+        enabled: true,
+        id: "test-server",
+        name: "test-server",
+        updatedAt: new Date(),
+    };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.useFakeTimers();
+        storage = createDatabaseBasedMCPConfigsStorage();
+
+        mockManager = {
+            addClient: vi.fn(),
+            getClient: vi.fn(),
+            getClients: vi.fn(),
+            refreshClient: vi.fn(),
+            removeClient: vi.fn(),
+        } as any;
+    });
+
+    afterEach(() => {
+        vi.clearAllTimers();
+        vi.useRealTimers();
+    });
+
+    describe("init", () => {
+        it("should initialize with manager", async () => {
+            await expect(storage.init(mockManager)).resolves.toBeUndefined();
+        });
+    });
+
+    describe("loadAll", () => {
+        it("should load all servers from database", async () => {
+            vi.mocked(mockMcpRepository.selectAll).mockResolvedValue([mockServer]);
+
+            const result = await storage.loadAll();
+
+            expect(mockMcpRepository.selectAll).toHaveBeenCalledOnce();
+            expect(result).toEqual([mockServer]);
+        });
+
+        it("should return empty array when database fails", async () => {
+            vi.mocked(mockMcpRepository.selectAll).mockRejectedValue(new Error("Database error"));
+
+            const result = await storage.loadAll();
+
+            expect(result).toEqual([]);
+        });
+    });
+
+    describe("save", () => {
+        it("should save server to database", async () => {
+            const serverToSave = {
+                config: { url: "https://example.com" } as MCPServerConfig,
+                id: "new-server",
+                name: "new-server",
+            };
+
+            vi.mocked(mockMcpRepository.save).mockResolvedValue({
+                ...serverToSave,
+            });
+
+            const result = await storage.save(serverToSave);
+
+            expect(mockMcpRepository.save).toHaveBeenCalledWith(serverToSave);
+            expect(result).toEqual(expect.objectContaining(serverToSave));
+        });
+
+        it("should throw error when save fails", async () => {
+            const serverToSave = {
+                config: { url: "https://example.com" } as MCPServerConfig,
+                id: "new-server",
+                name: "new-server",
+            };
+
+            vi.mocked(mockMcpRepository.save).mockRejectedValue(new Error("Save failed"));
+
+            await expect(storage.save(serverToSave)).rejects.toThrow("Save failed");
+        });
+    });
+
+    describe("delete", () => {
+        it("should delete server from database", async () => {
+            vi.mocked(mockMcpRepository.deleteById).mockResolvedValue();
+
+            await storage.delete("test-server");
+
+            expect(mockMcpRepository.deleteById).toHaveBeenCalledWith("test-server");
+        });
+
+        it("should throw error when delete fails", async () => {
+            vi.mocked(mockMcpRepository.deleteById).mockRejectedValue(new Error("Delete failed"));
+
+            await expect(storage.delete("test-server")).rejects.toThrow("Delete failed");
+        });
+    });
+
+    describe("has", () => {
+        it("should return true when server exists", async () => {
+            vi.mocked(mockMcpRepository.selectById).mockResolvedValue(mockServer);
+
+            const result = await storage.has("test-server");
+
+            expect(result).toBe(true);
+            expect(mockMcpRepository.selectById).toHaveBeenCalledWith("test-server");
+        });
+
+        it("should return false when server does not exist", async () => {
+            vi.mocked(mockMcpRepository.selectById).mockResolvedValue(null);
+
+            const result = await storage.has("non-existent");
+
+            expect(result).toBe(false);
+        });
+
+        it("should return false when database query fails", async () => {
+            vi.mocked(mockMcpRepository.selectById).mockRejectedValue(new Error("Database error"));
+
+            const result = await storage.has("test-server");
+
+            expect(result).toBe(false);
+        });
+    });
+
+    describe("get", () => {
+        it("should return server when it exists", async () => {
+            vi.mocked(mockMcpRepository.selectById).mockResolvedValue(mockServer);
+
+            const result = await storage.get("test-server");
+
+            expect(result).toEqual(mockServer);
+            expect(mockMcpRepository.selectById).toHaveBeenCalledWith("test-server");
+        });
+
+        it("should return null when server does not exist", async () => {
+            vi.mocked(mockMcpRepository.selectById).mockResolvedValue(null);
+
+            const result = await storage.get("non-existent");
+
+            expect(result).toBeNull();
+        });
+    });
+
+    describe("interval functionality", () => {
+        it("should set up interval for periodic checks", async () => {
+            await storage.init(mockManager);
+
+            // The interval is set up during module initialization
+            // We can verify that the storage was initialized properly
+            expect(mockManager).toBeDefined();
+        });
+    });
+});

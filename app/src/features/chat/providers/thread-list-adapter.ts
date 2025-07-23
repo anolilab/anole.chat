@@ -24,7 +24,7 @@ const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAdapterPr
 
     return useMemo(() => {
         // Combine Convex threads with local thread metadata
-        const convexThreadList: <"regular" | "archived">[] = convexThreads.results.map((t) => {
+        const convexThreadList: ("regular" | "archived")[] = convexThreads.results.map((t) => {
             return {
                 status: t.status === "active" ? "regular" : "archived",
                 threadId: t._id,
@@ -33,7 +33,7 @@ const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAdapterPr
         });
 
         // Add local threads that might not be in Convex yet
-        const localThreadList: <"regular" | "archived">[] = [];
+        const localThreadList: ("regular" | "archived")[] = [];
 
         for (const [threadId, metadata] of threadMetadata.entries()) {
             if (!convexThreadList.find((t) => t.threadId === threadId)) {
@@ -48,7 +48,7 @@ const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAdapterPr
         const allThreads = [...convexThreadList, ...localThreadList];
 
         return {
-            archivedThreads: allThreads.filter((t) => t.status === "archived") as <"archived">[],
+            archivedThreads: allThreads.filter((t) => t.status === "archived") as "archived"[],
             onArchive: async (archiveThreadId) => {
                 // Update local metadata immediately
                 setThreadMetadata((previous) => {
@@ -198,7 +198,7 @@ const useThreadListAdapter = ({ currentThreadId, model }: UseThreadListAdapterPr
 
             threadId: currentThreadId,
 
-            threads: allThreads.filter((t) => t.status === "regular") as <"regular">[],
+            threads: allThreads.filter((t) => t.status === "regular") as "regular"[],
         };
     }, [
         convexThreads.results,
