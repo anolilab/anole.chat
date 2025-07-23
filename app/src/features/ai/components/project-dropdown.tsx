@@ -7,7 +7,7 @@ import { Input } from "@anole/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@anole/ui/components/popover";
 import { useLingui } from "@lingui/react/macro";
 import { AudioWaveformIcon, Loader, PencilLine, Trash } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -28,7 +28,7 @@ type Properties = PropsWithChildren<{
 }>;
 
 export const ProjectDropdown = ({ align, children, project, side }: Properties) => {
-    const router = useRouter();
+    const navigate = useNavigate();
     const { t } = useLingui();
     const [currentProjectId, appStoreMutate] = appStore(useShallow((state) => [state.currentProjectId, state.mutate]));
 
@@ -51,7 +51,7 @@ export const ProjectDropdown = ({ align, children, project, side }: Properties) 
             })
             .ifOk(() => {
                 if (currentProjectId === project.id) {
-                    router.push("/");
+                    navigate({ to: "/" });
                 }
 
                 mutate("/api/thread/list");

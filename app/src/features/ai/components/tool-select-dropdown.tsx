@@ -42,7 +42,7 @@ import {
     WrenchIcon,
     X,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
@@ -452,7 +452,7 @@ const McpServerSelector = () => {
                 ? (
                     <div className="text-muted-foreground flex h-full w-full flex-col items-center justify-center py-6 text-sm">
                         <div>No MCP servers detected.</div>
-                        <Link href="/mcp">
+                        <Link to="/mcp">
                             <Button className="text-primary mt-2 flex items-center gap-1" variant="ghost">
                                 Add a server
                                 {" "}

@@ -39,7 +39,7 @@ import {
     WrenchIcon,
     XIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
@@ -107,7 +107,8 @@ export const ChatBotVoice = () => {
     const [isClosing, setIsClosing] = useState(false);
     const startAudio = useRef<HTMLAudioElement>(null);
     const [useCompactView, setUseCompactView] = useState(true);
-    const router = useRouter();
+    const location = useLocation();
+    const navigate = useNavigate();
 
     // const useVoiceChat = useMemo<VoiceChatHook>(() => {
     //   switch (voiceChat.options.provider) {
@@ -158,10 +159,11 @@ export const ChatBotVoice = () => {
             if (isSaved) {
                 nextTick().then(() => {
                     mutate("/api/thread/list");
-                    router.push(`/chat/${voiceChat.threadId}`);
+                    navigate({ to: `/chat/${voiceChat.threadId}` });
 
-                    if (globalThis.location.pathname === `/chat/${voiceChat.threadId}`) {
-                        router.refresh();
+                    if (location.pathname === `/chat/${voiceChat.threadId}`) {
+                        // Note: TanStack Router doesn't have a direct refresh method like Next.js
+                        // The navigation will trigger a re-render which should be sufficient
                     }
                 });
             }

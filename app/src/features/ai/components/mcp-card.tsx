@@ -9,7 +9,7 @@ import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import { useLingui } from "@lingui/react/macro";
 import { ChevronRight, FlaskConical, Loader, Pencil, RotateCw, Settings, Settings2, Trash, Wrench } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { memo, useCallback, useMemo, useState } from "react";
 import { mutate } from "swr";
 import { safe } from "ts-safe";
@@ -86,7 +86,7 @@ export const MCPCard = memo(({ config, error, id, name, status, toolInfo }: MCPS
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Link className="hidden cursor-pointer sm:block" href={`/mcp/test/${encodeURIComponent(id)}`}>
+                        <Link className="hidden cursor-pointer sm:block" to={`/mcp/test/${encodeURIComponent(id)}`}>
                             <Button size="icon" variant="ghost">
                                 <FlaskConical className="size-3.5" />
                             </Button>
@@ -121,7 +121,7 @@ export const MCPCard = memo(({ config, error, id, name, status, toolInfo }: MCPS
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Link className="cursor-pointer" href={`/mcp/modify/${encodeURIComponent(id)}`}>
+                        <Link className="cursor-pointer" to={`/mcp/modify/${encodeURIComponent(id)}`}>
                             <Button size="icon" variant="ghost">
                                 <Pencil className="size-3.5" />
                             </Button>

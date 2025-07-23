@@ -1,7 +1,7 @@
 import { MCPIcon } from "@anole/ui/components/mcp-icon";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 export const MCPOverview = () => {
     const { t } = useLingui();
@@ -9,7 +9,7 @@ export const MCPOverview = () => {
     return (
         <Link
             className="group hover:border-foreground/40 relative cursor-pointer overflow-hidden rounded-lg border p-12 text-center transition-all duration-300"
-            href="/mcp/create"
+            to="/mcp/create"
         >
             <GradientBars />
             <div className="my-20 flex flex-col items-center justify-center space-y-4">

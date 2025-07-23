@@ -1,8 +1,8 @@
 import JsonView from "@anole/ui/components/json-view";
 import { isJson, isString, toAny } from "lib/utils";
-import Link from "next/link";
+
 import type { PropsWithChildren } from "react";
-import React, { memo } from "react";
+import { memo } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -27,11 +27,11 @@ const WordByWordFadeIn = memo(({ children }: PropsWithChildren) => {
 WordByWordFadeIn.displayName = "WordByWordFadeIn";
 const components: Partial<Components> = {
     a: ({ children, node, ...properties }) => (
-        <Link className="text-blue-400 hover:underline" rel="noreferrer" target="_blank" {...toAny(properties)}>
+        <a className="text-blue-400 hover:underline" rel="noreferrer" target="_blank" {...toAny(properties)}>
             <b>
                 <WordByWordFadeIn>{children}</WordByWordFadeIn>
             </b>
-        </Link>
+        </a>
     ),
     blockquote: ({ children }) => (
         <div className="px-4">

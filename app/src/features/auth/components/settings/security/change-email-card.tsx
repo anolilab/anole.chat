@@ -6,6 +6,7 @@ import { Input } from "@anole/ui/components/input";
 import { Skeleton } from "@anole/ui/components/skeleton";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
+import { useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod/v4";
 
@@ -23,6 +24,7 @@ export const ChangeEmailCard = ({ className, classNames, ...properties }: Settin
         toast,
     } = useAuth();
     const { t } = useLingui();
+    const location = useLocation();
 
     const formSchema = z
         .object({
@@ -50,7 +52,7 @@ export const ChangeEmailCard = ({ className, classNames, ...properties }: Settin
 
             try {
                 await authClient.changeEmail({
-                    callbackURL: globalThis.location.pathname,
+                    callbackURL: location.pathname,
                     fetchOptions: { throw: true },
                     newEmail: value.email,
                 });

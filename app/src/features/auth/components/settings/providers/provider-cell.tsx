@@ -4,6 +4,7 @@ import { Button } from "@anole/ui/components/button";
 import { Card } from "@anole/ui/components/card";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
+import { useLocation } from "@tanstack/react-router";
 import type { SocialProvider } from "better-auth/social-providers";
 import { Loader2 } from "lucide-react";
 import { use, useState } from "react";
@@ -34,12 +35,13 @@ export const ProviderCell = ({ account, className, classNames, other, provider, 
         viewPaths,
     } = useAuth();
     const { t } = useLingui();
+    const location = useLocation();
 
     const [isLoading, setIsLoading] = useState(false);
 
     const handleLink = async () => {
         setIsLoading(true);
-        const callbackURL = `${baseURL}${basePath}/${viewPaths.CALLBACK}?redirectTo=${globalThis.location.pathname}`;
+        const callbackURL = `${baseURL}${basePath}/${viewPaths.CALLBACK}?redirectTo=${location.pathname}`;
 
         try {
             if (other) {

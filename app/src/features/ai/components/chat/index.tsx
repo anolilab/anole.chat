@@ -10,7 +10,7 @@ import clsx from "clsx";
 import { isShortcutEvent, Shortcuts } from "lib/keyboard-shortcuts";
 import { truncateString } from "lib/utils";
 import { Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -42,6 +42,8 @@ type Properties = {
 
 const Chat = ({ initialMessages, slots, threadId }: Properties) => {
     const containerReference = useRef<HTMLDivElement>(null);
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const [appStoreMutate, model, toolChoice, allowedAppDefaultToolkit, allowedMcpServers, threadList, threadMentions] = appStore(
         useShallow((state) => [
@@ -62,9 +64,9 @@ const Chat = ({ initialMessages, slots, threadId }: Properties) => {
     const { addToolResult, append, error, input, messages, reload, setInput, setMessages, status, stop } = useChat({
         api: "/api/chat",
         experimental_prepareRequestBody: ({ messages, requestBody }) => {
-            if (globalThis.location.pathname !== `/chat/${threadId}`) {
+            if (location.pathname !== `/chat/${threadId}`) {
                 console.log("replace-state");
-                globalThis.history.replaceState({}, "", `/chat/${threadId}`);
+                navigate({ to: `/chat/${threadId}`, replace: true });
             }
 
             const lastMessage = messages.at(-1)!;
@@ -336,18 +338,18 @@ function vercelAISdkV4ToolInvocationIssueCatcher(message: UIMessage) {
 const DeleteThreadPopup = ({ onClose, open, threadId }: { onClose: () => void; open: boolean; threadId: string }) => {
     const { t } = useLingui();
     const [isDeleting, setIsDeleting] = useState(false);
-    const router = useRouter();
+    const navigate = useNavigate();
     const handleDelete = useCallback(() => {
         setIsDeleting(true);
         safe(() => deleteThreadAction(threadId))
             .watch(() => setIsDeleting(false))
             .ifOk(() => {
                 toast.success(t`Chat.Thread.threadDeleted`);
-                router.push("/");
+                navigate({ to: "/" });
             })
             .ifFail(() => toast.error(t`Chat.Thread.failedToDeleteThread`))
             .watch(() => onClose());
-    }, [threadId, router]);
+    }, [threadId, navigate]);
 
     return (
         <Dialog onOpenChange={onClose} open={open}>

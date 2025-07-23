@@ -12,7 +12,7 @@ import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -98,7 +98,7 @@ export const EditWorkflowPopup = ({
 
     const [config, setConfig] = useObjectState<typeof defaultConfig>(getInitialConfig());
 
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
 
@@ -120,7 +120,7 @@ export const EditWorkflowPopup = ({
                     mutate("/api/workflow");
 
                     if (submitAfterRoute) {
-                        router.push(`/workflow/${workflow.id}`);
+                        navigate({ to: `/workflow/${workflow.id}` });
                     }
                 })
                 .ifFail(handleErrorWithToast)

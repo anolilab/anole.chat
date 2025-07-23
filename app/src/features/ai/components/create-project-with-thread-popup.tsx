@@ -10,7 +10,7 @@ import { Textarea } from "@anole/ui/components/textarea";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowLeft, ArrowRight, Check, ChevronsUpDown, Lightbulb, Loader, WandSparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -164,7 +164,7 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
         name: "",
     });
 
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const previousStep = () => {
         if (projectOption.currentStep > 1) {
@@ -195,7 +195,7 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
             .ifOk(() => toast.success(t`Chat.Project.projectCreated`))
             .ifOk(() => mutate("/api/project/list"))
             .ifOk(() => onClose?.())
-            .ifOk((project) => router.push(`/project/${project.id}`))
+            .ifOk((project) => navigate({ to: `/project/${project.id}` }))
             .watch(() => setProjectOption({ isLoading: false }))
             .ifFail(handleErrorWithToast);
     };

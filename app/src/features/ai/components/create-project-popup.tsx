@@ -7,7 +7,7 @@ import { Input } from "@anole/ui/components/input";
 import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { useLingui } from "@lingui/react/macro";
 import { Lightbulb, Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import type { KeyboardEvent, PropsWithChildren } from "react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ export const CreateProjectPopup = ({ children }: PropsWithChildren) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [name, setName] = useState("");
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const handleCreate = async () => {
         safe(() => setIsLoading(true))
@@ -30,7 +30,7 @@ export const CreateProjectPopup = ({ children }: PropsWithChildren) => {
             .ifOk(() => setIsOpen(false))
             .ifOk(() => toast.success(t`Chat.Project.projectCreated`))
             .ifOk(() => mutate("/api/project/list"))
-            .ifOk((project) => router.push(`/project/${project.id}`))
+            .ifOk((project) => navigate({ to: `/project/${project.id}` }))
             .ifFail(handleErrorWithToast);
     };
 

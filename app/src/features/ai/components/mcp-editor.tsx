@@ -5,7 +5,7 @@ import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { useLingui } from "@lingui/react/macro";
 import { createDebounce, isNull, safeJSONParse } from "lib/utils";
 import { Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
@@ -58,7 +58,7 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
 
     // State for form fields
     const [name, setName] = useState<string>(initialName ?? "");
-    const router = useRouter();
+    const navigate = useNavigate();
     const [config, setConfig] = useState<MCPServerConfig>(initialConfig as MCPServerConfig);
     const [jsonString, setJsonString] = useState<string>(initialConfig ? JSON.stringify(initialConfig, null, 2) : "");
 
@@ -141,7 +141,7 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
             .ifOk(() => {
                 toast.success(t`MCP.configurationSavedSuccessfully`);
                 mutate("/api/mcp/list");
-                router.push("/mcp");
+                navigate({ to: "/mcp" });
             })
             .ifFail(handleErrorWithToast)
             .watch(() => setIsLoading(false));

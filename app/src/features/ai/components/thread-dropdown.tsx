@@ -7,7 +7,7 @@ import { Input } from "@anole/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@anole/ui/components/popover";
 import { useLingui } from "@lingui/react/macro";
 import { Loader, PencilLine, Trash, WandSparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,9 +29,9 @@ type Properties = PropsWithChildren<{
 }>;
 
 export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, threadId }: Properties) => {
-    const router = useRouter();
+    const navigate = useNavigate();
     const { t } = useLingui();
-    const push = useToRef(router.push);
+    const push = useToRef((path: string) => navigate({ to: path }));
 
     const currentThreadId = appStore((state) => state.currentThreadId);
 
