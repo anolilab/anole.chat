@@ -109,6 +109,9 @@ export const { createSession, createUser, deleteUser, isAuthenticated, updateUse
         return id;
     },
     onDeleteUser: async (context, userId) => {
+        await context.runMutation(components.agent.users.deleteAllForUserIdAsync, {
+            userId: userId as Id<"users">,
+        });
         await context.db.delete(userId as Id<"users">);
     },
     onUpdateUser: async (context, user) => {

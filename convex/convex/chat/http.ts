@@ -106,25 +106,17 @@ export const streamHttpAction = async (context: ActionContext, request: Request)
         threadId: thread.threadId,
     });
 
-    await context.scheduler.runAfter(
-        0,
-        internal.chat.functions.createTitleChat,
-        {
-            prompt: prompt ?? " ", // TODO: add prompt based on image
-            threadId: thread.threadId,
-        },
-    );
+    await context.scheduler.runAfter(0, internal.chat.functions.createTitleChat, {
+        prompt: prompt ?? " ", // TODO: add prompt based on image
+        threadId: thread.threadId,
+    });
 
-    await context.scheduler.runAfter(
-        0,
-        internal.chat.functions.createSummarizeChat,
-        {
-            threadId: thread.threadId,
-            userId,
-        },
-    );
+    await context.scheduler.runAfter(0, internal.chat.functions.createSummarizeChat, {
+        threadId: thread.threadId,
+        userId,
+    });
 
-    const result = await thread.streamText({ promptMessageId: messageId });
+    const result = await thread.streamText({ promptMessageId: messageId }, { saveStreamDeltas: true });
 
     return result.toDataStreamResponse({
         sendReasoning: true,
