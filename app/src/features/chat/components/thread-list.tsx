@@ -17,7 +17,6 @@ import { Input } from "@anole/ui/components/input";
 import { KeyCombo, Keys, KeySymbol, ShortcutsProvider } from "@anole/ui/components/keyboard-shortcuts";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@anole/ui/components/tooltip";
 import cn from "@anole/ui/utils/cn";
-import { ThreadListPrimitive } from "@assistant-ui/react";
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -83,7 +82,7 @@ const ThreadListNew: FC = () => {
     const { t } = useLingui();
 
     return (
-        <ThreadListPrimitive.New asChild>
+        <div>
             <Button
                 className="flex grow items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start text-white hover:bg-white/10 data-[active]:bg-white/20"
                 variant="icon"
@@ -91,7 +90,7 @@ const ThreadListNew: FC = () => {
                 <PlusIcon />
                 {t`New Thread`}
             </Button>
-        </ThreadListPrimitive.New>
+        </div>
     );
 };
 
@@ -1644,7 +1643,7 @@ const ThreadList: FC = () => {
     };
 
     return (
-        <ThreadListPrimitive.Root className="flex flex-col items-stretch gap-1.5 pl-2 text-white">
+        <div className="flex flex-col items-stretch gap-1.5 pl-2 text-white">
             <div className="flex w-full items-center gap-2">
                 <ThreadListNew />
                 <TooltipProvider>
@@ -1756,7 +1755,7 @@ const ThreadList: FC = () => {
                 toggleExpanded={toggleExpanded}
                 toggleGroupCollapsed={toggleGroupCollapsed}
             />
-        </ThreadListPrimitive.Root>
+        </div>
     );
 };
 

@@ -1,16 +1,5 @@
 import { vi } from "vitest";
 
-// Mock @assistant-ui/react
-export const mockUseExternalStoreRuntime = vi.fn();
-export const mockAssistantRuntimeProvider = ({ children }: { children: React.ReactNode }) => children;
-export const mockCompositeAttachmentAdapter = vi.fn();
-export const mockUseThreadListItem = vi.fn(() => {
-    return {
-        isActive: true,
-        title: "Test Thread",
-    };
-});
-
 // Mock TanStack Router
 export const mockUseNavigate = vi.fn(() => vi.fn());
 export const mockCreateMemoryHistory = vi.fn();
@@ -94,16 +83,6 @@ export const mockPerformanceNow = vi.fn(() => Date.now());
 
 // Setup all external dependency mocks
 export const setupExternalMocks = () => {
-    // Mock @assistant-ui/react
-    vi.doMock("@assistant-ui/react", () => {
-        return {
-            AssistantRuntimeProvider: mockAssistantRuntimeProvider,
-            CompositeAttachmentAdapter: mockCompositeAttachmentAdapter,
-            useExternalStoreRuntime: mockUseExternalStoreRuntime,
-            useThreadListItem: mockUseThreadListItem,
-        };
-    });
-
     // Mock TanStack Router
     vi.doMock("@tanstack/react-router", () => {
         return {

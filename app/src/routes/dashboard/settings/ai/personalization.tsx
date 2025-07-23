@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import AiCustomizationCard from "@/features/ai/components/ai-customization-card";
+import AiCustomizationCard from "@/features/ai/components/settings/ai-customization-card";
 
 const RouteComponent = () => <AiCustomizationCard />;
 

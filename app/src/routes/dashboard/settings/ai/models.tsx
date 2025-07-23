@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import ModelSettingsCard from "@/features/ai/components/model-settings-card";
+import ModelSettingsCard from "@/features/ai/components/settings/model-settings-card";
 
 const RouteComponent = () => <ModelSettingsCard />;
 

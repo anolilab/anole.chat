@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import UsageAnalyticsCard from "@/features/ai/components/usage-analytics-card";
+import UsageAnalyticsCard from "@/features/ai/components/settings/usage-analytics-card";
 
 const RouteComponent = () => <UsageAnalyticsCard />;
 
