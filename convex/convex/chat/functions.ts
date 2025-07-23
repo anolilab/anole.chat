@@ -152,7 +152,6 @@ export const continueThread = authedAction({
 export const getThreads = authedQuery({
     args: { paginationOpts: paginationOptsValidator },
     handler: async (context, { paginationOpts }): Promise<PaginationResult<ThreadDoc>> => {
-        console.log(context)
         const { userId } = context.user;
         const results = await context.runQuery(components.agent.threads.listThreadsByUserId, { paginationOpts, userId });
 

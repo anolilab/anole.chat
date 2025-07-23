@@ -5,7 +5,7 @@ import { betterAuth } from "better-auth";
 import { admin, anonymous, emailOTP, magicLink, organization, twoFactor } from "better-auth/plugins";
 
 import { api, components, internal } from "./_generated/api";
-import type { DataModel, Id } from "./_generated/dataModel";
+import type { Id, DataModel } from "./_generated/dataModel";
 import type { GenericCtx as GenericContext } from "./_generated/server";
 import { sendEmailVerification, sendMagicLink, sendOTPVerification, sendResetPassword } from "./email/functions";
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SITE_URL } from "./env";
@@ -96,7 +96,27 @@ export const createAuth = (context: GenericContext) =>
     });
 
 export const { createSession, createUser, deleteUser, isAuthenticated, updateUser } = betterAuthComponent.createAuthFunctions<DataModel>({
-    onCreateUser: async (context, user) => {},
-    onDeleteUser: async (context, userId) => {},
-    onUpdateUser: async (context, user) => {},
+    onCreateUser: async (context, user) => {
+        const id = await context.db.insert("users", {
+            email: user.email,
+            emailVerified: user.emailVerified,
+        });
+
+        await context.db.insert("userSettings", {
+            userId: id,
+        })
+
+        return id;
+    },
+    onDeleteUser: async (context, userId) => {
+        await context.db.delete(userId as Id<"users">);
+    },
+    onUpdateUser: async (context, user) => {
+        // Keep the user's email synced
+        const userId = user.userId as Id<"users">;
+
+        await context.db.patch(userId, {
+            email: user.email,
+        });
+    },
 });

@@ -1,16 +1,6 @@
-import { v } from "convex/values";
-import {
-    customAction,
-    customCtx,
-    customMutation,
-    customQuery,
-} from "convex-helpers/server/customFunctions";
+import { customAction, customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions";
 
-import {
-    action,
-    mutation,
-    query,
-} from "../_generated/server";
+import { action, mutation, query } from "../_generated/server";
 import { getCurrentUserInternal } from "../auth/lib/helper";
 import { encryptKey } from "../lib/encryption";
 import { aiUserPreferencesFields, userSettingsFields } from "./fields";
@@ -24,11 +14,7 @@ const deepEncryptKeys = async (object: any): Promise<any> => {
         const result: Record<string, any> = {};
 
         for (const [key, value] of Object.entries(object)) {
-            result[key] = await (key === "encryptedKey"
-                && typeof value === "string"
-                && value
-                ? encryptKey(value)
-                : deepEncryptKeys(value));
+            result[key] = await (key === "encryptedKey" && typeof value === "string" && value ? encryptKey(value) : deepEncryptKeys(value));
         }
 
         return result;
@@ -45,7 +31,7 @@ const makeSettingsUpsertMutation = (
     authedMutation({
         args: arguments_,
         handler: async (context, inputArguments) => {
-            const userId = context.user.userId;
+            const { userId } = context.user;
 
             // Recursively encrypt all encryptedKey fields
             const toStore = await deepEncryptKeys(inputArguments);
@@ -69,7 +55,6 @@ const makeSettingsUpsertMutation = (
                 }
             }
 
-
             if (settings) {
                 await context.db.patch(settings._id, toStore);
             } else {
@@ -88,7 +73,7 @@ const makeSettingsGetQuery = (
     authedQuery({
         args: {},
         handler: async (context) => {
-            const userId = context.user.userId;
+            const { userId } = context.user;
 
             return await context.db
                 .query(tableName)
@@ -110,8 +95,8 @@ export const authedQuery = customQuery(query, {
         return {
             args: arguments_,
             ctx: {
-                user,
                 ...context,
+                user: user ?? {},
             },
         };
     },
@@ -125,8 +110,8 @@ export const authedMutation = customMutation(mutation, {
         return {
             args: arguments_,
             ctx: {
-                user,
                 ...context,
+                user: user ?? {},
             },
         };
     },
@@ -139,19 +124,13 @@ export const authedAction = customAction(
 
         return {
             ...context,
-            user,
+            user: user ?? {},
         };
     }),
 );
 
-export const updateUserSettings = makeSettingsUpsertMutation(
-    "userSettings",
-    userSettingsFields,
-);
+export const updateUserSettings = makeSettingsUpsertMutation("userSettings", userSettingsFields);
 export const getUserSettings = makeSettingsGetQuery("userSettings");
 
-export const updateAIUserPreferences = makeSettingsUpsertMutation(
-    "aiUserPreferences",
-    aiUserPreferencesFields,
-);
+export const updateAIUserPreferences = makeSettingsUpsertMutation("aiUserPreferences", aiUserPreferencesFields);
 export const getAIUserPreferences = makeSettingsGetQuery("aiUserPreferences");

@@ -114,3 +114,8 @@ export const aiUserPreferencesFields = {
     selectedModel: v.optional(v.string()),
     showTimestamps: v.optional(v.boolean()),
 };
+
+export const userFields = {
+    email: v.string(),
+    emailVerified: v.boolean(),
+}

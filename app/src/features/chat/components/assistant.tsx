@@ -7,8 +7,10 @@ import { Thread } from "@/components/assistant-ui/thread";
 import ThreadList from "@/components/assistant-ui/thread-list";
 import ConvexExternalRuntimeProvider from "@/features/chat/providers/convex-external-runtime-provider";
 import AppSidebar from "@/features/layout/components/app-sidebar";
+import { AuthenticationError } from "@/lib/errors";
 
 import { useAiModelContext } from "../providers/ai-model-provider";
+import AccessDenied from "./access-denied";
 import ChatSiteHeader from "./chat-header";
 import { ThreadProvider } from "./thread-context";
 import ThreadSidebar from "./thread-sidebar";

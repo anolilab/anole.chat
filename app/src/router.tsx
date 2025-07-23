@@ -19,12 +19,20 @@ import { AnalyticsProvider } from "@/providers/analytics-provider";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+    interface Register {
+        router: ReturnType<typeof createRouter>;
+    }
+}
+
+// eslint-disable-next-line import/prefer-default-export
 export const createRouter = ({ i18n }: { i18n: I18n }) => {
     const convex = new ConvexReactClient(env.VITE_CONVEX_URL, {
-        // verbose: import.meta.env.VITE_DEBUG,
         logger: true,
-        reportDebugInfoToConvex: import.meta.env.VITE_DEBUG,
+        reportDebugInfoToConvex: false,
         unsavedChangesWarning: false,
+        verbose: import.meta.env.VITE_DEBUG,
     });
     const convexQueryClient = new ConvexQueryClient(convex);
 
@@ -73,10 +81,3 @@ export const createRouter = ({ i18n }: { i18n: I18n }) => {
         queryClient,
     );
 };
-
-// Register the router instance for type safety
-declare module "@tanstack/react-router" {
-    interface Register {
-        router: ReturnType<typeof createRouter>;
-    }
-}

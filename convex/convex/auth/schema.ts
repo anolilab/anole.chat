@@ -1,13 +1,17 @@
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 
-import { aiUserPreferencesFields, userSettingsFields } from "./fields";
+import { aiUserPreferencesFields, userSettingsFields, userFields } from "./fields";
 
 const authTables = {
     aiUserPreferences: defineTable({
         userId: v.string(),
         ...aiUserPreferencesFields,
     }).index("by_userId", ["userId"]),
+
+    users: defineTable({
+        ...userFields,
+    }).index("by_email", ["email"]),
 
     userSettings: defineTable({
         ...userSettingsFields,

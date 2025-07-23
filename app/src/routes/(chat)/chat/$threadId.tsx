@@ -3,13 +3,20 @@ import { api } from "@anole/convex/api";
 import { convexQuery } from "@convex-dev/react-query";
 import { createFileRoute, redirect, useRouteContext } from "@tanstack/react-router";
 
+import RouteErrorBoundary from "@/components/error-boundaries/route-error-boundary";
 import Assistant from "@/features/chat/components/assistant";
 
 const ChatPage = () => {
-    const context = useRouteContext({ from: "/(chat)/chat/$threadId" });
+    const route = "/(chat)/chat/$threadId";
+
+    const context = useRouteContext({ from: route });
     const { threadId } = Route.useParams();
 
-    return <Assistant jwtToken={context.token as string} threadId={threadId} />;
+    return (
+        <RouteErrorBoundary routeName={route}>
+            <Assistant jwtToken={context.token as string} threadId={threadId} />
+        </RouteErrorBoundary>
+    );
 };
 
 export const Route = createFileRoute("/(chat)/chat/$threadId")({
