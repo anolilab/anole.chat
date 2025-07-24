@@ -1,9 +1,9 @@
-import { objectFlow, toAny } from "lib/utils";
 import { graphStore } from "ts-edge";
 
 import type { ObjectJsonSchema7 } from "@/types/util";
 import type { DBEdge, DBNode } from "@/types/workflow";
 
+import objectFlow from "../../object-flow";
 import { defaultObjectJsonSchema } from "../shared.workflow";
 import type { OutputSchemaSourceKey } from "../workflow.interface";
 
@@ -34,7 +34,7 @@ export const createGraphStore = (parameters: { edges: DBEdge[]; nodes: DBNode[] 
             },
             getOutput(key) {
                 const { nodes, outputs } = get();
-                const targetNode = nodes.find((n) => n.id == key.nodeId);
+                const targetNode = nodes.find((n) => n.id === key.nodeId);
                 const schema = (targetNode?.nodeConfig?.outputSchema as ObjectJsonSchema7) ?? defaultObjectJsonSchema;
                 const defaultValue
                     = key.path.length > 0
@@ -49,7 +49,7 @@ export const createGraphStore = (parameters: { edges: DBEdge[]; nodes: DBNode[] 
                             },
                             (schema.properties ?? {}) as any,
                         )
-                        : toAny(schema)?.default;
+                        : schema?.default;
 
                 return objectFlow(outputs[key.nodeId]).getByPath(key.path) ?? defaultValue;
             },

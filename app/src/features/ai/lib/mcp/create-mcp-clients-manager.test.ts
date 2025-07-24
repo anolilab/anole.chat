@@ -31,35 +31,6 @@ vi.mock("lib/utils", () => {
     };
 });
 
-vi.mock("ts-safe", () => {
-    return {
-        safe: vi.fn((function_) => {
-            return {
-                // ifOk: vi.fn((nextFn) => ({
-                ifOk: vi.fn((anotherFunction) => {
-                    return {
-                        watch: vi.fn((watchFunction) => {
-                            return {
-                                unwrap: vi.fn(() => {
-                                    function_();
-
-                                    // nextFn();
-                                    if (typeof anotherFunction === "function") {
-                                        return anotherFunction();
-                                    }
-
-                                    watchFunction();
-                                }),
-                            };
-                        }),
-                    };
-                }),
-                // })),
-            };
-        }),
-    };
-});
-
 const mockCreateMCPClient = await import("./create-mcp-client").then((m) => m.createMCPClient);
 
 describe("MCPClientsManager", () => {

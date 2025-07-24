@@ -1,12 +1,11 @@
-import JsonView from "@anole/ui/components/json-view";
-import { isJson, isString, toAny } from "lib/utils";
-
 import type { PropsWithChildren } from "react";
 import { memo } from "react";
+import { JsonView } from "react-json-view-lite";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import isJson from "../lib/is-json";
 import { PreBlock } from "./pre-block";
 
 const FadeIn = memo(({ children }: PropsWithChildren) => (
@@ -19,15 +18,15 @@ const FadeIn = memo(({ children }: PropsWithChildren) => (
 FadeIn.displayName = "FadeIn";
 
 const WordByWordFadeIn = memo(({ children }: PropsWithChildren) => {
-    const childrens = [children].flat().flatMap((child) => (isString(child) ? child.split(" ") : child));
+    const childrens = [children].flat().flatMap((child) => (typeof child === "string" ? child.split(" ") : child));
 
-    return childrens.map((word, index) => (isString(word) ? <FadeIn key={index}>{word}</FadeIn> : word));
+    return childrens.map((word, index) => (typeof word === "string" ? <FadeIn key={index}>{word}</FadeIn> : word));
 });
 
 WordByWordFadeIn.displayName = "WordByWordFadeIn";
 const components: Partial<Components> = {
     a: ({ children, node, ...properties }) => (
-        <a className="text-blue-400 hover:underline" rel="noreferrer" target="_blank" {...toAny(properties)}>
+        <a className="text-blue-400 hover:underline" rel="noreferrer" target="_blank" {...properties}>
             <b>
                 <WordByWordFadeIn>{children}</WordByWordFadeIn>
             </b>
@@ -74,10 +73,7 @@ const components: Partial<Components> = {
     img: ({ children, node, ...properties }) => {
         const { alt, src, ...rest } = properties;
 
-        return src ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img alt={alt} className="mx-auto rounded-lg" src={src} {...rest} />
-        ) : null;
+        return src ? <img alt={alt} className="mx-auto rounded-lg" src={src} {...rest} /> : null;
     },
     li: ({ children, node, ...properties }) => (
         <li className="py-2 break-words" {...properties}>

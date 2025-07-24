@@ -1,4 +1,5 @@
 import { lingui } from "@lingui/vite-plugin";
+import { VitePluginWatchWorkspace } from "@prosopo/vite-plugin-watch-workspace";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
@@ -16,6 +17,13 @@ export default defineConfig(({ mode }) => {
             exclude: ["scripts/*"],
         },
         plugins: [
+            VitePluginWatchWorkspace({
+                currentPackage: ".",
+                fileTypes: ["ts", "tsx", "js", "jsx"], // optional - file types to watch. default is ['ts', 'tsx']
+                format: "esm", // or 'cjs'
+                ignorePaths: ["node_modules", "dist"], // optional - globs to ignore
+                workspaceRoot: "..",
+            }),
             lingui(),
             viteTsConfigPaths({
                 projects: ["./tsconfig.json"],

@@ -189,12 +189,12 @@ const DrawerTemporaryContent = ({
 
         const lastMessage = messages.at(-1);
 
-        if (lastMessage?.role == "user")
+        if (lastMessage?.role === "user")
             return true;
 
         const lastPart = lastMessage?.parts.at(-1);
 
-        if (lastPart?.type == "step-start")
+        if (lastPart?.type === "step-start")
             return true;
 
         return false;

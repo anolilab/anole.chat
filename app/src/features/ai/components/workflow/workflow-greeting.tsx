@@ -1,6 +1,6 @@
 "use client";
 
-import { TextShimmer } from "@anole/ui/components/text-shimmer";
+import TextShimmer from "@anole/ui/components/text-shimmer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import { useLingui } from "@lingui/react/macro";
 import { BlocksIcon, ChevronsLeftRightEllipsisIcon, Terminal } from "lucide-react";

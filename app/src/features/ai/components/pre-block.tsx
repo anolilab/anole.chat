@@ -1,37 +1,23 @@
 "use client";
 
 import { Button } from "@anole/ui/components/button";
-import JsonView from "@anole/ui/components/json-view";
+import useCopy from "@anole/ui/hooks/use-copy-to-clipboard";
 import cn from "@anole/ui/utils/cn";
 import { toJsxRuntime } from "hast-util-to-jsx-runtime";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 import type { JSX } from "react";
-import { Fragment, useLayoutEffect, useState } from "react";
+import { Fragment, lazy, Suspense, useLayoutEffect, useState } from "react";
 import { jsx, jsxs } from "react/jsx-runtime";
+import { JsonView } from "react-json-view-lite";
 import type { BundledLanguage } from "shiki/bundle/web";
 import { bundledLanguages, codeToHast } from "shiki/bundle/web";
-import { safe } from "ts-safe";
 
-import { useCopy } from "@/hooks/use-copy";
-
-// Dynamically import MermaidDiagram component
-const MermaidDiagram = dynamic(() => import("./mermaid-diagram").then((module_) => module_.MermaidDiagram), {
-    loading: () => (
-        <div className="bg-accent/30 relative my-4 flex flex-col overflow-hidden rounded-2xl border text-sm">
-            <div className="z-20 flex w-full items-center px-4 py-2">
-                <span className="text-muted-foreground text-sm">mermaid</span>
-            </div>
-            <div className="relative overflow-x-auto px-6 pb-6">
-                <div className="flex h-20 w-full items-center justify-center">
-                    <span className="text-muted-foreground">Loading Mermaid renderer...</span>
-                </div>
-            </div>
-        </div>
-    ),
-    ssr: false,
-});
+const MermaidDiagram = lazy(() =>
+    import("./mermaid-diagram").then((module_) => {
+        return { default: module_.MermaidDiagram };
+    }),
+);
 
 const PurePre = ({ children, className, code, lang }: { children: any; className?: string; code: string; lang: string }) => {
     const { copied, copy } = useCopy();
@@ -58,7 +44,7 @@ const PurePre = ({ children, className, code, lang }: { children: any; className
     );
 };
 
-export const Highlight = (code: string, lang: BundledLanguage | (string & {}), theme: string) => {
+export const Highlight = async (code: string, lang: BundledLanguage | (string & {}), theme: string): Promise<JSX.Element> => {
     const parsed: BundledLanguage = (bundledLanguages[lang] ? lang : "md") as BundledLanguage;
 
     if (lang === "json") {
@@ -72,7 +58,22 @@ export const Highlight = (code: string, lang: BundledLanguage | (string & {}), t
     if (lang === "mermaid") {
         return (
             <PurePre code={code} lang={lang}>
-                <MermaidDiagram chart={code} />
+                <Suspense
+                    fallback={(
+                        <div className="bg-accent/30 relative my-4 flex flex-col overflow-hidden rounded-2xl border text-sm">
+                            <div className="z-20 flex w-full items-center px-4 py-2">
+                                <span className="text-muted-foreground text-sm">mermaid</span>
+                            </div>
+                            <div className="relative overflow-x-auto px-6 pb-6">
+                                <div className="flex h-20 w-full items-center justify-center">
+                                    <span className="text-muted-foreground">Loading Mermaid renderer...</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                >
+                    <MermaidDiagram chart={code} />
+                </Suspense>
             </PurePre>
         );
     }
@@ -104,10 +105,23 @@ export const PreBlock = ({ children }: { children: any }) => {
     );
 
     useLayoutEffect(() => {
-        safe()
-            .map(() => Highlight(code, language, theme == "dark" ? "dark-plus" : "github-light"))
-            .ifOk(setComponent)
-            .watch(() => setLoading(false));
+        let cancelled = false;
+
+        (async () => {
+            try {
+                const highlighted = await Highlight(code, language, theme === "dark" ? "dark-plus" : "github-light");
+
+                if (!cancelled)
+                    setComponent(highlighted);
+            } finally {
+                if (!cancelled)
+                    setLoading(false);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
     }, [theme, language, code]);
 
     // For other code blocks, render as before

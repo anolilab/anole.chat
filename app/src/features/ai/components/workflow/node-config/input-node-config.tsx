@@ -5,12 +5,12 @@ import { Label } from "@anole/ui/components/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import { useLingui } from "@lingui/react/macro";
 import { useReactFlow } from "@xyflow/react";
-import { objectFlow } from "lib/utils";
 import { InfoIcon, PencilIcon, PlusIcon, TrashIcon, VariableIcon } from "lucide-react";
 import { memo, useCallback } from "react";
 
 import type { Feild } from "../../edit-json-schema-field-popup";
 import { EditJsonSchemaFieldPopup, getFieldKey } from "../../edit-json-schema-field-popup";
+import objectFlow from "../../lib/object-flow";
 import type { InputNodeData, WorkflowNodeData } from "../../lib/workflow/workflow.interface";
 
 export const InputNodeDataConfig = memo(({ data }: { data: InputNodeData }) => {
@@ -30,13 +30,13 @@ export const InputNodeDataConfig = memo(({ data }: { data: InputNodeData }) => {
                         [field.key]: {
                             default: field.defaultValue,
                             description: field.description,
-                            enum: field.type == "string" && field.enum ? field.enum : undefined,
+                            enum: field.type === "string" && field.enum ? field.enum : undefined,
                             type: field.type,
                         },
                     },
                     required: field.required
                         ? [...new Set([field.key, ...previous.outputSchema.required ?? []])]
-                        : previous.outputSchema.required?.filter((k) => k != field.key),
+                        : previous.outputSchema.required?.filter((k) => k !== field.key),
                 };
 
                 return {
@@ -53,8 +53,8 @@ export const InputNodeDataConfig = memo(({ data }: { data: InputNodeData }) => {
                 const previous = node.data as InputNodeData;
                 const outputSchema = {
                     ...previous.outputSchema,
-                    properties: objectFlow(previous.outputSchema.properties).filter((_, k) => k != key),
-                    required: previous.outputSchema.required?.filter((k) => k != key),
+                    properties: objectFlow(previous.outputSchema.properties).filter((_, k) => k !== key),
+                    required: previous.outputSchema.required?.filter((k) => k !== key),
                 };
 
                 return {

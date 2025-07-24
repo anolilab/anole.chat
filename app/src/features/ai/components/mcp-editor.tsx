@@ -3,13 +3,13 @@
 import { Alert, AlertDescription, AlertTitle } from "@anole/ui/components/alert";
 import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { useLingui } from "@lingui/react/macro";
-import { createDebounce, isNull, safeJSONParse } from "lib/utils";
-import { Loader } from "lucide-react";
+import { debounce } from "@tanstack/react-pacer";
 import { useNavigate } from "@tanstack/react-router";
+import { safeJSONParse } from "lib/utils";
+import { Loader } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 import { z } from "zod/v4";
 
 import { existMcpClientByServerNameAction } from "@/app/api/mcp/actions";
@@ -31,7 +31,7 @@ interface MCPEditorProperties {
 
 const STDIO_ARGS_ENV_PLACEHOLDER = `/** STDIO Example */
 {
-  "command": "node", 
+  "command": "node",
   "args": ["index.js"],
   "env": {
     "OPENAI_API_KEY": "sk-...",
@@ -48,13 +48,17 @@ const STDIO_ARGS_ENV_PLACEHOLDER = `/** STDIO Example */
 
 export default function MCPEditor({ id, initialConfig, name: initialName }: MCPEditorProperties) {
     const { t } = useLingui();
-    const shouldInsert = useMemo(() => isNull(id), [id]);
+    const shouldInsert = useMemo(() => id === null || id === undefined, [id]);
 
     const [isLoading, setIsLoading] = useState(false);
     const [jsonError, setJsonError] = useState<string | null>(null);
     const [nameError, setNameError] = useState<string | null>(null);
 
-    const errorDebounce = useMemo(() => createDebounce(), []);
+    const errorDebounce = useMemo(() => (function_: () => void, delay: number) => {
+        const debouncedFunction = debounce(function_, { wait: delay });
+
+        debouncedFunction();
+    }, []);
 
     // State for form fields
     const [name, setName] = useState<string>(initialName ?? "");
@@ -111,40 +115,35 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
             return handleErrorWithToast(new Error(t`MCP.nameMustContainOnlyAlphanumericCharactersAndHyphens`), "mcp-editor-error");
         }
 
-        safe(() => setIsLoading(true))
-            .map(async () => {
-                if (shouldInsert) {
-                    const exist = await existMcpClientByServerNameAction(name);
+        setIsLoading(true);
 
-                    if (exist) {
-                        throw new Error(t`MCP.nameAlreadyExists`);
-                    }
-                }
-            })
-            .map(() =>
-                fetch("/api/mcp", {
-                    body: JSON.stringify({
-                        config,
-                        id,
-                        name,
-                    }),
-                    method: "POST",
-                }).then(async (res) => {
-                    if (!res.ok) {
-                        const error = await res.json();
+        try {
+            if (shouldInsert) {
+                const exist = await existMcpClientByServerNameAction(name);
 
-                        throw error;
-                    }
-                }),
-            )
+                if (exist)
+                    throw new Error(t`MCP.nameAlreadyExists`);
+            }
 
-            .ifOk(() => {
-                toast.success(t`MCP.configurationSavedSuccessfully`);
-                mutate("/api/mcp/list");
-                navigate({ to: "/mcp" });
-            })
-            .ifFail(handleErrorWithToast)
-            .watch(() => setIsLoading(false));
+            const res = await fetch("/api/mcp", {
+                body: JSON.stringify({ config, id, name }),
+                method: "POST",
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+
+                throw error;
+            }
+
+            toast.success(t`MCP.configurationSavedSuccessfully`);
+            mutate("/api/mcp/list");
+            navigate({ to: "/mcp" });
+        } catch (error) {
+            handleErrorWithToast(error, "mcp-editor-error");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleConfigChange = (data: string) => {

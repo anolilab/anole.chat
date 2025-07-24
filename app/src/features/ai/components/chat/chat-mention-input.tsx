@@ -2,13 +2,12 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@anole/ui/components/command";
-import { MCPIcon } from "@anole/ui/components/mcp-icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@anole/ui/components/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import MCPIcon from "@anole/ui/icons/mcp";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import type { Editor } from "@tiptap/react";
-import { toAny } from "lib/utils";
 import { HammerIcon } from "lucide-react";
 import type { RefObject } from "react";
 import { useCallback, useMemo } from "react";
@@ -57,11 +56,7 @@ export default function ChatMentionInput({ input, onChange, onChangeMention, onE
 export const ChatMentionInputMentionItem = ({ className, id }: { className?: string; id: string }) => {
     const item = useMemo(() => JSON.parse(id) as ChatMention, [id]);
     const label = useMemo(
-        () => (
-            <div className={cn("flex items-center px-1 text-sm font-semibold transition-colors", "text-blue-500", className)}>
-                {toAny(item).label || item.name}
-            </div>
-        ),
+        () => <div className={cn("flex items-center px-1 text-sm font-semibold transition-colors", "text-blue-500", className)}>{item.label || item.name}</div>,
         [item],
     );
 
@@ -272,7 +267,7 @@ function ChatMentionInputSuggestion({
                 <Command>
                     <CommandInput
                         onKeyDown={(e) => {
-                            if (e.key == "Backspace" && !e.currentTarget.value) {
+                            if (e.key === "Backspace" && !e.currentTarget.value) {
                                 onClose();
                             }
                         }}

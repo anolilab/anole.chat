@@ -4,15 +4,15 @@ import { Alert, AlertDescription, AlertTitle } from "@anole/ui/components/alert"
 import { Badge } from "@anole/ui/components/badge";
 import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@anole/ui/components/dialog";
-import JsonView from "@anole/ui/components/json-view";
+import useCopy from "@anole/ui/hooks/use-copy-to-clipboard";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
-import { errorToString } from "lib/utils";
 import { CheckIcon, CopyIcon, Loader2Icon, TriangleAlertIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
+import { JsonView } from "react-json-view-lite";
 
-import { useCopy } from "@/hooks/use-copy";
+import { errorToString } from "@/lib/utils";
 
 import type { NodeRuntimeHistory } from "../../lib/workflow/workflow.interface";
 
@@ -81,7 +81,7 @@ export const NodeResultPopup = ({
                         <div className="relative flex items-center">
                             <div className="pointer-events-none absolute top-0 left-0 h-full w-full border-b" />
                             <Button
-                                className={cn("rounded-none", tab == "input" && "border-primary border-b")}
+                                className={cn("rounded-none", tab === "input" && "border-primary border-b")}
                                 key="input"
                                 onClick={() => setTab("input")}
                                 variant="ghost"
@@ -89,7 +89,7 @@ export const NodeResultPopup = ({
                                 input
                             </Button>
                             <Button
-                                className={cn("rounded-none", tab == "output" && "border-primary border-b")}
+                                className={cn("rounded-none", tab === "output" && "border-primary border-b")}
                                 key="output"
                                 onClick={() => setTab("output")}
                                 variant="ghost"
@@ -98,13 +98,13 @@ export const NodeResultPopup = ({
                             </Button>
                         </div>
                         <div className="flex w-full min-w-0 flex-col gap-2 p-4 pt-2">
-                            {tab == "output" && history.status === "fail"
+                            {tab === "output" && history.status === "fail"
                                 ? null
                                 : (
                                     <>
                                         <Button
                                             className="ml-auto"
-                                            onClick={() => copy(JSON.stringify(tab == "input" ? history.result?.input : history.result?.output))}
+                                            onClick={() => copy(JSON.stringify(tab === "input" ? history.result?.input : history.result?.output))}
                                             size="icon"
                                             variant="ghost"
                                         >
@@ -112,7 +112,7 @@ export const NodeResultPopup = ({
                                         </Button>
                                     </>
                                 )}
-                            {tab == "output" && history.status === "fail"
+                            {tab === "output" && history.status === "fail"
                                 ? (
                                     <Alert className="flex flex-col gap-2" variant="destructive">
                                         <AlertTitle>Error</AlertTitle>
@@ -120,7 +120,7 @@ export const NodeResultPopup = ({
                                     </Alert>
                                 )
                                 : (
-                                    <JsonView data={tab == "input" ? history.result?.input : history.result?.output} initialExpandDepth={4} />
+                                    <JsonView data={tab === "input" ? history.result?.input : history.result?.output} initialExpandDepth={4} />
                                 )}
                         </div>
                     </div>

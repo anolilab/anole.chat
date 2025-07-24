@@ -1,14 +1,11 @@
 "use client";
 
 import type { UseChatHelpers } from "@ai-sdk/react";
+import { Button } from "@anole/ui/components/button";
+import { Textarea } from "@anole/ui/components/textarea";
 import type { Message } from "ai";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
-
-import { deleteMessagesByChatIdAfterTimestampAction } from "@/app/api/chat/actions";
-
-import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
 
 type TextUIPart = {
     text: string;
@@ -79,7 +76,7 @@ export const MessageEditor = ({ message, reload, setMessages, setMode }: Message
                     onClick={async () => {
                         setIsSubmitting(true);
 
-                        await deleteMessagesByChatIdAfterTimestampAction(message.id);
+                        // await deleteMessagesByChatIdAfterTimestampAction(message.id);
 
                         setMessages((messages) => {
                             const index = messages.findIndex((m) => m.id === message.id);

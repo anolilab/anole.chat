@@ -37,7 +37,7 @@ export const OutputSchemaMentionInput = ({ className, content, currentNodeId, ed
 
         newContent.content.some((item) => {
             if (item?.content?.length) {
-                const targetIndex = item.content.findIndex((item) => item.type == "mention" && item.attrs.id === id);
+                const targetIndex = item.content.findIndex((item) => item.type === "mention" && item.attrs.id === id);
 
                 if (targetIndex !== -1) {
                     item.content.splice(targetIndex, 1);

@@ -45,7 +45,6 @@ import { Route as DashboardSettingsAiPersonalizationRouteImport } from './routes
 import { Route as DashboardSettingsAiOptionsRouteImport } from './routes/dashboard/settings/ai/options'
 import { Route as DashboardSettingsAiModelsRouteImport } from './routes/dashboard/settings/ai/models'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
-import { ServerRoute as ApiAiMcpTransportServerRouteImport } from './routes/api/ai/mcp/$transport'
 
 const rootServerRouteImport = createServerRootRoute()
 
@@ -228,11 +227,6 @@ const DashboardSettingsAiModelsRoute =
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiAiMcpTransportServerRoute = ApiAiMcpTransportServerRouteImport.update({
-  id: '/api/ai/mcp/$transport',
-  path: '/api/ai/mcp/$transport',
   getParentRoute: () => rootServerRouteImport,
 } as any)
 
@@ -451,28 +445,24 @@ export interface RootRouteChildren {
 }
 export interface FileServerRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/ai/mcp/$transport': typeof ApiAiMcpTransportServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/auth/$' | '/api/ai/mcp/$transport'
+  fullPaths: '/api/auth/$'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/auth/$' | '/api/ai/mcp/$transport'
-  id: '__root__' | '/api/auth/$' | '/api/ai/mcp/$transport'
+  to: '/api/auth/$'
+  id: '__root__' | '/api/auth/$'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
-  ApiAiMcpTransportServerRoute: typeof ApiAiMcpTransportServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -719,13 +709,6 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof ApiAuthSplatServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
-    '/api/ai/mcp/$transport': {
-      id: '/api/ai/mcp/$transport'
-      path: '/api/ai/mcp/$transport'
-      fullPath: '/api/ai/mcp/$transport'
-      preLoaderRoute: typeof ApiAiMcpTransportServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
   }
 }
 
@@ -841,7 +824,6 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
-  ApiAiMcpTransportServerRoute: ApiAiMcpTransportServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)

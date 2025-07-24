@@ -1,6 +1,5 @@
 import type { ConsolaInstance } from "consola";
 import { colorize } from "consola/utils";
-import { toAny } from "lib/utils";
 import globalLogger from "logger";
 import type { StateGraphRegistry } from "ts-edge";
 import { createStateGraph, graphNode } from "ts-edge";
@@ -167,10 +166,10 @@ export const createWorkflowExecutor = (workflow: { edges: DBEdge[]; logger?: Con
             });
         } else {
             // Regular nodes have static edges defined in the workflow
-            const targetEdges = workflow.edges.filter((edge) => edge.source == node.id).map((v) => v.target);
+            const targetEdges = workflow.edges.filter((edge) => edge.source === node.id).map((v) => v.target);
 
             if (targetEdges.length > 0)
-                toAny(graph.edge)(node.id, targetEdges);
+                graph.edge(node.id, targetEdges);
         }
     });
 
@@ -180,7 +179,7 @@ export const createWorkflowExecutor = (workflow: { edges: DBEdge[]; logger?: Con
     let needTable: Record<string, number> = buildNeedTable(workflow.edges);
 
     // Compile the graph starting from the Input node
-    const app = graph.compile(workflow.nodes.find((node) => node.kind == NodeKind.Input)!.id).use(async ({ input, name: nodeId }, next) => {
+    const app = graph.compile(workflow.nodes.find((node) => node.kind === NodeKind.Input)!.id).use(async ({ input, name: nodeId }, next) => {
         // Check if this node is expecting multiple incoming branches
         if (!(nodeId in needTable))
             return;
@@ -199,25 +198,41 @@ export const createWorkflowExecutor = (workflow: { edges: DBEdge[]; logger?: Con
 
     // Set up event logging for workflow execution monitoring
     app.subscribe((event) => {
-        if (event.eventType == "WORKFLOW_START") {
-            needTable = buildNeedTable(workflow.edges);
-            logger.debug(`[${event.eventType}] ${workflow.nodes.length} nodes, ${workflow.edges.length} edges`);
-        } else if (event.eventType == "WORKFLOW_END") {
-            const duration = ((event.endedAt - event.startedAt) / 1000).toFixed(2);
-            const color = event.isOk ? "green" : "red";
+        switch (event.eventType) {
+            case "NODE_END": {
+                const duration = ((event.endedAt - event.startedAt) / 1000).toFixed(2);
+                const color = event.isOk ? "green" : "red";
 
-            logger.debug(`[${event.eventType}] ${colorize(color, event.isOk ? "SUCCESS" : "FAILED")} ${duration}s`);
+                logger.debug(
+                    `[${event.eventType}] ${nodeNameByNodeId.get(event.node.name)} ${colorize(color, event.isOk ? "SUCCESS" : "FAILED")} ${duration}s`,
+                );
 
-            if (!event.isOk) {
-                logger.error(event.error);
+                break;
             }
-        } else if (event.eventType == "NODE_START") {
-            logger.debug(`[${event.eventType}] ${nodeNameByNodeId.get(event.node.name)}`);
-        } else if (event.eventType == "NODE_END") {
-            const duration = ((event.endedAt - event.startedAt) / 1000).toFixed(2);
-            const color = event.isOk ? "green" : "red";
+            case "NODE_START": {
+                logger.debug(`[${event.eventType}] ${nodeNameByNodeId.get(event.node.name)}`);
 
-            logger.debug(`[${event.eventType}] ${nodeNameByNodeId.get(event.node.name)} ${colorize(color, event.isOk ? "SUCCESS" : "FAILED")} ${duration}s`);
+                break;
+            }
+            case "WORKFLOW_END": {
+                const duration = ((event.endedAt - event.startedAt) / 1000).toFixed(2);
+                const color = event.isOk ? "green" : "red";
+
+                logger.debug(`[${event.eventType}] ${colorize(color, event.isOk ? "SUCCESS" : "FAILED")} ${duration}s`);
+
+                if (!event.isOk) {
+                    logger.error(event.error);
+                }
+
+                break;
+            }
+            case "WORKFLOW_START": {
+                needTable = buildNeedTable(workflow.edges);
+                logger.debug(`[${event.eventType}] ${workflow.nodes.length} nodes, ${workflow.edges.length} edges`);
+
+                break;
+            }
+            // No default
         }
     });
 

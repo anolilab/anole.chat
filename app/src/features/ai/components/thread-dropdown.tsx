@@ -6,13 +6,12 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "@anole/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@anole/ui/components/popover";
 import { useLingui } from "@lingui/react/macro";
-import { Loader, PencilLine, Trash, WandSparkles } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { Loader, PencilLine, Trash, WandSparkles } from "lucide-react";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 
 import { deleteThreadAction, updateThreadAction } from "@/app/api/chat/actions";
 import { useToRef } from "@/hooks/use-latest";
@@ -40,45 +39,39 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleUpdate = async (title: string) => {
-        safe()
-            .ifOk(() => {
-                if (!title) {
-                    throw new Error(t`titleRequired`);
-                }
-            })
-            .ifOk(() => updateThreadAction(threadId, { title }))
-            .ifOk(() => mutate("/api/thread/list"))
-            .watch(({ error, isOk }) => {
-                if (isOk) {
-                    toast.success(t`threadUpdated`);
-                } else {
-                    toast.error(error.message || t`failedToUpdateThread`);
-                }
-            });
+        try {
+            if (!title) {
+                throw new Error(t`titleRequired`);
+            }
+
+            await updateThreadAction(threadId, { title });
+            await mutate("/api/thread/list");
+            toast.success(t`threadUpdated`);
+        } catch (error) {
+            toast.error(error.message || t`failedToUpdateThread`);
+        }
     };
 
     const handleDelete = async (_e: React.MouseEvent) => {
-        safe()
-            .watch(() => setIsDeleting(true))
-            .ifOk(() => deleteThreadAction(threadId))
-            .watch(() => setIsDeleting(false))
-            .watch(() => setOpen(false))
-            .watch(({ error, isOk }) => {
-                if (isOk) {
-                    toast.success(t`threadDeleted`);
-                } else {
-                    toast.error(error.message || t`failedToDeleteThread`);
-                }
-            })
-            .ifOk(() => onDeleted?.())
-            .ifOk(() => {
-                if (currentThreadId === threadId) {
-                    push.current("/");
-                }
+        setIsDeleting(true);
 
-                mutate("/api/thread/list");
-            })
-            .unwrap();
+        try {
+            await deleteThreadAction(threadId);
+            setIsDeleting(false);
+            setOpen(false);
+            toast.success(t`threadDeleted`);
+            onDeleted?.();
+
+            if (currentThreadId === threadId) {
+                push.current("/");
+            }
+
+            mutate("/api/thread/list");
+        } catch (error) {
+            setIsDeleting(false);
+            setOpen(false);
+            toast.error(error.message || t`failedToDeleteThread`);
+        }
     };
 
     return (

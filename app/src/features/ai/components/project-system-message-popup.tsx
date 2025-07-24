@@ -8,7 +8,6 @@ import { useLingui } from "@lingui/react/macro";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { safe } from "ts-safe";
 
 import { updateProjectAction } from "@/app/api/chat/actions";
 
@@ -26,13 +25,18 @@ export const ProjectSystemMessagePopup = ({ beforeSystemMessage, isOpen, onOpenC
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSave = async () => {
-        safe(() => setIsLoading(true))
-            .map(() => updateProjectAction(projectId, { instructions: { systemPrompt } }))
-            .watch(() => setIsLoading(false))
-            .ifOk(() => onSave(systemPrompt))
-            .ifOk(() => toast.success(t`Chat.Project.projectInstructionsUpdated`))
-            .ifOk(() => onOpenChange(false))
-            .ifFail(handleErrorWithToast);
+        setIsLoading(true);
+
+        try {
+            await updateProjectAction(projectId, { instructions: { systemPrompt } });
+            onSave(systemPrompt);
+            toast.success(t`Chat.Project.projectInstructionsUpdated`);
+            onOpenChange(false);
+        } catch (error) {
+            handleErrorWithToast(error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {

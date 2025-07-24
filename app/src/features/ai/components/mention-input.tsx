@@ -114,7 +114,7 @@ export default function MentionInput({
             onUpdate: ({ editor }) => {
                 const json = editor.getJSON() as TipTapMentionJsonContent;
                 const text = editor.getText();
-                const mentions = json?.content?.flatMap(({ content }) => content?.filter((v) => v.type == "mention").map((v) => v.attrs)).filter(Boolean) as {
+                const mentions = json?.content?.flatMap(({ content }) => content?.filter((v) => v.type === "mention").map((v) => v.attrs)).filter(Boolean) as {
                     id: string;
                     label: string;
                 }[];
@@ -204,10 +204,10 @@ export default function MentionInput({
     }, [open]);
 
     useEffect(() => {
-        if (content != undefined && onChange) {
-            if (typeof content === "string" && content != latestContent.current?.text) {
+        if (content !== undefined && onChange) {
+            if (typeof content === "string" && content !== latestContent.current?.text) {
                 editor?.commands.setContent(content);
-            } else if (typeof content !== "string" && content != latestContent.current?.json) {
+            } else if (typeof content !== "string" && content !== latestContent.current?.json) {
                 editor?.commands.setContent(content);
             }
         }

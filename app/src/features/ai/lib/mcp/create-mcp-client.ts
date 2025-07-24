@@ -2,14 +2,14 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { debounce } from "@tanstack/react-pacer";
 import type { Tool, ToolExecutionOptions } from "ai";
 import { jsonSchema, tool } from "ai";
 import type { ConsolaInstance } from "consola";
 import { colorize } from "consola/utils";
 import { IS_EDGE_RUNTIME, IS_MCP_SERVER_REMOTE_ONLY, IS_VERCEL_ENV } from "lib/const";
-import { createDebounce, errorToString, isNull, Locker, toAny, withTimeout } from "lib/utils";
+import { errorToString, Locker, withTimeout } from "lib/utils";
 import logger from "logger";
-import { safe } from "ts-safe";
 
 import type { MCPServerConfig, MCPServerInfo, MCPToolInfo } from "@/types/mcp";
 import { MCPRemoteConfigZodSchema, MCPStdioConfigZodSchema } from "@/types/mcp";
@@ -46,7 +46,11 @@ export class MCPClient {
         private name: string,
         private serverConfig: MCPServerConfig,
         private options: ClientOptions = {},
-        private disconnectDebounce = createDebounce(),
+        private disconnectDebounce = (function_: () => void, delay: number) => {
+            const debouncedFunction = debounce(function_, { wait: delay });
+
+            debouncedFunction();
+        },
     ) {
         this.log = logger.withDefaults({
             message: colorize("cyan", `${IS_EDGE_RUNTIME ? "[EdgeRuntime] " : " "}MCP Client ${this.name}: `),
@@ -176,13 +180,11 @@ export class MCPClient {
 
             // Create AI SDK tool wrappers for each MCP tool
             this.tools = toolResponse.tools.reduce((previous, _tool) => {
-                const parameters = jsonSchema(
-                    toAny({
-                        ..._tool.inputSchema,
-                        additionalProperties: false,
-                        properties: _tool.inputSchema.properties ?? {},
-                    }),
-                );
+                const parameters = jsonSchema({
+                    ..._tool.inputSchema,
+                    additionalProperties: false,
+                    properties: _tool.inputSchema.properties ?? {},
+                });
 
                 previous[_tool.name] = tool({
                     description: _tool.description,
@@ -228,45 +230,37 @@ export class MCPClient {
             });
         };
 
-        return safe(() => this.log.info("tool call", toolName))
-            .ifOk(() => this.scheduleAutoDisconnect()) // disconnect if autoDisconnectSeconds is set
-            .map(() => execute())
-            .ifFail(async (error) => {
-                if (error?.message?.includes("Transport is closed")) {
-                    this.log.info("Transport is closed, reconnecting...");
-                    await this.disconnect();
+        try {
+            this.log.info("tool call", toolName);
+            this.scheduleAutoDisconnect();
+            const result = await execute();
 
-                    return execute();
-                }
+            this.scheduleAutoDisconnect();
 
-                throw error;
-            })
-            .ifOk((v) => {
-                if (isNull(v)) {
-                    throw new Error("Tool call failed with null");
-                }
+            if (result === null || result === undefined) {
+                throw new Error("Tool call failed with null");
+            }
 
-                return v;
-            })
-            .ifOk(() => this.scheduleAutoDisconnect())
-            .watch((status) => {
-                if (!status.isOk) {
-                    this.log.error("Tool call failed", toolName, status.error);
-                } else if (status.value?.isError) {
-                    this.log.error("Tool call failed content", toolName, status.value.content);
-                }
-            })
-            .ifFail((error) => {
-                return {
-                    content: [],
-                    error: {
-                        message: errorToString(error),
-                        name: error?.name || "ERROR",
-                    },
-                    isError: true,
-                };
-            })
-            .unwrap();
+            return result;
+        } catch (error) {
+            if (error?.message?.includes("Transport is closed")) {
+                this.log.info("Transport is closed, reconnecting...");
+                await this.disconnect();
+
+                return execute();
+            }
+
+            this.log.error("Tool call failed", toolName, error);
+
+            return {
+                content: [],
+                error: {
+                    message: errorToString(error),
+                    name: error?.name || "ERROR",
+                },
+                isError: true,
+            };
+        }
     }
 }
 

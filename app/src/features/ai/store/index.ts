@@ -5,7 +5,7 @@ import type { ChatMention, ChatModel, ChatThread, Project } from "@/types/chat";
 import type { AllowedMCPServer, MCPServerInfo } from "@/types/mcp";
 import type { WorkflowSummary } from "@/types/workflow";
 
-import { OPENAI_VOICE } from "../lib/speech/open-ai/use-voice-chat.openai";
+// import { OPENAI_VOICE } from "../lib/speech/open-ai/use-voice-chat.openai";
 import type { AppDefaultToolkit } from "../lib/tools";
 
 export interface AppState {
@@ -75,7 +75,7 @@ const initialState: AppState = {
         options: {
             provider: "openai",
             providerOptions: {
-                model: OPENAI_VOICE["Alloy"],
+                // model: OPENAI_VOICE["Alloy"],
             },
         },
     },

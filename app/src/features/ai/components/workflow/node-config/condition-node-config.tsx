@@ -48,7 +48,7 @@ export const ConditionNodeDataConfig = ({ data }: { data: ConditionNodeData }) =
                 return {
                     branches: {
                         ...previous.branches,
-                        elseIf: previous.branches.elseIf?.map((item, index_) => (index_ == index ? branch : item)) ?? [branch],
+                        elseIf: previous.branches.elseIf?.map((item, index_) => (index_ === index ? branch : item)) ?? [branch],
                     },
                 };
             });
@@ -80,7 +80,7 @@ export const ConditionNodeDataConfig = ({ data }: { data: ConditionNodeData }) =
     const removeElseIfBranch = useCallback(
         (index: number) => {
             const edges = getEdges();
-            const connectedEdges = edges.filter((edge) => edge.sourceHandle == data.branches.elseIf![index].id).map((edge) => edge.id);
+            const connectedEdges = edges.filter((edge) => edge.sourceHandle === data.branches.elseIf![index].id).map((edge) => edge.id);
 
             if (connectedEdges.length > 0) {
                 setEdges(edges.filter((edge) => !connectedEdges.includes(edge.id)));
@@ -187,7 +187,7 @@ const ConditionBranchItem = ({ branch, caseNumber, currentNodeId, onChange, onDe
         (index: number, condition: ConditionRule) => {
             onChange({
                 ...branch,
-                conditions: branch.conditions.map((item, index_) => (index_ == index ? condition : item)),
+                conditions: branch.conditions.map((item, index_) => (index_ === index ? condition : item)),
             });
         },
         [branch, onChange],
@@ -226,7 +226,7 @@ const ConditionBranchItem = ({ branch, caseNumber, currentNodeId, onChange, onDe
                                         onClick={() =>
                                             onChange({
                                                 ...branch,
-                                                logicalOperator: branch.logicalOperator == "AND" ? "OR" : "AND",
+                                                logicalOperator: branch.logicalOperator === "AND" ? "OR" : "AND",
                                             })}
                                     >
                                         {branch.logicalOperator}
@@ -325,10 +325,10 @@ const ConditionRuleItem = ({ currentNodeId, item, nodes, onChange }: ConditionRu
     const operatorItems = useMemo(() => {
         let operatorItems: Record<string, string> = StringConditionOperator;
 
-        if (itemType == "number")
+        if (itemType === "number")
             operatorItems = NumberConditionOperator;
 
-        if (itemType == "boolean")
+        if (itemType === "boolean")
             operatorItems = BooleanConditionOperator;
 
         return Object.entries(operatorItems).map(([key, value]) => {
@@ -380,7 +380,7 @@ const ConditionRuleItem = ({ currentNodeId, item, nodes, onChange }: ConditionRu
                 </Select>
             </div>
 
-            {itemType == "string" || itemType == "number"
+            {itemType === "string" || itemType === "number"
                 ? (
                     <>
                         <Separator className="my-1" />

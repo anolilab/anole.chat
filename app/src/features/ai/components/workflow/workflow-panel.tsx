@@ -7,14 +7,14 @@ import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import { useLingui } from "@lingui/react/macro";
 import { useReactFlow } from "@xyflow/react";
-import equal from "lib/equal";
+import equal from "fast-deep-equal";
 import { AlignHorizontalSpaceAround, BlocksIcon, Check, EyeIcon, Loader, LockIcon, PlayIcon } from "lucide-react";
 import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 
 import { Separator } from "@/components/ui/separator";
+import { safe } from "@/lib/safe-async";
 import type { DBWorkflow } from "@/types/workflow";
 
 import { arrangeNodes } from "../../lib/workflow/arrange-nodes";
@@ -64,7 +64,7 @@ export const WorkflowPanel = memo(
                         }),
                         method: "POST",
                     }).then((res) => {
-                        if (res.status != 200)
+                        if (res.status !== 200)
                             throw new Error(res.statusText);
                     }),
                 )
@@ -115,7 +115,7 @@ export const WorkflowPanel = memo(
                             }),
                             method: "POST",
                         }).then((res) => {
-                            if (res.status != 200)
+                            if (res.status !== 200)
                                 throw new Error(res.statusText);
                         }),
                     )
@@ -215,7 +215,7 @@ export const WorkflowPanel = memo(
                             <TooltipTrigger asChild>
                                 <DropdownMenuTrigger asChild>
                                     <Button className="data-[state=open]:bg-input!" size="icon" variant="secondary">
-                                        {workflow.visibility == "public" ? <BlocksIcon /> : workflow.visibility == "readonly" ? <EyeIcon /> : <LockIcon />}
+                                        {workflow.visibility === "public" ? <BlocksIcon /> : workflow.visibility === "readonly" ? <EyeIcon /> : <LockIcon />}
                                     </Button>
                                 </DropdownMenuTrigger>
                             </TooltipTrigger>
@@ -245,7 +245,7 @@ export const WorkflowPanel = memo(
                             ].map((item) => (
                                 <DropdownMenuItem
                                     className="cursor-pointer"
-                                    disabled={workflow.visibility == item.value || !hasEditAccess}
+                                    disabled={workflow.visibility === item.value || !hasEditAccess}
                                     key={item.value}
                                     onClick={() => updateVisibility(item.value as DBWorkflow["visibility"])}
                                 >
@@ -254,7 +254,7 @@ export const WorkflowPanel = memo(
                                         <p>{t(item.label)}</p>
                                         <p className="text-muted-foreground text-xs">{t(item.description)}</p>
                                     </div>
-                                    {workflow.visibility == item.value && <Check className="ml-auto" />}
+                                    {workflow.visibility === item.value && <Check className="ml-auto" />}
                                 </DropdownMenuItem>
                             ))}
                         </DropdownMenuContent>

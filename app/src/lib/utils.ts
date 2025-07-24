@@ -8,6 +8,78 @@ export const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789");
 
 export const uuid = () => v7();
 
+// Utility function to check if value is null or undefined
+export const isNull = (value: unknown): value is null | undefined => value === null || value === undefined;
+
+// Utility function to convert any value to any type
+export const toAny = <T>(value: T): any => value;
+
+// Utility function to convert error to string
+export const errorToString = (error: unknown): string => {
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return String(error);
+};
+
+// Utility function to safely parse JSON
+export const safeJSONParse = (json: string): { success: true; value: unknown } | { error: unknown; success: false } => {
+    try {
+        const parsed = JSON.parse(json);
+
+        return { success: true, value: parsed };
+    } catch (error) {
+        return { error, success: false };
+    }
+};
+
+// Utility function to create a locker for async operations
+export class Locker {
+    private locked = false;
+
+    private queue: (() => void)[] = [];
+
+    async acquire(): Promise<void> {
+        if (this.locked) {
+            return new Promise((resolve) => {
+                this.queue.push(resolve);
+            });
+        }
+
+        this.locked = true;
+    }
+
+    release(): void {
+        this.locked = false;
+        const next = this.queue.shift();
+
+        if (next) {
+            this.locked = true;
+            next();
+        }
+    }
+}
+
+// Utility function to add timeout to promises
+export const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs);
+    }),
+]);
+
+// Utility function to fetch data
+export const fetcher = async (url: string) => {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+};
+
 export const convertImageToBase64 = async (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();

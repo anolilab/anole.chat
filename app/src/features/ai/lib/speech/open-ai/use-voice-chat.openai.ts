@@ -46,7 +46,7 @@ type Content
     };
 
 const createUIPart = (content: Content): TextPart | ToolInvocationUIPart => {
-    if (content.type == "tool-invocation") {
+    if (content.type === "tool-invocation") {
         return {
             toolInvocation: {
                 args: content.arguments,
@@ -172,17 +172,17 @@ export function useOpenAIVoiceChat(properties?: UseOpenAIVoiceChatProperties): V
         (id: string, action: Partial<UIMessageWithCompleted> | ((message: UIMessageWithCompleted) => Partial<UIMessageWithCompleted>)) => {
             setMessages((previous) => {
                 if (previous.length > 0) {
-                    const lastMessage = previous.find((m) => m.id == id);
+                    const lastMessage = previous.find((m) => m.id === id);
 
                     if (!lastMessage)
                         return previous;
 
                     const nextMessage = typeof action === "function" ? action(lastMessage) : action;
 
-                    if (lastMessage == nextMessage)
+                    if (lastMessage === nextMessage)
                         return previous;
 
-                    return previous.map((m) => (m.id == id ? { ...m, ...nextMessage } : m));
+                    return previous.map((m) => (m.id === id ? { ...m, ...nextMessage } : m));
                 }
 
                 return previous;
@@ -225,7 +225,7 @@ export function useOpenAIVoiceChat(properties?: UseOpenAIVoiceChatProperties): V
             };
 
             updateUIMessage(id, (previous) => {
-                const previousPart = previous.parts.find((p) => p.type == "tool-invocation");
+                const previousPart = previous.parts.find((p) => p.type === "tool-invocation");
 
                 if (!previousPart)
                     return previous;
@@ -303,11 +303,11 @@ export function useOpenAIVoiceChat(properties?: UseOpenAIVoiceChatProperties): V
                 case "response.audio_transcript.delta": {
                     setIsAssistantSpeaking(true);
                     setMessages((previous) => {
-                        const message = previous.findLast((m) => m.id == event.item_id)!;
+                        const message = previous.findLast((m) => m.id === event.item_id)!;
 
                         if (message) {
                             return previous.map((m) =>
-                                (m.id == event.item_id
+                                (m.id === event.item_id
                                     ? {
                                         ...m,
                                         parts: [
@@ -338,7 +338,7 @@ export function useOpenAIVoiceChat(properties?: UseOpenAIVoiceChatProperties): V
                 }
                 case "response.audio_transcript.done": {
                     updateUIMessage(event.item_id, (previous) => {
-                        const textPart = previous.parts.find((p) => p.type == "text");
+                        const textPart = previous.parts.find((p) => p.type === "text");
 
                         if (!textPart)
                             return previous;

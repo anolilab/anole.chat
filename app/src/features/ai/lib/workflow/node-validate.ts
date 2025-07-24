@@ -1,7 +1,6 @@
 import type { Edge } from "@xyflow/react";
 import type { JSONSchema7 } from "json-schema";
 import { cleanVariableName } from "lib/utils";
-import { safe } from "ts-safe";
 
 import type {
     ConditionNodeData,
@@ -33,10 +32,10 @@ export function validateSchema(key: string, schema: JSONSchema7) {
         throw new Error("Invalid Schema");
     }
 
-    if (schema.type == "array" || schema.type == "object") {
+    if (schema.type === "array" || schema.type === "object") {
         const keys = Object.keys(schema.properties ?? {});
 
-        if (keys.length != new Set(keys).size) {
+        if (keys.length !== new Set(keys).size) {
             throw new Error("Output data must have unique keys");
         }
 
@@ -48,7 +47,7 @@ export function validateSchema(key: string, schema: JSONSchema7) {
 
 type NodeValidate<T> = (context: { edges: Edge[]; node: T; nodes: UINode[] }) => void;
 
-export function allNodeValidate({ edges, nodes }: { edges: Edge[]; nodes: UINode[] }):
+export async function allNodeValidate({ edges, nodes }: { edges: Edge[]; nodes: UINode[] }):
     | true
     | {
         errorMessage: string;
@@ -67,18 +66,13 @@ export function allNodeValidate({ edges, nodes }: { edges: Edge[]; nodes: UINode
     }
 
     for (const node of nodes) {
-        const result = safe()
-            .ifOk(() => nodeValidate({ edges, node: node.data, nodes }))
-            .ifFail((error) => {
-                return {
-                    errorMessage: error.message,
-                    node,
-                };
-            })
-            .unwrap();
-
-        if (result) {
-            return result;
+        try {
+            await nodeValidate({ edges, node: node.data, nodes });
+        } catch (error: any) {
+            return {
+                errorMessage: error.message,
+                node,
+            };
         }
     }
 
@@ -86,7 +80,7 @@ export function allNodeValidate({ edges, nodes }: { edges: Edge[]; nodes: UINode
 }
 
 export const nodeValidate: NodeValidate<WorkflowNodeData> = ({ edges, node, nodes }) => {
-    if (node.kind != NodeKind.Note && nodes.filter((n) => n.data.name === node.name).length > 1) {
+    if (node.kind !== NodeKind.Note && nodes.filter((n) => n.data.name === node.name).length > 1) {
         throw new Error("Node name must be unique");
     }
 

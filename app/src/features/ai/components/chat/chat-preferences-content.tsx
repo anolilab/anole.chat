@@ -13,7 +13,6 @@ import { AlertCircle, ArrowLeft, Loader } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { safe } from "ts-safe";
 
 import { useMcpList } from "@/hooks/queries/use-mcp-list";
 import { useObjectState } from "@/hooks/use-object-state";
@@ -70,20 +69,25 @@ export const UserInstructionsContent = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     const savePreferences = async () => {
-        safe(() => setIsSaving(true))
-            .ifOk(() =>
-                fetch("/api/user/preferences", {
-                    body: JSON.stringify(preferences),
-                    method: "PUT",
-                }),
-            )
-            .ifOk(() => fetchPreferences())
-            .watch((result) => {
-                if (result.isOk)
-                    toast.success(t`Chat.ChatPreferences.preferencesSaved`);
-                else toast.error(t`Chat.ChatPreferences.failedToSavePreferences`);
-            })
-            .watch(() => setIsSaving(false));
+        setIsSaving(true);
+        let ok = false;
+
+        try {
+            await fetch("/api/user/preferences", {
+                body: JSON.stringify(preferences),
+                method: "PUT",
+            });
+            await fetchPreferences();
+            ok = true;
+        } catch {
+            ok = false;
+        } finally {
+            setIsSaving(false);
+
+            if (ok)
+                toast.success(t`Chat.ChatPreferences.preferencesSaved`);
+            else toast.error(t`Chat.ChatPreferences.failedToSavePreferences`);
+        }
     };
 
     const isDiff = useMemo(() => {
@@ -254,7 +258,7 @@ export const MCPInstructionsContent = () => {
                                                 ? (
                                                     <AlertCircle className="text-destructive size-3.5" />
                                                 )
-                                                : mcp.status == "loading"
+                                                : mcp.status === "loading"
                                                     ? (
                                                         <Loader className="size-3.5 animate-spin" />
                                                     )

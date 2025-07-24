@@ -1,7 +1,7 @@
 import type { Edge } from "@xyflow/react";
 import type { Message } from "ai";
 import type { JSONSchema7 } from "json-schema";
-import { exclude, isString } from "lib/utils";
+import { exclude } from "lib/utils";
 import type { GraphEvent } from "ts-edge";
 
 import type { ObjectJsonSchema7, TipTapMentionJsonContent, TipTapMentionJsonContentPart } from "@/types/util";
@@ -96,7 +96,7 @@ export function findAvailableSchemaBySource({
         return data;
 
     data.notFound = false;
-    data.type = isString(schema) ? schema : (schema?.type as string);
+    data.type = typeof schema === "string" ? schema : (schema?.type as string);
 
     return data;
 }

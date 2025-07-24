@@ -12,6 +12,7 @@ import { getCookie, getWebRequest } from "@tanstack/react-start/server";
 import type { ConvexReactClient } from "convex/react";
 import { ThemeProvider } from "next-themes";
 import { lazy, Suspense } from "react";
+import jsonViewCss from "react-json-view-lite/dist/index.css?url";
 
 import { ReactScan } from "@/components/debug/react-scan";
 import { AuthQueryProvider } from "@/features/auth/lib/auth-query-provider";
@@ -56,8 +57,6 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-    ssr: true,
-    component: () => <RootDocument />,
     beforeLoad: async (ctx) => {
         const auth = await ctx.context.queryClient.fetchQuery({
             queryKey: ["session"],
@@ -88,6 +87,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             token: auth.token,
         };
     },
+    component: () => <RootDocument />,
     head: () => ({
         meta: [
             {
@@ -105,9 +105,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         ],
         links: [
             { rel: "stylesheet", href: appCss },
+            { rel: "stylesheet", href: jsonViewCss },
             { rel: "icon", href: "/favicon.ico" },
         ],
     }),
+    ssr: true,
     wrapInSuspense: true,
 });
 

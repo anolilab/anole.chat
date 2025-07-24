@@ -1,7 +1,7 @@
-import { MCPIcon } from "@anole/ui/components/mcp-icon";
+import MCPIcon from "@anole/ui/icons/mcp";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowUpRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
 
 export const MCPOverview = () => {
     const { t } = useLingui();

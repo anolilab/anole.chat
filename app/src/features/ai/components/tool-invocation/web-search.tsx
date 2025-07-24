@@ -1,19 +1,18 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
-import { GlobalIcon } from "@anole/ui/components/global-icon";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@anole/ui/components/hover-card";
-import JsonView from "@anole/ui/components/json-view";
 import { Separator } from "@anole/ui/components/separator";
-import { TextShimmer } from "@anole/ui/components/text-shimmer";
+import TextShimmer from "@anole/ui/components/text-shimmer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import GlobalIcon from "@anole/ui/icons/global";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
-import equal from "lib/equal";
+import equal from "fast-deep-equal";
 import { notify } from "lib/notify";
-import { toAny } from "lib/utils";
 import { AlertTriangleIcon } from "lucide-react";
 import { memo, useMemo, useState } from "react";
+import { JsonView } from "react-json-view-lite";
 
 import type { ToolInvocationUIPart } from "@/types/chat";
 
@@ -27,7 +26,7 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
     const { t } = useLingui();
 
     const result = useMemo(() => {
-        if (part.state != "result")
+        if (part.state !== "result")
             return null;
 
         return part.result as TavilyResponse & { error?: string; isError: boolean };
@@ -62,7 +61,7 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
 
     const images = useMemo(() => result?.images?.filter((image) => !errorSource.includes(image.url)) ?? [], [result?.images, errorSource]);
 
-    if (part.state != "result") {
+    if (part.state !== "result") {
         return (
             <div className="flex items-center gap-2 text-sm">
                 <GlobalIcon className="wiggle text-muted-foreground size-5" />
@@ -100,7 +99,6 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
                                                         children: (
                                                             <div className="flex h-full flex-col gap-4">
                                                                 <div className="flex min-h-0 flex-1 items-center justify-center py-6">
-                                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                                                     <img
                                                                         alt={image.description}
                                                                         className="max-h-[80vh] max-w-[80vw] rounded-lg object-contain"
@@ -114,7 +112,6 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
                                                     });
                                                 }}
                                             >
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img
                                                     alt={image.description}
                                                     className="h-36 w-full object-cover transition-transform duration-300 hover:scale-120"
@@ -193,13 +190,13 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
 };
 
 function areEqual({ part: previousPart }: WebSearchToolInvocationProperties, { part: nextPart }: WebSearchToolInvocationProperties) {
-    if (previousPart.state != nextPart.state)
+    if (previousPart.state !== nextPart.state)
         return false;
 
     if (!equal(previousPart.args, nextPart.args))
         return false;
 
-    if (previousPart.state == "result" && !equal(previousPart.result, toAny(nextPart).result))
+    if (previousPart.state === "result" && !equal(previousPart.result, nextPart.result))
         return false;
 
     return true;

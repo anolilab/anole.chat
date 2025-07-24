@@ -88,7 +88,7 @@ export const EditJsonSchemaFieldPopup = ({ children, defaultOpen = false, editAb
 };
 
 export const getFieldKey = (schema: JSONSchema7) => {
-    if (schema.type == "string" && schema.enum)
+    if (schema.type === "string" && schema.enum)
         return "enum";
 
     return schema.type!;
@@ -176,7 +176,7 @@ export const EditJsonSchemaFieldContent = ({
     );
 
     const currentFieldKey = useMemo(() => {
-        if (field.type == "string" && field.enum) {
+        if (field.type === "string" && field.enum) {
             return "enum";
         }
 
@@ -199,7 +199,7 @@ export const EditJsonSchemaFieldContent = ({
                                 onChange((previous) => {
                                     return {
                                         ...previous,
-                                        enum: fieldType.type == "string" && fieldType.key == "enum" ? [] : undefined,
+                                        enum: fieldType.type === "string" && fieldType.key === "enum" ? [] : undefined,
                                         type: fieldType.type,
                                     };
                                 })}

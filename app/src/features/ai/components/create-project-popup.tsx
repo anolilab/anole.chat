@@ -6,13 +6,12 @@ import { FlipWords } from "@anole/ui/components/flip-words";
 import { Input } from "@anole/ui/components/input";
 import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { useLingui } from "@lingui/react/macro";
-import { Lightbulb, Loader } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { Lightbulb, Loader } from "lucide-react";
 import type { KeyboardEvent, PropsWithChildren } from "react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 
 import { insertProjectAction } from "@/app/api/chat/actions";
 
@@ -24,14 +23,20 @@ export const CreateProjectPopup = ({ children }: PropsWithChildren) => {
     const navigate = useNavigate();
 
     const handleCreate = async () => {
-        safe(() => setIsLoading(true))
-            .map(() => insertProjectAction({ name }))
-            .watch(() => setIsLoading(false))
-            .ifOk(() => setIsOpen(false))
-            .ifOk(() => toast.success(t`Chat.Project.projectCreated`))
-            .ifOk(() => mutate("/api/project/list"))
-            .ifOk((project) => navigate({ to: `/project/${project.id}` }))
-            .ifFail(handleErrorWithToast);
+        setIsLoading(true);
+
+        try {
+            const project = await insertProjectAction({ name });
+
+            setIsOpen(false);
+            toast.success(t`Chat.Project.projectCreated`);
+            await mutate("/api/project/list");
+            navigate({ to: `/project/${project.id}` });
+        } catch (error) {
+            handleErrorWithToast(error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleEnterKey = (e: KeyboardEvent<HTMLInputElement>) => {

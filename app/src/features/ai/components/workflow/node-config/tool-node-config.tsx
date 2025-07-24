@@ -1,12 +1,11 @@
 "use client";
 
 import { Button } from "@anole/ui/components/button";
-import { MCPIcon } from "@anole/ui/components/mcp-icon";
 import { Separator } from "@anole/ui/components/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import MCPIcon from "@anole/ui/icons/mcp";
 import { useLingui } from "@lingui/react/macro";
 import { useEdges, useNodes, useReactFlow } from "@xyflow/react";
-import { isString, toAny } from "lib/utils";
 import { ChevronDown, InfoIcon, VariableIcon, WrenchIcon } from "lucide-react";
 import { memo, useEffect, useMemo } from "react";
 
@@ -96,9 +95,9 @@ export const ToolNodeDataConfig = memo(({ data }: { data: ToolNodeData }) => {
                                             <span className="font-semibold">{key}</span>
 
                                             <span className="text-muted-foreground ml-2">
-                                                {isString(data.tool?.parameterSchema?.properties?.[key])
+                                                {typeof data.tool?.parameterSchema?.properties?.[key] === "string"
                                                     ? data.tool?.parameterSchema?.properties?.[key]
-                                                    : toAny(data.tool?.parameterSchema?.properties?.[key])?.type || "unknown"}
+                                                    : data.tool?.parameterSchema?.properties?.[key]?.type || "unknown"}
                                             </span>
                                         </div>
                                     );
@@ -167,7 +166,7 @@ export const ToolNodeStack = memo(({ data }: { data: ToolNodeData }) => {
             );
         }
 
-        if (data.tool.type == "mcp-tool") {
+        if (data.tool.type === "mcp-tool") {
             return (
                 <>
                     <MCPIcon className="size-3" />

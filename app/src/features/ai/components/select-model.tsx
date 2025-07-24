@@ -1,17 +1,16 @@
 "use client";
 
 import { Button } from "@anole/ui/components/button";
-import { ClaudeIcon } from "@anole/ui/components/claude-icon";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@anole/ui/components/command";
-import { GeminiIcon } from "@anole/ui/components/gemini-icon";
-import { GrokIcon } from "@anole/ui/components/grok-icon";
-import { OpenAIIcon } from "@anole/ui/components/openai-icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@anole/ui/components/popover";
+import ClaudeIcon from "@anole/ui/icons/claude";
+import GeminiIcon from "@anole/ui/icons/gemini";
+import GrokIcon from "@anole/ui/icons/grok";
+import OpenAIIcon from "@anole/ui/icons/openai";
 import { CheckIcon, ChevronDown } from "lucide-react";
 import type { PropsWithChildren } from "react";
 import { Fragment, memo, useEffect, useState } from "react";
 
-import { useChatModels } from "@/hooks/queries/use-chat-models";
 import type { ChatModel } from "@/types/chat";
 
 import { appStore } from "../store";
@@ -24,7 +23,7 @@ interface SelectModelProperties {
 
 export const SelectModel = (properties: PropsWithChildren<SelectModelProperties>) => {
     const [open, setOpen] = useState(false);
-    const { data: providers } = useChatModels();
+    const providers = [];
     const [model, setModel] = useState(properties.defaultModel);
 
     useEffect(() => {

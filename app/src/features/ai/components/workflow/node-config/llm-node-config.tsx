@@ -8,7 +8,6 @@ import { useLingui } from "@lingui/react/macro";
 import type { Edge } from "@xyflow/react";
 import { useEdges, useNodes, useReactFlow } from "@xyflow/react";
 import { notify } from "lib/notify";
-import { toAny } from "lib/utils";
 import { ChevronDown, InfoIcon, MessageCirclePlusIcon, TrashIcon, VariableIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
@@ -82,7 +81,7 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
         }
     }, []);
 
-    const isStructuredOutput = useMemo(() => data.outputSchema.properties?.answer?.type != "string", [data.outputSchema]);
+    const isStructuredOutput = useMemo(() => data.outputSchema.properties?.answer?.type !== "string", [data.outputSchema]);
 
     return (
         <div className="flex h-full flex-col gap-2 px-4 text-sm">
@@ -145,7 +144,7 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
                             <div className="bg-secondary flex items-center rounded-md px-1.5 py-0.5 text-xs" key={`${key}.${property}`}>
                                 <VariableIcon className="size-3.5 text-blue-500" />
                                 <span className="font-semibold">{`${key}.${property}`}</span>
-                                <span className="text-muted-foreground ml-2">{toAny(data.outputSchema.properties[key].properties![property])?.type}</span>
+                                <span className="text-muted-foreground ml-2">{data.outputSchema.properties[key].properties![property]?.type}</span>
                             </div>
                         ));
                     }

@@ -6,13 +6,12 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "@anole/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@anole/ui/components/popover";
 import { useLingui } from "@lingui/react/macro";
-import { AudioWaveformIcon, Loader, PencilLine, Trash } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { AudioWaveformIcon, Loader, PencilLine, Trash } from "lucide-react";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 import { v4 as uuidv4 } from "uuid";
 import { useShallow } from "zustand/shallow";
 
@@ -38,26 +37,23 @@ export const ProjectDropdown = ({ align, children, project, side }: Properties) 
 
     const handleDelete = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        safe()
-            .watch(() => setIsDeleting(true))
-            .ifOk(() => deleteProjectAction(project.id))
-            .watch(() => setIsDeleting(false))
-            .watch(({ error, isOk }) => {
-                if (isOk) {
-                    toast.success(t`Chat.Project.projectDeleted`);
-                } else {
-                    toast.error(error.message || t`Chat.Project.failedToDeleteProject`);
-                }
-            })
-            .ifOk(() => {
-                if (currentProjectId === project.id) {
-                    navigate({ to: "/" });
-                }
+        setIsDeleting(true);
 
-                mutate("/api/thread/list");
-                mutate("/api/project/list");
-            })
-            .unwrap();
+        try {
+            await deleteProjectAction(project.id);
+            setIsDeleting(false);
+            toast.success(t`Chat.Project.projectDeleted`);
+
+            if (currentProjectId === project.id) {
+                navigate({ to: "/" });
+            }
+
+            mutate("/api/thread/list");
+            mutate("/api/project/list");
+        } catch (error) {
+            setIsDeleting(false);
+            toast.error(error.message || t`Chat.Project.failedToDeleteProject`);
+        }
     };
 
     return (
@@ -133,21 +129,19 @@ const UpdateProjectNameDialog = ({
         e.stopPropagation();
         setIsUpdating(true);
 
-        return safe(() => updateProjectNameAction(projectId, name))
-            .watch(({ error, isOk }) => {
-                setIsUpdating(false);
-                setIsOpen(false);
-
-                if (isOk) {
-                    onUpdated(name);
-                    mutate("/api/project/list");
-                    mutate(`/projects/${projectId}`);
-                    toast.success(t`Chat.Project.projectUpdated`);
-                } else {
-                    toast.error(error.message || t`Chat.Project.failedToUpdateProject`);
-                }
-            })
-            .unwrap();
+        try {
+            await updateProjectNameAction(projectId, name);
+            setIsUpdating(false);
+            setIsOpen(false);
+            onUpdated(name);
+            mutate("/api/project/list");
+            mutate(`/projects/${projectId}`);
+            toast.success(t`Chat.Project.projectUpdated`);
+        } catch (error) {
+            setIsUpdating(false);
+            setIsOpen(false);
+            toast.error(error.message || t`Chat.Project.failedToUpdateProject`);
+        }
     };
 
     return (

@@ -1,7 +1,5 @@
 import { tool as createTool } from "ai";
 import type { JSONSchema7 } from "json-schema";
-import { isString } from "lib/utils";
-import { safe } from "ts-safe";
 import { convertJsonSchemaToZod } from "zod-from-json-schema";
 
 export interface TavilyResponse {
@@ -351,7 +349,7 @@ const fetchTavily = async (url: string, body: any): Promise<TavilyResponse> => {
         images: result.images?.map((image) => {
             return {
                 description: image.description,
-                url: isString(image) ? image : image.url,
+                url: typeof image === "string" ? image : image.url,
             };
         }),
     };
@@ -388,9 +386,9 @@ export const tavilyWebContentToolForWorkflow = createTool({
 export const tavilySearchTool = createTool({
     description:
         "A web search tool for quick research and information gathering. Provides basic search results with titles, summaries, and URLs from across the web. Perfect for finding relevant sources and getting an overview of topics.",
-    execute: (parameters) =>
-        safe(() =>
-            fetchTavily(baseURLs.search, {
+    execute: async (parameters) => {
+        try {
+            const result = await fetchTavily(baseURLs.search, {
                 ...parameters,
                 exclude_domains: Array.isArray(parameters.exclude_domains) ? parameters.exclude_domains : [],
                 include_domains: Array.isArray(parameters.include_domains) ? parameters.include_domains : [],
@@ -398,44 +396,43 @@ export const tavilySearchTool = createTool({
                 include_image_descriptions: true,
                 include_images: true,
                 topic: parameters.country ? "general" : parameters.topic,
-            }),
-        )
-            .map((result) => {
-                return {
-                    ...result,
-                    guide: `Use the search results to answer the user's question. Summarize the content and ask if they have any additional questions about the topic.`,
-                };
-            })
-            .ifFail((e) => {
-                return {
-                    error: e.message,
-                    isError: true,
-                    solution:
-                        "A web search error occurred. First, explain to the user what caused this specific error and how they can resolve it. Then provide helpful information based on your existing knowledge to answer their question.",
-                };
-            })
-            .unwrap(),
+            });
+
+            return {
+                ...result,
+                guide: `Use the search results to answer the user's question. Summarize the content and ask if they have any additional questions about the topic.`,
+            };
+        } catch (error) {
+            return {
+                error: error.message,
+                isError: true,
+                solution:
+                    "A web search error occurred. First, explain to the user what caused this specific error and how they can resolve it. Then provide helpful information based on your existing knowledge to answer their question.",
+            };
+        }
+    },
     parameters: convertJsonSchemaToZod(tavilySearchSchema),
 });
 
 export const tavilyWebContentTool = createTool({
     description:
         "A detailed web content extraction tool that analyzes and summarizes specific web pages from provided URLs. Extracts full content, processes it intelligently, and provides comprehensive summaries. Perfect for in-depth analysis of specific articles, documents, or web pages.",
-    execute: async (parameters) =>
-        safe(() =>
-            fetchTavily(baseURLs.extract, {
+    execute: async (parameters) => {
+        try {
+            const result = await fetchTavily(baseURLs.extract, {
                 ...parameters,
                 include_favicon: true,
-            }),
-        )
-            .ifFail((e) => {
-                return {
-                    error: e.message,
-                    isError: true,
-                    solution:
-                        "A web content extraction error occurred. First, explain to the user what caused this specific error and how they can resolve it. Then provide helpful information based on your existing knowledge to answer their question.",
-                };
-            })
-            .unwrap(),
+            });
+
+            return result;
+        } catch (error) {
+            return {
+                error: error.message,
+                isError: true,
+                solution:
+                    "A web content extraction error occurred. First, explain to the user what caused this specific error and how they can resolve it. Then provide helpful information based on your existing knowledge to answer their question.",
+            };
+        }
+    },
     parameters: convertJsonSchemaToZod(tavilyWebContentSchema),
 });

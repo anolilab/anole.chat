@@ -6,14 +6,20 @@ import { Button } from "@anole/ui/components/button";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
 import type { UIMessage } from "ai";
-import equal from "lib/equal";
-import { truncateString } from "lib/utils";
+import equal from "fast-deep-equal";
 import { ChevronDown, ChevronUp, Terminal } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 
 import type { ChatMessageAnnotation, ClientToolInvocation } from "@/types/chat";
 
 import { AssistMessagePart, ReasoningPart, ToolMessagePart, UserMessagePart } from "./message-parts";
+
+function truncateString(string_: string, maxLength: number): string {
+    if (string_.length <= maxLength)
+        return string_;
+
+    return `${string_.slice(0, maxLength)}...`;
+}
 
 interface Properties {
     className?: string;
@@ -22,7 +28,7 @@ interface Properties {
     isLoading: boolean;
     message: UIMessage;
     messageIndex: number;
-    onPoxyToolCall?: (result: ClientToolInvocation) => void;
+    onProxyToolCall?: (result: ClientToolInvocation) => void;
     reload: UseChatHelpers["reload"];
     setMessages: UseChatHelpers["setMessages"];
     status: UseChatHelpers["status"];
@@ -36,7 +42,7 @@ const PurePreviewMessage = ({
     isLoading,
     message,
     messageIndex,
-    onPoxyToolCall,
+    onProxyToolCall,
     reload,
     setMessages,
     status,
@@ -48,8 +54,9 @@ const PurePreviewMessage = ({
         return null; // system message is not shown
     }
 
-    if (message.parts.length === 0)
+    if (message.parts.length === 0) {
         return null;
+    }
 
     return (
         <div className="group/message mx-auto w-full max-w-3xl px-6">
@@ -109,7 +116,7 @@ const PurePreviewMessage = ({
                         if (part.type === "tool-invocation") {
                             const isLast = isLastMessage && isLastPart;
 
-                            const isManualToolInvocation = (message.annotations as ChatMessageAnnotation[])?.some((a) => a.toolChoice == "manual");
+                            const isManualToolInvocation = (message.annotations as ChatMessageAnnotation[])?.some((a) => a.toolChoice === "manual");
 
                             return (
                                 <ToolMessagePart
@@ -118,7 +125,7 @@ const PurePreviewMessage = ({
                                     isManualToolInvocation={isManualToolInvocation}
                                     key={key}
                                     messageId={message.id}
-                                    onPoxyToolCall={onPoxyToolCall}
+                                    onProxyToolCall={onProxyToolCall}
                                     part={part}
                                     setMessages={setMessages}
                                     showActions={isLastMessage ? isLastPart && !isLoading : isLastPart}
@@ -161,7 +168,7 @@ export const PreviewMessage = memo(PurePreviewMessage, (previousProperties, next
         return false;
     }
 
-    if (previousProperties.onPoxyToolCall !== nextProperties.onPoxyToolCall) {
+    if (previousProperties.onProxyToolCall !== nextProperties.onProxyToolCall) {
         return false;
     }
 

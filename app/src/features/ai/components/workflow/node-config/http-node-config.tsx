@@ -1,8 +1,8 @@
 "use client";
 
 import { Textarea } from "@anole/ui/components/textarea";
+import cn from "@anole/ui/utils/cn";
 import { useReactFlow } from "@xyflow/react";
-import { capitalizeFirstLetter, cn } from "lib/utils";
 import { Link, Plus, TriangleAlertIcon, VariableIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -17,6 +17,8 @@ import type { HttpMethod, HttpNodeData, OutputSchemaSourceKey, UINode } from "..
 import { HttpValueInput } from "../http-value-input";
 import { VariableMentionItem } from "../variable-mention-item";
 import { VariableSelect } from "../variable-select";
+
+const capitalizeFirstLetter = (string_: string): string => string_.charAt(0).toUpperCase() + string_.slice(1);
 
 const HTTP_METHODS: HttpMethod[] = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"];
 

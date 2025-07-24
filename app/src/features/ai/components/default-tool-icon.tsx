@@ -4,7 +4,7 @@ import cn from "@anole/ui/utils/cn";
 import { ChartColumnIcon, ChartPieIcon, CodeIcon, GlobeIcon, HammerIcon, HardDriveUploadIcon, TrendingUpIcon } from "lucide-react";
 import { useMemo } from "react";
 
-import { DefaultToolName } from "../../lib/tools";
+import { DefaultToolName } from "../lib/tools";
 
 export function DefaultToolIcon({ className, name }: { className?: string; name: DefaultToolName }) {
     return useMemo(() => {

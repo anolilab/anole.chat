@@ -1,7 +1,6 @@
 import type { Message } from "ai";
 import { generateObject, generateText } from "ai";
 import { AppError } from "lib/errors";
-import { toAny } from "lib/utils";
 import { convertJsonSchemaToZod } from "zod-from-json-schema";
 
 import { checkConditionBranch } from "../condition";
@@ -133,7 +132,7 @@ export const conditionNodeExecutor: NodeExecutor<ConditionNodeData> = async ({ n
 
     // Find the target nodes for the selected branch
     const nextNodes = state.edges
-        .filter((edge) => edge.uiConfig.sourceHandle === okBranch.id && edge.source == node.id)
+        .filter((edge) => edge.uiConfig.sourceHandle === okBranch.id && edge.source === node.id)
         .map((edge) => state.nodes.find((node) => node.id === edge.target)!)
         .filter(Boolean);
 
@@ -171,13 +170,11 @@ export const toolNodeExecutor: NodeExecutor<ToolNodeData> = async ({ node, state
     if (node.tool?.parameterSchema) {
         // Use LLM to generate tool parameters from the provided message
         const prompt: string | undefined = node.message
-            ? toAny(
-                convertTiptapJsonToAiMessage({
-                    getOutput: state.getOutput, // Access to previous node outputs
-                    json: node.message,
-                    role: "user",
-                }),
-            ).parts[0]?.text
+            ? convertTiptapJsonToAiMessage({
+                getOutput: state.getOutput, // Access to previous node outputs
+                json: node.message,
+                role: "user",
+            }).parts[0]?.text
             : undefined;
 
         const response = await generateText({
@@ -205,7 +202,7 @@ export const toolNodeExecutor: NodeExecutor<ToolNodeData> = async ({ node, state
     }
 
     // Execute the tool based on its type
-    if (node.tool.type == "mcp-tool") {
+    if (node.tool.type === "mcp-tool") {
         const toolResult = (await mcpClientsManager.toolCall(node.tool.serverId, node.tool.id, result.input.parameter)) as any;
 
         if (toolResult.isError) {
@@ -215,11 +212,11 @@ export const toolNodeExecutor: NodeExecutor<ToolNodeData> = async ({ node, state
         result.output = {
             tool_result: toolResult,
         };
-    } else if (node.tool.type == "app-tool") {
+    } else if (node.tool.type === "app-tool") {
         const executor
-            = node.tool.id == DefaultToolName.WebContent
+            = node.tool.id === DefaultToolName.WebContent
                 ? tavilyWebContentToolForWorkflow.execute
-                : node.tool.id == DefaultToolName.WebSearch
+                : node.tool.id === DefaultToolName.WebSearch
                     ? tavilySearchToolForWorkflow.execute
                     : () => "Unknown tool";
 
@@ -235,7 +232,7 @@ export const toolNodeExecutor: NodeExecutor<ToolNodeData> = async ({ node, state
         // Placeholder for future tool types
         result.output = {
             tool_result: {
-                error: `Not implemented "${toAny(node.tool)?.type}"`,
+                error: `Not implemented "${node.tool?.type}"`,
             },
         };
     }
@@ -458,7 +455,7 @@ export const templateNodeExecutor: NodeExecutor<TemplateNodeData> = ({ node, sta
     let text: string = "";
 
     // Convert TipTap template content to text with variable substitution
-    if (node.template.type == "tiptap") {
+    if (node.template.type === "tiptap") {
         text = convertTiptapJsonToText({
             getOutput: state.getOutput, // Access to previous node outputs for variable substitution
             json: node.template.tiptap,

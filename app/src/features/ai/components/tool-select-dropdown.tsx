@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar
 import { Badge } from "@anole/ui/components/badge";
 import { Button } from "@anole/ui/components/button";
 import { Checkbox } from "@anole/ui/components/checkbox";
-import { CountAnimation } from "@anole/ui/components/count-animation";
+import CountAnimation from "@anole/ui/components/count-animation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@anole/ui/components/dialog";
 import {
     DropdownMenu,
@@ -18,13 +18,13 @@ import {
     DropdownMenuTrigger,
 } from "@anole/ui/components/dropdown-menu";
 import { Input } from "@anole/ui/components/input";
-import { MCPIcon } from "@anole/ui/components/mcp-icon";
 import { Separator } from "@anole/ui/components/separator";
 import { Switch } from "@anole/ui/components/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import MCPIcon from "@anole/ui/icons/mcp";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
-import { objectFlow } from "lib/utils";
+import { Link } from "@tanstack/react-router";
 import {
     AtSign,
     ChartColumn,
@@ -42,18 +42,18 @@ import {
     WrenchIcon,
     X,
 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
 
-import { useMcpList } from "@/hooks/queries/use-mcp-list";
-import { useWorkflowToolList } from "@/hooks/queries/use-workflow-tool-list";
+// import { useMcpList } from "@/hooks/queries/use-mcp-list";
+// import { useWorkflowToolList } from "@/hooks/queries/use-workflow-tool-list";
 import type { ChatMention } from "@/types/chat";
 import type { AllowedMCPServer, MCPServerInfo } from "@/types/mcp";
 import type { WorkflowSummary } from "@/types/workflow";
 
-import { AppDefaultToolkit } from "../../lib/tools";
+import objectFlow from "../lib/object-flow";
+import { AppDefaultToolkit } from "../lib/tools";
 import { appStore } from "../store";
 import { WorkflowGreeting } from "./workflow/workflow-greeting";
 
@@ -79,23 +79,29 @@ export const ToolSelectDropdown = ({ align, className, mentions, onSelectWorkflo
         useShallow((state) => [state.toolChoice, state.allowedAppDefaultToolkit, state.allowedMcpServers, state.mcpList]),
     );
     const { t } = useLingui();
-    const { isLoading } = useMcpList({
-        refreshInterval: 1000 * 30,
-    });
 
-    useWorkflowToolList({
-        refreshInterval: 1000 * 60 * 5,
-    });
+    /**
+     * const { isLoading } = useMcpList({
+     * refreshInterval: 1000 * 30,
+     * });
+     */
+    const isLoading = false;
+
+    /**
+     * useWorkflowToolList({
+     * refreshInterval: 1000 * 60 * 5,
+     * });
+     */
 
     const bindingTools = useMemo<string[]>(() => {
         if (mentions?.length) {
             return mentions.map((m) => m.name);
         }
 
-        if (toolChoice == "none")
+        if (toolChoice === "none")
             return [];
 
-        const translate = t.raw("defaultToolKit");
+        const translate = t`defaultToolKit`;
         const defaultTools = Object.values(AppDefaultToolkit)
             .filter((t) => allowedAppDefaultToolkit?.includes(t))
             .map((t) => translate[t]);
@@ -598,7 +604,7 @@ const AppDefaultToolKitSelector = () => {
     }, []);
 
     const defaultToolInfo = useMemo(() => {
-        const raw = t.raw("Chat.Tool.defaultToolKit");
+        const raw = t`Chat.Tool.defaultToolKit`;
 
         return Object.values(AppDefaultToolkit).map((toolkit) => {
             const label = raw[toolkit] || toolkit;

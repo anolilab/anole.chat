@@ -6,8 +6,8 @@ import { PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 
+import { safe } from "@/lib/safe-async";
 import type { DBWorkflow } from "@/types/workflow";
 
 import { EditWorkflowPopup } from "./edit-workflow-popup";

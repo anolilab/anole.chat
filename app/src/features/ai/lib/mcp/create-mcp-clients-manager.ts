@@ -2,7 +2,6 @@ import type { ToolExecutionOptions } from "ai";
 import type { McpServerSchema } from "lib/db/pg/schema.pg";
 import { errorToString, Locker, safeJSONParse } from "lib/utils";
 import logger from "logger";
-import { safe } from "ts-safe";
 
 import type { MCPServerConfig, McpServerInsert, McpServerSelect, VercelAIMcpTool } from "@/types/mcp";
 
@@ -57,26 +56,25 @@ export class MCPClientsManager {
             return this.initializedLock.wait();
         }
 
-        return safe(() => this.initializedLock.lock())
-            .ifOk(async () => {
-                if (this.storage) {
-                    await this.storage.init(this);
-                    const configs = await this.storage.loadAll();
+        try {
+            await this.initializedLock.lock();
 
-                    this.cleanup();
-                    await Promise.allSettled(
-                        configs.map(({ config, id, name }) =>
-                            this.addClient(id, name, config).catch(() => {
-                                `ignore error`;
-                            }),
-                        ),
-                    );
-                }
-            })
-            .watch(() => {
-                this.initializedLock.unlock();
-            })
-            .unwrap();
+            if (this.storage) {
+                await this.storage.init(this);
+                const configs = await this.storage.loadAll();
+
+                this.cleanup();
+                await Promise.allSettled(
+                    configs.map(({ config, id, name }) =>
+                        this.addClient(id, name, config).catch(() => {
+                            `ignore error`;
+                        }),
+                    ),
+                );
+            }
+        } finally {
+            this.initializedLock.unlock();
+        }
     }
 
     /**
@@ -234,48 +232,46 @@ export class MCPClientsManager {
     }
 
     async toolCall(id: string, toolName: string, input: unknown) {
-        return safe(() => this.getClient(id))
-            .map((client) => {
-                if (!client)
-                    throw new Error(`Client ${id} not found`);
+        try {
+            const client = await this.getClient(id);
 
-                return client.client;
-            })
-            .map((client) => client.callTool(toolName, input))
-            .map((res) => {
-                if (res?.content && Array.isArray(res.content)) {
-                    const parsedResult = {
-                        ...res,
-                        content: res.content.map((c) => {
-                            if (c?.type === "text" && c?.text) {
-                                const parsed = safeJSONParse(c.text);
+            if (!client) {
+                throw new Error(`Client ${id} not found`);
+            }
 
-                                return {
-                                    text: parsed.success ? parsed.value : c.text,
-                                    type: "text",
-                                };
-                            }
+            const res = await client.client.callTool(toolName, input);
 
-                            return c;
-                        }),
-                    };
+            if (res?.content && Array.isArray(res.content)) {
+                const parsedResult = {
+                    ...res,
+                    content: res.content.map((c) => {
+                        if (c?.type === "text" && c?.text) {
+                            const parsed = safeJSONParse(c.text);
 
-                    return parsedResult;
-                }
+                            return {
+                                text: parsed.success ? parsed.value : c.text,
+                                type: "text",
+                            };
+                        }
 
-                return res;
-            })
-            .ifFail((error) => {
-                return {
-                    content: [],
-                    error: {
-                        message: errorToString(error),
-                        name: error?.name || "ERROR",
-                    },
-                    isError: true,
+                        return c;
+                    }),
                 };
-            })
-            .unwrap();
+
+                return parsedResult;
+            }
+
+            return res;
+        } catch (error) {
+            return {
+                content: [],
+                error: {
+                    message: errorToString(error),
+                    name: error?.name || "ERROR",
+                },
+                isError: true,
+            };
+        }
     }
 }
 

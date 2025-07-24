@@ -14,44 +14,66 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
-import { getShortcutKeyList, isShortcutEvent, Shortcuts } from "lib/keyboard-shortcuts";
-import { capitalizeFirstLetter, createDebounce } from "lib/utils";
-import { Check, CheckIcon, ClipboardCheck, Infinity, PenOff, Settings2 } from "lucide-react";
+// import { getShortcutKeyList, isShortcutEvent, Shortcuts } from "lib/keyboard-shortcuts";
+import { useDebouncedValue } from "@tanstack/react-pacer";
+import { Check, CheckIcon, ClipboardCheck, Infinity as InfinityIcon, PenOff, Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
 import { appStore } from "../store";
 
-const debounce = createDebounce();
+const capitalizeFirstLetter = (string_: string): string => string_.charAt(0).toUpperCase() + string_.slice(1);
 
-export const ToolModeDropdown = ({ disabled }: { disabled?: boolean }) => {
+const ToolModeDropdown = ({ disabled }: { disabled?: boolean }): JSX.Element => {
     const { t } = useLingui();
     const [toolChoice, appStoreMutate] = appStore(useShallow((state) => [state.toolChoice, state.mutate]));
     const [open, setOpen] = useState(false);
 
-    const [toolChoiceChangeInfo, setToolChoiceChangeInfo] = useState(false);
+    // Show info immediately, then auto-hide after 1000ms
+    const [showInfo, setShowInfo] = useState(false);
+    const [toolChoiceChangeInfo] = useDebouncedValue(showInfo, { wait: 1000 });
 
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (isShortcutEvent(e, Shortcuts.toolMode)) {
-                e.preventDefault();
-                e.stopPropagation();
-                appStoreMutate(({ toolChoice }) => {
-                    return {
-                        toolChoice: toolChoice == "auto" ? "manual" : toolChoice == "manual" ? "none" : "auto",
-                    };
+        const handleKeyDown = (event: KeyboardEvent) => {
+            /*
+            if (isShortcutEvent(event, Shortcuts.toolMode)) {
+                event.preventDefault();
+                event.stopPropagation();
+                appStoreMutate(({ toolChoice: previousToolChoice }) => {
+                    let nextToolChoice: typeof previousToolChoice;
+                    if (previousToolChoice === "auto") nextToolChoice = "manual";
+                    else if (previousToolChoice === "manual") nextToolChoice = "none";
+                    else nextToolChoice = "auto";
+                    return { toolChoice: nextToolChoice };
                 });
-                setToolChoiceChangeInfo(true);
-                debounce(() => {
-                    setToolChoiceChangeInfo(false);
-                }, 1000);
+                setShowInfo(true);
             }
+            */
         };
 
         globalThis.addEventListener("keydown", handleKeyDown);
 
         return () => globalThis.removeEventListener("keydown", handleKeyDown);
-    }, []);
+    }, [appStoreMutate]);
+
+    useEffect(() => {
+        let timeout: ReturnType<typeof setTimeout> | undefined;
+
+        if (!toolChoiceChangeInfo && showInfo) {
+            timeout = setTimeout(() => setShowInfo(false), 0);
+        }
+
+        return () => {
+            if (timeout)
+                clearTimeout(timeout);
+        };
+    }, [toolChoiceChangeInfo, showInfo]);
+
+    // Move onClick handlers out of JSX
+    const handleAutoClick = () => appStoreMutate({ toolChoice: "auto" });
+    const handleManualClick = () => appStoreMutate({ toolChoice: "manual" });
+    const handleNoneClick = () => appStoreMutate({ toolChoice: "none" });
+    const handleOpenClick = () => setOpen(true);
 
     return (
         <DropdownMenu onOpenChange={setOpen} open={open}>
@@ -72,10 +94,10 @@ export const ToolModeDropdown = ({ disabled }: { disabled?: boolean }) => {
                             <Button
                                 className={cn(
                                     "data-[state=open]:bg-input! hover:bg-input! rounded-full p-2!",
-                                    toolChoice == "none" && "text-muted-foreground",
+                                    toolChoice === "none" && "text-muted-foreground",
                                     open && "bg-input!",
                                 )}
-                                onClick={() => setOpen(true)}
+                                onClick={handleOpenClick}
                                 size="sm"
                                 variant="ghost"
                             >
@@ -84,7 +106,7 @@ export const ToolModeDropdown = ({ disabled }: { disabled?: boolean }) => {
                         </TooltipTrigger>
                         <TooltipContent className="flex items-center gap-2" side="top">
                             {t`selectToolMode`}
-                            <span className="text-muted-foreground ml-2">{getShortcutKeyList(Shortcuts.toolMode).join("")}</span>
+                            <span className="text-muted-foreground ml-2">{/* getShortcutKeyList(Shortcuts.toolMode).join("") */}</span>
                         </TooltipContent>
                     </Tooltip>
                 </div>
@@ -93,17 +115,19 @@ export const ToolModeDropdown = ({ disabled }: { disabled?: boolean }) => {
                 <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
                     {t`selectToolMode`}
                     <DropdownMenuShortcut>
-                        <span className="text-muted-foreground bg-muted rounded-md px-2 py-0.5 text-xs">{getShortcutKeyList(Shortcuts.toolMode).join("")}</span>
+                        <span className="text-muted-foreground bg-muted rounded-md px-2 py-0.5 text-xs">
+                            {/* getShortcutKeyList(Shortcuts.toolMode).join("") */}
+                        </span>
                     </DropdownMenuShortcut>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => appStoreMutate({ toolChoice: "auto" })}>
+                    <DropdownMenuItem onClick={handleAutoClick}>
                         <div className="flex w-full flex-col gap-2">
                             <div className="flex items-center gap-2">
-                                <Infinity />
+                                <InfinityIcon />
                                 <span className="font-bold">Auto</span>
-                                {toolChoice == "auto" && <Check className="ml-auto" />}
+                                {toolChoice === "auto" && <Check className="ml-auto" />}
                             </div>
                             <p className="text-muted-foreground text-xs">{t`autoToolModeDescription`}</p>
                         </div>
@@ -111,12 +135,12 @@ export const ToolModeDropdown = ({ disabled }: { disabled?: boolean }) => {
                     <div className="px-2 py-1">
                         <DropdownMenuSeparator />
                     </div>
-                    <DropdownMenuItem onClick={() => appStoreMutate({ toolChoice: "manual" })}>
+                    <DropdownMenuItem onClick={handleManualClick}>
                         <div className="flex w-full flex-col gap-2">
                             <div className="flex items-center gap-2">
                                 <ClipboardCheck />
                                 <span className="font-bold">Manual</span>
-                                {toolChoice == "manual" && <Check className="ml-auto" />}
+                                {toolChoice === "manual" && <Check className="ml-auto" />}
                             </div>
                             <p className="text-muted-foreground text-xs">{t`manualToolModeDescription`}</p>
                         </div>
@@ -124,13 +148,13 @@ export const ToolModeDropdown = ({ disabled }: { disabled?: boolean }) => {
                     <div className="px-2 py-1">
                         <DropdownMenuSeparator />
                     </div>
-                    <DropdownMenuItem onClick={() => appStoreMutate({ toolChoice: "none" })}>
+                    <DropdownMenuItem onClick={handleNoneClick}>
                         <div className="flex w-full flex-col gap-2">
                             <div className="flex items-center gap-2">
                                 <PenOff />
                                 <span className="font-bold">None</span>
                                 <span className="text-muted-foreground ml-4 text-xs">@mention only</span>
-                                {toolChoice == "none" && <Check className="ml-auto" />}
+                                {toolChoice === "none" && <Check className="ml-auto" />}
                             </div>
 
                             <p className="text-muted-foreground text-xs">{t`noneToolModeDescription`}</p>
@@ -141,3 +165,5 @@ export const ToolModeDropdown = ({ disabled }: { disabled?: boolean }) => {
         </DropdownMenu>
     );
 };
+
+export default ToolModeDropdown;

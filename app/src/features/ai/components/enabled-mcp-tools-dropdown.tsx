@@ -34,7 +34,7 @@ export const EnabledMcpToolsDropdown = ({
     }[];
     side?: "left" | "right" | "top" | "bottom";
 }>) => {
-    const [allowedMcpServers, mcpList, noToolChoice] = appStore(useShallow((state) => [state.allowedMcpServers, state.mcpList, state.toolChoice == "none"]));
+    const [allowedMcpServers, mcpList, noToolChoice] = appStore(useShallow((state) => [state.allowedMcpServers, state.mcpList, state.toolChoice === "none"]));
 
     const EnabledMcpToolsDropdown = useMemo(() => {
         const mcpTools = mcpList

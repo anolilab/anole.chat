@@ -1,8 +1,8 @@
+import { debounce } from "@tanstack/react-pacer";
 import { colorize } from "consola/utils";
+import equal from "fast-deep-equal";
 import { IS_EDGE_RUNTIME } from "lib/const";
 import { mcpRepository } from "lib/db/repository";
-import equal from "lib/equal";
-import { createDebounce } from "lib/utils";
 import defaultLogger from "logger";
 
 import type { MCPClientsManager, MCPConfigStorage } from "./create-mcp-clients-manager";
@@ -14,7 +14,11 @@ const logger = defaultLogger.withDefaults({
 export function createDbBasedMCPConfigsStorage(): MCPConfigStorage {
     let manager: MCPClientsManager;
 
-    const debounce = createDebounce();
+    const debounceFunction = (function_: () => void, delay: number) => {
+        const debouncedFunction = debounce(function_, { wait: delay });
+
+        debouncedFunction();
+    };
 
     // Initializes the manager with configs from the database
     async function init(_manager: MCPClientsManager): Promise<void> {
@@ -101,7 +105,7 @@ export function createDbBasedMCPConfigsStorage(): MCPConfigStorage {
         }
     }
 
-    setInterval(() => debounce(checkAndRefreshClients, 5000), 1000 * 60 * 5).unref();
+    setInterval(() => debounceFunction(checkAndRefreshClients, 5000), 1000 * 60 * 5).unref();
 
     return {
         async delete(id) {

@@ -13,10 +13,10 @@ import { errorToString, validateSchema } from "lib/utils";
 import { CodeIcon, FileTextIcon, PencilIcon, PlusIcon, TrashIcon, VariableIcon, WandSparklesIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { safe } from "ts-safe";
 import { convertJsonSchemaToZod } from "zod-from-json-schema";
 
 import { generateObjectAction } from "@/app/api/chat/actions";
+import { safe } from "@/lib/safe-async";
 import type { ObjectJsonSchema7 } from "@/types/util";
 
 import { defaultObjectJsonSchema } from "../../lib/workflow/shared.workflow";

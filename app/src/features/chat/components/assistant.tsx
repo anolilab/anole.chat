@@ -3,6 +3,7 @@
 import { SidebarInset } from "@anole/ui/components/sidebar";
 import type { FC } from "react";
 
+import Chat from "@/features/ai/components/chat";
 import ThreadList from "@/features/chat/components/thread-list";
 import AppSidebar from "@/features/layout/components/app-sidebar";
 
@@ -19,6 +20,7 @@ const Assistant: FC<{ jwtToken: string; threadId?: string }> = ({ jwtToken, thre
             <AppSidebar content={<ThreadList />} header={null} />
             <SidebarInset className="bg-white md:peer-data-[variant=inset]:m-1">
                 <ChatSiteHeader threadId={threadId} />
+                <Chat initialMessages={[]} />
             </SidebarInset>
             <ThreadSidebar threadId={threadId} />
         </ThreadProvider>

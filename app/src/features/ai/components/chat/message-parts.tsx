@@ -3,24 +3,22 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import { Button } from "@anole/ui/components/button";
-import JsonView from "@anole/ui/components/json-view";
 import { Separator } from "@anole/ui/components/separator";
-import { TextShimmer } from "@anole/ui/components/text-shimmer";
+import TextShimmer from "@anole/ui/components/text-shimmer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import useCopy from "@anole/ui/hooks/use-copy-to-clipboard";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
+import { throttle } from "@tanstack/react-pacer";
 import type { UIMessage } from "ai";
-import equal from "lib/equal";
-import { createThrottle, safeJSONParse } from "lib/utils";
+import equal from "fast-deep-equal";
 import { Check, ChevronDownIcon, ChevronRight, Copy, HammerIcon, Loader, Pencil, RefreshCw, Trash2, TriangleAlert, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import dynamic from "next/dynamic";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, memo, Suspense } from "react";
+import { JsonView } from "react-json-view-lite";
 import { toast } from "sonner";
-import { safe } from "ts-safe";
 
-import { deleteMessageAction, deleteMessagesByChatIdAfterTimestampAction } from "@/app/api/chat/actions";
-import { useCopy } from "@/hooks/use-copy";
+import { safeJSONParse } from "@/lib/utils";
 import type { ChatModel, ClientToolInvocation, ToolInvocationUIPart } from "@/types/chat";
 import { isVercelAIWorkflowTool } from "@/types/workflow";
 
@@ -62,7 +60,7 @@ interface ToolMessagePartProperties {
     isLast?: boolean;
     isManualToolInvocation?: boolean;
     messageId: string;
-    onPoxyToolCall?: (result: ClientToolInvocation) => void;
+    onProxyToolCall?: (result: ClientToolInvocation) => void;
     part: ToolInvocationUIPart;
     setMessages?: UseChatHelpers["setMessages"];
     showActions: boolean;
@@ -76,24 +74,26 @@ export const UserMessagePart = memo(
         const reference = useRef<HTMLDivElement>(null);
         const scrolledReference = useRef(false);
 
-        const deleteMessage = useCallback(() => {
-            safe(() => setIsDeleting(true))
-                .ifOk(() => deleteMessageAction(message.id))
-                .ifOk(() =>
-                    setMessages((messages) => {
-                        const index = messages.findIndex((m) => m.id === message.id);
+        const deleteMessage = useCallback(async () => {
+            setIsDeleting(true);
 
-                        if (index !== -1) {
-                            return messages.filter((_, index_) => index_ !== index);
-                        }
+            try {
+                // await deleteMessageAction(message.id);
+                setMessages((messages) => {
+                    const index = messages.findIndex((m) => m.id === message.id);
 
-                        return messages;
-                    }),
-                )
-                .ifFail((error) => toast.error(error.message))
-                .watch(() => setIsDeleting(false))
-                .unwrap();
-        }, [message.id]);
+                    if (index !== -1) {
+                        return messages.filter((_, index_) => index_ !== index);
+                    }
+
+                    return messages;
+                });
+            } catch (error) {
+                toast.error(error.message);
+            } finally {
+                setIsDeleting(false);
+            }
+        }, [message.id, setMessages]);
 
         useEffect(() => {
             if (status === "submitted" && isLast && !scrolledReference.current) {
@@ -168,19 +168,19 @@ export const UserMessagePart = memo(
         );
     },
     (previous, next) => {
-        if (previous.part.text != next.part.text)
+        if (previous.part.text !== next.part.text)
             return false;
 
-        if (previous.isError != next.isError)
+        if (previous.isError !== next.isError)
             return false;
 
-        if (previous.isLast != next.isLast)
+        if (previous.isLast !== next.isLast)
             return false;
 
-        if (previous.status != next.status)
+        if (previous.status !== next.status)
             return false;
 
-        if (previous.message.id != next.message.id)
+        if (previous.message.id !== next.message.id)
             return false;
 
         if (!equal(previous.part, next.part))
@@ -191,7 +191,11 @@ export const UserMessagePart = memo(
 );
 UserMessagePart.displayName = "UserMessagePart";
 
-const throttle = createThrottle();
+const throttleFunction = (function_: () => void, delay: number) => {
+    const throttledFunction = throttle(function_, { wait: delay });
+
+    throttledFunction();
+};
 
 export const AssistMessagePart = memo(
     ({ isError, isLast, isLoading: isChatLoading, message, part, reload, setMessages, showActions, threadId }: AssistMessagePartProperties) => {
@@ -202,56 +206,61 @@ export const AssistMessagePart = memo(
         const [isAtBottom, setIsAtBottom] = useState(true);
         const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
-        const deleteMessage = useCallback(() => {
-            safe(() => setIsDeleting(true))
-                .ifOk(() => deleteMessageAction(message.id))
-                .ifOk(() =>
-                    setMessages((messages) => {
-                        const index = messages.findIndex((m) => m.id === message.id);
+        const deleteMessage = useCallback(async () => {
+            setIsDeleting(true);
 
-                        if (index !== -1) {
-                            return messages.filter((_, index_) => index_ !== index);
-                        }
+            try {
+                // await deleteMessageAction(message.id);
+                setMessages((messages) => {
+                    const index = messages.findIndex((m) => m.id === message.id);
 
-                        return messages;
-                    }),
-                )
-                .ifFail((error) => toast.error(error.message))
-                .watch(() => setIsDeleting(false))
-                .unwrap();
-        }, [message.id]);
+                    if (index !== -1) {
+                        return messages.filter((_, index_) => index_ !== index);
+                    }
 
-        const handleModelChange = (model: ChatModel) => {
-            safe(() => setIsLoading(true))
-                .ifOk(() => (threadId ? deleteMessagesByChatIdAfterTimestampAction(message.id) : Promise.resolve()))
-                .ifOk(() =>
-                    setMessages((messages) => {
-                        const index = messages.findIndex((m) => m.id === message.id);
+                    return messages;
+                });
+            } catch (error) {
+                toast.error(error.message);
+            } finally {
+                setIsDeleting(false);
+            }
+        }, [message.id, setMessages]);
 
-                        if (index !== -1) {
-                            return [...messages.slice(0, index)];
-                        }
+        const handleModelChange = async (model: ChatModel) => {
+            setIsLoading(true);
 
-                        return messages;
-                    }),
-                )
-                .ifOk(() =>
-                    reload({
-                        body: {
-                            id: threadId,
-                            model,
-                        },
-                    }),
-                )
-                .ifFail((error) => toast.error(error.message))
-                .watch(() => setIsLoading(false))
-                .unwrap();
+            try {
+                if (threadId) {
+                    // await deleteMessagesByChatIdAfterTimestampAction(message.id);
+                }
+
+                setMessages((messages) => {
+                    const index = messages.findIndex((m) => m.id === message.id);
+
+                    if (index !== -1) {
+                        return [...messages.slice(0, index)];
+                    }
+
+                    return messages;
+                });
+                await reload({
+                    body: {
+                        id: threadId,
+                        model,
+                    },
+                });
+            } catch (error) {
+                toast.error(error.message);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
         useEffect(() => {
             // Only auto-scroll for the last message when AI is actively writing
             if (isLast && isChatLoading && shouldAutoScroll && isAtBottom) {
-                throttle(() => {
+                throttleFunction(() => {
                     reference.current?.scrollIntoView({ behavior: "smooth" });
                 }, 400);
             }
@@ -414,33 +423,34 @@ const loading = memo(() => (
     </div>
 ));
 
-const PieChart = dynamic(() => import("../tool-invocation/pie-chart").then((module_) => module_.PieChart), {
-    loading,
-    ssr: false,
-});
-
-const BarChart = dynamic(() => import("../tool-invocation/bar-chart").then((module_) => module_.BarChart), {
-    loading,
-    ssr: false,
-});
-
-const LineChart = dynamic(() => import("../tool-invocation/line-chart").then((module_) => module_.LineChart), {
-    loading,
-    ssr: false,
-});
-
-const WebSearchToolInvocation = dynamic(() => import("../tool-invocation/web-search").then((module_) => module_.WebSearchToolInvocation), {
-    loading,
-    ssr: false,
-});
-
-const CodeExecutor = dynamic(() => import("../tool-invocation/code-executor").then((module_) => module_.CodeExecutor), {
-    loading,
-    ssr: false,
-});
+const PieChart = lazy(() =>
+    import("../tool-invocation/pie-chart").then((module_) => {
+        return { default: module_.PieChart };
+    }),
+);
+const BarChart = lazy(() =>
+    import("../tool-invocation/bar-chart").then((module_) => {
+        return { default: module_.BarChart };
+    }),
+);
+const LineChart = lazy(() =>
+    import("../tool-invocation/line-chart").then((module_) => {
+        return { default: module_.LineChart };
+    }),
+);
+const WebSearchToolInvocation = lazy(() =>
+    import("../tool-invocation/web-search").then((module_) => {
+        return { default: module_.WebSearchToolInvocation };
+    }),
+);
+const CodeExecutor = lazy(() =>
+    import("../tool-invocation/code-executor").then((module_) => {
+        return { default: module_.CodeExecutor };
+    }),
+);
 
 export const ToolMessagePart = memo(
-    ({ isError, isLast, isManualToolInvocation, messageId, onPoxyToolCall, part, setMessages, showActions }: ToolMessagePartProperties) => {
+    ({ isError, isLast, isManualToolInvocation, messageId, onProxyToolCall, part, setMessages, showActions }: ToolMessagePartProperties) => {
         const { t } = useLingui();
         const { toolInvocation } = part;
         const { args, state, toolCallId, toolName } = toolInvocation;
@@ -449,34 +459,36 @@ export const ToolMessagePart = memo(
         const { copied: copiedOutput, copy: copyOutput } = useCopy();
         const [isDeleting, setIsDeleting] = useState(false);
 
-        const deleteMessage = useCallback(() => {
-            safe(() => setIsDeleting(true))
-                .ifOk(() => deleteMessageAction(messageId))
-                .ifOk(() =>
-                    setMessages?.((messages) => {
-                        const index = messages.findIndex((m) => m.id === messageId);
+        const deleteMessage = useCallback(async () => {
+            setIsDeleting(true);
 
-                        if (index !== -1) {
-                            return messages.filter((_, index_) => index_ !== index);
-                        }
+            try {
+                // await deleteMessageAction(messageId);
+                setMessages?.((messages) => {
+                    const index = messages.findIndex((m) => m.id === messageId);
 
-                        return messages;
-                    }),
-                )
-                .ifFail((error) => toast.error(error.message))
-                .watch(() => setIsDeleting(false))
-                .unwrap();
-        }, [messageId]);
+                    if (index !== -1) {
+                        return messages.filter((_, index_) => index_ !== index);
+                    }
+
+                    return messages;
+                });
+            } catch (error) {
+                toast.error(error.message);
+            } finally {
+                setIsDeleting(false);
+            }
+        }, [messageId, setMessages]);
         const onToolCallDirect = useMemo(
             () =>
-                (onPoxyToolCall
+                (onProxyToolCall
                     ? (result: any) =>
-                        onPoxyToolCall({
+                        onProxyToolCall({
                             action: "direct",
                             result,
                         })
                     : undefined),
-            [onPoxyToolCall],
+            [onProxyToolCall],
         );
 
         const result = useMemo(() => {
@@ -506,27 +518,51 @@ export const ToolMessagePart = memo(
 
         const CustomToolComponent = useMemo(() => {
             if (toolName === DefaultToolName.WebSearch || toolName === DefaultToolName.WebContent) {
-                return <WebSearchToolInvocation part={toolInvocation} />;
+                return (
+                    <Suspense fallback={loading()}>
+                        <WebSearchToolInvocation part={toolInvocation} />
+                    </Suspense>
+                );
             }
 
             if (toolName === DefaultToolName.JavascriptExecution) {
-                return <CodeExecutor key={toolInvocation.toolCallId} onResult={onToolCallDirect} part={toolInvocation} type="javascript" />;
+                return (
+                    <Suspense fallback={loading()}>
+                        <CodeExecutor key={toolInvocation.toolCallId} onResult={onToolCallDirect} part={toolInvocation} type="javascript" />
+                    </Suspense>
+                );
             }
 
             if (toolName === DefaultToolName.PythonExecution) {
-                return <CodeExecutor key={toolInvocation.toolCallId} onResult={onToolCallDirect} part={toolInvocation} type="python" />;
+                return (
+                    <Suspense fallback={loading()}>
+                        <CodeExecutor key={toolInvocation.toolCallId} onResult={onToolCallDirect} part={toolInvocation} type="python" />
+                    </Suspense>
+                );
             }
 
             if (state === "result") {
                 switch (toolName) {
                     case DefaultToolName.CreateBarChart: {
-                        return <BarChart key={`${toolCallId}-${toolName}`} {...(args as any)} />;
+                        return (
+                            <Suspense fallback={loading()}>
+                                <BarChart key={`${toolCallId}-${toolName}`} {...(args as any)} />
+                            </Suspense>
+                        );
                     }
                     case DefaultToolName.CreateLineChart: {
-                        return <LineChart key={`${toolCallId}-${toolName}`} {...(args as any)} />;
+                        return (
+                            <Suspense fallback={loading()}>
+                                <LineChart key={`${toolCallId}-${toolName}`} {...(args as any)} />
+                            </Suspense>
+                        );
                     }
                     case DefaultToolName.CreatePieChart: {
-                        return <PieChart key={`${toolCallId}-${toolName}`} {...(args as any)} />;
+                        return (
+                            <Suspense fallback={loading()}>
+                                <PieChart key={`${toolCallId}-${toolName}`} {...(args as any)} />
+                            </Suspense>
+                        );
                     }
                 }
             }
@@ -542,10 +578,10 @@ export const ToolMessagePart = memo(
 
         const isExecuting = useMemo(() => {
             if (isWorkflowTool)
-                return result?.status == "running";
+                return result?.status === "running";
 
-            return state !== "result" && (isLast || !!onPoxyToolCall);
-        }, [isWorkflowTool, result, state, isLast, !!onPoxyToolCall]);
+            return state !== "result" && (isLast || !!onProxyToolCall);
+        }, [isWorkflowTool, result, state, isLast, !!onProxyToolCall]);
 
         return (
             <div className="group w-full">
@@ -669,11 +705,11 @@ export const ToolMessagePart = memo(
                                         )
                                     : null}
 
-                                {onPoxyToolCall && isManualToolInvocation && isLast && (
+                                {onProxyToolCall && isManualToolInvocation && isLast && (
                                     <div className="mt-2 flex flex-row items-center gap-2">
                                         <Button
                                             className="rounded-full text-xs hover:ring"
-                                            onClick={() => onPoxyToolCall({ action: "manual", result: true })}
+                                            onClick={() => onProxyToolCall({ action: "manual", result: true })}
                                             size="sm"
                                             variant="secondary"
                                         >
@@ -682,7 +718,7 @@ export const ToolMessagePart = memo(
                                         </Button>
                                         <Button
                                             className="rounded-full text-xs"
-                                            onClick={() => onPoxyToolCall({ action: "manual", result: false })}
+                                            onClick={() => onProxyToolCall({ action: "manual", result: false })}
                                             size="sm"
                                             variant="outline"
                                         >
@@ -726,7 +762,7 @@ export const ToolMessagePart = memo(
         if (previous.isLast !== next.isLast)
             return false;
 
-        if (previous.onPoxyToolCall !== next.onPoxyToolCall)
+        if (previous.onProxyToolCall !== next.onProxyToolCall)
             return false;
 
         if (previous.showActions !== next.showActions)

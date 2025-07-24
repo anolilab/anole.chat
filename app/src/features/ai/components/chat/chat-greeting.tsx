@@ -1,8 +1,6 @@
 "use client";
 
 import { FlipWords } from "@anole/ui/components/flip-words";
-import { useLingui } from "@lingui/react/macro";
-import { authClient } from "auth/client";
 import { motion } from "motion/react";
 import { useMemo } from "react";
 
@@ -19,9 +17,8 @@ function getGreetingByTime() {
 }
 
 export const ChatGreeting = () => {
-    const { data: session } = authClient.useSession();
+    const session = {};
 
-    const { t } = useLingui();
     const user = session?.user;
 
     const word = useMemo(() => {

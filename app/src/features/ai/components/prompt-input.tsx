@@ -3,19 +3,17 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import { Button } from "@anole/ui/components/button";
-import { ClaudeIcon } from "@anole/ui/components/claude-icon";
-import { GeminiIcon } from "@anole/ui/components/gemini-icon";
-import { GrokIcon } from "@anole/ui/components/grok-icon";
-import { MCPIcon } from "@anole/ui/components/mcp-icon";
-import { OpenAIIcon } from "@anole/ui/components/openai-icon";
-import { notImplementedToast } from "@anole/ui/components/shared-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import ClaudeIcon from "@anole/ui/icons/claude";
+import GeminiIcon from "@anole/ui/icons/gemini";
+import GrokIcon from "@anole/ui/icons/grok";
+import MCPIcon from "@anole/ui/icons/mcp";
+import OpenAIIcon from "@anole/ui/icons/openai";
 import { useLingui } from "@lingui/react/macro";
 import type { Editor } from "@tiptap/react";
-import equal from "lib/equal";
+import equal from "fast-deep-equal";
 import { AudioWaveformIcon, ChevronDown, CornerRightUp, Paperclip, Square, XIcon } from "lucide-react";
-import dynamic from "next/dynamic";
-import { useCallback, useMemo, useRef } from "react";
+import { lazy, Suspense, useCallback, useMemo, useRef } from "react";
 import { useShallow } from "zustand/shallow";
 
 import type { ChatMention, ChatModel } from "@/types/chat";
@@ -25,7 +23,7 @@ import type { DefaultToolName } from "../../lib/tools";
 import { appStore } from "../store";
 import { DefaultToolIcon } from "./default-tool-icon";
 import { SelectModel } from "./select-model";
-import { ToolModeDropdown } from "./tool-mode-dropdown";
+import ToolModeDropdown from "./tool-mode-dropdown";
 import { ToolSelectDropdown } from "./tool-select-dropdown";
 
 interface PromptInputProperties {
@@ -42,12 +40,7 @@ interface PromptInputProperties {
     voiceDisabled?: boolean;
 }
 
-const ChatMentionInput = dynamic(() => import("./chat/chat-mention-input"), {
-    loading() {
-        return <div className="h-[2rem] w-full animate-pulse" />;
-    },
-    ssr: false,
-});
+const ChatMentionInput = lazy(() => import("./chat/chat-mention-input"));
 
 export default function PromptInput({
     append,
@@ -190,7 +183,7 @@ export default function PromptInput({
                                             )
                                             : (
                                                 <Button className="ring-border flex size-6 flex-shrink-0 items-center justify-center rounded-full p-0.5 ring">
-                                                    {mention.type == "mcpServer"
+                                                    {mention.type === "mcpServer"
                                                         ? (
                                                             <MCPIcon className="size-3.5" />
                                                         )
@@ -221,17 +214,24 @@ export default function PromptInput({
                         )}
                         <div className="flex flex-col gap-3.5 px-3 py-2">
                             <div className="relative min-h-[2rem]">
-                                <ChatMentionInput
-                                    input={input}
-                                    onChange={setInput}
-                                    onChangeMention={onChangeMention}
-                                    onEnter={submit}
-                                    placeholder={placeholder ?? t`placeholder`}
-                                    ref={editorReference}
-                                />
+                                <Suspense fallback={<div className="h-[2rem] w-full animate-pulse" />}>
+                                    <ChatMentionInput
+                                        input={input}
+                                        onChange={setInput}
+                                        onChangeMention={onChangeMention}
+                                        onEnter={submit}
+                                        placeholder={placeholder ?? t`placeholder`}
+                                        ref={editorReference}
+                                    />
+                                </Suspense>
                             </div>
                             <div className="z-30 flex w-full items-center gap-[2px]">
-                                <Button className="hover:bg-input! rounded-full p-2!" onClick={notImplementedToast} size="sm" variant="ghost">
+                                <Button
+                                    className="hover:bg-input! rounded-full p-2!"
+                                    onClick={() => console.log("TODO: missing feature")}
+                                    size="sm"
+                                    variant="ghost"
+                                >
                                     <Paperclip />
                                 </Button>
 

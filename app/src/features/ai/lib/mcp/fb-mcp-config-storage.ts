@@ -1,12 +1,12 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
+import { debounce } from "@tanstack/react-pacer";
 import type { FSWatcher } from "chokidar";
 import chokidar from "chokidar";
 import { colorize } from "consola/utils";
+import equal from "fast-deep-equal";
 import type { McpServerSchema } from "lib/db/pg/schema.pg";
-import equal from "lib/equal";
-import { createDebounce } from "lib/utils";
 import defaultLogger from "logger";
 
 import type { MCPServerConfig } from "@/types/mcp";
@@ -25,7 +25,11 @@ export function createFileBasedMCPConfigsStorage(path?: string): MCPConfigStorag
     const configPath = path || MCP_CONFIG_PATH;
     let watcher: FSWatcher | null = null;
     let manager: MCPClientsManager;
-    const debounce = createDebounce();
+    const debounceFunction = (function_: () => void, delay: number) => {
+        const debouncedFunction = debounce(function_, { wait: delay });
+
+        debouncedFunction();
+    };
 
     /**
      * Reads config from file
@@ -154,7 +158,7 @@ export function createFileBasedMCPConfigsStorage(path?: string): MCPConfigStorag
             persistent: true,
         });
 
-        watcher.on("change", () => debounce(checkAndRefreshClients, 1000));
+        watcher.on("change", () => debounceFunction(checkAndRefreshClients, 1000));
     }
 
     return {

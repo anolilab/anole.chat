@@ -16,7 +16,6 @@ import { ArrowLeft, ChevronRight, Info, Loader, Trash2, Wrench } from "lucide-re
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import useSWR from "swr";
-import { safe } from "ts-safe";
 import { z } from "zod/v4";
 import { useShallow } from "zustand/shallow";
 
@@ -61,38 +60,33 @@ export const McpServerCustomizationContent = ({
 
     const handleSave = () => {
         setIsProcessing(true);
-        safe(() =>
-            z
-                .object({
-                    prompt: z.string().min(1).max(3000),
-                })
-                .parse({
-                    prompt,
-                }),
-        )
-            .map((body) =>
+        z.object({
+            prompt: z.string().min(1).max(3000),
+        })
+            .parse({
+                prompt,
+            })
+            .then((body) =>
                 fetch(`/api/mcp/server-customizations/${id}`, {
                     body: JSON.stringify(body),
                     method: "POST",
                 }),
             )
-            .ifOk(() => refreshMcpServerCustomization())
-            .ifFail(handleErrorWithToast)
-            .watch(() => {
+            .then(() => refreshMcpServerCustomization())
+            .catch(handleErrorWithToast)
+            .finally(() => {
                 setIsProcessing(false);
             });
     };
 
     const handleDelete = () => {
         setIsProcessing(true);
-        safe(() =>
-            fetch(`/api/mcp/server-customizations/${id}`, {
-                method: "DELETE",
-            }),
-        )
-            .ifOk(() => refreshMcpServerCustomization())
-            .ifFail(handleErrorWithToast)
-            .watch(() => {
+        fetch(`/api/mcp/server-customizations/${id}`, {
+            method: "DELETE",
+        })
+            .then(() => refreshMcpServerCustomization())
+            .catch(handleErrorWithToast)
+            .finally(() => {
                 setIsProcessing(false);
             });
     };
@@ -196,7 +190,7 @@ export const McpServerCustomizationContent = ({
                                     <TooltipContent>{t`Common.delete`}</TooltipContent>
                                 </Tooltip>
                             )}
-                            {prompt != (mcpServerCustomization?.prompt || "") && (
+                            {prompt !== (mcpServerCustomization?.prompt || "") && (
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button onClick={handleSave} size="sm" variant="secondary">

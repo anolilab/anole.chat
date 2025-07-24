@@ -1,6 +1,6 @@
 "use client";
 
-import { createDebounce } from "lib/utils";
+import { debounce } from "@tanstack/react-pacer";
 import { Loader } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -32,7 +32,11 @@ export const MermaidDiagram = ({ chart }: MermaidDiagramProperties) => {
     });
     const containerReference = useRef<HTMLDivElement>(null);
     const previousChartReference = useRef<string>(chart);
-    const debounce = useMemo(() => createDebounce(), []);
+    const debounceFunction = useMemo(() => (function_: () => void, delay: number) => {
+        const debouncedFunction = debounce(function_, { wait: delay });
+
+        debouncedFunction();
+    }, []);
 
     useEffect(() => {
         // Reset states if chart has changed
@@ -44,7 +48,7 @@ export const MermaidDiagram = ({ chart }: MermaidDiagramProperties) => {
         }
 
         // Debounce rendering to avoid flickering during streaming
-        debounce(async () => {
+        debounceFunction(async () => {
             if (!chart?.trim()) {
                 setState({ error: null, loading: false, svg: "" });
 
@@ -58,7 +62,7 @@ export const MermaidDiagram = ({ chart }: MermaidDiagramProperties) => {
                 mermaid.initialize({
                     securityLevel: "loose",
                     startOnLoad: false,
-                    theme: theme == "dark" ? "dark" : "default",
+                    theme: theme === "dark" ? "dark" : "default",
                 });
 
                 // // First try to parse to catch syntax errors early

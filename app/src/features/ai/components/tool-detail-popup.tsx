@@ -2,7 +2,6 @@
 
 import { Button } from "@anole/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogPortal, DialogTitle, DialogTrigger } from "@anole/ui/components/dialog";
-import JsonView from "@anole/ui/components/json-view";
 import { Separator } from "@anole/ui/components/separator";
 import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { Skeleton } from "@anole/ui/components/skeleton";
@@ -14,8 +13,8 @@ import { fetcher } from "lib/utils";
 import { Info, Loader, Pencil, Trash2 } from "lucide-react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { useState } from "react";
+import { JsonView } from "react-json-view-lite";
 import useSWR from "swr";
-import { safe } from "ts-safe";
 import { z } from "zod/v4";
 
 import type { McpToolCustomization, MCPToolInfo } from "@/types/mcp";
@@ -80,27 +79,24 @@ export const ToolDetailPopupContent = ({
 
     const handleSave = () => {
         setProcessing(true);
-        safe(() =>
-            z
-                .object({
-                    prompt: z.string().min(1).max(1000),
-                })
-                .parse({
-                    prompt: value,
-                }),
-        )
-            .map((body) =>
+        z.object({
+            prompt: z.string().min(1).max(1000),
+        })
+            .parse({
+                prompt: value,
+            })
+            .then((body) =>
                 fetch(createApiUrl(serverId, tool.name), {
                     body: JSON.stringify(body),
                     method: "POST",
                 }),
             )
-            .ifOk(() => {
+            .then(() => {
                 mutate();
                 onUpdate?.();
             })
-            .ifFail(handleErrorWithToast)
-            .watch(() => {
+            .catch(handleErrorWithToast)
+            .finally(() => {
                 setEditing(false);
                 setProcessing(false);
             });
@@ -108,17 +104,15 @@ export const ToolDetailPopupContent = ({
 
     const handleDelete = () => {
         setProcessing(true);
-        safe(() =>
-            fetch(createApiUrl(serverId, tool.name), {
-                method: "DELETE",
-            }),
-        )
-            .ifOk(() => {
+        fetch(createApiUrl(serverId, tool.name), {
+            method: "DELETE",
+        })
+            .then(() => {
                 mutate();
                 onUpdate?.();
             })
-            .ifFail(handleErrorWithToast)
-            .watch(() => {
+            .catch(handleErrorWithToast)
+            .finally(() => {
                 setEditing(false);
                 setProcessing(false);
             });

@@ -15,13 +15,13 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@anole/ui/components/dropdown-menu";
-import { GeminiIcon } from "@anole/ui/components/gemini-icon";
-import JsonView from "@anole/ui/components/json-view";
 import { MessageLoading } from "@anole/ui/components/message-loading";
-import { OpenAIIcon } from "@anole/ui/components/openai-icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
+import GeminiIcon from "@anole/ui/icons/gemini";
+import OpenAIIcon from "@anole/ui/icons/openai";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import type { TextPart, UIMessage } from "ai";
 import { isShortcutEvent, Shortcuts } from "lib/keyboard-shortcuts";
 import { nextTick } from "lib/utils";
@@ -39,12 +39,10 @@ import {
     WrenchIcon,
     XIcon,
 } from "lucide-react";
-import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { JsonView } from "react-json-view-lite";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
-import { useShallow } from "zustand/shallow";
 
 import type { ToolInvocationUIPart } from "@/types/chat";
 
@@ -134,8 +132,10 @@ export const ChatBotVoice = () => {
 
     const endVoiceChat = useCallback(async () => {
         setIsClosing(true);
-        await safe(() => stop());
-        await safe(async () => {
+
+        try {
+            await stop();
+
             if (!voiceChat.threadId)
                 return;
 
@@ -154,28 +154,27 @@ export const ChatBotVoice = () => {
                 method: "POST",
             });
 
-            return true;
-        }).ifOk((isSaved) => {
-            if (isSaved) {
-                nextTick().then(() => {
-                    mutate("/api/thread/list");
-                    navigate({ to: `/chat/${voiceChat.threadId}` });
+            nextTick().then(() => {
+                mutate("/api/thread/list");
+                navigate({ to: `/chat/${voiceChat.threadId}` });
 
-                    if (location.pathname === `/chat/${voiceChat.threadId}`) {
-                        // Note: TanStack Router doesn't have a direct refresh method like Next.js
-                        // The navigation will trigger a re-render which should be sufficient
-                    }
-                });
-            }
-        });
-        setIsClosing(false);
-        appStoreMutate({
-            voiceChat: {
-                ...voiceChat,
-                isOpen: false,
-            },
-        });
-    }, [messages, voiceChat.threadId, voiceChat.projectId, model]);
+                if (location.pathname === `/chat/${voiceChat.threadId}`) {
+                    // Note: TanStack Router doesn't have a direct refresh method like Next.js
+                    // The navigation will trigger a re-render which should be sufficient
+                }
+            });
+        } catch {
+            // handle error if needed
+        } finally {
+            setIsClosing(false);
+            appStoreMutate({
+                voiceChat: {
+                    ...voiceChat,
+                    isOpen: false,
+                },
+            });
+        }
+    }, [messages, voiceChat.threadId, voiceChat.projectId, model, appStoreMutate, mutate, navigate, location.pathname, stop]);
 
     const statusMessage = useMemo(() => {
         if (isLoading) {
@@ -480,7 +479,7 @@ const ConversationView = ({ messages }: { messages: UIMessageWithCompleted[] }) 
             <div className="mx-auto flex min-h-0 max-w-4xl min-w-0 flex-col gap-6 px-6 pb-44">
                 {messages.map((message) => (
                     <div
-                        className={cn("flex px-4 py-3", message.role == "user" && "text-foreground bg-input/40 ml-auto w-fit max-w-2xl rounded-2xl")}
+                        className={cn("flex px-4 py-3", message.role === "user" && "text-foreground bg-input/40 ml-auto w-fit max-w-2xl rounded-2xl")}
                         key={message.id}
                     >
                         {message.completed
@@ -488,7 +487,7 @@ const ConversationView = ({ messages }: { messages: UIMessageWithCompleted[] }) 
                                 if (part.type === "text") {
                                     if (!part.text) {
                                         return (
-                                            <MessageLoading className={cn(message.role == "user" ? "text-muted-foreground" : "text-foreground")} key={index} />
+                                            <MessageLoading className={cn(message.role === "user" ? "text-muted-foreground" : "text-foreground")} key={index} />
                                         );
                                     }
 
@@ -510,7 +509,7 @@ const ConversationView = ({ messages }: { messages: UIMessageWithCompleted[] }) 
                                 if (part.type === "tool-invocation") {
                                     return (
                                         <ToolMessagePart
-                                            isLast={part.toolInvocation.state != "result"}
+                                            isLast={part.toolInvocation.state !== "result"}
                                             key={index}
                                             messageId={message.id}
                                             part={part}
@@ -528,7 +527,7 @@ const ConversationView = ({ messages }: { messages: UIMessageWithCompleted[] }) 
                                 );
                             })
                             : (
-                                <MessageLoading className={cn(message.role == "user" ? "text-muted-foreground" : "text-foreground")} />
+                                <MessageLoading className={cn(message.role === "user" ? "text-muted-foreground" : "text-foreground")} />
                             )}
                     </div>
                 ))}

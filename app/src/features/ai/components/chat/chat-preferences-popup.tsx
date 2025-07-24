@@ -130,7 +130,7 @@ export const ChatPreferencesPopup = () => {
                                 {/* Content */}
                                 <AutoHeight className="max-h-[80vh] flex-1 overflow-y-auto rounded-lg border">
                                     <div className="p-4 md:p-8">
-                                        {openChatPreferences && <>{tab == 0 ? <UserInstructionsContent /> : tab == 1 ? <MCPInstructionsContent /> : null}</>}
+                                        {openChatPreferences && <>{tab === 0 ? <UserInstructionsContent /> : tab === 1 ? <MCPInstructionsContent /> : null}</>}
                                     </div>
                                 </AutoHeight>
                             </div>

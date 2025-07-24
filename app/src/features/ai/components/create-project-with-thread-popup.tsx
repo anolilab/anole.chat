@@ -9,13 +9,12 @@ import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { Textarea } from "@anole/ui/components/textarea";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowLeft, ArrowRight, Check, ChevronsUpDown, Lightbulb, Loader, WandSparkles } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Check, ChevronsUpDown, Lightbulb, Loader, WandSparkles } from "lucide-react";
 import type { PropsWithChildren } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 
 import { insertProjectAction } from "@/app/api/chat/actions";
 import { useObjectState } from "@/hooks/use-object-state";
@@ -90,18 +89,21 @@ const InstructionsStep = ({
         setSystemPrompt(completion);
     }, [completion]);
 
-    const generateInstructions = () => {
-        safe(() => setIsLoading(true))
-            .map(() =>
-                complete("", {
-                    body: {
-                        chatModel: model,
-                        threadId,
-                    },
-                }),
-            )
-            .watch(() => setIsLoading(false))
-            .ifFail(handleErrorWithToast);
+    const generateInstructions = async () => {
+        setIsLoading(true);
+
+        try {
+            await complete("", {
+                body: {
+                    chatModel: model,
+                    threadId,
+                },
+            });
+        } catch (error) {
+            handleErrorWithToast(error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -182,22 +184,26 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
     };
 
     const handleCreate = async () => {
-        safe(() => setProjectOption({ isLoading: true }))
-            .map(() =>
-                insertProjectAction({
-                    instructions: {
-                        systemPrompt: projectOption.instructions,
-                    },
-                    name: projectOption.name,
-                }),
-            )
-            .ifOk(() => setIsOpen(false))
-            .ifOk(() => toast.success(t`Chat.Project.projectCreated`))
-            .ifOk(() => mutate("/api/project/list"))
-            .ifOk(() => onClose?.())
-            .ifOk((project) => navigate({ to: `/project/${project.id}` }))
-            .watch(() => setProjectOption({ isLoading: false }))
-            .ifFail(handleErrorWithToast);
+        setProjectOption({ isLoading: true });
+
+        try {
+            const project = await insertProjectAction({
+                instructions: {
+                    systemPrompt: projectOption.instructions,
+                },
+                name: projectOption.name,
+            });
+
+            setIsOpen(false);
+            toast.success(t`Chat.Project.projectCreated`);
+            await mutate("/api/project/list");
+            onClose?.();
+            navigate({ to: `/project/${project.id}` });
+        } catch (error) {
+            handleErrorWithToast(error);
+        } finally {
+            setProjectOption({ isLoading: false });
+        }
     };
     const steps = useMemo(
         () => [

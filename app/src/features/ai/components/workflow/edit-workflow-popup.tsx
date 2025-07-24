@@ -10,14 +10,13 @@ import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { Textarea } from "@anole/ui/components/textarea";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
+import { useNavigate } from "@tanstack/react-router";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { Loader } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 import { z } from "zod/v4";
 
 import { useObjectState } from "@/hooks/use-object-state";
@@ -105,7 +104,8 @@ export const EditWorkflowPopup = ({
     const handleSubmit = async () => {
         setLoading(true);
         toast.promise(
-            safe(() => zodSchema.parse(config))
+            zodSchema
+                .parse(config)
                 .map(async (body) => {
                     const response = await fetch("/api/workflow", {
                         body: JSON.stringify(body),
@@ -213,7 +213,7 @@ export const EditWorkflowPopup = ({
                                             });
                                         }}
                                         open
-                                        theme={theme == "dark" ? Theme.DARK : Theme.LIGHT}
+                                        theme={theme === "dark" ? Theme.DARK : Theme.LIGHT}
                                     />
                                 </DropdownMenuContent>
                             </DropdownMenu>

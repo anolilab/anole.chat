@@ -1,15 +1,13 @@
 import { CodeBlock } from "@anole/ui/components/CodeBlock";
 import { Skeleton } from "@anole/ui/components/skeleton";
-import { TextShimmer } from "@anole/ui/components/text-shimmer";
+import TextShimmer from "@anole/ui/components/text-shimmer";
+import useCopy from "@anole/ui/hooks/use-copy-to-clipboard";
 import cn from "@anole/ui/utils/cn";
 import { callCodeRunWorker } from "lib/code-runner/call-worker";
 import type { CodeRunnerResult, LogEntry } from "lib/code-runner/code-runner.interface";
-import { isString, toAny } from "lib/utils";
 import { AlertTriangleIcon, CheckIcon, ChevronRight, CopyIcon, Loader, Percent, PlayIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { safe } from "ts-safe";
 
-import { useCopy } from "@/hooks/use-copy";
 import type { ToolInvocationUIPart } from "@/types/chat";
 
 export const CodeExecutor = memo(
@@ -45,9 +43,10 @@ export const CodeExecutor = memo(
                 const logstring = JSON.stringify(result.logs);
 
                 onResult?.({
-                    ...toAny({
-                        ...result,
-                        logs:
+
+                    ...result,
+                    guide: "Execution finished. Provide: 1) Main results/outputs 2) Key insights or findings 3) Error explanations if any. Don't repeat code or raw logs - interpret and summarize for the user.",
+                    logs:
                             logstring.length > 5000
                                 ? [
                                     {
@@ -61,13 +60,11 @@ export const CodeExecutor = memo(
                                     },
                                 ]
                                 : result.logs,
-                    }),
-                    guide: "Execution finished. Provide: 1) Main results/outputs 2) Key insights or findings 3) Error explanations if any. Don't repeat code or raw logs - interpret and summarize for the user.",
                 });
             },
             [onResult],
         );
-        const isRunning = useMemo(() => isExecuting || part.state != "result", [isExecuting, part.state]);
+        const isRunning = useMemo(() => isExecuting || part.state !== "result", [isExecuting, part.state]);
 
         const scrollToCode = useCallback(() => {
             codeResultContainerReference.current?.scrollTo({
@@ -77,7 +74,7 @@ export const CodeExecutor = memo(
         }, []);
 
         const result = useMemo(() => {
-            if (part.state != "result")
+            if (part.state !== "result")
                 return null;
 
             return part.result as CodeRunnerResult;
@@ -97,16 +94,20 @@ export const CodeExecutor = memo(
 
             return logs.map((log, index) => (
                 <div
-                    className={cn("text-muted-foreground flex gap-1 pl-3", log.type == "error" && "text-destructive", log.type == "warn" && "text-yellow-500")}
+                    className={cn(
+                        "text-muted-foreground flex gap-1 pl-3",
+                        log.type === "error" && "text-destructive",
+                        log.type === "warn" && "text-yellow-500",
+                    )}
                     key={index}
                 >
-                    <div className="hidden w-[8.6rem] md:block">{new Date(toAny(log).time || Date.now()).toISOString()}</div>
+                    <div className="hidden w-[8.6rem] md:block">{new Date(log.time || Date.now()).toISOString()}</div>
                     <div className="flex h-[15px] items-center">
-                        {log.type == "error"
+                        {log.type === "error"
                             ? (
                                 <AlertTriangleIcon className="size-2" />
                             )
-                            : log.type == "warn"
+                            : log.type === "warn"
                                 ? (
                                     <AlertTriangleIcon className="size-2" />
                                 )
@@ -116,13 +117,14 @@ export const CodeExecutor = memo(
                     </div>
                     <div className="min-w-0 flex-1 gap-1 whitespace-pre-wrap">
                         {log.args.map((argument, index_) => {
-                            if (argument.type == "image") {
-                                /* eslint-disable-next-line @next/next/no-img-element */
+                            if (argument.type === "image") {
                                 return <img alt="Code output" key={index_} src={argument.value} />;
                             }
 
                             return (
-                                <span key={index_}>{isString(argument?.value) ? argument.value.toString() : JSON.stringify(argument.value ?? argument)}</span>
+                                <span key={index_}>
+                                    {typeof argument?.value === "string" ? argument.value.toString() : JSON.stringify(argument.value ?? argument)}
+                                </span>
                             );
                         })}
                     </div>
@@ -144,8 +146,8 @@ export const CodeExecutor = memo(
             ]);
             const code = part.args?.code;
 
-            safe(() => runCode(code, type)).watch(() => setIsExecuting(false));
-        }, [part.args, isExecuting]);
+            runCode(code, type).then(() => setIsExecuting(false));
+        }, [part.args, isExecuting, type]);
 
         const header = useMemo(() => {
             if (isRunning) {
@@ -168,7 +170,7 @@ export const CodeExecutor = memo(
                         )
                         : (
                             <div className="bg-input flex h-4 w-4 items-end justify-end rounded-xs p-0.5 text-[7px] font-bold">
-                                {type == "javascript" ? "JS" : type == "python" ? "PY" : ">_"}
+                                {type === "javascript" ? "JS" : type === "python" ? "PY" : ">_"}
                             </div>
                         )}
                 </>
@@ -195,7 +197,7 @@ export const CodeExecutor = memo(
         }, [logs, isRunning]);
 
         useEffect(() => {
-            if (onResult && part.args && part.state == "call" && !isRun.current) {
+            if (onResult && part.args && part.state === "call" && !isRun.current) {
                 isRun.current = true;
                 menualToolCall(part.args.code);
             }
@@ -208,7 +210,7 @@ export const CodeExecutor = memo(
                 return () => clearInterval(closeKey);
             }
 
-            if (part.state == "result" && isRun.current) {
+            if (part.state === "result" && isRun.current) {
                 scrollToCode();
             }
         }, [isRunning]);
@@ -221,7 +223,7 @@ export const CodeExecutor = memo(
                             {header}
                             <div className="flex-1" />
 
-                            {part.state == "result" && (
+                            {part.state === "result" && (
                                 <>
                                     <div
                                         className="text-muted-foreground hover:bg-input hover:text-foreground flex cursor-pointer items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-semibold transition-all"

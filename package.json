@@ -18,7 +18,7 @@
         "app",
         "convex",
         "packages/*",
-        "tools/**"
+        "tools/*"
     ],
     "scripts": {
         "audit": "audit-ci --config ./audit-ci.jsonc",

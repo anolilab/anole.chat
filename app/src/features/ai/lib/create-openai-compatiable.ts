@@ -1,6 +1,5 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { LanguageModel } from "ai";
-import { isString } from "lib/utils";
 import logger from "logger";
 import { z } from "zod";
 
@@ -81,7 +80,7 @@ export type OpenAICompatibleProvider = z.infer<typeof OpenAICompatibleProviderSc
 
 export const openaiCompatibleModelsSafeParse = (providers: string | OpenAICompatibleProvider[] = []) => {
     try {
-        const value = isString(providers) ? JSON.parse(providers) : providers;
+        const value = typeof providers === "string" ? JSON.parse(providers) : providers;
 
         return z.array(OpenAICompatibleProviderSchema).parse(value);
     } catch (error) {

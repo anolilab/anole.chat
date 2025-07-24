@@ -2,17 +2,18 @@
 
 import "@xyflow/react/dist/style.css";
 
+import { debounce } from "@tanstack/react-pacer";
 import type { Connection, Edge, IsValidConnection, NodeMouseHandler, OnConnect, OnEdgesChange, OnNodesChange, OnSelectionChangeFunc } from "@xyflow/react";
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, Panel, ReactFlow } from "@xyflow/react";
-import { createDebounce, fetcher } from "lib/utils";
+import { fetcher } from "lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";
-import { safe } from "ts-safe";
 import { v4 as uuidv4 } from "uuid";
 
 import { useWorkflowStore } from "@/app/store/workflow.store";
 import { DefaultNode } from "@/components/workflow/default-node";
 import { WorkflowPanel } from "@/components/workflow/workflow-panel";
+import { safe } from "@/lib/safe-async";
 import type { DBWorkflow } from "@/types/workflow";
 
 import { extractWorkflowDiff } from "../../lib/workflow/extract-workflow-diff";
@@ -25,7 +26,11 @@ const nodeTypes = {
     default: DefaultNode,
 };
 
-const debounce = createDebounce();
+const debounceFunction = (function_: () => void, delay: number) => {
+    const debouncedFunction = debounce(function_, { wait: delay });
+
+    debouncedFunction();
+};
 
 const fitViewOptions = {
     duration: 500,
@@ -234,7 +239,7 @@ export default function Workflow({
     useEffect(() => {
         const debounceDelay = snapshot.current.nodes.length !== nodes.length || snapshot.current.edges.length !== edges.length ? 200 : 10_000;
 
-        debounce(save, debounceDelay);
+        debounceFunction(save, debounceDelay);
     }, [nodes, edges]);
 
     useEffect(() => {

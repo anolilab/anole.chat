@@ -3,16 +3,15 @@
 import { Alert, AlertDescription, AlertTitle } from "@anole/ui/components/alert";
 import { Button } from "@anole/ui/components/button";
 import { Card, CardContent, CardHeader } from "@anole/ui/components/card";
-import JsonView from "@anole/ui/components/json-view";
 import { Separator } from "@anole/ui/components/separator";
 import { handleErrorWithToast } from "@anole/ui/components/shared-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import { useLingui } from "@lingui/react/macro";
-import { ChevronRight, FlaskConical, Loader, Pencil, RotateCw, Settings, Settings2, Trash, Wrench } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { ChevronRight, FlaskConical, Loader, Pencil, RotateCw, Settings, Settings2, Trash, Wrench } from "lucide-react";
 import { memo, useCallback, useMemo, useState } from "react";
+import { JsonView } from "react-json-view-lite";
 import { mutate } from "swr";
-import { safe } from "ts-safe";
 
 import { refreshMcpClientAction, removeMcpClientAction } from "@/app/api/mcp/actions";
 import type { MCPServerInfo, MCPToolInfo } from "@/types/mcp";
@@ -36,15 +35,18 @@ export const MCPCard = memo(({ config, error, id, name, status, toolInfo }: MCPS
         return null;
     }, [error]);
 
-    const pipeProcessing = useCallback(
-        async (function_: () => Promise<any>) =>
-            safe(() => setIsProcessing(true))
-                .ifOk(function_)
-                .ifOk(() => mutate("/api/mcp/list"))
-                .ifFail(handleErrorWithToast)
-                .watch(() => setIsProcessing(false)),
-        [],
-    );
+    const pipeProcessing = useCallback(async (function_: () => Promise<any>) => {
+        setIsProcessing(true);
+
+        try {
+            await function_();
+            await mutate("/api/mcp/list");
+        } catch (error) {
+            handleErrorWithToast(error);
+        } finally {
+            setIsProcessing(false);
+        }
+    }, []);
 
     const handleRefresh = useCallback(() => pipeProcessing(() => refreshMcpClientAction(id)), [id]);
 

@@ -2,27 +2,28 @@ import { Alert, AlertDescription, AlertTitle } from "@anole/ui/components/alert"
 import { Button } from "@anole/ui/components/button";
 import { FlipWords } from "@anole/ui/components/flip-words";
 import { Input } from "@anole/ui/components/input";
-import JsonView from "@anole/ui/components/json-view";
 import { Label } from "@anole/ui/components/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@anole/ui/components/select";
 import { Separator } from "@anole/ui/components/separator";
 import { Switch } from "@anole/ui/components/switch";
-import { TextShimmer } from "@anole/ui/components/text-shimmer";
+import TextShimmer from "@anole/ui/components/text-shimmer";
 import { Textarea } from "@anole/ui/components/textarea";
+import useCopy from "@anole/ui/hooks/use-copy-to-clipboard";
 import cn from "@anole/ui/utils/cn";
 import { useLingui } from "@lingui/react/macro";
+import { debounce } from "@tanstack/react-pacer";
 import { useReactFlow } from "@xyflow/react";
 import { notify } from "lib/notify";
-import { createDebounce, errorToString } from "lib/utils";
+import { errorToString } from "lib/utils";
 import { AlertTriangleIcon, Check, Copy, Loader, Loader2, Maximize2, WandSparklesIcon, XIcon } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { JsonView } from "react-json-view-lite";
 import { toast } from "sonner";
 import type { GraphEndEvent } from "ts-edge";
 
 import { generateObjectAction } from "@/app/api/chat/actions";
 import { useWorkflowStore } from "@/app/store/workflow.store";
 import { SelectModel } from "@/components/select-model";
-import { useCopy } from "@/hooks/use-copy";
 import { useObjectState } from "@/hooks/use-object-state";
 
 import { allNodeValidate } from "../../lib/workflow/node-validate";
@@ -33,7 +34,11 @@ import { appStore } from "../../store";
 import { NodeIcon } from "../node-icon";
 import { NodeResultPopup } from "../node-result-popup";
 
-const debounce = createDebounce();
+const debounceFunction = (function_: () => void, delay: number) => {
+    const debouncedFunction = debounce(function_, { wait: delay });
+
+    debouncedFunction();
+};
 
 export const ExecuteTab = ({ close, onSave }: { close: () => void; onSave: () => Promise<void> }) => {
     const { addProcess, processIds, workflow } = useWorkflowStore();
@@ -163,12 +168,12 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
             return;
 
         const nextNodes = getEdges()
-            .filter((edge) => edge.source == id)
+            .filter((edge) => edge.source === id)
             .map((edge) => getNode(edge.target))
             .filter(Boolean) as UINode[];
         const fitviewNodes = [node, ...nextNodes];
 
-        debounce(() => {
+        debounceFunction(() => {
             fitView({
                 duration: 300,
                 maxZoom: 1.8,
@@ -284,7 +289,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                             return previous;
 
                                         return previous.map((n) => {
-                                            if (n != previousHistory)
+                                            if (n !== previousHistory)
                                                 return n;
 
                                             const source = event.isOk ? event.node.output : event.node.input;
@@ -326,14 +331,14 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
 
     const lastOutput = useMemo(() => {
         const outputNodes = histories
-            .filter((h) => h.kind == NodeKind.Output)
+            .filter((h) => h.kind === NodeKind.Output)
             .map((h) => h.result?.output)
             .filter(Boolean);
 
         if (outputNodes.length === 0)
             return undefined;
 
-        if (outputNodes.length == 1)
+        if (outputNodes.length === 1)
             return outputNodes[0];
 
         return outputNodes;
@@ -375,7 +380,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
             <div className="flex">
                 {tabs.map((t) => (
                     <Button
-                        className={cn("rounded-none", tab == t.value && "border-primary border-b")}
+                        className={cn("rounded-none", tab === t.value && "border-primary border-b")}
                         key={t.value}
                         onClick={() => setTab(t.value)}
                         variant="ghost"
@@ -386,7 +391,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
             </div>
             <Separator className="mb-4" />
 
-            {tab == tabs[0].value
+            {tab === tabs[0].value
                 ? (
                     <div className="flex flex-col gap-4 px-4">
                         {inputSchemaIterator.length === 0
@@ -411,7 +416,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                                 {key || "undefined"}
                                                 {inputSchema.required?.includes(key) && <span className="text-destructive text-xs">*</span>}
                                             </Label>
-                                            {schema.type == "number"
+                                            {schema.type === "number"
                                                 ? (
                                                     <Input
                                                         defaultValue={query[key] || undefined}
@@ -422,7 +427,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                                         type="number"
                                                     />
                                                 )
-                                                : schema.type == "boolean"
+                                                : schema.type === "boolean"
                                                     ? (
                                                         <Switch
                                                             checked={query[key]}
@@ -431,7 +436,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                                             onCheckedChange={(checked) => setQuery({ ...query, [key]: checked })}
                                                         />
                                                     )
-                                                    : schema.type == "string" && schema.enum
+                                                    : schema.type === "string" && schema.enum
                                                         ? (
                                                             <Select disabled={isProcessing} onValueChange={(value) => setQuery({ ...query, [key]: value })} value={query[key]}>
                                                                 <SelectTrigger className="min-w-46" id={key || String(index)}>
@@ -446,7 +451,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                                                 </SelectContent>
                                                             </Select>
                                                         )
-                                                        : schema.type == "string"
+                                                        : schema.type === "string"
                                                             ? (
                                                                 <Textarea
                                                                     className="max-h-28 resize-none overflow-y-auto"
@@ -467,7 +472,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                         </Button>
                     </div>
                 )
-                : tab == tabs[1].value
+                : tab === tabs[1].value
                     ? (
                         <div>
                             <div className="flex h-[30vh] flex-col overflow-y-auto px-4" ref={historyReference}>
@@ -476,10 +481,10 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                         <div
                                             className={cn(
                                                 "hover:bg-secondary relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm",
-                                                history.status == "fail" && "text-destructive",
+                                                history.status === "fail" && "text-destructive",
                                             )}
                                         >
-                                            {index != 0 && (
+                                            {index !== 0 && (
                                                 <div className="absolute -top-1.5 left-4.5 h-3 w-px">
                                                     <Separator orientation="vertical" />
                                                 </div>
@@ -487,21 +492,21 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                             <div className="overflow-hidden rounded border">
                                                 <NodeIcon className="rounded-none" iconClassName="size-3" type={history.kind} />
                                             </div>
-                                            {history.status == "running"
+                                            {history.status === "running"
                                                 ? (
                                                     <TextShimmer className="font-semibold">{`${history.name} Running...`}</TextShimmer>
                                                 )
                                                 : (
                                                     <span className="font-semibold">{history.name}</span>
                                                 )}
-                                            <span className={cn("ml-auto text-xs", history.status != "fail" && "text-muted-foreground")}>
-                                                {history.status != "running" && ((history.endedAt! - history.startedAt!) / 1000).toFixed(2)}
+                                            <span className={cn("ml-auto text-xs", history.status !== "fail" && "text-muted-foreground")}>
+                                                {history.status !== "running" && ((history.endedAt! - history.startedAt!) / 1000).toFixed(2)}
                                             </span>
-                                            {history.status == "success"
+                                            {history.status === "success"
                                                 ? (
                                                     <Check className="size-3" />
                                                 )
-                                                : history.status == "fail"
+                                                : history.status === "fail"
                                                     ? (
                                                         <XIcon className="size-3" />
                                                     )

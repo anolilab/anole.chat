@@ -1,4 +1,4 @@
-import { safe } from "ts-safe";
+import { safe } from "@/lib/safe-async";
 
 import type { OutputSchemaSourceKey } from "./workflow.interface";
 
@@ -179,7 +179,7 @@ function checkConditionRule({ operator, source, target }: { operator: ConditionO
                 break;
             }
             case StringConditionOperator.Equals: {
-                if (source == target)
+                if (source === target)
                     return true;
 
                 break;
@@ -203,7 +203,7 @@ function checkConditionRule({ operator, source, target }: { operator: ConditionO
                 break;
             }
             case StringConditionOperator.NotEquals: {
-                if (source != target)
+                if (source !== target)
                     return true;
 
                 break;

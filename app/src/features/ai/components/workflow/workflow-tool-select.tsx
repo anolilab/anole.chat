@@ -1,7 +1,7 @@
 import { Button } from "@anole/ui/components/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@anole/ui/components/command";
-import { MCPIcon } from "@anole/ui/components/mcp-icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@anole/ui/components/popover";
+import MCPIcon from "@anole/ui/icons/mcp";
 import { useLingui } from "@lingui/react/macro";
 import { groupBy } from "lib/utils";
 import { ChevronDownIcon, WrenchIcon } from "lucide-react";
@@ -28,7 +28,7 @@ export const WorkflowToolSelect = ({
     const { t } = useLingui();
     const [open, setOpen] = useState(false);
     const mcpToolsByServerId = useMemo(() => {
-        const mcpTools = tools.filter((tool) => tool.type == "mcp-tool");
+        const mcpTools = tools.filter((tool) => tool.type === "mcp-tool");
 
         return Object.entries(groupBy(mcpTools, "serverId")).map(([serverId, tools]) => {
             return {
@@ -38,7 +38,7 @@ export const WorkflowToolSelect = ({
             };
         });
     }, [tools]);
-    const defaultTools = useMemo(() => tools.filter((tool) => tool.type == "app-tool"), [tools]);
+    const defaultTools = useMemo(() => tools.filter((tool) => tool.type === "app-tool"), [tools]);
 
     const selectedToolLabel = useMemo(() => {
         if (!tool) {
@@ -50,7 +50,7 @@ export const WorkflowToolSelect = ({
             );
         }
 
-        if (tool.type == "mcp-tool") {
+        if (tool.type === "mcp-tool") {
             return (
                 <>
                     <MCPIcon className="size-3.5" />
