@@ -67,7 +67,7 @@ function NodeSelectContent({ onChange }: { onChange: (nodeKind: NodeKind) => voi
                         <NodeIcon type={NodeKind[key]} />
                         <span className="text-foreground text-sm font-semibold">{key}</span>
                     </div>
-                    <div className="whitespace-pre-wrap">{descriptions[NodeKind[key]] ?? "...soon"}</div>
+                    <div className="whitespace-pre-wrap">{descriptions[NodeKind[key]] ?? t`Coming soon.`}</div>
                 </TooltipContent>
             </Tooltip>
         ));

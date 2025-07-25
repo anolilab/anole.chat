@@ -103,13 +103,13 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
             <div className="flex items-center justify-between">
                 <Label className="text-sm">
                     LLM
-                    {t`Workflow.outputSchema`}
+                    {t`Output Schema`}
                 </Label>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <div className="flex items-center gap-2">
                             <Label className="text-muted-foreground text-xs font-normal" htmlFor="structuredOutput">
-                                {t`Workflow.structuredOutput`}
+                                {t`Structured Output`}
                             </Label>
                             <Switch
                                 checked={isStructuredOutput}
@@ -117,9 +117,9 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
                                 onClick={async () => {
                                     if (isStructuredOutput) {
                                         const ok = await notify.confirm({
-                                            cancelText: t`Workflow.structuredOutputSwitchConfirmCancel`,
-                                            description: t`Workflow.structuredOutputSwitchConfirm`,
-                                            okText: t`Workflow.structuredOutputSwitchConfirmOk`,
+                                            okText: t`Edit Structured Output`,
+                                            description: t`You currently have structured output enabled.\n What would you like to do?`,
+                                            cancelText: t`Change to Text Output`,
                                         });
 
                                         if (!ok) {
@@ -134,7 +134,7 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
                             />
                         </div>
                     </TooltipTrigger>
-                    <TooltipContent className="p-4 whitespace-pre-wrap">{t`Workflow.structuredOutputDescription`}</TooltipContent>
+                    <TooltipContent className="p-4 whitespace-pre-wrap">{t`Generate response as JSON object with defined schema`}</TooltipContent>
                 </Tooltip>
             </div>
             <div className="flex flex-wrap items-center gap-1">
@@ -168,7 +168,7 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
                             <InfoIcon className="size-3" />
                         </div>
                     </TooltipTrigger>
-                    <TooltipContent className="p-4 whitespace-pre-wrap">{t`Workflow.messagesDescription`}</TooltipContent>
+                    <TooltipContent className="p-4 whitespace-pre-wrap">{t`Generate data through LLM processing.\n\nUse '/' to mention and reference data from previous nodes as input.\n\nWith Structured Output enabled, perfect for data transformation, formatting, and validation.`}</TooltipContent>
                 </Tooltip>
             </div>
             <div className="flex flex-col gap-2">
@@ -219,7 +219,7 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
                 <Button className="text-muted-foreground mt-1 w-full border border-dashed" onClick={addMessage} size="icon" variant="ghost">
                     <MessageCirclePlusIcon className="size-4" />
                     {" "}
-                    {t`Workflow.addMessage`}
+                    {t`Add Message`}
                 </Button>
             </div>
 

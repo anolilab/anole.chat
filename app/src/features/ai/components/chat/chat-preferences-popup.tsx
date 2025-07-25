@@ -22,11 +22,11 @@ export const ChatPreferencesPopup = () => {
         () => [
             {
                 icon: <UserIcon className="h-4 w-4" />,
-                label: t`Chat.ChatPreferences.userInstructions`,
+                label: t`User Instructions`,
             },
             {
                 icon: <MCPIcon className="fill-muted-foreground h-4 w-4" />,
-                label: t`Chat.ChatPreferences.mcpInstructions`,
+                label: t`MCP Instructions`,
             },
         ],
         [],

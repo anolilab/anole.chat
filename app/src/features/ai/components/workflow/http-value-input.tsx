@@ -102,7 +102,7 @@ export const HttpValueInput = ({ allowedTypes = [], className, currentNodeId, on
                     </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>{t`selectVariable`}</p>
+                    <p>{t`Select Variable`}</p>
                 </TooltipContent>
             </Tooltip>
             {onDelete && (

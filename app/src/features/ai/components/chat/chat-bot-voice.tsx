@@ -180,7 +180,7 @@ export const ChatBotVoice = () => {
         if (isLoading) {
             return (
                 <p className="fade-in animate-in duration-3000" key="start">
-                    {t`VoiceChat.preparing`}
+                    {t`Preparing...`}
                 </p>
             );
         }
@@ -188,7 +188,7 @@ export const ChatBotVoice = () => {
         if (!isActive) {
             return (
                 <p className="fade-in animate-in duration-3000" key="start">
-                    {t`VoiceChat.startVoiceChat`}
+                    {t`Start voice chat?`}
                 </p>
             );
         }
@@ -196,7 +196,7 @@ export const ChatBotVoice = () => {
         if (!isListening) {
             return (
                 <p className="fade-in animate-in duration-3000" key="stop">
-                    {t`VoiceChat.yourMicIsOff`}
+                    {t`Your mic is off.`}
                 </p>
             );
         }
@@ -204,7 +204,7 @@ export const ChatBotVoice = () => {
         if (!isAssistantSpeaking && messages.length === 0) {
             return (
                 <p className="fade-in animate-in duration-3000" key="ready">
-                    {t`VoiceChat.readyWhenYouAreJustStartTalking`}
+                    {t`Ready when you are—just start talking.`}
                 </p>
             );
         }
@@ -216,7 +216,7 @@ export const ChatBotVoice = () => {
         if (!isAssistantSpeaking && !isUserSpeaking) {
             return (
                 <p className="delayed-fade-in" key="ready">
-                    {t`VoiceChat.readyWhenYouAreJustStartTalking`}
+                    {t`Ready when you are—just start talking.`}
                 </p>
             );
         }
@@ -292,7 +292,7 @@ export const ChatBotVoice = () => {
                                             {useCompactView ? <MessageSquareMoreIcon /> : <MessagesSquareIcon />}
                                         </Button>
                                     </TooltipTrigger>
-                                    <TooltipContent>{useCompactView ? t`VoiceChat.compactDisplayMode` : t`VoiceChat.conversationDisplayMode`}</TooltipContent>
+                                    <TooltipContent>{useCompactView ? t`Compact display mode` : t`Conversation display mode`}</TooltipContent>
                                 </Tooltip>
                             </div>
                             <DrawerTitle className="flex w-full items-center gap-2">
@@ -367,7 +367,7 @@ export const ChatBotVoice = () => {
                                             <AlertDescription>{error.message}</AlertDescription>
 
                                             <AlertDescription className="my-4">
-                                                <p className="text-muted-foreground">{t`VoiceChat.pleaseCloseTheVoiceChatAndTryAgain`}</p>
+                                                <p className="text-muted-foreground">{t`Please close the voice chat and try again.`}</p>
                                             </AlertDescription>
                                         </Alert>
                                     </div>
@@ -435,7 +435,7 @@ export const ChatBotVoice = () => {
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    {isActive ? isListening ? t`VoiceChat.closeMic` : t`VoiceChat.openMic` : t`VoiceChat.startConversation`}
+                                    {isActive ? isListening ? t`Close Mic` : t`Open Mic` : t`Start conversation`}
                                 </TooltipContent>
                             </Tooltip>
                             <Tooltip>
@@ -451,7 +451,7 @@ export const ChatBotVoice = () => {
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>{t`VoiceChat.endConversation`}</p>
+                                    <p>{t`End conversation`}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </div>

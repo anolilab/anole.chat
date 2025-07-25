@@ -110,7 +110,7 @@ export const ConditionNodeDataConfig = ({ data }: { data: ConditionNodeData }) =
                 {!data.branches.elseIf?.length && (
                     <>
                         <p className="mb-2 text-xs font-bold text-blue-500">ELSE IF</p>
-                        <p className="text-muted-foreground ml-12 text-xs">{t`Workflow.elseIfDescription`}</p>
+                        <p className="text-muted-foreground ml-12 text-xs">{t`If the condition is not met, the logic to be executed is defined.`}</p>
                     </>
                 )}
                 <div className="flex flex-col">
@@ -142,7 +142,7 @@ export const ConditionNodeDataConfig = ({ data }: { data: ConditionNodeData }) =
                         {(data.branches.elseIf?.length ?? 0) + 2}
                     </span>
                 </div>
-                <p className="text-muted-foreground ml-12 text-xs">{t`Workflow.elseDescription`}</p>
+                <p className="text-muted-foreground ml-12 text-xs">{t`If the condition is not met, the logic to be executed is defined.`}</p>
             </div>
         </div>
     );
@@ -272,14 +272,14 @@ const ConditionBranchItem = ({ branch, caseNumber, currentNodeId, onChange, onDe
                     <Badge className="hover:bg-input ml-12 cursor-pointer px-4 py-2" variant="secondary">
                         <PlusIcon className="size-4" />
                         {" "}
-                        {t`Workflow.addCondition`}
+                        {t`Add Condition`}
                     </Badge>
                 </VariableSelect>
 
                 {onDelete && (
                     <Button className="mr-7 ml-auto text-xs" onClick={onDelete} variant="ghost">
                         <TrashIcon className="size-3.5" />
-                        {t`Common.delete`}
+                        {t`Delete`}
                     </Button>
                 )}
             </div>

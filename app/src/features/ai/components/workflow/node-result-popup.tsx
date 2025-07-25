@@ -44,12 +44,12 @@ export const NodeResultPopup = ({
             <DialogContent className="flex h-[70vh] max-w-[40vw] min-w-[40vw] flex-col overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">{history.name}</DialogTitle>
-                    <DialogDescription className="sr-only">{t`Common.result`}</DialogDescription>
+                    <DialogDescription className="sr-only">{t`Result`}</DialogDescription>
                 </DialogHeader>
                 <div className="flex w-full flex-1 flex-col">
                     <div className="my-8 flex items-center gap-12 text-sm">
                         <div>
-                            <p className="text-muted-foreground mb-2">{t`Common.status`}</p>
+                            <p className="text-muted-foreground mb-2">{t`Status`}</p>
                             <Badge
                                 className="font-semibold"
                                 variant={history.status === "fail" ? "destructive" : history.status === "running" ? "secondary" : "default"}
@@ -69,11 +69,11 @@ export const NodeResultPopup = ({
                             </Badge>
                         </div>
                         <div>
-                            <p className="text-muted-foreground mb-2">{t`Common.startedAt`}</p>
+                            <p className="text-muted-foreground mb-2">{t`Started At`}</p>
                             <p>{new Date(history.startedAt).toLocaleString()}</p>
                         </div>
                         <div>
-                            <p className="text-muted-foreground mb-2">{t`Common.duration`}</p>
+                            <p className="text-muted-foreground mb-2">{t`Duration`}</p>
                             <p>{history.status === "running" ? "N/A" : duration}</p>
                         </div>
                     </div>

@@ -74,8 +74,8 @@ export const NextNodeInfo = ({ node, onSelectNode }: NextNodeInfoProperties) => 
 
     return (
         <div className="text-muted-foreground flex w-full flex-col">
-            <Label className="text-foreground">{t`Workflow.nextNode`}</Label>
-            <p className="my-2 text-xs">{t`Workflow.nextNodeDescription`}</p>
+            <Label className="text-foreground">{t`Next Node`}</Label>
+            <p className="my-2 text-xs">{t`Add a next node to this workflow.`}</p>
             {node.data.kind === NodeKind.Condition
                 ? (
                     <ConditionNodeDataConnector
@@ -211,7 +211,7 @@ const NextNodeConnector = ({ appendNode, label, nextNodes, node, onDisconnected,
                                     <Unlink className="group-hover:text-destructive size-3" />
                                 </button>
                             </TooltipTrigger>
-                            <TooltipContent>{t`Workflow.unlink`}</TooltipContent>
+                            <TooltipContent>{t`Unlink Node`}</TooltipContent>
                         </Tooltip>
                     </div>
                 ))}
@@ -222,7 +222,7 @@ const NextNodeConnector = ({ appendNode, label, nextNodes, node, onDisconnected,
                         variant="ghost"
                     >
                         <PlusIcon className="size-3" />
-                        <span>{t`Workflow.addNextNode`}</span>
+                        <span>{t`Add Next Node`}</span>
                     </Button>
                 </NodeSelect>
             </div>

@@ -280,7 +280,7 @@ Return ONLY the JSON Schema object - no explanations or markdown formatting.`,
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="flex max-h-[90vh] max-w-4xl flex-col overflow-hidden">
                 <DialogHeader>
-                    <DialogTitle>{t`Workflow.outputSchemaEditor`}</DialogTitle>
+                    <DialogTitle>{t`Output Schema Editor`}</DialogTitle>
                 </DialogHeader>
 
                 <div className="flex-1 overflow-hidden">
@@ -357,7 +357,7 @@ Return ONLY the JSON Schema object - no explanations or markdown formatting.`,
                                         >
                                             <Button className="w-full border-dashed" variant="outline">
                                                 <PlusIcon className="mr-2" />
-                                                {t`Workflow.addField`}
+                                                {t`Add Field`}
                                             </Button>
                                         </EditJsonSchemaFieldPopup>
                                     </CardContent>
@@ -368,7 +368,7 @@ Return ONLY the JSON Schema object - no explanations or markdown formatting.`,
                                 <Card className="border-none bg-transparent">
                                     <CardHeader>
                                         <CardTitle>JSON Schema Editor</CardTitle>
-                                        <CardDescription className="text-muted-foreground text-sm">{t`Workflow.jsonSchemaEditorDescription`}</CardDescription>
+                                        <CardDescription className="text-muted-foreground text-sm">{t`Direct JSON Schema editing with AI assistance. Supports complex nested structures and arrays.`}</CardDescription>
                                     </CardHeader>
 
                                     <CardContent className="px-0">
@@ -377,7 +377,7 @@ Return ONLY the JSON Schema object - no explanations or markdown formatting.`,
                                                 <Label htmlFor="advanced-json">JSON Schema (Draft 7)</Label>
                                                 <Button onClick={handleGenerateWithAI} size="sm" variant="outline">
                                                     <WandSparklesIcon className="mr-2 size-3.5" />
-                                                    {t`Common.generateWithAI`}
+                                                    {t`Generate With AI`}
                                                 </Button>
                                             </div>
                                             <Textarea
@@ -397,9 +397,9 @@ Return ONLY the JSON Schema object - no explanations or markdown formatting.`,
 
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="ghost">{t`Common.cancel`}</Button>
+                        <Button variant="ghost">{t`Cancel`}</Button>
                     </DialogClose>
-                    <Button onClick={handleSave}>{t`Workflow.saveSchema`}</Button>
+                    <Button onClick={handleSave}>{t`Save Schema`}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

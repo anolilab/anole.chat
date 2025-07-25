@@ -51,11 +51,11 @@ const ProjectNameStep = ({ name, nextStep, setName }: { name: string; nextStep: 
             <div className="mt-auto flex justify-end pt-4">
                 <DialogClose asChild>
                     <Button className="mr-2" variant="ghost">
-                        {t`cancel`}
+                        {t`Cancel`}
                     </Button>
                 </DialogClose>
                 <Button className="gap-1" disabled={!name.trim()} onClick={nextStep}>
-                    {t`continue`}
+                    {t`Continue`}
                     <ArrowRight className="size-4" />
                 </Button>
             </div>

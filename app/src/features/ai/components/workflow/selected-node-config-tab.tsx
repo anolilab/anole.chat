@@ -65,7 +65,7 @@ export const SelectedNodeConfigTab = ({ node }: { node: UINode }) => {
                             updateNodeData(node.id, {
                                 description: e.target.value,
                             })}
-                        placeholder={t`Workflow.nodeDescriptionPlaceholder`}
+                        placeholder={t`node description...`}
                         value={node.data.description}
                     />
                 )}
@@ -105,7 +105,7 @@ export const SelectedNodeConfigTab = ({ node }: { node: UINode }) => {
                                                 ? (
                                                     <div className="flex h-full flex-col gap-2 px-4">
                                                         <Label className="text-muted-foreground text-xs" htmlFor="description">
-                                                            {t`Common.description`}
+                                                            {t`Description`}
                                                         </Label>
                                                         <Textarea
                                                             className="max-h-80 min-h-80 resize-none overflow-y-auto"

@@ -103,12 +103,12 @@ export const ChatBotTemporary = () => {
             >
                 <DrawerHeader>
                     <DrawerTitle className="flex items-center gap-2">
-                        <p className="hidden sm:flex">{t`temporaryChat`}</p>
+                        <p className="hidden sm:flex">{t`Temporary Chat`}</p>
 
                         <div className="flex-1" />
 
                         <Button className="rounded-full" disabled={isLoading} onClick={() => setMessages([])} variant="secondary">
-                            {t`resetChat`}
+                            {t`Reset Chat`}
                             <Separator orientation="vertical" />
                             <span className="text-muted-foreground ml-1 text-xs">⌘E</span>
                         </Button>
@@ -257,7 +257,7 @@ const DrawerTemporaryContent = ({
                     <div className="mx-auto my-4 max-w-3xl">
                         {" "}
                         <div className="flex flex-col gap-2 rounded-xl p-6 text-center leading-relaxed">
-                            <h1 className="text-4xl font-semibold">{t`TemporaryChat.thisChatWontBeSaved`}</h1>
+                            <h1 className="text-4xl font-semibold">{t`This chat won't be saved.`}</h1>
                         </div>
                     </div>
                 </div>
@@ -294,7 +294,7 @@ const DrawerTemporaryContent = ({
                     isLoading={isLoading}
                     model={temporaryChat.chatModel}
                     onStop={stop}
-                    placeholder={t`TemporaryChat.feelFreeToAskAnythingTemporarily`}
+                    placeholder={t`Feel free to ask anything temporarily`}
                     setInput={setInput}
                     setModel={(model) => {
                         appStoreMutate({

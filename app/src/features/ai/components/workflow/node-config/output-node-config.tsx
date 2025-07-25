@@ -79,7 +79,7 @@ export const OutputNodeDataConfig = memo(({ data }: { data: OutputNodeData }) =>
     return (
         <div className="flex flex-col gap-2 px-4 text-sm">
             <div className="flex items-center justify-between">
-                <Label className="text-sm">{t`Workflow.outputVariables`}</Label>
+                <Label className="text-sm">{t`Output Variables`}</Label>
             </div>
             <div className="flex flex-col gap-2">
                 {outputVariables.map((item, index) => (
@@ -138,7 +138,7 @@ export const OutputNodeDataConfig = memo(({ data }: { data: OutputNodeData }) =>
                 >
                     <PlusIcon />
                     {" "}
-                    {t`Workflow.addOutputVariable`}
+                    {t`Add Output Variable`}
                 </Button>
             </div>
         </div>

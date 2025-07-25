@@ -37,7 +37,7 @@ export const TemplateNodeConfig = memo(({ data }: TemplateNodeConfigProperties) 
         <div className="flex flex-col gap-2 px-4 text-sm">
             <div>
                 <div className="flex items-center justify-between">
-                    <Label className="mt-1 text-sm">{t`Workflow.template`}</Label>
+                    <Label className="mt-1 text-sm">{t`Template`}</Label>
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <div className="hover:bg-secondary cursor-pointer rounded p-1">
@@ -45,7 +45,7 @@ export const TemplateNodeConfig = memo(({ data }: TemplateNodeConfigProperties) 
                             </div>
                         </TooltipTrigger>
                         <TooltipContent align="center" className="p-4 whitespace-pre-wrap" side="left">
-                            {t`Workflow.templateDescription`}
+                            {t`Generate template documents.\n\nUse '/' to reference and use output values from other nodes.`}
                         </TooltipContent>
                     </Tooltip>
                 </div>

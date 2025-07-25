@@ -714,7 +714,7 @@ export const ToolMessagePart = memo(
                                             variant="secondary"
                                         >
                                             <Check />
-                                            {t`Common.approve`}
+                                            {t`Approve`}
                                         </Button>
                                         <Button
                                             className="rounded-full text-xs"
@@ -723,7 +723,7 @@ export const ToolMessagePart = memo(
                                             variant="outline"
                                         >
                                             <X />
-                                            {t`Common.reject`}
+                                            {t`Reject`}
                                         </Button>
                                     </div>
                                 )}

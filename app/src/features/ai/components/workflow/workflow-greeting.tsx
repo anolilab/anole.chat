@@ -17,8 +17,8 @@ export const WorkflowGreeting = () => {
         <div className="w-full space-y-6">
             {/* Header */}
             <div className="space-y-2 text-center">
-                <h2 className="text-2xl font-bold">{t`Workflow.title`}</h2>
-                <p className="text-muted-foreground">{t`Workflow.createWorkflowDescription`}</p>
+                <h2 className="text-2xl font-bold">{t`Workflow`}</h2>
+                <p className="text-muted-foreground">{t`Create workflows as powerful tools for your chatbot.`}</p>
             </div>
 
             {/* Main content - Two column layout */}
@@ -28,36 +28,36 @@ export const WorkflowGreeting = () => {
                     <div className="space-y-3">
                         <h3 className="text-lg font-semibold">
                             <BlocksIcon className="mr-2 inline-block size-4" />
-                            {t`Workflow.greeting.buildAutomationTitle`}
+                            {t`Build Automation by Connecting Nodes`}
                         </h3>
-                        <p className="text-muted-foreground pl-6 text-sm leading-relaxed">{t`Workflow.greeting.buildAutomationDescription`}</p>
+                        <p className="text-muted-foreground pl-6 text-sm leading-relaxed">{t`Connect various nodes to automate complex tasks. Each node handles specific functions, and data flows sequentially for processing.`}</p>
                     </div>
 
                     <div className="space-y-3">
                         <h3 className="text-lg font-semibold">
                             <Terminal className="mr-2 inline-block size-4" />
-                            {t`Workflow.greeting.chatbotToolTitle`}
+                            {t`Use as Chatbot Tools`}
                         </h3>
-                        <p className="text-muted-foreground pl-6 text-sm leading-relaxed">{t`Workflow.greeting.chatbotToolDescription`}</p>
+                        <p className="text-muted-foreground pl-6 text-sm leading-relaxed">{t`The main purpose of workflows is to use them as tools in chatbot conversations. Turn repetitive tasks into workflows for easy execution during chats.`}</p>
                     </div>
 
                     <div className="space-y-3">
                         <h3 className="text-lg font-semibold">
                             <ChevronsLeftRightEllipsisIcon className="mr-2 inline-block size-4" />
-                            {t`Workflow.greeting.parameterBasedTitle`}
+                            {t`Parameter-Based Start`}
                         </h3>
-                        <p className="text-muted-foreground pl-6 text-sm leading-relaxed">{t`Workflow.greeting.parameterBasedDescription`}</p>
+                        <p className="text-muted-foreground pl-6 text-sm leading-relaxed">{t`Input nodes define parameter structures, not triggers. They specify the data format needed when chatbot calls this workflow as a tool.`}</p>
                     </div>
 
                     <div className="rounded-lg border border-blue-500 bg-blue-500/5 p-4">
-                        <h4 className="mb-2 text-sm font-medium text-blue-500">{t`Workflow.greeting.exampleTitle`}</h4>
-                        <p className="text-xs leading-relaxed text-blue-500/50">{t`Workflow.greeting.exampleDescription`}</p>
+                        <h4 className="mb-2 text-sm font-medium text-blue-500">{t`Usage Example`}</h4>
+                        <p className="text-xs leading-relaxed text-blue-500/50">{t`Create an "Email Writing → Translation → Send" workflow, then easily execute it in chatbot conversations with "@email_workflow".`}</p>
                     </div>
                 </div>
 
                 {/* Right: Node Grid */}
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">{t`Workflow.greeting.availableNodesTitle`}</h3>
+                    <h3 className="text-lg font-semibold">{t`Available Nodes`}</h3>
 
                     <div className="grid grid-cols-3 gap-3">
                         {Object.keys(NodeKind).map((key) => (
@@ -78,7 +78,7 @@ export const WorkflowGreeting = () => {
                                         <span className="text-sm font-semibold">{key}</span>
                                     </div>
                                     <div className="text-muted-foreground text-xs whitespace-pre-wrap">
-                                        {descriptions[NodeKind[key]] ?? t`Workflow.greeting.soonMessage`}
+                                        {descriptions[NodeKind[key]] ?? t`Coming soon.`}
                                     </div>
                                 </TooltipContent>
                             </Tooltip>
@@ -89,7 +89,7 @@ export const WorkflowGreeting = () => {
 
             {/* Bottom CTA */}
             <div className="border-t pt-4 text-center">
-                <p className="text-muted-foreground text-sm">{t`Workflow.greeting.ctaMessage`}</p>
+                <p className="text-muted-foreground text-sm">{t`Start creating workflows now to expand your chatbot's capabilities!`}</p>
             </div>
         </div>
     );

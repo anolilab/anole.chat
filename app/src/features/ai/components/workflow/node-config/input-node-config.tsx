@@ -68,7 +68,7 @@ export const InputNodeDataConfig = memo(({ data }: { data: InputNodeData }) => {
     return (
         <div className="flex flex-col gap-2 px-4 text-sm">
             <div className="flex items-center justify-between">
-                <Label className="text-sm">{t`Workflow.inputFields`}</Label>
+                <Label className="text-sm">{t`Input Fields`}</Label>
 
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -77,7 +77,7 @@ export const InputNodeDataConfig = memo(({ data }: { data: InputNodeData }) => {
                         </div>
                     </TooltipTrigger>
                     <TooltipContent align="center" className="p-4 text-sm break-words whitespace-pre-wrap" side="left">
-                        {t`Workflow.inputFieldsDescription`}
+                        {t`Define the parameter schema for this workflow.\n\nWhen the chatbot uses this as a tool,\nit will provide values according to this schema.`}
                     </TooltipContent>
                 </Tooltip>
             </div>
@@ -120,7 +120,7 @@ export const InputNodeDataConfig = memo(({ data }: { data: InputNodeData }) => {
                     <Button className="text-muted-foreground mt-1 w-full border border-dashed" variant="ghost">
                         <PlusIcon />
                         {" "}
-                        {t`Workflow.addInputField`}
+                        {t`Add Input Field`}
                     </Button>
                 </EditJsonSchemaFieldPopup>
             </div>

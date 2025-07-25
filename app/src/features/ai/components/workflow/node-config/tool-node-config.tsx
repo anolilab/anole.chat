@@ -70,7 +70,7 @@ export const ToolNodeDataConfig = memo(({ data }: { data: ToolNodeData }) => {
 
     return (
         <div className="flex flex-col gap-2 px-4 text-sm">
-            <p className="text-sm font-semibold">{t`Common.tool`}</p>
+            <p className="text-sm font-semibold">{t`Tool`}</p>
             <WorkflowToolSelect
                 onChange={(tool) => {
                     updateNodeData(data.id, { tool });
@@ -78,7 +78,7 @@ export const ToolNodeDataConfig = memo(({ data }: { data: ToolNodeData }) => {
                 tool={data.tool}
                 tools={toolList}
             />
-            <p className="my-2 text-sm font-semibold">{t`Workflow.descriptionAndSchema`}</p>
+            <p className="my-2 text-sm font-semibold">{t`Description & Schema`}</p>
             {data.tool?.description || Object.keys(data.tool?.parameterSchema?.properties || {}).length > 0
                 ? (
                     <div className="bg-background rounded-md border p-2 text-xs">
@@ -107,7 +107,7 @@ export const ToolNodeDataConfig = memo(({ data }: { data: ToolNodeData }) => {
                     </div>
                 )
                 : (
-                    <div className="text-muted-foreground rounded-md border py-2 text-center text-xs">{t`Workflow.noDescriptionAndSchema`}</div>
+                    <div className="text-muted-foreground rounded-md border py-2 text-center text-xs">{t`No description and schema`}</div>
                 )}
 
             <Separator className="my-4" />
@@ -132,7 +132,7 @@ export const ToolNodeDataConfig = memo(({ data }: { data: ToolNodeData }) => {
                             <InfoIcon className="size-3" />
                         </div>
                     </TooltipTrigger>
-                    <TooltipContent className="p-4 whitespace-pre-wrap">{t`Workflow.toolDescription`}</TooltipContent>
+                    <TooltipContent className="p-4 whitespace-pre-wrap">{t`Provide information needed for LLM to generate tool parameters.\n\nUse '/' to mention data from previous nodes.`}</TooltipContent>
                 </Tooltip>
             </div>
             <div className="bg-secondary min-h-20 w-full rounded-md p-2">
@@ -161,7 +161,7 @@ export const ToolNodeStack = memo(({ data }: { data: ToolNodeData }) => {
             return (
                 <>
                     <WrenchIcon className="size-3" />
-                    <span className="text-muted-foreground">{t`Common.selectTool`}</span>
+                    <span className="text-muted-foreground">{t`Select Tool...`}</span>
                 </>
             );
         }
@@ -191,7 +191,7 @@ export const ToolNodeStack = memo(({ data }: { data: ToolNodeData }) => {
                     <div className="bg-input flex items-center gap-1 rounded border px-2 py-1 text-[10px]">{selectedToolLabel}</div>
                 )
                 : (
-                    <div className="text-muted-foreground rounded-md border py-2 text-center text-xs">{t`Common.noResults`}</div>
+                    <div className="text-muted-foreground rounded-md border py-2 text-center text-xs">{t`No results.`}</div>
                 )}
         </div>
     );

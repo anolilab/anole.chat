@@ -34,8 +34,8 @@ export const WorkflowContextMenu = (properties: WorkflowContextMenuProperties) =
                 })
                 .unwrap(),
             {
-                loading: t`Common.deleting`,
-                success: t`Common.success`,
+                loading: t`Deleting...`,
+                success: t`Success`,
             },
         );
     };
@@ -47,7 +47,7 @@ export const WorkflowContextMenu = (properties: WorkflowContextMenuProperties) =
                 <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
                     <DropdownMenuItem className="cursor-pointer text-sm" onClick={() => setEditOpen(true)}>
                         <PencilIcon className="size-3.5" />
-                        {t`Common.edit`}
+                        {t`Edit`}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         className="cursor-pointer text-sm"
@@ -58,7 +58,7 @@ export const WorkflowContextMenu = (properties: WorkflowContextMenuProperties) =
                         variant="destructive"
                     >
                         <Trash2Icon className="size-3.5" />
-                        {t`Common.delete`}
+                        {t`Delete`}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

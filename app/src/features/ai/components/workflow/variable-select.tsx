@@ -162,7 +162,7 @@ export const VariableSelectContent = ({
                             firstNodeReference.current?.focus();
                         }
                     }}
-                    placeholder={t`Common.search`}
+                    placeholder={t`Search...`}
                     value={query}
                 />
             </div>
@@ -171,7 +171,7 @@ export const VariableSelectContent = ({
                 {nodes.length === 0 || filteredNodes.length === 0
                     ? (
                         <div className="flex h-full items-center justify-center">
-                            <p className="text-muted-foreground py-4 text-xs">{t`Workflow.noVariablesFound`}</p>
+                            <p className="text-muted-foreground py-4 text-xs">{t`No variables found`}</p>
                         </div>
                     )
                     : filteredNodes}

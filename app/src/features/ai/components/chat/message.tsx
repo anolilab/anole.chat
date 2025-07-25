@@ -188,7 +188,7 @@ export const ErrorMessage = ({ error }: { error: Error; message?: UIMessage }) =
         <div className="animate-in fade-in mx-auto mt-4 w-full max-w-3xl px-6">
             <Alert className="border-destructive" variant="destructive">
                 <Terminal className="h-4 w-4" />
-                <AlertTitle className="mb-2">{t`Chat.Error`}</AlertTitle>
+                <AlertTitle className="mb-2">{t`Chat Error`}</AlertTitle>
                 <AlertDescription className="text-sm">
                     <div className="whitespace-pre-wrap">{isExpanded ? error.message : truncateString(error.message, maxLength)}</div>
                     {error.message.length > maxLength && (
@@ -197,20 +197,20 @@ export const ErrorMessage = ({ error }: { error: Error; message?: UIMessage }) =
                                 ? (
                                     <>
                                         <ChevronUp className="h-3 w-3" />
-                                        {t`Common.showLess`}
+                                        {t`Show less`}
                                     </>
                                 )
                                 : (
                                     <>
                                         <ChevronDown className="h-3 w-3" />
-                                        {t`Common.showMore`}
+                                        {t`Show more`}
                                     </>
                                 )}
                         </Button>
                     )}
                 </AlertDescription>
                 <AlertDescription>
-                    <p className="text-muted-foreground my-2 text-sm">{t`Chat.thisMessageWasNotSavedPleaseTryTheChatAgain`}</p>
+                    <p className="text-muted-foreground my-2 text-sm">{t`This message was not saved. Please try the chat again.`}</p>
                 </AlertDescription>
             </Alert>
         </div>

@@ -15,13 +15,13 @@ export const MCPOverview = () => {
             <div className="my-20 flex flex-col items-center justify-center space-y-4">
                 <h3 className="flex items-center gap-3 text-2xl font-semibold md:text-4xl">
                     <MCPIcon className="fill-foreground hidden size-6 sm:block" />
-                    {t`overviewTitle`}
+                    {t`Connect Your First Server`}
                 </h3>
 
-                <p className="text-muted-foreground max-w-md">{t`overviewDescription`}</p>
+                <p className="text-muted-foreground max-w-md">{t`Add MCP servers to unlock powerful AI integrations`}</p>
 
                 <div className="flex items-center gap-2 text-xl font-bold">
-                    {t`addMcpServer`}
+                    {t`Add Server`}
                     <ArrowUpRight className="size-6" />
                 </div>
             </div>

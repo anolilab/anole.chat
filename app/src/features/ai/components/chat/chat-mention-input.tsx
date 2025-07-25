@@ -271,10 +271,10 @@ function ChatMentionInputSuggestion({
                                 onClose();
                             }
                         }}
-                        placeholder={t`search`}
+                        placeholder={t`Search...`}
                     />
                     <CommandList className="p-2">
-                        <CommandEmpty>{t`noResults`}</CommandEmpty>
+                        <CommandEmpty>{t`No results.`}</CommandEmpty>
                         {workflowMentions}
                         {defaultToolMentions}
                         {mcpMentions}

@@ -15,7 +15,7 @@ export const NodeContextMenuContent = ({ node }: { node: WorkflowNodeData }) => 
 
     const handleDeleteNode = useCallback(() => {
         if (node.kind === NodeKind.Input) {
-            return toast.warning(t`Workflow.inputNodeCannotBeDeleted`);
+            return toast.warning(t`Input node cannot be deleted`);
         }
 
         setEdges((edges) => edges.filter((edge) => edge.source !== node.id && edge.target !== node.id));
@@ -29,7 +29,7 @@ export const NodeContextMenuContent = ({ node }: { node: WorkflowNodeData }) => 
                 onClick={handleDeleteNode}
             >
                 <Trash2Icon className="size-3" />
-                {t`Common.delete`}
+                {t`Delete`}
             </div>
         </div>
     );

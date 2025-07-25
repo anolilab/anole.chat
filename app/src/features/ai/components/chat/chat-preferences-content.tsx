@@ -85,8 +85,8 @@ export const UserInstructionsContent = () => {
             setIsSaving(false);
 
             if (ok)
-                toast.success(t`Chat.ChatPreferences.preferencesSaved`);
-            else toast.error(t`Chat.ChatPreferences.failedToSavePreferences`);
+                toast.success(t`Preferences saved`);
+            else toast.error(t`Failed to save preferences`);
         }
     };
 
@@ -105,12 +105,12 @@ export const UserInstructionsContent = () => {
 
     return (
         <div className="flex flex-col">
-            <h3 className="text-xl font-semibold">{t`Chat.ChatPreferences.userInstructions`}</h3>
-            <p className="text-muted-foreground py-2 pb-6 text-sm">{t`Chat.ChatPreferences.userInstructionsDescription`}</p>
+            <h3 className="text-xl font-semibold">{t`User Instructions`}</h3>
+            <p className="text-muted-foreground py-2 pb-6 text-sm">{t`Introduce yourself and get a more personalized response.`}</p>
 
             <div className="flex w-full flex-col gap-6">
                 <div className="flex flex-col gap-2">
-                    <Label>{t`Chat.ChatPreferences.whatShouldWeCallYou`}</Label>
+                    <Label>{t`What should we call you?`}</Label>
                     {isLoading
                         ? (
                             <Skeleton className="h-9" />
@@ -129,7 +129,7 @@ export const UserInstructionsContent = () => {
                 </div>
 
                 <div className="text-foreground flex flex-1 flex-col gap-2">
-                    <Label>{t`Chat.ChatPreferences.whatBestDescribesYourWork`}</Label>
+                    <Label>{t`What best describes your work?`}</Label>
                     <div className="relative w-full">
                         {isLoading
                             ? (
@@ -155,7 +155,7 @@ export const UserInstructionsContent = () => {
                     </div>
                 </div>
                 <div className="text-foreground flex flex-col gap-2">
-                    <Label>{t`Chat.ChatPreferences.whatPersonalPreferencesShouldBeTakenIntoAccountInResponses`}</Label>
+                    <Label>{t`What personal preferences should be taken into account in responses?`}</Label>
                     <span className="text-muted-foreground text-xs" />
                     <div className="relative w-full">
                         {isLoading
@@ -185,9 +185,9 @@ export const UserInstructionsContent = () => {
             </div>
             {isDiff && !isValidating && (
                 <div className="fade-in animate-in flex items-center justify-end pt-4 duration-300">
-                    <Button variant="ghost">{t`Common.cancel`}</Button>
+                    <Button variant="ghost">{t`Cancel`}</Button>
                     <Button disabled={isSaving || isLoading} onClick={savePreferences}>
-                        {t`Common.save`}
+                        {t`Save`}
                         {isSaving && <Loader className="ml-2 size-4 animate-spin" />}
                     </Button>
                 </div>
@@ -227,8 +227,8 @@ export const MCPInstructionsContent = () => {
 
     return (
         <div className="flex flex-col">
-            <h3 className="text-xl font-semibold">{t`Chat.ChatPreferences.mcpInstructions`}</h3>
-            <p className="text-muted-foreground py-2 pb-6 text-sm">{t`Chat.ChatPreferences.mcpInstructionsDescription`}</p>
+            <h3 className="text-xl font-semibold">{t`MCP Instructions`}</h3>
+            <p className="text-muted-foreground py-2 pb-6 text-sm">{t`Customize the MCP server instructions.`}</p>
 
             <div className="flex w-full flex-col gap-6">
                 <div className="text-foreground flex flex-1 flex-col gap-2">
@@ -236,7 +236,7 @@ export const MCPInstructionsContent = () => {
                         onChange={(e) => {
                             setSearch(e.target.value);
                         }}
-                        placeholder={t`Common.search`}
+                        placeholder={t`Search...`}
                         value={search}
                     />
                 </div>
@@ -246,7 +246,7 @@ export const MCPInstructionsContent = () => {
                         : mcpList.length === 0
                             ? (
                                 <div className="text-foreground flex flex-1 flex-col gap-2">
-                                    <p className="text-muted-foreground py-8 text-center">{t`MCP.configureYourMcpServerConnectionSettings`}</p>
+                                    <p className="text-muted-foreground py-8 text-center">{t`Configure your MCP server connection settings`}</p>
                                 </div>
                             )
                             : (

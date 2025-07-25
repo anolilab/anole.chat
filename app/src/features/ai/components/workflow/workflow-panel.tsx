@@ -15,7 +15,7 @@ import { mutate } from "swr";
 
 import { Separator } from "@/components/ui/separator";
 import { safe } from "@/lib/safe-async";
-import type { DBWorkflow } from "@/types/workflow";
+import type { DBWorkflow } from "@anole/ui/components/avatar";
 
 import { arrangeNodes } from "../../lib/workflow/arrange-nodes";
 import { allNodeValidate } from "../../lib/workflow/node-validate";
@@ -50,7 +50,7 @@ export const WorkflowPanel = memo(
             const { nodes: arrangedNodes } = arrangeNodes(nodes, edges);
 
             setNodes(arrangedNodes);
-            toast.success(t`Workflow.nodesArranged`);
+            toast.success(t`Layout applied successfully`);
         }, [getNodes, getEdges, setNodes, t]);
         const updateVisibility = useCallback(
             (visibility: DBWorkflow["visibility"]) => {
@@ -154,7 +154,7 @@ export const WorkflowPanel = memo(
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
-                            <p>{t`Workflow.arrangeNodes`}</p>
+                            <p>{t`Auto Layout`}</p>
                         </TooltipContent>
                     </Tooltip>
                     <div className="h-6">
@@ -177,14 +177,14 @@ export const WorkflowPanel = memo(
                         variant="secondary"
                     >
                         <PlayIcon />
-                        {t`Common.run`}
+                        {t`Run`}
                     </Button>
 
                     {!workflow.isPublished && (
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button disabled={isProcessing || !hasEditAccess} onClick={onSave} variant="default">
-                                    {isProcessing ? <Loader className="size-3.5 animate-spin" /> : t`Common.save`}
+                                    {isProcessing ? <Loader className="size-3.5 animate-spin" /> : t`Save`}
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent side="bottom">{t`Workflow.autoSaveDescription`}</TooltipContent>
@@ -201,12 +201,12 @@ export const WorkflowPanel = memo(
                                 onClick={() => updatePublished(!workflow.isPublished)}
                                 variant="secondary"
                             >
-                                {workflow.isPublished ? t`Common.edit` : t`Workflow.publish`}
+                                {workflow.isPublished ? t`Edit` : t`Publish`}
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent align="end" className="w-60 text-sm" side="bottom">
                             <p className="p-4 break-words whitespace-pre-wrap">
-                                {workflow.isPublished ? t`Workflow.publishedDescription` : t`Workflow.draftDescription`}
+                                {workflow.isPublished ? t`Published Description` : t`Draft Description`}
                             </p>
                         </TooltipContent>
                     </Tooltip>
@@ -219,7 +219,7 @@ export const WorkflowPanel = memo(
                                     </Button>
                                 </DropdownMenuTrigger>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">{t`Workflow.visibilityDescription`}</TooltipContent>
+                            <TooltipContent side="bottom">{t`Control who can access and modify this workflow`}</TooltipContent>
                         </Tooltip>
 
                         <DropdownMenuContent align="end" side="bottom">
