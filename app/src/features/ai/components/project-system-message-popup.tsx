@@ -30,7 +30,7 @@ export const ProjectSystemMessagePopup = ({ beforeSystemMessage, isOpen, onOpenC
         try {
             await updateProjectAction(projectId, { instructions: { systemPrompt } });
             onSave(systemPrompt);
-            toast.success(t`Chat.Project.projectInstructionsUpdated`);
+            toast.success(t`Project instructions updated`);
             onOpenChange(false);
         } catch (error) {
             handleErrorWithToast(error);
@@ -49,11 +49,11 @@ export const ProjectSystemMessagePopup = ({ beforeSystemMessage, isOpen, onOpenC
         <Dialog onOpenChange={onOpenChange} open={isOpen}>
             <DialogContent className="bg-card w-full sm:max-w-[600px]">
                 <DialogHeader>
-                    <DialogTitle>{t`Chat.Project.projectInstructions`}</DialogTitle>
+                    <DialogTitle>{t`Project Instructions`}</DialogTitle>
                     <DialogDescription asChild>
                         <div className="py-4">
-                            <p className="mb-2 font-semibold">{t`Chat.Project.howCanTheChatBotBestHelpYouWithThisProject`}</p>
-                            {t`Chat.Project.youCanAskTheChatBotToFocusOnASpecificTopicOrToRespondInAParticularToneOrFormat`}
+                            <p className="mb-2 font-semibold">{t`How can the ChatBot best help you with this project?`}</p>
+                            {t`You can ask the ChatBot to focus on a specific topic or to respond in a particular tone or format.`}
                         </div>
                     </DialogDescription>
                 </DialogHeader>
@@ -69,11 +69,11 @@ export const ProjectSystemMessagePopup = ({ beforeSystemMessage, isOpen, onOpenC
                 </div>
                 <DialogFooter>
                     <DialogClose asChild disabled={isLoading}>
-                        <Button variant="ghost">{t`Common.cancel`}</Button>
+                        <Button variant="ghost">{t`Cancel`}</Button>
                     </DialogClose>
                     <Button disabled={isLoading || !systemPrompt.trim()} onClick={handleSave} type="submit" variant="secondary">
                         {isLoading && <Loader className="size-4 animate-spin" />}
-                        {t`Common.save`}
+                        {t`Save`}
                     </Button>
                 </DialogFooter>
             </DialogContent>

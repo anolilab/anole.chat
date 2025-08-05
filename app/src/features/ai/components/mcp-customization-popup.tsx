@@ -138,7 +138,7 @@ export const McpServerCustomizationContent = ({
                             onClick={() => setSelectedTool(null)}
                         >
                             <ArrowLeft className="size-3" />
-                            {t`Common.back`}
+                            {t`Back`}
                         </button>
                         {selectedTool.name}
                     </div>
@@ -163,12 +163,12 @@ export const McpServerCustomizationContent = ({
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <span className="text-muted-foreground flex flex-1 items-center text-xs font-medium">
-                                {t`MCP.mcpServerCustomization`}
+                                {t`MCP Customization`}
                                 <Info className="text-muted-foreground ml-1 size-3" />
                             </span>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p className="whitespace-pre-wrap">{t`MCP.mcpServerCustomizationDescription`}</p>
+                            <p className="whitespace-pre-wrap">{t`MCP server customization instructions will be added to the system prompt when the MCP server is available.`}</p>
                         </TooltipContent>
                     </Tooltip>
                 </h5>
@@ -187,17 +187,17 @@ export const McpServerCustomizationContent = ({
                                             <Trash2 className="size-3" />
                                         </Button>
                                     </TooltipTrigger>
-                                    <TooltipContent>{t`Common.delete`}</TooltipContent>
+                                    <TooltipContent>{t`Delete`}</TooltipContent>
                                 </Tooltip>
                             )}
                             {prompt !== (mcpServerCustomization?.prompt || "") && (
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button onClick={handleSave} size="sm" variant="secondary">
-                                            {t`Common.save`}
+                                            {t`Save`}
                                         </Button>
                                     </TooltipTrigger>
-                                    <TooltipContent>{t`Common.edit`}</TooltipContent>
+                                    <TooltipContent>{t`Edit`}</TooltipContent>
                                 </Tooltip>
                             )}
                         </>
@@ -213,7 +213,7 @@ export const McpServerCustomizationContent = ({
                 />
                 {!prompt && (
                     <div className="pointer-events-none absolute top-0 left-0 w-full px-4 py-2">
-                        <ExamplePlaceholder placeholder={[t`MCP.mcpServerCustomizationPlaceholder`]} />
+                        <ExamplePlaceholder placeholder={[t`eg. If the input value is email, always enter the email in the format example@example.com.`]} />
                     </div>
                 )}
             </div>
@@ -222,16 +222,16 @@ export const McpServerCustomizationContent = ({
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <span className="text-muted-foreground flex flex-1 items-center text-xs font-medium">
-                                {t`MCP.additionalInstructions`}
+                                {t`Tool Customization Instructions`}
                                 <Info className="text-muted-foreground ml-1 size-3" />
                             </span>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p className="whitespace-pre-wrap">{t`MCP.toolCustomizationInstructions`}</p>
+                            <p className="whitespace-pre-wrap">{t`Tool customization instructions will be added to the system prompt when the tool is available.\nexample) Always enter the email in the format example@example.com.`}</p>
                         </TooltipContent>
                     </Tooltip>
                 </div>
-                <Input onChange={(e) => setSearch(e.target.value)} placeholder={t`MCP.searchTools`} value={search} />
+                <Input onChange={(e) => setSearch(e.target.value)} placeholder={t`Search tools`} value={search} />
 
                 {isLoadingMcpToolCustomizations
                     ? Array.from({ length: 6 }).map((_, index) => <Skeleton className="h-16 w-full" key={index} />)
@@ -243,7 +243,7 @@ export const McpServerCustomizationContent = ({
                                         <Wrench className="size-3.5" />
                                         <div className="flex w-full items-center gap-2">
                                             <div className="min-w-0 flex-1">
-                                                <AlertTitle>{t`MCP.noToolsAvailable`}</AlertTitle>
+                                                <AlertTitle>{t`No tools available`}</AlertTitle>
                                             </div>
                                         </div>
                                     </Alert>

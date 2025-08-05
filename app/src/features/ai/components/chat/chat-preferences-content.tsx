@@ -26,21 +26,21 @@ export const UserInstructionsContent = () => {
 
     const responseStyleExamples = useMemo(
         () => [
-            t`Chat.ChatPreferences.responseStyleExample1`,
-            t`Chat.ChatPreferences.responseStyleExample2`,
-            t`Chat.ChatPreferences.responseStyleExample3`,
-            t`Chat.ChatPreferences.responseStyleExample4`,
+            t`e.g. keep explanations brief and to the point`,
+            t`e.g. when learning new concepts, I find analogies particularly helpful`,
+            t`e.g. ask clarifying questions before giving detailed answers`,
+            t`e.g. remember I primarily code in Python (not a coding beginner)`,
         ],
         [],
     );
 
     const professionExamples = useMemo(
         () => [
-            t`Chat.ChatPreferences.professionExample1`,
-            t`Chat.ChatPreferences.professionExample2`,
-            t`Chat.ChatPreferences.professionExample3`,
-            t`Chat.ChatPreferences.professionExample4`,
-            t`Chat.ChatPreferences.professionExample5`,
+            t`e.g. software engineer`,
+            t`e.g. product manager`,
+            t`e.g. marketing manager`,
+            t`e.g. sales manager`,
+            t`e.g. business analyst`,
         ],
         [],
     );
@@ -185,7 +185,7 @@ export const UserInstructionsContent = () => {
             </div>
             {isDiff && !isValidating && (
                 <div className="fade-in animate-in flex items-center justify-end pt-4 duration-300">
-                    <Button variant="ghost">{t`Cancel`}</Button>
+                    <Button variant="ghost">{t`Back`}</Button>
                     <Button disabled={isSaving || isLoading} onClick={savePreferences}>
                         {t`Save`}
                         {isSaving && <Loader className="ml-2 size-4 animate-spin" />}
@@ -216,7 +216,7 @@ export const MCPInstructionsContent = () => {
                             onClick={() => setMcpServer(null)}
                         >
                             <ArrowLeft className="size-3" />
-                            {t`Common.back`}
+                            {t`Back`}
                         </button>
                         {mcpServer.name}
                     </div>

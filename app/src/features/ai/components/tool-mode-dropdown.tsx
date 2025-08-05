@@ -105,7 +105,7 @@ const ToolModeDropdown = ({ disabled }: { disabled?: boolean }): JSX.Element => 
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent className="flex items-center gap-2" side="top">
-                            {t`selectToolMode`}
+                            {t`Select a tool mode`}
                             <span className="text-muted-foreground ml-2">{/* getShortcutKeyList(Shortcuts.toolMode).join("") */}</span>
                         </TooltipContent>
                     </Tooltip>
@@ -113,7 +113,7 @@ const ToolModeDropdown = ({ disabled }: { disabled?: boolean }): JSX.Element => 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top">
                 <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
-                    {t`selectToolMode`}
+                    {t`Select a tool mode`}
                     <DropdownMenuShortcut>
                         <span className="text-muted-foreground bg-muted rounded-md px-2 py-0.5 text-xs">
                             {/* getShortcutKeyList(Shortcuts.toolMode).join("") */}
@@ -129,7 +129,7 @@ const ToolModeDropdown = ({ disabled }: { disabled?: boolean }): JSX.Element => 
                                 <span className="font-bold">Auto</span>
                                 {toolChoice === "auto" && <Check className="ml-auto" />}
                             </div>
-                            <p className="text-muted-foreground text-xs">{t`autoToolModeDescription`}</p>
+                            <p className="text-muted-foreground text-xs">{t`Decides when to use tools without asking you`}</p>
                         </div>
                     </DropdownMenuItem>
                     <div className="px-2 py-1">
@@ -142,7 +142,7 @@ const ToolModeDropdown = ({ disabled }: { disabled?: boolean }): JSX.Element => 
                                 <span className="font-bold">Manual</span>
                                 {toolChoice === "manual" && <Check className="ml-auto" />}
                             </div>
-                            <p className="text-muted-foreground text-xs">{t`manualToolModeDescription`}</p>
+                            <p className="text-muted-foreground text-xs">{t`Asks your permission before using any tools`}</p>
                         </div>
                     </DropdownMenuItem>
                     <div className="px-2 py-1">
@@ -157,7 +157,7 @@ const ToolModeDropdown = ({ disabled }: { disabled?: boolean }): JSX.Element => 
                                 {toolChoice === "none" && <Check className="ml-auto" />}
                             </div>
 
-                            <p className="text-muted-foreground text-xs">{t`noneToolModeDescription`}</p>
+                            <p className="text-muted-foreground text-xs">{t`Do not use tools. @mention is still available.`}</p>
                         </div>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>

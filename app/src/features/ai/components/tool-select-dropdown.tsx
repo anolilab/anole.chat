@@ -160,10 +160,10 @@ export const ToolSelectDropdown = ({ align, className, mentions, onSelectWorkflo
                         <TooltipContent align={align} className="p-4 text-xs" side={side}>
                             <div className="flex items-center gap-2">
                                 <WrenchIcon className="size-3.5" />
-                                <span className="text-sm">{t`toolsSetup`}</span>
+                                <span className="text-sm">{t`Tools Setup`}</span>
                             </div>
 
-                            <p className="text-muted-foreground mt-4 whitespace-pre-wrap">{t`toolsSetupDescription`}</p>
+                            <p className="text-muted-foreground mt-4 whitespace-pre-wrap">{t`Select tools that the chatbot can use.\nThe chatbot will use selected tools based on its own judgment.\n\nYou can also force the use of specific tools through @mention.`}</p>
                         </TooltipContent>
                     </Tooltip>
                 </div>
@@ -211,13 +211,13 @@ const ToolPresets = () => {
     const addPreset = useCallback(
         (name: string) => {
             if (name.trim() === "") {
-                toast.error(t`Chat.Tool.presetNameCannotBeEmpty`);
+                toast.error(t`Preset name cannot be empty`);
 
                 return;
             }
 
             if (presets.find((p) => p.name === name)) {
-                toast.error(t`Chat.Tool.presetNameAlreadyExists`);
+                toast.error(t`Preset name already exists`);
 
                 return;
             }
@@ -229,7 +229,7 @@ const ToolPresets = () => {
             });
             setPresetName("");
             setOpen(false);
-            toast.success(t`Chat.Tool.presetSaved`);
+            toast.success(t`Preset saved`);
         },
         [allowedMcpServers, allowedAppDefaultToolkit, presets],
     );
@@ -254,25 +254,25 @@ const ToolPresets = () => {
             <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="flex cursor-pointer items-center gap-2 text-xs font-semibold">
                     <Package className="size-3.5" />
-                    {t`Chat.Tool.preset`}
+                    {t`Preset`}
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                     <DropdownMenuSubContent className="overflow-y-auto md:max-h-96 md:w-80">
                         <DropdownMenuLabel className="text-muted-foreground flex items-center gap-2">
-                            {t`Chat.Tool.toolPresets`}
+                            {t`Tool Presets`}
                             <div className="flex-1" />
                             <Dialog onOpenChange={setOpen} open={open}>
                                 <DialogTrigger asChild>
                                     <Button className="border" size="sm" variant="secondary">
-                                        {t`Chat.Tool.saveAsPreset`}
+                                        {t`Save As Preset`}
                                         <Plus className="size-3.5" />
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
-                                        <DialogTitle>{t`Chat.Tool.saveAsPreset`}</DialogTitle>
+                                        <DialogTitle>{t`Save As Preset`}</DialogTitle>
                                     </DialogHeader>
-                                    <DialogDescription>{t`Chat.Tool.saveAsPresetDescription`}</DialogDescription>
+                                    <DialogDescription>{t`Save the current tool configuration as a preset.`}</DialogDescription>
                                     <Input
                                         onChange={(e) => setPresetName(e.target.value)}
                                         onKeyDown={(e) => {
@@ -291,7 +291,7 @@ const ToolPresets = () => {
                                         size="sm"
                                         variant="secondary"
                                     >
-                                        {t`Common.save`}
+                                        {t`Save`}
                                     </Button>
                                 </DialogContent>
                             </Dialog>
@@ -300,8 +300,8 @@ const ToolPresets = () => {
                         {presets.length === 0
                             ? (
                                 <div className="text-muted-foreground flex h-full w-full flex-col items-center justify-center gap-2 py-6 text-sm">
-                                    <p>{t`Chat.Tool.noPresetsAvailableYet`}</p>
-                                    <p className="px-4 text-xs">{t`Chat.Tool.clickSaveAsPresetToGetStarted`}</p>
+                                    <p>{t`No presets available yet`}</p>
+                                    <p className="px-4 text-xs">{t`Click Save As Preset to get started.`}</p>
                                 </div>
                             )
                             : presetWithToolCount.map((preset, index) => (
@@ -346,7 +346,7 @@ const WorkflowToolSelector = ({ onSelectWorkflow }: { onSelectWorkflow?: (workfl
             <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="flex cursor-pointer items-center gap-2 text-xs font-semibold">
                     <Waypoints className="size-3.5" />
-                    {t`Workflow.title`}
+                    {t`Workflow`}
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                     <DropdownMenuSubContent className="relative w-80">
@@ -354,7 +354,7 @@ const WorkflowToolSelector = ({ onSelectWorkflow }: { onSelectWorkflow?: (workfl
                             ? (
                                 <div className="text-muted-foreground flex flex-col items-center gap-4 px-6 py-6 text-sm">
                                     <InfoIcon className="size-4" />
-                                    <p className="whitespace-pre-wrap">{t`Workflow.noTools`}</p>
+                                    <p className="whitespace-pre-wrap">{t`No published workflows available.\nCreate workflows to build custom tools.`}</p>
 
                                     <Dialog>
                                         <DialogTrigger asChild>
@@ -553,7 +553,7 @@ const McpServerToolSelector = ({ checked, onClickAllChecked, onToolClick, tools 
                     onKeyDown={(e) => {
                         e.stopPropagation();
                     }}
-                    placeholder={t`search`}
+                    placeholder={t`Search...`}
                     value={search}
                 />
                 <div className="flex-1" />
@@ -563,7 +563,7 @@ const McpServerToolSelector = ({ checked, onClickAllChecked, onToolClick, tools 
             <div className="max-h-96 overflow-y-auto">
                 {filteredTools.length === 0
                     ? (
-                        <div className="text-muted-foreground flex h-full w-full items-center justify-center py-6 text-sm">{t`noResults`}</div>
+                        <div className="text-muted-foreground flex h-full w-full items-center justify-center py-6 text-sm">{t`No results.`}</div>
                     )
                     : filteredTools.map((tool) => (
                         <DropdownMenuItem
@@ -604,7 +604,7 @@ const AppDefaultToolKitSelector = () => {
     }, []);
 
     const defaultToolInfo = useMemo(() => {
-        const raw = t`Chat.Tool.defaultToolKit`;
+        const raw = t`defaultToolKit`;
 
         return Object.values(AppDefaultToolkit).map((toolkit) => {
             const label = raw[toolkit] || toolkit;

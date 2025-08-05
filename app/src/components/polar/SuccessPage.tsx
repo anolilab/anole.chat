@@ -1,11 +1,11 @@
 import { useSearchParams } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const SuccessPage = () => {
+const SuccessPage = () => {
     const [searchParameters] = useSearchParams();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -98,3 +98,5 @@ export const SuccessPage = () => {
         </div>
     );
 };
+
+export default SuccessPage;

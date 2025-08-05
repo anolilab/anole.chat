@@ -127,8 +127,8 @@ export const EditWorkflowPopup = ({
                 .watch(() => setLoading(false))
                 .unwrap(),
             {
-                loading: t`Common.saving`,
-                success: t`Common.success`,
+                        loading: t`Saving...`,
+        success: t`Success`,
             },
         );
     };
@@ -144,11 +144,11 @@ export const EditWorkflowPopup = ({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="p-2 pb-0 md:p-10">
                 <DialogHeader className={cn("mb-4", config.id && "sr-only")}>
-                    <DialogTitle>{t`Workflow.createWorkflow`}</DialogTitle>
+                    <DialogTitle>{t`Create Workflow`}</DialogTitle>
                     <DialogDescription asChild>
                         <div className="mt-2">
-                            <p>{t`Workflow.createWorkflowDescription`}</p>
-                            <p className="mt-1">{t`Workflow.workflowDescription`}</p>
+                                    <p>{t`Create workflows as powerful tools for your chatbot.`}</p>
+        <p className="mt-1">{t`These can be triggered during conversations to automate complex tasks.`}</p>
                         </div>
                     </DialogDescription>
                 </DialogHeader>
@@ -158,13 +158,13 @@ export const EditWorkflowPopup = ({
                     <div className="flex w-full flex-col justify-center gap-6">
                         <div className="flex gap-2">
                             <div className="flex flex-1 flex-col gap-2">
-                                <Label htmlFor="workflow-name">{t`Workflow.nameAndIcon`}</Label>
+                                <Label htmlFor="workflow-name">{t`Name And Icon`}</Label>
                                 <Input
                                     autoFocus
                                     className="bg-input border-transparent"
                                     id="workflow-name"
                                     onChange={(e) => setConfig({ name: e.target.value })}
-                                    placeholder={t`Workflow.workflowNamePlaceholder`}
+                                    placeholder={t`Chatbot will recognize this as tool name`}
                                     value={config.name}
                                 />
                             </div>
@@ -220,14 +220,14 @@ export const EditWorkflowPopup = ({
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label className="flex items-center gap-1" htmlFor="workflow-description">
-                                {t`Workflow.description`}
-                                <span className="text-muted-foreground text-xs">{t`Common.optional`}</span>
+                                {t`Description`}
+                                <span className="text-muted-foreground text-xs">{t`Optional`}</span>
                             </Label>
                             <Textarea
                                 className="bg-input min-h-[100px] resize-none border-transparent"
                                 id="workflow-description"
                                 onChange={(e) => setConfig({ description: e.target.value })}
-                                placeholder={t`Workflow.descriptionPlaceholder`}
+                                placeholder={t`Chatbot will see this as tool description`}
                                 value={config.description}
                             />
                         </div>
@@ -235,10 +235,10 @@ export const EditWorkflowPopup = ({
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="ghost">{t`Common.cancel`}</Button>
+                        <Button variant="ghost">{t`Cancel`}</Button>
                     </DialogClose>
                     <Button disabled={loading} onClick={handleSubmit}>
-                        {t`Common.save`}
+                        {t`Save`}
                         {loading && <Loader className="size-3.5 animate-spin" />}
                     </Button>
                 </DialogFooter>

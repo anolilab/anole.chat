@@ -42,7 +42,7 @@ export const ProjectDropdown = ({ align, children, project, side }: Properties) 
         try {
             await deleteProjectAction(project.id);
             setIsDeleting(false);
-            toast.success(t`Chat.Project.projectDeleted`);
+            toast.success(t`Project deleted`);
 
             if (currentProjectId === project.id) {
                 navigate({ to: "/" });
@@ -52,7 +52,7 @@ export const ProjectDropdown = ({ align, children, project, side }: Properties) 
             mutate("/api/project/list");
         } catch (error) {
             setIsDeleting(false);
-            toast.error(error.message || t`Chat.Project.failedToDeleteProject`);
+            toast.error(error.message || t`Failed to delete project`);
         }
     };
 
@@ -61,7 +61,7 @@ export const ProjectDropdown = ({ align, children, project, side }: Properties) 
             <PopoverTrigger asChild>{children}</PopoverTrigger>
             <PopoverContent align={align} className="w-[220px] p-0" side={side}>
                 <Command>
-                    <div className="text-muted-foreground ml-1 flex items-center gap-2 px-2 py-1 pt-2 text-xs">{t`Chat.Project.project`}</div>
+                    <div className="text-muted-foreground ml-1 flex items-center gap-2 px-2 py-1 pt-2 text-xs">{t`Project`}</div>
 
                     <CommandList>
                         <CommandGroup>
@@ -82,14 +82,14 @@ export const ProjectDropdown = ({ align, children, project, side }: Properties) 
                                     }}
                                 >
                                     <AudioWaveformIcon className="text-foreground" />
-                                    <span>{t`Chat.VoiceChat.title`}</span>
+                                    <span>{t`Voice Chat Mode`}</span>
                                 </div>
                             </CommandItem>
                             <CommandItem className="cursor-pointer p-0">
                                 <UpdateProjectNameDialog initialName={project.name} onUpdated={() => setOpen(false)} projectId={project.id}>
                                     <div className="flex w-full items-center gap-2 rounded px-2 py-1">
                                         <PencilLine className="text-foreground" />
-                                        {t`Chat.Project.renameProject`}
+                                        {t`Rename Project`}
                                     </div>
                                 </UpdateProjectNameDialog>
                             </CommandItem>
@@ -98,7 +98,7 @@ export const ProjectDropdown = ({ align, children, project, side }: Properties) 
                             <CommandItem className="cursor-pointer p-0" disabled={isDeleting}>
                                 <div className="flex w-full items-center gap-2 rounded px-2 py-1" onClick={handleDelete}>
                                     <Trash className="text-destructive" />
-                                    <span className="text-destructive">{t`Chat.Project.deleteProject`}</span>
+                                    <span className="text-destructive">{t`Delete Project`}</span>
                                     {isDeleting && <Loader className="ml-auto h-4 w-4 animate-spin" />}
                                 </div>
                             </CommandItem>
@@ -136,11 +136,11 @@ const UpdateProjectNameDialog = ({
             onUpdated(name);
             mutate("/api/project/list");
             mutate(`/projects/${projectId}`);
-            toast.success(t`Chat.Project.projectUpdated`);
+            toast.success(t`Project updated`);
         } catch (error) {
             setIsUpdating(false);
             setIsOpen(false);
-            toast.error(error.message || t`Chat.Project.failedToUpdateProject`);
+            toast.error(error.message || t`Failed to update project`);
         }
     };
 
@@ -149,18 +149,18 @@ const UpdateProjectNameDialog = ({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent hideClose>
                 <DialogHeader>
-                    <DialogTitle>{t`Chat.Project.renameProject`}</DialogTitle>
+                    <DialogTitle>{t`Rename Project`}</DialogTitle>
                 </DialogHeader>
                 <DialogDescription>
                     <Input onChange={(e) => setName(e.target.value)} type="text" value={name} />
                 </DialogDescription>
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="secondary">{t`Common.cancel`}</Button>
+                        <Button variant="secondary">{t`Cancel`}</Button>
                     </DialogClose>
 
                     <Button onClick={handleUpdate} variant="outline">
-                        {isUpdating ? <Loader className="h-4 w-4 animate-spin" /> : t`Common.update`}
+                        {isUpdating ? <Loader className="h-4 w-4 animate-spin" /> : t`Update`}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -68,14 +68,14 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
 
     // Name validation schema
     const nameSchema = z.string().regex(/^[a-z0-9\-]+$/i, {
-        message: t`MCP.nameMustContainOnlyAlphanumericCharactersAndHyphens`,
+        message: t`Name must contain only alphanumeric characters (A-Z, a-z, 0-9) and hyphens (-)`,
     });
 
     const validateName = (nameValue: string): boolean => {
         const result = nameSchema.safeParse(nameValue);
 
         if (!result.success) {
-            setNameError(t`MCP.nameMustContainOnlyAlphanumericCharactersAndHyphens`);
+            setNameError(t`Name must contain only alphanumeric characters (A-Z, a-z, 0-9) and hyphens (-)`);
 
             return false;
         }
@@ -108,11 +108,11 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
             return;
 
         if (!name) {
-            return handleErrorWithToast(new Error(t`MCP.nameIsRequired`), "mcp-editor-error");
+            return handleErrorWithToast(new Error(t`Name is required`), "mcp-editor-error");
         }
 
         if (!validateName(name)) {
-            return handleErrorWithToast(new Error(t`MCP.nameMustContainOnlyAlphanumericCharactersAndHyphens`), "mcp-editor-error");
+            return handleErrorWithToast(new Error(t`Name must contain only alphanumeric characters (A-Z, a-z, 0-9) and hyphens (-)`), "mcp-editor-error");
         }
 
         setIsLoading(true);
@@ -122,7 +122,7 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
                 const exist = await existMcpClientByServerNameAction(name);
 
                 if (exist)
-                    throw new Error(t`MCP.nameAlreadyExists`);
+                    throw new Error(t`Name already exists`);
             }
 
             const res = await fetch("/api/mcp", {
@@ -136,7 +136,7 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
                 throw error;
             }
 
-            toast.success(t`MCP.configurationSavedSuccessfully`);
+            toast.success(t`Configuration saved successfully`);
             mutate("/api/mcp/list");
             navigate({ to: "/mcp" });
         } catch (error) {
@@ -178,7 +178,7 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
                         if (e.target.value)
                             validateName(e.target.value);
                     }}
-                    placeholder={t`MCP.enterMcpServerName`}
+                    placeholder={t`Enter MCP server name`}
                     value={name}
                 />
                 {nameError && <p className="text-destructive text-xs">{nameError}</p>}
@@ -223,7 +223,7 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
 
             {/* Save button */}
             <Button className="w-full" disabled={saveDisabled} onClick={handleSave}>
-                {isLoading ? <Loader className="size-4 animate-spin" /> : <span className="font-bold">{t`MCP.saveConfiguration`}</span>}
+                {isLoading ? <Loader className="size-4 animate-spin" /> : <span className="font-bold">{t`Save Configuration`}</span>}
             </Button>
         </div>
     );

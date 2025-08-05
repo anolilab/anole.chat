@@ -111,7 +111,7 @@ const InstructionsStep = ({
             <div className="flex items-center justify-between gap-2">
                 <Button className="border-accent flex flex-1 items-center gap-2 rounded-full border" onClick={generateInstructions}>
                     {isLoading ? <Loader className="size-3.5 animate-spin" /> : <WandSparkles className="size-3.5" />}
-                    {t`Common.generateWithAI`}
+                    {t`Generate With AI`}
                 </Button>
                 <SelectModel align="end" onSelect={setModel}>
                     <Button className="min-w-24 justify-between gap-1" variant="ghost">
@@ -123,7 +123,7 @@ const InstructionsStep = ({
 
             <div className="mt-6 mb-2 flex items-center justify-between">
                 <Label className="text-sm" htmlFor="instructions">
-                    {t`Chat.Project.instructions`}
+                    {t`Instructions`}
                 </Label>
             </div>
             <Textarea
@@ -131,23 +131,23 @@ const InstructionsStep = ({
                 disabled={isLoading}
                 id="instructions"
                 onChange={(e) => setSystemPrompt(e.target.value)}
-                placeholder={t`Chat.Project.placeholder`}
+                placeholder={t`e.g. You are a Korean travel guide ChatBot. Respond only in Korean, include precise times for every itinerary item, and present transportation, budget, and dining recommendations succinctly in a table format.`}
                 value={systemPrompt}
             />
 
             <div className="mt-4 flex justify-between">
                 <Button className="gap-1" onClick={prevStep} type="button" variant="ghost">
                     <ArrowLeft className="size-4" />
-                    {t`Common.back`}
+                    {t`Back`}
                 </Button>
 
                 <div className="flex gap-2">
                     <DialogClose asChild>
-                        <Button variant="ghost">{t`Common.cancel`}</Button>
+                        <Button variant="ghost">{t`Cancel`}</Button>
                     </DialogClose>
                     <Button className="gap-1" disabled={isLoading || !systemPrompt.trim()} onClick={onSave} variant="secondary">
                         {isLoading && <Loader className="size-4 animate-spin" />}
-                        {t`Common.save`}
+                        {t`Save`}
                     </Button>
                 </div>
             </div>
@@ -195,7 +195,7 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
             });
 
             setIsOpen(false);
-            toast.success(t`Chat.Project.projectCreated`);
+            toast.success(t`Project created`);
             await mutate("/api/project/list");
             onClose?.();
             navigate({ to: `/project/${project.id}` });
@@ -208,14 +208,14 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
     const steps = useMemo(
         () => [
             {
-                description: t`Chat.Project.enterNameForNewProject`,
+                description: t`Enter a name for your new project`,
                 id: 1,
-                title: t`Chat.Project.projectName`,
+                title: t`Name`,
             },
             {
-                description: t`Chat.Project.provideCustomInstructionsForYourProjectAssistant`,
+                description: t`Provide custom instructions for your project assistant`,
                 id: 2,
-                title: t`Chat.Project.instructions`,
+                title: t`Instructions`,
             },
         ],
         [],
@@ -246,11 +246,11 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
         >
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="bg-card overflow-hidden p-0 sm:max-w-[800px]">
-                <DialogTitle className="m-0 hidden p-0">{t`Chat.Project.createProject`}</DialogTitle>
+                                    <DialogTitle className="m-0 hidden p-0">{t`Create Project`}</DialogTitle>
 
                 <div className="flex h-[60vh]">
                     <div className="bg-muted flex w-1/3 flex-col p-6">
-                        <div className="mb-6 text-xl font-bold">{t`Chat.Project.createProject`}</div>
+                        <div className="mb-6 text-xl font-bold">{t`Create Project`}</div>
 
                         <div className="flex-1">
                             {steps.map((step) => (
@@ -296,8 +296,8 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
                                 <div className="flex items-start">
                                     <Lightbulb className="text-accent-foreground mt-1 mr-2 size-4 flex-shrink-0" />
                                     <div className="text-muted-foreground text-xs">
-                                        <p className="text-accent-foreground mb-1 font-semibold">{t`Chat.Project.whatIsAProject`}</p>
-                                        {t`Chat.Project.aProjectAllowsYouToOrganizeYourFilesAndCustomInstructionsInOneConvenientPlace`}
+                                        <p className="text-accent-foreground mb-1 font-semibold">{t`What is a project?`}</p>
+                                        {t`A project allows you to organize your files and custom instructions in one convenient place.`}
                                     </div>
                                 </div>
                             </div>

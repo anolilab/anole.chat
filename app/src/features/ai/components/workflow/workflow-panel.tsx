@@ -187,7 +187,7 @@ export const WorkflowPanel = memo(
                                     {isProcessing ? <Loader className="size-3.5 animate-spin" /> : t`Save`}
                                 </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">{t`Workflow.autoSaveDescription`}</TooltipContent>
+                            <TooltipContent side="bottom">{t`Auto saved every 10 seconds`}</TooltipContent>
                         </Tooltip>
                     )}
                     <div className="h-6">

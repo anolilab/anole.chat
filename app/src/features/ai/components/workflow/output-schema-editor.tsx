@@ -140,7 +140,7 @@ export const OutputSchemaEditor = ({ children, onChange, onOpenChange, open, sch
                     />
                 </div>
             ),
-            title: t`Workflow.generateSchemaWithAI`,
+            title: t`Generate Schema with AI`,
         });
 
         if (!result)
@@ -208,9 +208,9 @@ Return ONLY the JSON Schema object - no explanations or markdown formatting.`,
                 setAdvancedJson(JSON.stringify(res, null, 2));
             }),
             {
-                error: t`Workflow.failedToGenerateSchema`,
-                loading: t`Workflow.generatingJsonSchemaWithAI`,
-                success: t`Workflow.jsonSchemaGeneratedSuccessfully`,
+                        error: t`Failed to generate schema`,
+        loading: t`Generating JSON Schema with AI...`,
+        success: t`JSON Schema generated successfully!`,
             },
         );
     }, [t]);

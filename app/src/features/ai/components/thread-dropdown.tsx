@@ -41,14 +41,14 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
     const handleUpdate = async (title: string) => {
         try {
             if (!title) {
-                throw new Error(t`titleRequired`);
+                throw new Error(t`Title is required`);
             }
 
             await updateThreadAction(threadId, { title });
             await mutate("/api/thread/list");
-            toast.success(t`threadUpdated`);
+            toast.success(t`Thread updated`);
         } catch (error) {
-            toast.error(error.message || t`failedToUpdateThread`);
+            toast.error(error.message || t`Failed to update thread`);
         }
     };
 
@@ -59,7 +59,7 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
             await deleteThreadAction(threadId);
             setIsDeleting(false);
             setOpen(false);
-            toast.success(t`threadDeleted`);
+            toast.success(t`Thread deleted`);
             onDeleted?.();
 
             if (currentThreadId === threadId) {
@@ -70,7 +70,7 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
         } catch (error) {
             setIsDeleting(false);
             setOpen(false);
-            toast.error(error.message || t`failedToDeleteThread`);
+            toast.error(error.message || t`Failed to delete thread`);
         }
     };
 
@@ -79,7 +79,7 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
             <PopoverTrigger asChild>{children}</PopoverTrigger>
             <PopoverContent align={align} className="w-[220px] p-0" side={side}>
                 <Command>
-                    <div className="text-muted-foreground ml-1 flex items-center gap-2 px-2 py-1 pt-2 text-xs">{t`chat`}</div>
+                    <div className="text-muted-foreground ml-1 flex items-center gap-2 px-2 py-1 pt-2 text-xs">{t`Chat`}</div>
 
                     <CommandList>
                         <CommandGroup>
@@ -87,7 +87,7 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
                                 <CreateProjectWithThreadPopup onClose={() => setOpen(false)} threadId={threadId}>
                                     <div className="flex w-full items-center gap-2">
                                         <WandSparkles className="text-foreground" />
-                                        <span className="mr-4">{t`summarizeAsProject`}</span>
+                                        <span className="mr-4">{t`Summarize as Project`}</span>
                                     </div>
                                 </CreateProjectWithThreadPopup>
                             </CommandItem>
@@ -95,7 +95,7 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
                                 <UpdateThreadNameDialog initialTitle={beforeTitle ?? ""} onUpdated={(title) => handleUpdate(title)}>
                                     <div className="flex w-full items-center gap-2 rounded px-2 py-1">
                                         <PencilLine className="text-foreground" />
-                                        <span className="mr-4">{t`renameChat`}</span>
+                                        <span className="mr-4">{t`Re Name`}</span>
                                     </div>
                                 </UpdateThreadNameDialog>
                             </CommandItem>
@@ -105,7 +105,7 @@ export const ThreadDropdown = ({ align, beforeTitle, children, onDeleted, side, 
                             <CommandItem className="cursor-pointer p-0" disabled={isDeleting}>
                                 <div className="flex w-full items-center gap-2 rounded px-2 py-1" onClick={handleDelete}>
                                     <Trash className="text-destructive" />
-                                    <span className="text-destructive">{t`deleteChat`}</span>
+                                    <span className="text-destructive">{t`Delete Chat`}</span>
                                     {isDeleting && <Loader className="ml-auto h-4 w-4 animate-spin" />}
                                 </div>
                             </CommandItem>
@@ -133,7 +133,7 @@ const UpdateThreadNameDialog = ({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent hideClose>
                 <DialogHeader>
-                    <DialogTitle>{t`Chat.Thread.renameChat`}</DialogTitle>
+                    <DialogTitle>{t`Re Name`}</DialogTitle>
                 </DialogHeader>
                 <DialogDescription>
                     <Input
@@ -151,11 +151,11 @@ const UpdateThreadNameDialog = ({
                 </DialogDescription>
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="secondary">{t`Common.cancel`}</Button>
+                        <Button variant="secondary">{t`Cancel`}</Button>
                     </DialogClose>
                     <DialogClose asChild>
                         <Button onClick={() => onUpdated(title)} variant="outline">
-                            {t`Common.update`}
+                            {t`Update`}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

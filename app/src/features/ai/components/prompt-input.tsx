@@ -19,12 +19,12 @@ import { useShallow } from "zustand/shallow";
 import type { ChatMention, ChatModel } from "@/types/chat";
 import type { WorkflowSummary } from "@/types/workflow";
 
-import type { DefaultToolName } from "../../lib/tools";
 import { appStore } from "../store";
 import { DefaultToolIcon } from "./default-tool-icon";
 import { SelectModel } from "./select-model";
 import ToolModeDropdown from "./tool-mode-dropdown";
 import { ToolSelectDropdown } from "./tool-select-dropdown";
+import type { DefaultToolName } from "../lib/tools";
 
 interface PromptInputProperties {
     append: UseChatHelpers["append"];
@@ -42,7 +42,7 @@ interface PromptInputProperties {
 
 const ChatMentionInput = lazy(() => import("./chat/chat-mention-input"));
 
-export default function PromptInput({
+const PromptInput = ({
     append,
     input,
     isLoading,
@@ -54,7 +54,7 @@ export default function PromptInput({
     threadId,
     toolDisabled,
     voiceDisabled,
-}: PromptInputProperties) {
+}: PromptInputProperties) => {
     const { t } = useLingui();
     const [currentThreadId, currentProjectId, globalModel, threadMentions, appStoreMutate] = appStore(
         useShallow((state) => [state.currentThreadId, state.currentProjectId, state.chatModel, state.threadMentions, state.mutate]),
@@ -220,7 +220,7 @@ export default function PromptInput({
                                         onChange={setInput}
                                         onChangeMention={onChangeMention}
                                         onEnter={submit}
-                                        placeholder={placeholder ?? t`placeholder`}
+                                        placeholder={placeholder ?? t`Ask anything or @mention`}
                                         ref={editorReference}
                                     />
                                 </Suspense>
@@ -277,7 +277,7 @@ export default function PromptInput({
                                         <ChevronDown className="size-3" />
                                     </Button>
                                 </SelectModel>
-                                {!isLoading && input.length === 0 && !voiceDisabled
+                                {!isLoading && input?.length === 0 && !voiceDisabled
                                     ? (
                                         <Tooltip>
                                             <TooltipTrigger asChild>
@@ -300,7 +300,7 @@ export default function PromptInput({
                                                     <AudioWaveformIcon size={16} />
                                                 </Button>
                                             </TooltipTrigger>
-                                            <TooltipContent>{t`VoiceChat.title`}</TooltipContent>
+                                            <TooltipContent>{t`Voice Chat Mode`}</TooltipContent>
                                         </Tooltip>
                                     )
                                     : (
@@ -325,3 +325,5 @@ export default function PromptInput({
         </div>
     );
 }
+
+export default PromptInput;

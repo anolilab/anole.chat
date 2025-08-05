@@ -1,7 +1,6 @@
 import { api } from "@anole/convex/api";
 import { useMutation, useQuery } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
-import React from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ interface SubscriptionManagerProperties {
     userId: string;
 }
 
-export const SubscriptionManager = ({ userId }: SubscriptionManagerProperties) => {
+const SubscriptionManager = ({ userId }: SubscriptionManagerProperties) => {
     // Queries
     const products = useQuery(api.polar.getProducts);
     const customer = useQuery(api.polar.getCustomer, { userId });
@@ -192,3 +191,5 @@ export const SubscriptionManager = ({ userId }: SubscriptionManagerProperties) =
         </div>
     );
 };
+
+export default SubscriptionManager;

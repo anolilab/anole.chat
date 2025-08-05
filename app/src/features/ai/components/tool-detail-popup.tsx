@@ -131,12 +131,12 @@ export const ToolDetailPopupContent = ({
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <span className="flex flex-1 items-center text-xs font-medium">
-                                    {t`MCP.additionalInstructions`}
+                                    {t`Tool Customization Instructions`}
                                     <Info className="text-muted-foreground ml-1 size-3" />
                                 </span>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p className="whitespace-pre-wrap">{t`MCP.toolCustomizationInstructions`}</p>
+                                <p className="whitespace-pre-wrap">{t`Tool customization instructions will be added to the system prompt when the tool is available.\nexample) Always enter the email in the format example@example.com.`}</p>
                             </TooltipContent>
                         </Tooltip>
                     </h5>
@@ -155,7 +155,7 @@ export const ToolDetailPopupContent = ({
                                                 <Trash2 className="size-3" />
                                             </Button>
                                         </TooltipTrigger>
-                                        <TooltipContent>{t`Common.delete`}</TooltipContent>
+                                        <TooltipContent>{t`Delete`}</TooltipContent>
                                     </Tooltip>
                                 )}
                                 {!editing && (
@@ -166,7 +166,7 @@ export const ToolDetailPopupContent = ({
                                                 <Pencil className="size-3" />
                                             </Button>
                                         </TooltipTrigger>
-                                        <TooltipContent>{t`Common.edit`}</TooltipContent>
+                                        <TooltipContent>{t`Edit`}</TooltipContent>
                                     </Tooltip>
                                 )}
                             </>
@@ -183,11 +183,11 @@ export const ToolDetailPopupContent = ({
                                 <Textarea autoFocus className="h-full max-h-[120px] resize-none" onChange={(e) => setValue(e.target.value)} value={value} />
                                 <div className="mt-2 flex justify-end gap-2">
                                     <Button onClick={() => setEditing(false)} size="sm" variant="ghost">
-                                        {t`Common.cancel`}
+                                        {t`Cancel`}
                                     </Button>
 
                                     <Button onClick={handleSave} size="sm">
-                                        {t`Common.save`}
+                                        {t`Save`}
                                     </Button>
                                 </div>
                             </div>
@@ -200,14 +200,14 @@ export const ToolDetailPopupContent = ({
             </div>
 
             <div className="my-4 flex items-center gap-2">
-                <h5 className="text-xs font-medium">{t`MCP.inputSchema`}</h5>
+                <h5 className="text-xs font-medium">{t`Input Schema`}</h5>
             </div>
             {tool.inputSchema
                 ? (
                     <div className="bg-card card max-h-[40vh] overflow-y-auto rounded p-4">
                         {isEmptySchema(tool.inputSchema)
                             ? (
-                                <p className="text-muted-foreground text-xs italic">{t`MCP.noSchemaPropertiesAvailable`}</p>
+                                <p className="text-muted-foreground text-xs italic">{t`No schema properties available`}</p>
                             )
                             : (
                                 <JsonView data={tool.inputSchema?.properties || tool.inputSchema} />
@@ -215,7 +215,7 @@ export const ToolDetailPopupContent = ({
                     </div>
                 )
                 : (
-                    <p className="text-muted-foreground text-xs italic">{t`MCP.noSchemaPropertiesAvailable`}</p>
+                    <p className="text-muted-foreground text-xs italic">{t`No schema properties available`}</p>
                 )}
 
             <div className="from-background pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-12 bg-gradient-to-t to-transparent" />

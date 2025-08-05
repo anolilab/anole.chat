@@ -83,7 +83,7 @@ export const ExecuteTab = ({ close, onSave }: { close: () => void; onSave: () =>
         const result = await notify.prompt({
             description: (
                 <div className="flex items-center gap-2">
-                    <p className="mr-auto">{t`Workflow.generateInputWithAIDescription`}</p>
+                    <p className="mr-auto">{t`Write a prompt to generate input for the workflow`}</p>
                     <SelectModel
                         onSelect={(m) => {
                             model = m;
@@ -91,7 +91,7 @@ export const ExecuteTab = ({ close, onSave }: { close: () => void; onSave: () =>
                     />
                 </div>
             ),
-            title: t`Common.generateInputWithAI`,
+            title: t`Generate Input With AI`,
         });
 
         if (!result)
@@ -115,9 +115,9 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                 setQuery(res);
             }),
             {
-                error: t`Common.failedToGenerateInput`,
-                loading: t`Common.generatingInputWithAI`,
-                success: t`Common.inputGeneratedSuccessfully`,
+                        error: t`Failed to generate input`,
+        loading: t`Generating input with AI...`,
+        success: t`Input generated successfully`,
             },
         );
     }, [inputSchema]);
@@ -407,7 +407,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                         onClick={handleGenerateInputWithAI}
                                         tabIndex={1}
                                     >
-                                        {t`Common.generateInputWithAI`}
+                                        {t`Generate Input With AI`}
                                         <WandSparklesIcon className="size-3" />
                                     </div>
                                     {inputSchemaIterator.map(([key, schema], index) => (
@@ -468,7 +468,7 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                 </>
                             )}
                         <Button className="w-full font-bold" disabled={isProcessing} onClick={handleClick}>
-                            {isProcessing ? <Loader className="size-3.5 animate-spin" /> : t`Common.run`}
+                            {isProcessing ? <Loader className="size-3.5 animate-spin" /> : t`Run`}
                         </Button>
                     </div>
                 )

@@ -1,12 +1,11 @@
 "use client";
 
-import { generateUniqueKey } from "lib/utils";
-import * as React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@anole/ui/components/card";
+import type { ChartConfig } from "@anole/ui/components/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@anole/ui/components/chart";
+import { generateUniqueKey } from "@anole/ui/utils/generate-unique-key";
+import { useMemo } from "react";
 import { CartesianGrid, Legend, Line, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ChartConfig } from "@/components/ui/chart";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 import { JsonViewPopup } from "./json-view-popup";
 import { sanitizeCssVariableName } from "./shared.tool-invocation";
@@ -34,7 +33,7 @@ const chartColors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(
 export const LineChart = (properties: LineChartProperties) => {
     const { data, description, title, yAxisLabel } = properties;
 
-    const deduplicateData = React.useMemo(
+    const deduplicateData =     useMemo(
         () =>
             data.reduce(
                 (accumulator, item) => {
@@ -72,7 +71,7 @@ export const LineChart = (properties: LineChartProperties) => {
     const seriesNames = deduplicateData[0]?.series.map((item) => item.seriesName) || [];
 
     // Generate chart configuration dynamically
-    const chartConfig = React.useMemo(() => {
+    const chartConfig =     useMemo(() => {
         const config: ChartConfig = {};
 
         // Configure each series
@@ -90,7 +89,7 @@ export const LineChart = (properties: LineChartProperties) => {
     }, [seriesNames]);
 
     // Generate chart data for Recharts
-    const chartData = React.useMemo(
+    const chartData =   useMemo(
         () =>
             deduplicateData.map((item) => {
                 const result: any = {

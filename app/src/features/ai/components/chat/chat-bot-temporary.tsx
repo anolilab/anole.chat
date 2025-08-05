@@ -339,15 +339,15 @@ const TemporaryChatInstructions = ({
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{t`Chat.TemporaryChat.temporaryChatInstructions`}</DialogTitle>
-                    <DialogDescription>{t`Chat.TemporaryChat.temporaryChatInstructionsDescription`}</DialogDescription>
+                    <DialogTitle>{t`Temporary Chat Instructions`}</DialogTitle>
+                    <DialogDescription>{t`You can set instructions for the temporary chat. This will be used as a system prompt for the temporary chat.`}</DialogDescription>
                 </DialogHeader>
                 <DialogDescription>
                     <Textarea
                         autoFocus
                         className="h-40 resize-none"
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder={t`Chat.TemporaryChat.temporaryChatInstructionsPlaceholder`}
+                        placeholder={t`Enter your instructions here`}
                         value={input}
                     />
                 </DialogDescription>
@@ -358,7 +358,7 @@ const TemporaryChatInstructions = ({
                             setIsOpen(false);
                         }}
                     >
-                        {t`Common.save`}
+                        {t`Save`}
                     </Button>
                 </DialogFooter>
             </DialogContent>

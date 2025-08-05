@@ -45,7 +45,7 @@ export const WorkflowToolSelect = ({
             return (
                 <>
                     <WrenchIcon className="size-3.5" />
-                    <span className="text-muted-foreground">{t`Common.selectTool`}</span>
+                    <span className="text-muted-foreground">{t`Select Tool...`}</span>
                 </>
             );
         }
@@ -80,9 +80,9 @@ export const WorkflowToolSelect = ({
             </PopoverTrigger>
             <PopoverContent align={align} className="p-0" side={side}>
                 <Command>
-                    <CommandInput placeholder={t`Common.search`} />
+                    <CommandInput placeholder={t`Search...`} />
                     <CommandList>
-                        <CommandEmpty>{t`Common.noResults`}</CommandEmpty>
+                        <CommandEmpty>{t`No results.`}</CommandEmpty>
                         {mcpToolsByServerId.map((mcpTools) => (
                             <CommandGroup heading={mcpTools.serverName} key={mcpTools.serverId}>
                                 {mcpTools.tools.map((tool) => (

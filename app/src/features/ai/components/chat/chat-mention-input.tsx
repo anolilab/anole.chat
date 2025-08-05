@@ -30,45 +30,7 @@ interface ChatMentionInputProperties {
     ref?: RefObject<Editor | null>;
 }
 
-export default function ChatMentionInput({ input, onChange, onChangeMention, onEnter, placeholder, ref }: ChatMentionInputProperties) {
-    const handleChange = useCallback(
-        ({ mentions, text }: { mentions: { id: string; label: string }[]; text: string }) => {
-            onChange(text);
-            onChangeMention(mentions.map((mention) => JSON.parse(mention.id) as ChatMention));
-        },
-        [onChange, onChangeMention],
-    );
-
-    return (
-        <MentionInput
-            content={input}
-            editorRef={ref}
-            MentionItem={ChatMentionInputMentionItem}
-            onChange={handleChange}
-            onEnter={onEnter}
-            placeholder={placeholder}
-            Suggestion={ChatMentionInputSuggestion}
-            suggestionChar="@"
-        />
-    );
-}
-
-export const ChatMentionInputMentionItem = ({ className, id }: { className?: string; id: string }) => {
-    const item = useMemo(() => JSON.parse(id) as ChatMention, [id]);
-    const label = useMemo(
-        () => <div className={cn("flex items-center px-1 text-sm font-semibold transition-colors", "text-blue-500", className)}>{item.label || item.name}</div>,
-        [item],
-    );
-
-    return (
-        <Tooltip>
-            <TooltipTrigger asChild>{label}</TooltipTrigger>
-            <TooltipContent className="max-w-xs p-4 whitespace-pre-wrap">{item.description || "mention"}</TooltipContent>
-        </Tooltip>
-    );
-};
-
-function ChatMentionInputSuggestion({
+const ChatMentionInputSuggestion = ({
     left,
     onClose,
     onSelectMention,
@@ -78,7 +40,7 @@ function ChatMentionInputSuggestion({
     onClose: () => void;
     onSelectMention: (item: { id: string; label: string }) => void;
     top: number;
-}) {
+}) => {
     const { t } = useLingui();
     const [mcpList, workflowList] = appStore(useShallow((state) => [state.mcpList, state.workflowToolList]));
 
@@ -285,3 +247,43 @@ function ChatMentionInputSuggestion({
         document.body,
     );
 }
+
+const ChatMentionInputMentionItem = ({ className, id }: { className?: string; id: string }) => {
+    const item = useMemo(() => JSON.parse(id) as ChatMention, [id]);
+    const label = useMemo(
+        () => <div className={cn("flex items-center px-1 text-sm font-semibold transition-colors", "text-blue-500", className)}>{item.label || item.name}</div>,
+        [item],
+    );
+
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>{label}</TooltipTrigger>
+            <TooltipContent className="max-w-xs p-4 whitespace-pre-wrap">{item.description || "mention"}</TooltipContent>
+        </Tooltip>
+    );
+};
+
+const ChatMentionInput = ({ input, onChange, onChangeMention, onEnter, placeholder, ref }: ChatMentionInputProperties) => {
+    const handleChange = useCallback(
+        ({ mentions, text }: { mentions: { id: string; label: string }[]; text: string }) => {
+            onChange(text);
+            onChangeMention(mentions.map((mention) => JSON.parse(mention.id) as ChatMention));
+        },
+        [onChange, onChangeMention],
+    );
+
+    return (
+        <MentionInput
+            content={input}
+            editorRef={ref}
+            MentionItem={ChatMentionInputMentionItem}
+            onChange={handleChange}
+            onEnter={onEnter}
+            placeholder={placeholder}
+            Suggestion={ChatMentionInputSuggestion}
+            suggestionChar="@"
+        />
+    );
+}
+
+export default ChatMentionInput;

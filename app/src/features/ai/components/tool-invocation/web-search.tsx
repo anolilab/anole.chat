@@ -37,10 +37,10 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
         () => (
             <HoverCard closeDelay={0} openDelay={200}>
                 <HoverCardTrigger asChild>
-                    <span className="hover:text-primary text-muted-foreground text-xs transition-colors">{t`Chat.Tool.searchOptions`}</span>
+                    <span className="hover:text-primary text-muted-foreground text-xs transition-colors">{t`Search Options`}</span>
                 </HoverCardTrigger>
                 <HoverCardContent className="flex w-full! max-w-xs flex-col overflow-auto md:max-w-md!">
-                    <p className="text-muted-foreground mb-2 px-2 text-xs">{t`Chat.Tool.searchOptionsDescription`}</p>
+                    <p className="text-muted-foreground mb-2 px-2 text-xs">{t`You can pass search options to the chatbot, such as the maximum number of search results, the search date, etc.`}</p>
                     <div className="p-2">
                         <JsonView data={part.args} />
                     </div>
@@ -65,7 +65,7 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
         return (
             <div className="flex items-center gap-2 text-sm">
                 <GlobalIcon className="wiggle text-muted-foreground size-5" />
-                <TextShimmer>{t`Chat.Tool.webSearching`}</TextShimmer>
+                <TextShimmer>{t`Searching the Web...`}</TextShimmer>
             </div>
         );
     }
@@ -74,7 +74,7 @@ const PureWebSearchToolInvocation = ({ part }: WebSearchToolInvocationProperties
         <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
                 <GlobalIcon className="text-muted-foreground size-5" />
-                <span className="text-sm font-semibold">{t`Chat.Tool.searchedTheWeb`}</span>
+                <span className="text-sm font-semibold">{t`Searched the Web`}</span>
                 {options}
             </div>
             <div className="flex gap-2">

@@ -1,8 +1,0 @@
-{
-    "name": "models-database",
-    "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "packages/models-database/src",
-    "projectType": "library",
-    "tags": ["models-database", "type:package"],
-    "implicitDependencies": []
-}

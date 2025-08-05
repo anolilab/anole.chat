@@ -29,7 +29,7 @@ export const CreateProjectPopup = ({ children }: PropsWithChildren) => {
             const project = await insertProjectAction({ name });
 
             setIsOpen(false);
-            toast.success(t`Chat.Project.projectCreated`);
+            toast.success(t`Project created`);
             await mutate("/api/project/list");
             navigate({ to: `/project/${project.id}` });
         } catch (error) {
@@ -56,17 +56,17 @@ export const CreateProjectPopup = ({ children }: PropsWithChildren) => {
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>{t`Chat.Project.project`}</DialogTitle>
+                    <DialogTitle>{t`Project`}</DialogTitle>
                     <DialogDescription asChild className="my-0! bg-transparent">
                         <div className="bg-muted my-2 flex gap-2 rounded-lg p-4">
                             <div className="mt-1 px-2">
                                 <Lightbulb className="text-accent-foreground size-4 animate-pulse" />
                             </div>
                             <div className="">
-                                <p className="text-accent-foreground mb-1 font-semibold">{t`Chat.Project.whatIsAProject`}</p>
+                                <p className="text-accent-foreground mb-1 font-semibold">{t`What is a project?`}</p>
                                 <FlipWords
                                     className="text-muted-foreground px-0"
-                                    words={[t`Chat.Project.aProjectAllowsYouToOrganizeYourFilesAndCustomInstructionsInOneConvenientPlace`]}
+                                    words={[t`A project allows you to organize your files and custom instructions in one convenient place.`]}
                                 />
                             </div>
                         </div>
@@ -79,17 +79,17 @@ export const CreateProjectPopup = ({ children }: PropsWithChildren) => {
                         id="name"
                         onChange={(e) => setName(e.target.value)}
                         onKeyDown={handleEnterKey}
-                        placeholder={t`Chat.Project.enterNameForNewProject`}
+                        placeholder={t`Enter a name for your new project`}
                         value={name}
                     />
                 </div>
                 <DialogFooter>
                     <DialogClose asChild disabled={isLoading}>
-                        <Button variant="ghost">{t`Common.cancel`}</Button>
+                        <Button variant="ghost">{t`Cancel`}</Button>
                     </DialogClose>
                     <Button disabled={isLoading || !name.trim()} onClick={handleCreate} type="submit" variant="secondary">
                         {isLoading && <Loader className="size-4 animate-spin" />}
-                        {t`Common.create`}
+                        {t`Create`}
                     </Button>
                 </DialogFooter>
             </DialogContent>
