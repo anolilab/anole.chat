@@ -35,9 +35,7 @@ export const SelectModel = (properties: PropsWithChildren<SelectModelProperties>
             <PopoverTrigger asChild>
                 {properties.children || (
                     <Button className="data-[state=open]:bg-input! hover:bg-input!" size="sm" variant="secondary">
-                        <p className="mr-auto flex items-center gap-1">
-                            {model?.model ? <span className="text-muted-foreground">{model.model}</span> : <span className="text-muted-foreground">model</span>}
-                        </p>
+                        <p className="mr-auto flex items-center gap-1">{model?.model || "model"}</p>
                         <ChevronDown className="size-3" />
                     </Button>
                 )}

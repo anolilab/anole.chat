@@ -32,11 +32,14 @@ export const MermaidDiagram = ({ chart }: MermaidDiagramProperties) => {
     });
     const containerReference = useRef<HTMLDivElement>(null);
     const previousChartReference = useRef<string>(chart);
-    const debounceFunction = useMemo(() => (function_: () => void, delay: number) => {
-        const debouncedFunction = debounce(function_, { wait: delay });
+    const debounceFunction = useMemo(
+        () => (function_: () => void, delay: number) => {
+            const debouncedFunction = debounce(function_, { wait: delay });
 
-        debouncedFunction();
-    }, []);
+            debouncedFunction();
+        },
+        [],
+    );
 
     useEffect(() => {
         // Reset states if chart has changed

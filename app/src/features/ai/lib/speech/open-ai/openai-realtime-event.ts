@@ -83,20 +83,20 @@ export type OpenAIRealtimeServerEvent
         type: "response.audio_transcript.done";
     }
     | {
-        content_index: number;
-        event_id: string;
-        item_id: string;
-        output_index: number;
-        response_id: string;
-        type: "response.audio.done";
-    }
+          content_index: number;
+          event_id: string;
+          item_id: string;
+          output_index: number;
+          response_id: string;
+          type: "response.audio.done";
+      }
     | {
-        arguments: string;
-        call_id: string;
-        event_id: string;
-        item_id: string;
-        name: string;
-        output_index: number;
-        response_id: string;
-        type: "response.function_call_arguments.done";
-    };
+          arguments: string;
+          call_id: string;
+          event_id: string;
+          item_id: string;
+          name: string;
+          output_index: number;
+          response_id: string;
+          type: "response.function_call_arguments.done";
+      };

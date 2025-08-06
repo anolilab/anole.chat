@@ -62,12 +62,13 @@ export class Locker {
 }
 
 // Utility function to add timeout to promises
-export const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => Promise.race([
-    promise,
-    new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs);
-    }),
-]);
+export const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> =>
+    Promise.race([
+        promise,
+        new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs);
+        }),
+    ]);
 
 // Utility function to fetch data
 export const fetcher = async (url: string) => {

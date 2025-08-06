@@ -43,23 +43,22 @@ export const CodeExecutor = memo(
                 const logstring = JSON.stringify(result.logs);
 
                 onResult?.({
-
                     ...result,
                     guide: "Execution finished. Provide: 1) Main results/outputs 2) Key insights or findings 3) Error explanations if any. Don't repeat code or raw logs - interpret and summarize for the user.",
                     logs:
-                            logstring.length > 5000
-                                ? [
-                                    {
-                                        args: [
-                                            {
-                                                type: "data",
-                                                value: "Log output exceeded storage limit (10KB). Full output was displayed to user but truncated for server storage.",
-                                            },
-                                        ],
-                                        type: "info",
-                                    },
-                                ]
-                                : result.logs,
+                        logstring.length > 5000
+                            ? [
+                                {
+                                    args: [
+                                        {
+                                            type: "data",
+                                            value: "Log output exceeded storage limit (10KB). Full output was displayed to user but truncated for server storage.",
+                                        },
+                                    ],
+                                    type: "info",
+                                },
+                            ]
+                            : result.logs,
                 });
             },
             [onResult],

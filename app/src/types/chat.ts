@@ -106,6 +106,7 @@ export const chatApiSchemaRequestBodySchema = z
         mentions: z.array(ChatMentionSchema).optional(),
         message: z.any() as z.ZodType<UIMessage>,
         projectId: z.string().optional(),
+        thinking: z.boolean().optional(),
         toolChoice: z.enum(["auto", "none", "manual"]),
     })
     .strict();

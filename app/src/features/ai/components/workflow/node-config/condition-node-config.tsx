@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@anole/ui/components/separator";
 import { useLingui } from "@lingui/react/macro";
 import { Handle, Position, useNodes, useReactFlow } from "@xyflow/react";
-import { cn } from "lib/utils";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";

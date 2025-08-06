@@ -23,9 +23,10 @@ import type { ChatModel, ClientToolInvocation, ToolInvocationUIPart } from "@/ty
 import { isVercelAIWorkflowTool } from "@/types/workflow";
 
 import { extractMCPToolId } from "../../lib/mcp/mcp-tool-id";
-import { DefaultToolName } from "../../lib/tools";
+import { DefaultToolName, SequentialThinkingToolName } from "../../lib/tools";
 import { Markdown } from "../markdown";
 import { SelectModel } from "../select-model";
+import { SequentialThinkingToolInvocation } from "../tool-invocation/sequential-thinking";
 import { WorkflowInvocation } from "../tool-invocation/workflow-invocation";
 import { MessageEditor } from "./message-editor";
 
@@ -539,6 +540,10 @@ export const ToolMessagePart = memo(
                         <CodeExecutor key={toolInvocation.toolCallId} onResult={onToolCallDirect} part={toolInvocation} type="python" />
                     </Suspense>
                 );
+            }
+
+            if (toolName === SequentialThinkingToolName) {
+                return <SequentialThinkingToolInvocation key={toolInvocation.toolCallId} part={toolInvocation} />;
             }
 
             if (state === "result") {

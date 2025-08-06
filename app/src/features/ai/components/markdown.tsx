@@ -17,7 +17,7 @@ const FadeIn = memo(({ children }: PropsWithChildren) => (
 
 FadeIn.displayName = "FadeIn";
 
-const WordByWordFadeIn = memo(({ children }: PropsWithChildren) => {
+export const WordByWordFadeIn = memo(({ children }: PropsWithChildren) => {
     const childrens = [children].flat().flatMap((child) => (typeof child === "string" ? child.split(" ") : child));
 
     return childrens.map((word, index) => (typeof word === "string" ? <FadeIn key={index}>{word}</FadeIn> : word));

@@ -1,7 +1,8 @@
 const objectFlow = <T extends Record<string, any>>(object: T) => {
     return {
         every: (function_: (value: T[keyof T], key: keyof T) => any): boolean => Object.entries(object).every(([key, value]) => function_(value, key)),
-        filter: (function_: (value: T[keyof T], key: keyof T) => boolean): Record<keyof T, T[keyof T]> => Object.fromEntries(Object.entries(object).filter(([key, value]) => function_(value, key))) as Record<keyof T, T[keyof T]>,
+        filter: (function_: (value: T[keyof T], key: keyof T) => boolean): Record<keyof T, T[keyof T]> =>
+            Object.fromEntries(Object.entries(object).filter(([key, value]) => function_(value, key))) as Record<keyof T, T[keyof T]>,
 
         find(function_: (value: T[keyof T], key: keyof T) => any): T | undefined {
             return Object.entries(object).find(([key, value]) => function_(value, key))?.[1];
@@ -20,7 +21,8 @@ const objectFlow = <T extends Record<string, any>>(object: T) => {
 
             return result;
         },
-        map: <R>(function_: (value: T[keyof T], key: keyof T) => R): Record<keyof T, R> => Object.fromEntries(Object.entries(object).map(([key, value]) => [key, function_(value, key)])) as Record<keyof T, R>,
+        map: <R>(function_: (value: T[keyof T], key: keyof T) => R): Record<keyof T, R> =>
+            Object.fromEntries(Object.entries(object).map(([key, value]) => [key, function_(value, key)])) as Record<keyof T, R>,
         setByPath(path: string[], value: any) {
             path.reduce((accumulator, current, index) => {
                 const isLast = index == path.length - 1;

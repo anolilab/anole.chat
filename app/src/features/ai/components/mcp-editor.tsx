@@ -54,11 +54,14 @@ export default function MCPEditor({ id, initialConfig, name: initialName }: MCPE
     const [jsonError, setJsonError] = useState<string | null>(null);
     const [nameError, setNameError] = useState<string | null>(null);
 
-    const errorDebounce = useMemo(() => (function_: () => void, delay: number) => {
-        const debouncedFunction = debounce(function_, { wait: delay });
+    const errorDebounce = useMemo(
+        () => (function_: () => void, delay: number) => {
+            const debouncedFunction = debounce(function_, { wait: delay });
 
-        debouncedFunction();
-    }, []);
+            debouncedFunction();
+        },
+        [],
+    );
 
     // State for form fields
     const [name, setName] = useState<string>(initialName ?? "");

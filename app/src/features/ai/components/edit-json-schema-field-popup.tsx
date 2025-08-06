@@ -264,8 +264,8 @@ export const EditJsonSchemaFieldContent = ({
             {/* Field Description */}
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                            <Label htmlFor="field-description">{t`Description`}</Label>
-        <span className="text-muted-foreground text-xs">{t`Optional`}</span>
+                    <Label htmlFor="field-description">{t`Description`}</Label>
+                    <span className="text-muted-foreground text-xs">{t`Optional`}</span>
                 </div>
                 <Input
                     className="bg-secondary border-none"
@@ -282,8 +282,8 @@ export const EditJsonSchemaFieldContent = ({
             {/* Default Value */}
             <div className="flex flex-col gap-2">
                 <div className="mb-2 flex items-center gap-2">
-                            <Label htmlFor="field-default">{t`Default Value`}</Label>
-        <span className="text-muted-foreground text-xs">{t`Optional`}</span>
+                    <Label htmlFor="field-default">{t`Default Value`}</Label>
+                    <span className="text-muted-foreground text-xs">{t`Optional`}</span>
                 </div>
                 {field.type === "boolean" ? (
                     <div className="flex items-center space-x-2">

@@ -83,7 +83,7 @@ const ToolModeDropdown = ({ disabled }: { disabled?: boolean }): JSX.Element => 
                         <TooltipTrigger asChild>
                             <span className="absolute inset-0 -z-10" />
                         </TooltipTrigger>
-                        <TooltipContent className="flex items-center gap-2" side="bottom">
+                        <TooltipContent className="flex items-center gap-2">
                             {capitalizeFirstLetter(toolChoice)}
                             <CheckIcon className="size-2.5" />
                         </TooltipContent>

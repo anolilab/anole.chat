@@ -53,6 +53,7 @@ export const ChatBotTemporary = () => {
             if (isShortcutEvent(e, Shortcuts.toggleTemporaryChat)) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 appStoreMutate((previous) => {
                     return {
                         temporaryChat: {
@@ -72,6 +73,7 @@ export const ChatBotTemporary = () => {
             ) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 setMessages([]);
             } else if (
                 temporaryChat.isOpen
@@ -84,6 +86,7 @@ export const ChatBotTemporary = () => {
             ) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 setIsInstructionsOpen((previous) => !previous);
             }
         };

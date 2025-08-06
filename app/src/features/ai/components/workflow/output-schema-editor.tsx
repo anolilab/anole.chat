@@ -208,9 +208,9 @@ Return ONLY the JSON Schema object - no explanations or markdown formatting.`,
                 setAdvancedJson(JSON.stringify(res, null, 2));
             }),
             {
-                        error: t`Failed to generate schema`,
-        loading: t`Generating JSON Schema with AI...`,
-        success: t`JSON Schema generated successfully!`,
+                error: t`Failed to generate schema`,
+                loading: t`Generating JSON Schema with AI...`,
+                success: t`JSON Schema generated successfully!`,
             },
         );
     }, [t]);

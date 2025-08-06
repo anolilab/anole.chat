@@ -127,8 +127,8 @@ export const EditWorkflowPopup = ({
                 .watch(() => setLoading(false))
                 .unwrap(),
             {
-                        loading: t`Saving...`,
-        success: t`Success`,
+                loading: t`Saving...`,
+                success: t`Success`,
             },
         );
     };
@@ -147,8 +147,8 @@ export const EditWorkflowPopup = ({
                     <DialogTitle>{t`Create Workflow`}</DialogTitle>
                     <DialogDescription asChild>
                         <div className="mt-2">
-                                    <p>{t`Create workflows as powerful tools for your chatbot.`}</p>
-        <p className="mt-1">{t`These can be triggered during conversations to automate complex tasks.`}</p>
+                            <p>{t`Create workflows as powerful tools for your chatbot.`}</p>
+                            <p className="mt-1">{t`These can be triggered during conversations to automate complex tasks.`}</p>
                         </div>
                     </DialogDescription>
                 </DialogHeader>

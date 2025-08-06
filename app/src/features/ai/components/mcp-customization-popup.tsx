@@ -256,13 +256,13 @@ export const McpServerCustomizationContent = ({
                                                 <AlertTitle>{tool.name}</AlertTitle>
                                                 <AlertDescription className="flex w-full min-w-0 items-start gap-2">
                                                     <p
-                                                        className={cn(
-                                                            !tool.prompt && "italic",
-                                                            "text-muted-foreground line-clamp-3 text-xs break-all whitespace-pre-wrap",
-                                                        )}
-                                                    >
-                                                        {tool.prompt || "None"}
-                                                    </p>
+                                                     className={cn(
+                                                        !tool.prompt && "italic",
+                                                        "text-muted-foreground line-clamp-3 text-xs break-all whitespace-pre-wrap",
+                                                    )}
+                                                 >
+                                                     {tool.prompt || "None"}
+                                                 </p>
                                                 </AlertDescription>
                                             </div>
                                             <ChevronRight className="size-3.5 flex-shrink-0" />

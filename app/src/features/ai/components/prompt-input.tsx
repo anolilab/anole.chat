@@ -13,18 +13,18 @@ import { useLingui } from "@lingui/react/macro";
 import type { Editor } from "@tiptap/react";
 import equal from "fast-deep-equal";
 import { AudioWaveformIcon, ChevronDown, CornerRightUp, Paperclip, Square, XIcon } from "lucide-react";
-import { lazy, Suspense, useCallback, useMemo, useRef } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { useShallow } from "zustand/shallow";
 
 import type { ChatMention, ChatModel } from "@/types/chat";
 import type { WorkflowSummary } from "@/types/workflow";
 
+import type { DefaultToolName } from "../lib/tools";
 import { appStore } from "../store";
 import { DefaultToolIcon } from "./default-tool-icon";
 import { SelectModel } from "./select-model";
 import ToolModeDropdown from "./tool-mode-dropdown";
 import { ToolSelectDropdown } from "./tool-select-dropdown";
-import type { DefaultToolName } from "../lib/tools";
 
 interface PromptInputProperties {
     append: UseChatHelpers["append"];
@@ -32,9 +32,11 @@ interface PromptInputProperties {
     isLoading?: boolean;
     model?: ChatModel;
     onStop: () => void;
+    onThinkingChange?: (thinking: boolean) => void;
     placeholder?: string;
     setInput: (value: string) => void;
     setModel?: (model: ChatModel) => void;
+    thinking?: boolean;
     threadId?: string;
     toolDisabled?: boolean;
     voiceDisabled?: boolean;
@@ -42,15 +44,24 @@ interface PromptInputProperties {
 
 const ChatMentionInput = lazy(() => import("./chat/chat-mention-input"));
 
+const THINKING_SHORTCUT = {
+    shortcut: {
+        command: true,
+        key: "E",
+    },
+};
+
 const PromptInput = ({
     append,
     input,
     isLoading,
     model,
     onStop,
+    onThinkingChange,
     placeholder,
     setInput,
     setModel,
+    thinking,
     threadId,
     toolDisabled,
     voiceDisabled,
@@ -165,6 +176,25 @@ const PromptInput = ({
         });
     };
 
+    useEffect(() => {
+        if (!onThinkingChange)
+            return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (isShortcutEvent(e, THINKING_SHORTCUT)) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                onThinkingChange(!thinking);
+                editorRef.current?.commands.focus();
+            }
+        };
+
+        globalThis.addEventListener("keydown", handleKeyDown);
+
+        return () => globalThis.removeEventListener("keydown", handleKeyDown);
+    }, [!!onThinkingChange, thinking]);
+
     return (
         <div className="fade-in animate-in mx-auto max-w-3xl">
             <div className="relative z-10 mx-auto w-full max-w-3xl">
@@ -235,6 +265,28 @@ const PromptInput = ({
                                     <Paperclip />
                                 </Button>
 
+                                {onThinkingChange && (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button
+                                                className={cn("hover:bg-input! rounded-full p-2!", thinking && "bg-input!")}
+                                                onClick={() => {
+                                                    onThinkingChange(!thinking);
+                                                    editorRef.current?.commands.focus();
+                                                }}
+                                                size="sm"
+                                                variant="ghost"
+                                            >
+                                                <LightbulbIcon />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="flex items-center gap-2" side="top">
+                                            Sequential Thinking
+                                            <span className="text-muted-foreground ml-2">{getShortcutKeyList(THINKING_SHORTCUT).join("")}</span>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )}
+
                                 {!toolDisabled && (
                                     <>
                                         <ToolModeDropdown />
@@ -265,9 +317,7 @@ const PromptInput = ({
                                                                         <GeminiIcon className="size-3 opacity-0 group-hover:opacity-100 group-data-[state=open]:opacity-100" />
                                                                     )
                                                                     : null}
-                                                    <span className="text-muted-foreground group-data-[state=open]:text-foreground group-hover:text-foreground">
-                                                        {chatModel.model}
-                                                    </span>
+                                                    <span className="text-foreground group-data-[state=open]:text-foreground">{chatModel.model}</span>
                                                 </>
                                             )
                                             : (
@@ -324,6 +374,6 @@ const PromptInput = ({
             </div>
         </div>
     );
-}
+};
 
 export default PromptInput;

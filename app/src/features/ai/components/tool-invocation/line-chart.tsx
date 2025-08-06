@@ -33,7 +33,7 @@ const chartColors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(
 export const LineChart = (properties: LineChartProperties) => {
     const { data, description, title, yAxisLabel } = properties;
 
-    const deduplicateData =     useMemo(
+    const deduplicateData = useMemo(
         () =>
             data.reduce(
                 (accumulator, item) => {
@@ -71,7 +71,7 @@ export const LineChart = (properties: LineChartProperties) => {
     const seriesNames = deduplicateData[0]?.series.map((item) => item.seriesName) || [];
 
     // Generate chart configuration dynamically
-    const chartConfig =     useMemo(() => {
+    const chartConfig = useMemo(() => {
         const config: ChartConfig = {};
 
         // Configure each series
@@ -89,7 +89,7 @@ export const LineChart = (properties: LineChartProperties) => {
     }, [seriesNames]);
 
     // Generate chart data for Recharts
-    const chartData =   useMemo(
+    const chartData = useMemo(
         () =>
             deduplicateData.map((item) => {
                 const result: any = {

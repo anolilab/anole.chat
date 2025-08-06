@@ -476,8 +476,8 @@ const McpServerSelector = () => {
                                     {server.tools.some((t) => t.checked)
                                         ? (
                                             <span className="text-muted-foreground flex h-5 w-5 items-center justify-center text-[8px] font-semibold">
-                                                {server.tools.filter((t) => t.checked).length}
-                                            </span>
+                                {server.tools.filter((t) => t.checked).length}
+                            </span>
                                         )
                                         : null}
 

@@ -148,7 +148,7 @@ export default function MentionInput({
     // Memoize handlers
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
-            const isSubmit = !open && e.key === "Enter" && editor?.getText().trim().length && !e.shiftKey && !e.nativeEvent.isComposing;
+            const isSubmit = !open && e.key === "Enter" && editor?.getText().trim().length && !e.shiftKey && !e.metaKey && !e.nativeEvent.isComposing;
 
             if (isSubmit)
                 onEnter?.();

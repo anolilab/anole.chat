@@ -117,9 +117,9 @@ export const LLMNodeDataConfig = memo(({ data }: { data: LLMNodeData }) => {
                                 onClick={async () => {
                                     if (isStructuredOutput) {
                                         const ok = await notify.confirm({
-                                            okText: t`Edit Structured Output`,
-                                            description: t`You currently have structured output enabled.\n What would you like to do?`,
                                             cancelText: t`Change to Text Output`,
+                                            description: t`You currently have structured output enabled.\n What would you like to do?`,
+                                            okText: t`Edit Structured Output`,
                                         });
 
                                         if (!ok) {

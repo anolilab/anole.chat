@@ -24,8 +24,8 @@ const PurePre = ({ children, className, code, lang }: { children: any; className
 
     return (
         <pre className={cn("relative", className)}>
-            <div className="p-1.5">
-                <div className="z-20 mb-2 flex w-full items-center px-4 py-2">
+            <div className="bg-secondary z-20 mb-4 border-b p-1.5">
+                <div className="z-20 flex w-full items-center px-4 py-0.5">
                     <span className="text-muted-foreground text-sm">{lang}</span>
                     <Button
                         className="z-10 ml-auto size-2! rounded-sm p-3!"
@@ -125,5 +125,10 @@ export const PreBlock = ({ children }: { children: any }) => {
     }, [theme, language, code]);
 
     // For other code blocks, render as before
-    return <div className={cn(loading && "animate-pulse", "bg-secondary relative my-4 flex flex-col overflow-hidden rounded-2xl text-sm")}>{component}</div>;
+    return (
+        <div className={cn(loading && "animate-pulse", "bg-secondary/40 relative my-4 flex flex-col overflow-hidden rounded border text-sm shadow")}>
+            <div className="to-secondary pointer-events-none absolute inset-0 z-10 bg-gradient-to-r from-transparent from-90%" />
+            {component}
+        </div>
+    );
 };

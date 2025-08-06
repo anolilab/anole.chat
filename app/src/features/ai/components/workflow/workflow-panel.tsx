@@ -1,5 +1,6 @@
 "use client";
 
+import type { DBWorkflow } from "@anole/ui/components/avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@anole/ui/components/avatar";
 import { Button } from "@anole/ui/components/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@anole/ui/components/dropdown-menu";
@@ -15,7 +16,6 @@ import { mutate } from "swr";
 
 import { Separator } from "@/components/ui/separator";
 import { safe } from "@/lib/safe-async";
-import type { DBWorkflow } from "@anole/ui/components/avatar";
 
 import { arrangeNodes } from "../../lib/workflow/arrange-nodes";
 import { allNodeValidate } from "../../lib/workflow/node-validate";
@@ -205,9 +205,7 @@ export const WorkflowPanel = memo(
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent align="end" className="w-60 text-sm" side="bottom">
-                            <p className="p-4 break-words whitespace-pre-wrap">
-                                {workflow.isPublished ? t`Published Description` : t`Draft Description`}
-                            </p>
+                            <p className="p-4 break-words whitespace-pre-wrap">{workflow.isPublished ? t`Published Description` : t`Draft Description`}</p>
                         </TooltipContent>
                     </Tooltip>
                     <DropdownMenu>

@@ -115,9 +115,9 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                 setQuery(res);
             }),
             {
-                        error: t`Failed to generate input`,
-        loading: t`Generating input with AI...`,
-        success: t`Input generated successfully`,
+                error: t`Failed to generate input`,
+                loading: t`Generating input with AI...`,
+                success: t`Input generated successfully`,
             },
         );
     }, [inputSchema]);
@@ -418,49 +418,49 @@ ${workflow!.description ? `tool-description: ${workflow!.description}` : ""}`,
                                             </Label>
                                             {schema.type === "number"
                                                 ? (
-                                                    <Input
-                                                        defaultValue={query[key] || undefined}
-                                                        disabled={isProcessing}
-                                                        id={key || String(index)}
-                                                        onChange={(e) => setQuery({ ...query, [key]: Number(e.target.value) })}
-                                                        placeholder={schema.description || "number"}
-                                                        type="number"
-                                                    />
+                                    <Input
+                                                    defaultValue={query[key] || undefined}
+                                                    disabled={isProcessing}
+                                                    id={key || String(index)}
+                                                    onChange={(e) => setQuery({ ...query, [key]: Number(e.target.value) })}
+                                                    placeholder={schema.description || "number"}
+                                                    type="number"
+                                                />
                                                 )
                                                 : schema.type === "boolean"
                                                     ? (
-                                                        <Switch
-                                                            checked={query[key]}
-                                                            disabled={isProcessing}
-                                                            id={key || String(index)}
-                                                            onCheckedChange={(checked) => setQuery({ ...query, [key]: checked })}
-                                                        />
+                                        <Switch
+                                                        checked={query[key]}
+                                                        disabled={isProcessing}
+                                                        id={key || String(index)}
+                                                        onCheckedChange={(checked) => setQuery({ ...query, [key]: checked })}
+                                                    />
                                                     )
                                                     : schema.type === "string" && schema.enum
                                                         ? (
-                                                            <Select disabled={isProcessing} onValueChange={(value) => setQuery({ ...query, [key]: value })} value={query[key]}>
-                                                                <SelectTrigger className="min-w-46" id={key || String(index)}>
-                                                                    <SelectValue placeholder={schema.description || "option"} />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    {(schema.enum as string[]).map((item, index_) => (
-                                                                        <SelectItem key={item ?? index_} value={item}>
-                                                                            {item}
-                                                                        </SelectItem>
-                                                                    ))}
-                                                                </SelectContent>
-                                                            </Select>
+                                            <Select disabled={isProcessing} onValueChange={(value) => setQuery({ ...query, [key]: value })} value={query[key]}>
+                                                            <SelectTrigger className="min-w-46" id={key || String(index)}>
+                                                                <SelectValue placeholder={schema.description || "option"} />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {(schema.enum as string[]).map((item, index_) => (
+                                            <SelectItem key={item ?? index_} value={item}>
+                                                                    {item}
+                                                                </SelectItem>
+                                        ))}
+                                                            </SelectContent>
+                                                        </Select>
                                                         )
                                                         : schema.type === "string"
                                                             ? (
-                                                                <Textarea
-                                                                    className="max-h-28 resize-none overflow-y-auto"
-                                                                    disabled={isProcessing}
-                                                                    id={key || String(index)}
-                                                                    onChange={(e) => setQuery({ ...query, [key]: e.target.value })}
-                                                                    placeholder={schema.description || "string"}
-                                                                    value={query[key]}
-                                                                />
+                                                <Textarea
+                                                                className="max-h-28 resize-none overflow-y-auto"
+                                                                disabled={isProcessing}
+                                                                id={key || String(index)}
+                                                                onChange={(e) => setQuery({ ...query, [key]: e.target.value })}
+                                                                placeholder={schema.description || "string"}
+                                                                value={query[key]}
+                                                            />
                                                             )
                                                             : null}
                                         </div>

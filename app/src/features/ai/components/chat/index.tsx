@@ -1,6 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import useMounted from "@anole/ui/hooks/use-mounted";
 import useToRef from "@anole/ui/hooks/use-to-ref";
 import cn from "@anole/ui/utils/cn";
 import type { UIMessage } from "ai";
@@ -43,8 +44,47 @@ const vercelAISdkV4ToolInvocationIssueCatcher = (message: UIMessage) => {
     }
 };
 
+const DeleteThreadPopup = ({ onClose, open, threadId }: { onClose: () => void; open: boolean; threadId: string }) => {
+    const t = useTranslations();
+    const [isDeleting, setIsDeleting] = useState(false);
+    const router = useRouter();
+    const handleDelete = useCallback(() => {
+        setIsDeleting(true);
+        safe(() => deleteThreadAction(threadId))
+            .watch(() => setIsDeleting(false))
+            .ifOk(() => {
+                toast.success(t("Chat.Thread.threadDeleted"));
+                router.push("/");
+            })
+            .ifFail(() => toast.error(t("Chat.Thread.failedToDeleteThread")))
+            .watch(() => onClose());
+    }, [threadId, router]);
+
+    return (
+        <Dialog onOpenChange={onClose} open={open}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{t("Chat.Thread.deleteChat")}</DialogTitle>
+                    <DialogDescription>{t("Chat.Thread.areYouSureYouWantToDeleteThisChatThread")}</DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button onClick={onClose} variant="ghost">
+                        {t("Common.cancel")}
+                    </Button>
+                    <Button autoFocus onClick={handleDelete} variant="destructive">
+                        {t("Common.delete")}
+                        {isDeleting && <Loader className="ml-2 size-3.5 animate-spin" />}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
 const Chat = ({ initialMessages, slots, threadId }: Properties) => {
     const containerReference = useRef<HTMLDivElement>(null);
+
+    const [thinking, setThinking] = useState(false);
 
     const [appStoreMutate, model, toolChoice, allowedAppDefaultToolkit, allowedMcpServers, threadList, threadMentions] = appStore(
         useShallow((state) => [
@@ -57,6 +97,8 @@ const Chat = ({ initialMessages, slots, threadId }: Properties) => {
             state.threadMentions,
         ]),
     );
+
+    const [showParticles, setShowParticles] = useState(false);
 
     const { addToolResult, append, error, input, messages, reload, setInput, setMessages, status, stop } = useChat({
         api: "/convex-http/api/chat/stream",
@@ -71,6 +113,7 @@ const Chat = ({ initialMessages, slots, threadId }: Properties) => {
                 id: latestReference.current.threadId,
                 mentions: latestReference.current.mentions,
                 message: lastMessage,
+                thinking,
                 toolChoice: latestReference.current.toolChoice,
             };
 
@@ -87,6 +130,10 @@ const Chat = ({ initialMessages, slots, threadId }: Properties) => {
         onFinish() {},
         sendExtraMessageFields: true,
     });
+
+    const [isDeleteThreadPopupOpen, setIsDeleteThreadPopupOpen] = useState(false);
+
+    const mounted = useMounted();
 
     const latestReference = useToRef({
         allowedAppDefaultToolkit,
@@ -174,23 +221,57 @@ const Chat = ({ initialMessages, slots, threadId }: Properties) => {
         [addToolResult, latestReference],
     );
 
+    const handleThinkingChange = useCallback((thinking: boolean) => {
+        setThinking(thinking);
+    }, []);
+
     const space = useMemo(() => {
         if (!isLoading)
             return false;
 
         const lastMessage = messages.at(-1);
 
-        if (lastMessage?.role === "user") {
+        if (lastMessage?.role == "user")
             return "think";
-        }
 
         const lastPart = lastMessage?.parts.at(-1);
 
-        if (lastPart?.type === "step-start")
-            return lastMessage?.parts.length === 1 ? "think" : "space";
+        if (lastPart?.type == "step-start")
+            return lastMessage?.parts.length == 1 ? "think" : "space";
 
         return false;
     }, [isLoading, messages.at(-1)]);
+
+    const particle = useMemo(() => {
+        if (!showParticles)
+            return;
+
+        return (
+            <>
+                <div className="fade-in animate-in absolute top-0 left-0 z-10 h-full w-full duration-5000">
+                    <LightRays />
+                </div>
+                <div className="fade-in animate-in absolute top-0 left-0 z-10 h-full w-full duration-5000">
+                    <Particles particleBaseSize={10} particleCount={400} />
+                </div>
+
+                <div className="fade-in animate-in absolute top-0 left-0 z-10 h-full w-full duration-5000">
+                    <div className="from-background z-20 h-full w-full bg-gradient-to-t to-transparent to-50%" />
+                </div>
+                <div className="fade-in animate-in absolute top-0 left-0 z-10 h-full w-full duration-5000">
+                    <div className="from-background z-20 h-full w-full bg-gradient-to-l to-transparent to-20%" />
+                </div>
+                <div className="fade-in animate-in absolute top-0 left-0 z-10 h-full w-full duration-5000">
+                    <div className="from-background z-20 h-full w-full bg-gradient-to-r to-transparent to-20%" />
+                </div>
+            </>
+        );
+    }, [showParticles]);
+
+    const handleFocus = useCallback(() => {
+        setShowParticles(false);
+        debounce(() => setShowParticles(true), 30_000);
+    }, []);
 
     useEffect(() => {
         appStoreMutate({ currentThreadId: threadId });
@@ -243,58 +324,79 @@ const Chat = ({ initialMessages, slots, threadId }: Properties) => {
         return () => globalThis.removeEventListener("keydown", handleKeyDown);
     }, []);
     */
+
+    useEffect(() => {
+        if (mounted) {
+            handleFocus();
+        }
+    }, [input]);
+
     return (
-        <div className={cn(emptyMessage && "justify-center pb-24", "relative flex h-full min-w-0 flex-col")}>
-            {emptyMessage
-                ? slots?.emptySlot
-                    ? slots.emptySlot
+        <>
+            {particle}
+            <div className={cn(emptyMessage && "justify-center pb-24", "relative flex h-full min-w-0 flex-col")}>
+                {emptyMessage
+                    ? slots?.emptySlot
+                        ? slots.emptySlot
+                        : (
+                            <ChatGreeting />
+                        )
                     : (
-                        <ChatGreeting />
-                    )
-                : (
-                    <>
-                        <div className="flex flex-col gap-2 overflow-y-auto py-6" ref={containerReference}>
-                            {messages.map((message, index) => {
-                                const isLastMessage = messages.length - 1 === index;
+                        <>
+                            <div className="flex flex-col gap-2 overflow-y-auto py-6" onScroll={handleFocus} ref={containerReference}>
+                                {messages.map((message, index) => {
+                                    const isLastMessage = messages.length - 1 === index;
 
-                                return (
-                                    <PreviewMessage
-                                        className={needSpaceClass(index) ? "min-h-[calc(55dvh-40px)]" : ""}
-                                        isError={!!error && isLastMessage}
-                                        isLastMessage={isLastMessage}
-                                        isLoading={isLoading || isPendingToolCall}
-                                        key={index}
-                                        message={message}
-                                        messageIndex={index}
-                                        onProxyToolCall={isPendingToolCall && !isExecutingProxyToolCall && isLastMessage ? proxyToolCall : undefined}
-                                        reload={reload}
-                                        setMessages={setMessages}
-                                        status={status}
-                                        threadId={threadId}
-                                    />
-                                );
-                            })}
-                            {space && (
-                                <>
-                                    <div className="relative mx-auto w-full max-w-3xl px-6">
-                                        <div className={space === "space" ? "opacity-0" : ""}>
-                                            <Think />
+                                    return (
+                                        <PreviewMessage
+                                            className={needSpaceClass(index) ? "min-h-[calc(55dvh-40px)]" : ""}
+                                            isError={!!error && isLastMessage}
+                                            isLastMessage={isLastMessage}
+                                            isLoading={isLoading || isPendingToolCall}
+                                            key={index}
+                                            message={message}
+                                            messageIndex={index}
+                                            onProxyToolCall={isPendingToolCall && !isExecutingProxyToolCall && isLastMessage ? proxyToolCall : undefined}
+                                            reload={reload}
+                                            setMessages={setMessages}
+                                            status={status}
+                                            threadId={threadId}
+                                        />
+                                    );
+                                })}
+                                {space && (
+                                    <>
+                                        <div className="relative mx-auto w-full max-w-3xl px-6">
+                                            <div className={space === "space" ? "opacity-0" : ""}>
+                                                <Think />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="min-h-[calc(55dvh-56px)]" />
-                                </>
-                            )}
+                                        <div className="min-h-[calc(55dvh-56px)]" />
+                                    </>
+                                )}
 
-                            {error && <ErrorMessage error={error} />}
-                            <div className="min-h-52 min-w-0" />
-                        </div>
-                    </>
-                )}
-            <div className={clsx(messages.length && "absolute bottom-14", "w-full")}>
-                <PromptInput append={append} input={input} isLoading={isLoading || isPendingToolCall} onStop={stop} setInput={setInput} threadId={threadId} />
-                {slots?.inputBottomSlot}
+                                {error && <ErrorMessage error={error} />}
+                                <div className="min-h-52 min-w-0" />
+                            </div>
+                        </>
+                    )}
+                <div className={clsx(messages.length && "absolute bottom-14", "w-full")}>
+                    <PromptInput
+                        append={append}
+                        input={input}
+                        isLoading={isLoading || isPendingToolCall}
+                        onFocus={isFirstTime ? undefined : handleFocus}
+                        onStop={stop}
+                        onThinkingChange={handleThinkingChange}
+                        setInput={setInput}
+                        thinking={thinking}
+                        threadId={threadId}
+                    />
+                    {slots?.inputBottomSlot}
+                </div>
+                <DeleteThreadPopup onClose={() => setIsDeleteThreadPopupOpen(false)} open={isDeleteThreadPopupOpen} threadId={threadId} />
             </div>
-        </div>
+        </>
     );
 };
 

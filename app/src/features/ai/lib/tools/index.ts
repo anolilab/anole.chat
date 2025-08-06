@@ -15,3 +15,5 @@ export enum DefaultToolName {
     WebContent = "webContent",
     WebSearch = "webSearch",
 }
+
+export const SequentialThinkingToolName = "sequential-thinking";

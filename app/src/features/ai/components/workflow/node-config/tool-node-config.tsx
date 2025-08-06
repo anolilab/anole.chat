@@ -96,8 +96,8 @@ export const ToolNodeDataConfig = memo(({ data }: { data: ToolNodeData }) => {
 
                                             <span className="text-muted-foreground ml-2">
                                                 {typeof data.tool?.parameterSchema?.properties?.[key] === "string"
-                                                    ? data.tool?.parameterSchema?.properties?.[key]
-                                                    : data.tool?.parameterSchema?.properties?.[key]?.type || "unknown"}
+                                    ? data.tool?.parameterSchema?.properties?.[key]
+                                    : data.tool?.parameterSchema?.properties?.[key]?.type || "unknown"}
                                             </span>
                                         </div>
                                     );

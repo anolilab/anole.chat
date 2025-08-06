@@ -246,7 +246,7 @@ const ChatMentionInputSuggestion = ({
         </Popover>,
         document.body,
     );
-}
+};
 
 const ChatMentionInputMentionItem = ({ className, id }: { className?: string; id: string }) => {
     const item = useMemo(() => JSON.parse(id) as ChatMention, [id]);
@@ -284,6 +284,6 @@ const ChatMentionInput = ({ input, onChange, onChangeMention, onEnter, placehold
             suggestionChar="@"
         />
     );
-}
+};
 
 export default ChatMentionInput;

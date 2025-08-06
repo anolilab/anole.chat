@@ -77,9 +77,7 @@ export const WorkflowGreeting = () => {
                                         <NodeIcon type={NodeKind[key]} />
                                         <span className="text-sm font-semibold">{key}</span>
                                     </div>
-                                    <div className="text-muted-foreground text-xs whitespace-pre-wrap">
-                                        {descriptions[NodeKind[key]] ?? t`Coming soon.`}
-                                    </div>
+                                    <div className="text-muted-foreground text-xs whitespace-pre-wrap">{descriptions[NodeKind[key]] ?? t`Coming soon.`}</div>
                                 </TooltipContent>
                             </Tooltip>
                         ))}

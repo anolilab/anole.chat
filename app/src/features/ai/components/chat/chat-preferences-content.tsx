@@ -35,13 +35,7 @@ export const UserInstructionsContent = () => {
     );
 
     const professionExamples = useMemo(
-        () => [
-            t`e.g. software engineer`,
-            t`e.g. product manager`,
-            t`e.g. marketing manager`,
-            t`e.g. sales manager`,
-            t`e.g. business analyst`,
-        ],
+        () => [t`e.g. software engineer`, t`e.g. product manager`, t`e.g. marketing manager`, t`e.g. sales manager`, t`e.g. business analyst`],
         [],
     );
 

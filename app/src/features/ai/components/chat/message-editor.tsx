@@ -3,7 +3,9 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { Button } from "@anole/ui/components/button";
 import { Textarea } from "@anole/ui/components/textarea";
+import { useLingui } from "@lingui/react/macro";
 import type { Message } from "ai";
+import { Loader } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
@@ -20,6 +22,7 @@ export type MessageEditorProps = {
 };
 
 export const MessageEditor = ({ message, reload, setMessages, setMode }: MessageEditorProps) => {
+    const { t } = useLingui();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [draftParts, setDraftParts] = useState<TextUIPart[]>(() => {
         if (message.parts && message.parts.length > 0) {
@@ -67,7 +70,7 @@ export const MessageEditor = ({ message, reload, setMessages, setMode }: Message
                     size="sm"
                     variant="outline"
                 >
-                    Cancel
+                    {t`Cancel`}
                 </Button>
                 <Button
                     className="h-fit px-3 py-2"
@@ -99,7 +102,8 @@ export const MessageEditor = ({ message, reload, setMessages, setMode }: Message
                     size="sm"
                     variant="default"
                 >
-                    {isSubmitting ? "Saving..." : "Save"}
+                    {isSubmitting ? t`Saving` : t`Save`}
+                    {isSubmitting && <Loader className="size-4 animate-spin" />}
                 </Button>
             </div>
         </div>

@@ -246,7 +246,7 @@ export const CreateProjectWithThreadPopup = ({ children, onClose, threadId }: Pr
         >
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="bg-card overflow-hidden p-0 sm:max-w-[800px]">
-                                    <DialogTitle className="m-0 hidden p-0">{t`Create Project`}</DialogTitle>
+                <DialogTitle className="m-0 hidden p-0">{t`Create Project`}</DialogTitle>
 
                 <div className="flex h-[60vh]">
                     <div className="bg-muted flex w-1/3 flex-col p-6">

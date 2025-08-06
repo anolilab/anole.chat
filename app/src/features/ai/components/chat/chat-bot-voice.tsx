@@ -15,7 +15,7 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@anole/ui/components/dropdown-menu";
-import { MessageLoading } from "@anole/ui/components/message-loading";
+import { MessageLoading } from "../message-loading";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@anole/ui/components/tooltip";
 import GeminiIcon from "@anole/ui/icons/gemini";
 import OpenAIIcon from "@anole/ui/icons/openai";
@@ -434,9 +434,7 @@ export const ChatBotVoice = () => {
                                                 )}
                                     </Button>
                                 </TooltipTrigger>
-                                <TooltipContent>
-                                    {isActive ? isListening ? t`Close Mic` : t`Open Mic` : t`Start conversation`}
-                                </TooltipContent>
+                                <TooltipContent>{isActive ? isListening ? t`Close Mic` : t`Open Mic` : t`Start conversation`}</TooltipContent>
                             </Tooltip>
                             <Tooltip>
                                 <TooltipTrigger asChild>
