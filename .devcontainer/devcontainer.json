@@ -1,0 +1,8 @@
+{
+  "name": "anole.chat",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:24",
+  "runArgs": ["--cap-drop=ALL", "--security-opt", "no-new-privileges"],
+  "features": {},
+  "postCreateCommand": "corepack enable && pnpm install --frozen-lockfile",
+  "remoteUser": "node"
+}
