@@ -24,13 +24,13 @@ overrides:
   glob@>=11.0.0 <11.1.0: '>=11.1.0'
   body-parser@>=2.2.0 <2.2.1: '>=2.2.1'
   node-forge@<1.3.2: '>=1.3.2'
-  better-auth@<1.4.2: '>=1.4.2'
+  better-auth@<1.4.2: '>=1.4.22'
   ai@<5.0.52: '>=5.0.52'
   jws@<3.2.3: '>=3.2.3'
-  better-auth@<1.3.26: '>=1.3.26'
+  better-auth@<1.3.26: '>=1.3.34'
   next@>=15.3.0-canary.0 <15.3.6: '>=15.3.6'
   next@>=15.3.0-canary.0 <15.3.7: '>=15.3.7'
-  better-auth@<1.4.5: '>=1.4.5'
+  better-auth@<1.4.5: '>=1.4.22'
   '@modelcontextprotocol/sdk@<1.25.2': '>=1.25.2'
   preact@>=10.26.5 <10.26.10: '>=10.26.10'
   devalue@>=5.1.0 <5.6.2: '>=5.6.2'
@@ -109,7 +109,7 @@ overrides:
   lodash-es@<=4.17.23: '>=4.18.0'
   lodash@<=4.17.23: '>=4.18.0'
   dompurify@<=3.3.1: '>=3.3.2'
-  better-auth@<1.4.9: '>=1.4.9'
+  better-auth@<1.4.9: '>=1.4.22'
   defu@<=6.1.4: '>=6.1.5'
   vite@>=7.0.0 <=7.3.1: '>=7.3.2'
   next@>=13.0.0 <15.5.15: '>=15.5.15'
@@ -145,7 +145,7 @@ overrides:
   next@>=15.2.0 <15.5.16: '>=15.5.16'
   nitropack@<2.13.4: '>=2.13.4'
   devalue@>=4.0.0 <5.6.4: '>=5.6.4'
-  better-auth@<1.6.2: '>=1.6.2'
+  better-auth@<1.6.2: '>=1.6.14'
   ws@>=8.0.0 <8.20.1: '>=8.20.1'
   protobufjs@<=7.5.7: '>=7.5.8'
   seroval@>=0.2.0 <=1.4.0: '>=1.4.1'
@@ -160,7 +160,7 @@ overrides:
   langsmith@<0.6.0: '>=0.6.0'
   kysely@>=0.26.0 <0.28.17: '>=0.28.17'
   '@rvf/set-get@>=7.0.0 <7.0.2': '>=7.0.2'
-  better-auth@<1.4.17: '>=1.4.17'
+  better-auth@<1.4.17: '>=1.4.22'
   lodash-es@>=4.0.0 <=4.17.22: '>=4.17.23'
   lodash@>=4.0.0 <=4.17.22: '>=4.17.23'
   shell-quote@>=1.1.0 <=1.8.3: '>=1.8.4'
@@ -398,7 +398,7 @@ importers:
         specifier: ^0.2.17
         version: 0.2.17
       better-auth:
-        specifier: '>=1.4.17'
+        specifier: '>=1.4.22'
         version: 1.6.16(@opentelemetry/api@1.9.0)(@tanstack/react-start@1.121.35(@netlify/blobs@9.1.2)(@tanstack/react-router@1.121.34(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.6.0(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(oxc-parser@0.74.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rolldown@1.0.3)(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(next@16.2.9(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(solid-js@1.9.7)(vitest@4.1.8(@edge-runtime/vm@5.0.0)(@opentelemetry/api@1.9.0)(@types/node@24.0.3)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))
       class-variance-authority:
         specifier: ^0.7.1
@@ -1406,7 +1406,7 @@ packages:
   '@convex-dev/better-auth@0.6.1':
     resolution: {integrity: sha512-XD2+vsPHFl9hGbGgh/b3sLjZc1tRakCsCPj4cCvIiOAl5bEoyUwtd8fRdXNS6iqY/EXwIms8EETcx+a1VB35VQ==}
     peerDependencies:
-      better-auth: '>=1.4.17'
+      better-auth: '>=1.4.22'
       convex: ~1.16.5 || >=1.17.0 <1.35.0
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
@@ -3560,7 +3560,7 @@ packages:
     engines: {node: '>=16'}
     peerDependencies:
       '@polar-sh/sdk': ^0.32.15
-      better-auth: '>=1.4.17'
+      better-auth: '>=1.4.22'
 
   '@polar-sh/sdk@0.34.2':
     resolution: {integrity: sha512-NGd6ufpf1jY8SihVyf31NUzQlwHwrs4kmItEMbluO5rnbA6vruhQMx/wiHjS1jHmKqOB5qU5KZgOgn95Rttysw==}
