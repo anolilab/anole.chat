@@ -174,10 +174,10 @@ importers:
         version: 6.0.1(@commitlint/cli@19.8.1(@types/node@24.0.3)(typescript@5.8.3))(@types/node@24.0.3)(typescript@5.8.3)
       '@anolilab/lint-staged-config':
         specifier: ^3.0.17
-        version: 3.0.17(@types/node@24.0.3)(eslint@9.29.0(jiti@2.7.0))(husky@9.1.7)(lint-staged@16.1.2)(prettier@3.6.0)(secretlint@10.1.1)(vitest@4.1.8(@edge-runtime/vm@5.0.0)(@opentelemetry/api@1.9.0)(@types/node@24.0.3)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(yaml@2.9.0)
+        version: 3.0.17(@types/node@24.0.3)(eslint@9.29.0(jiti@2.7.0))(husky@9.1.7)(lint-staged@16.1.2)(prettier@3.6.2)(secretlint@10.1.1)(vitest@4.1.8(@edge-runtime/vm@5.0.0)(@opentelemetry/api@1.9.0)(@types/node@24.0.3)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(yaml@2.9.0)
       '@anolilab/prettier-config':
         specifier: 6.0.1
-        version: 6.0.1(prettier@3.6.0)
+        version: 6.0.1(prettier@3.6.2)
       '@commitlint/cli':
         specifier: ^19.8.1
         version: 19.8.1(@types/node@24.0.3)(typescript@5.8.3)
@@ -212,11 +212,11 @@ importers:
         specifier: 21.2.1
         version: 21.2.1
       prettier:
-        specifier: ^3.6.0
-        version: 3.6.0
+        specifier: ^3.6.2
+        version: 3.6.2
       prettier-plugin-tailwindcss:
         specifier: 0.6.13
-        version: 0.6.13(prettier@3.6.0)
+        version: 0.6.13(prettier@3.6.2)
       secretlint:
         specifier: 10.1.1
         version: 10.1.1
@@ -559,7 +559,7 @@ importers:
     devDependencies:
       '@anolilab/prettier-config':
         specifier: 6.0.1
-        version: 6.0.1(prettier@3.6.0)
+        version: 6.0.1(prettier@3.6.2)
       '@faker-js/faker':
         specifier: ^9.8.0
         version: 9.8.0
@@ -603,11 +603,11 @@ importers:
         specifier: 8.0.4
         version: 8.0.4
       prettier:
-        specifier: ^3.6.0
-        version: 3.6.0
+        specifier: ^3.6.2
+        version: 3.6.2
       prettier-plugin-tailwindcss:
         specifier: 0.6.13
-        version: 0.6.13(prettier@3.6.0)
+        version: 0.6.13(prettier@3.6.2)
       react-scan:
         specifier: ^0.3.4
         version: 0.3.4(@types/react@19.1.8)(next@16.2.9(@babel/core@7.27.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.53.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rollup@4.61.1)
@@ -691,8 +691,8 @@ importers:
         specifier: ^16.2.0
         version: 16.2.0
       prettier:
-        specifier: 3.6.0
-        version: 3.6.0
+        specifier: 3.6.2
+        version: 3.6.2
       semantic-release:
         specifier: ^24.2.5
         version: 24.2.5(typescript@5.8.3)
@@ -10691,8 +10691,8 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  prettier@3.6.0:
-    resolution: {integrity: sha512-ujSB9uXHJKzM/2GBuE0hBOUgC77CN3Bnpqa+g80bkv3T3A93wL/xlzDATHhnhkzifz/UE2SNOvmbTz5hSkDlHw==}
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -12929,7 +12929,7 @@ snapshots:
       - vitest
       - yaml
 
-  '@anolilab/lint-staged-config@3.0.17(@types/node@24.0.3)(eslint@9.29.0(jiti@2.7.0))(husky@9.1.7)(lint-staged@16.1.2)(prettier@3.6.0)(secretlint@10.1.1)(vitest@4.1.8(@edge-runtime/vm@5.0.0)(@opentelemetry/api@1.9.0)(@types/node@24.0.3)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(yaml@2.9.0)':
+  '@anolilab/lint-staged-config@3.0.17(@types/node@24.0.3)(eslint@9.29.0(jiti@2.7.0))(husky@9.1.7)(lint-staged@16.1.2)(prettier@3.6.2)(secretlint@10.1.1)(vitest@4.1.8(@edge-runtime/vm@5.0.0)(@opentelemetry/api@1.9.0)(@types/node@24.0.3)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(yaml@2.9.0)':
     dependencies:
       '@visulima/fs': 3.1.3(yaml@2.9.0)
       '@visulima/package': 3.5.8(@types/node@24.0.3)(yaml@2.9.0)
@@ -12938,16 +12938,16 @@ snapshots:
     optionalDependencies:
       eslint: 9.29.0(jiti@2.7.0)
       lint-staged: 16.1.2
-      prettier: 3.6.0
+      prettier: 3.6.2
       secretlint: 10.1.1
       vitest: 4.1.8(@edge-runtime/vm@5.0.0)(@opentelemetry/api@1.9.0)(@types/node@24.0.3)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.0.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0))
     transitivePeerDependencies:
       - '@types/node'
       - yaml
 
-  '@anolilab/prettier-config@6.0.1(prettier@3.6.0)':
+  '@anolilab/prettier-config@6.0.1(prettier@3.6.2)':
     dependencies:
-      prettier: 3.6.0
+      prettier: 3.6.2
 
   '@anolilab/rc@2.0.0(yaml@2.9.0)':
     dependencies:
@@ -15996,7 +15996,7 @@ snapshots:
   '@react-email/render@1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       html-to-text: 9.0.5
-      prettier: 3.6.0
+      prettier: 3.6.2
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       react-promise-suspense: 0.3.4
@@ -16883,7 +16883,7 @@ snapshots:
       '@tanstack/router-core': 1.171.13
       '@tanstack/router-utils': 1.121.21
       '@tanstack/virtual-file-routes': 1.121.21
-      prettier: 3.6.0
+      prettier: 3.6.2
       recast: 0.23.11
       source-map: 0.7.6
       tsx: 4.20.3
@@ -23113,13 +23113,13 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-tailwindcss@0.6.13(prettier@3.6.0):
+  prettier-plugin-tailwindcss@0.6.13(prettier@3.6.2):
     dependencies:
-      prettier: 3.6.0
+      prettier: 3.6.2
 
   prettier@3.5.3: {}
 
-  prettier@3.6.0: {}
+  prettier@3.6.2: {}
 
   pretty-bytes@7.1.0: {}
 
