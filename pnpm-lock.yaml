@@ -327,16 +327,16 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@lingui/core':
-        specifier: ^5.3.3
+        specifier: ^5.9.5
         version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(babel-plugin-macros@3.1.0)(typescript@5.8.3))(babel-plugin-macros@3.1.0)
       '@lingui/detect-locale':
-        specifier: ^5.3.3
+        specifier: ^5.9.5
         version: 5.9.5
       '@lingui/macro':
-        specifier: ^5.3.3
+        specifier: ^5.9.5
         version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(babel-plugin-macros@3.1.0)(typescript@5.8.3))(babel-plugin-macros@3.1.0)(react@19.1.0)
       '@lingui/react':
-        specifier: ^5.3.3
+        specifier: ^5.9.5
         version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(babel-plugin-macros@3.1.0)(typescript@5.8.3))(babel-plugin-macros@3.1.0)(react@19.1.0)
       '@modelcontextprotocol/sdk':
         specifier: '>=1.24.0'
@@ -589,13 +589,13 @@ importers:
         specifier: ^9.8.0
         version: 9.8.0
       '@lingui/babel-plugin-lingui-macro':
-        specifier: ^5.3.3
+        specifier: ^5.9.5
         version: 5.9.5(babel-plugin-macros@3.1.0)(typescript@5.8.3)
       '@lingui/cli':
-        specifier: ^5.3.3
+        specifier: ^5.9.5
         version: 5.9.5(babel-plugin-macros@3.1.0)(typescript@5.8.3)
       '@lingui/vite-plugin':
-        specifier: ^5.3.3
+        specifier: ^5.9.5
         version: 5.9.5(babel-plugin-macros@3.1.0)(typescript@5.8.3)(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0))
       '@tailwindcss/typography':
         specifier: ^0.5.16
@@ -21432,7 +21432,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.3
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.19.0)
+      retry-axios: 2.6.0(axios@1.19.0(debug@4.4.3))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -24493,7 +24493,7 @@ snapshots:
       onetime: 7.0.0
       signal-exit: 4.1.0
 
-  retry-axios@2.6.0(axios@1.19.0):
+  retry-axios@2.6.0(axios@1.19.0(debug@4.4.3)):
     dependencies:
       axios: 1.19.0(debug@4.4.3)
 
@@ -26213,7 +26213,7 @@ snapshots:
       '@oozcitak/dom': 1.15.10
       '@oozcitak/infra': 1.0.8
       '@oozcitak/util': 8.3.8
-      js-yaml: 4.2.0
+      js-yaml: 4.3.1
 
   xmlchars@2.2.0: {}
 
